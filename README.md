@@ -1,2 +1,2 @@
-## Expansion Microscopy Pipeline
+## Multifish Pipeline
 

@@ -1,12 +1,11 @@
 ./main.nf \
         -profile lsf \
-        --runtime_opts "-B /nrs/scicompsoft/goinac -B /groups/dickson/dicksonlab/lillvis" \
+        --runtime_opts "-B /nrs/scicompsoft/goinac" \
         --lsf_opts "-P scicompsoft" \
         --workers 3 \
         --worker_cores 2 \
-        --driver_memory 10g \
+        --driver_memory 15g \
         --spark_work_dir "$PWD/local" \
         --stitching_app "external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar" \
-        --data_dir /nrs/scicompsoft/goinac/lillvis/DA1/images \
-        --psf_dir /groups/dickson/dicksonlab/lillvis/ExM/lattice/PSFs/20200928/PSFs \
-        --deconv_cores 4
+        --data_dir /nrs/scicompsoft/goinac/multifish/ex1 \
+        --acq_names LHA3_R3

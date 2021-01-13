@@ -1,13 +1,16 @@
-def channels_json_inputs(data_dir, channels, suffix) {
-    channels_inputs(data_dir, channels, "${suffix}.json")
+def entries_inputs_args(data_dir, entries, flag, suffix, ext) {
+    entries_inputs(data_dir, entries, "${suffix}${ext}")
         .inject('') {
-            arg, item -> "${arg} -i ${item}"
+            arg, item -> "${arg} ${flag} ${item}"
         }
 }
 
-def channels_inputs(data_dir, channels, suffix) {
-    return channels.collect {
-        "${data_dir}/${it}${suffix}"
+def entries_inputs(data_dir, entries, suffix) {
+    return entries.collect {
+        if (data_dir != null && data_dir != '')
+            "${data_dir}/${it}${suffix}"
+        else
+            "${it}${suffix}"
     }
 }
 
