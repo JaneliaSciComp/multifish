@@ -81,7 +81,7 @@ workflow stitching {
 
     czi2n5_res \
     | map { spark_work_dir } \
-    | terminate_pre_stitching \
+    | terminate_stitching \
     | map { data_dir }
     | set { done }
 
