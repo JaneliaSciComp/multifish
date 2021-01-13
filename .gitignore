@@ -1,0 +1,13 @@
+.nextflow*
+output
+work
+*.class
+*.log
+*~
+hs_err_pid*
+.gradle
+.idea
+.vscode
+bin
+local
+__pycache__
