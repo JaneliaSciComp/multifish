@@ -60,7 +60,7 @@ workflow stitching {
         ''
     )
 
-    tile_json_inputs = entries_inputs_args(data_dir, "tiles", '-i', '', '.json')
+    tile_json_inputs = entries_inputs_args(data_dir, ['tiles'], '-i', '', '.json')
     czi2n5_res = run_tiff2n5(
         parse_res,
         stitching_app,
