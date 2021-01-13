@@ -33,7 +33,6 @@ driver_logconfig = final_params.driver_logconfig
 
 stitching_app = file(final_params.stitching_app)
 data_dir = file(final_params.data_dir)
-psf_dir = file(final_params.psf_dir)
 resolution = final_params.resolution
 axis_mapping = final_params.axis
 acq_names = Channel.fromList(final_params.acq_names?.tokenize(' '))
