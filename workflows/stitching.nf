@@ -108,7 +108,7 @@ workflow stitching {
             spark_uri,
             stitching_app,
             'org.janelia.stitching.ConvertCZITilesToN5Spark',
-            "${tile_json_inputs} --blockSize '${block_size}'",
+            "${tiles_json} --blockSize '${block_size}'",
             'czi2n5.log',
             spark_conf,
             spark_work_dir,
