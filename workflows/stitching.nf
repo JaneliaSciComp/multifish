@@ -23,12 +23,21 @@ workflow stitching {
 
     stitching_inputs \
     | map {
-        stitching_output = it.stitching_output == null || it.stitching_output == ''
-            ? it.data_dir
-            : it.stitching_output
-        stitching_output_dir = file(stitching_output, it.acq_name)
+        output_dir = new File(it.data_dir, it.acq_name)
+        stitching_output_dir = it.stitching_output == null || it.stitching_output == ''
+            ? output_dir
+            : new File(output_dir, it.stitching_output)
+        // create output dir
         stitching_output_dir.mkdirs()
-        it + [stitching_output_dir: stitching_output_dir]
+	//  create the links
+        mvl_link = new File(stitching_output_dir, "${it.acq_name}.mvl")
+        if (!mvl_link.exists())
+            java.nio.file.Files.createSymbolicLink(mvl_link.toPath(), new File(it.data_dir, "${it.acq_name}.mvl").toPath())
+        czi_link = new File(stitching_output_dir, "${it.acq_name}.czi")
+        if (!czi_link.exists())
+            java.nio.file.Files.createSymbolicLink(czi_link.toPath(), new File(it.data_dir, "${it.acq_name}.czi").toPath())
+
+        it + [data_dir: stitching_output_dir]
     } \
     | spark_cluster \
     | combine(stitching_inputs) \
