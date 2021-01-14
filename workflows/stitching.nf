@@ -29,7 +29,7 @@ workflow stitching {
             : new File(output_dir, it.stitching_output)
         // create output dir
         stitching_output_dir.mkdirs()
-	//  create the links
+        //  create the links
         mvl_link = new File(stitching_output_dir, "${it.acq_name}.mvl")
         if (!mvl_link.exists())
             java.nio.file.Files.createSymbolicLink(mvl_link.toPath(), new File(it.data_dir, "${it.acq_name}.mvl").toPath())
@@ -37,7 +37,10 @@ workflow stitching {
         if (!czi_link.exists())
             java.nio.file.Files.createSymbolicLink(czi_link.toPath(), new File(it.data_dir, "${it.acq_name}.czi").toPath())
 
-        it + [data_dir: stitching_output_dir]
+        it + [
+            spark_work_dir: new File(it.spark_work_dir, it.acq_name)
+            stitching_output_dir: stitching_output_dir
+        ]
     } \
     | spark_cluster \
     | combine(stitching_inputs) \
@@ -46,12 +49,12 @@ workflow stitching {
     } \
     | map {
         println "Prepare parse czi tiles inputs from ${it}"
-        mvl_inputs = entries_inputs_args(it.data_dir, [ it.acq_name ], '-i', '', '.mvl')
+        mvl_inputs = entries_inputs_args(it.stitching_output_dir, [ it.acq_name ], '-i', '', '.mvl')
         czi_inputs = entries_inputs_args('', [ it.acq_name ], '-f', '', '.czi')
         parse_czi_args = "${mvl_inputs} ${czi_inputs} \
                           -r '${it.resolution}' \
                           -a '${it.axis_mapping}' \
-                          -b ${it.data_dir}"
+                          -b ${it.stitching_output_dir}"
         it + [
             spark_app: it.stitching_app,
             spark_app_entrypoint: 'org.janelia.stitching.ParseCZITilesMetadata',
@@ -63,8 +66,8 @@ workflow stitching {
     | map {
         println "Prepare parse czi to n5 inputs from ${it}"
 
-        tiles_json = entries_inputs_args(it.data_dir, ['tiles'], '-i', '', '.json')
-        czi_to_n5_args = "${tiles_json} --blockSize '${block_size}'"
+        tiles_json = entries_inputs_args(it.stitching_output_dir, ['tiles'], '-i', '', '.json')
+        czi_to_n5_args = "${tiles_json} --blockSize '${it.block_size}'"
         it + [
             spark_app: it.stitching_app,
             spark_app_entrypoint: 'org.janelia.stitching.ConvertCZITilesToN5Spark',
