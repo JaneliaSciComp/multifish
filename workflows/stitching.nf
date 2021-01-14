@@ -6,9 +6,9 @@ include {
     run_spark_app_on_existing_cluster as run_stitching;
     run_spark_app_on_existing_cluster as run_final_stitching;
     terminate_spark as terminate_stitching;
-} from '../external-modules/spark/lib/spark' addParams(lsf_opts: params.lsf_opts, 
-                                                       crepo: params.crepo,
-                                                       spark_version: params.spark_version)
+} from '../external-modules/spark/lib/workflows' addParams(lsf_opts: params.lsf_opts, 
+                                                           crepo: params.crepo,
+                                                           spark_version: params.spark_version)
 
 include {
     entries_inputs_args
