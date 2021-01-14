@@ -33,9 +33,9 @@ driver_cores = final_params.driver_cores
 driver_memory = final_params.driver_memory
 driver_logconfig = final_params.driver_logconfig
 
-stitching_app = file(final_params.stitching_app)
+stitching_app = final_params.stitching_app
 stitching_output = final_params.stitching_output
-data_dir = file(final_params.data_dir)
+data_dir = final_params.data_dir
 resolution = final_params.resolution
 axis_mapping = final_params.axis
 acq_names = Channel.fromList(final_params.acq_names?.tokenize(' '))
