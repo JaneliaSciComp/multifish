@@ -38,7 +38,7 @@ workflow stitching {
             java.nio.file.Files.createSymbolicLink(czi_link.toPath(), new File(it.data_dir, "${it.acq_name}.czi").toPath())
 
         it + [
-            spark_work_dir: new File(it.spark_work_dir, it.acq_name),
+            spark_work_dir: it.spark_work_dir.resolve(it.acq_name),
             stitching_output_dir: stitching_output_dir
         ]
     } \
