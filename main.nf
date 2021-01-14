@@ -11,6 +11,7 @@ params.stitching_app = 'external-modules/stitching-spark/target/stitching-spark-
 params.resolution = '0.23,0.23,0.42'
 params.axis = '-x,y,z'
 params.acq_names = ''
+params.channels = 'c0 c1 c2 c3'
 params.block_size = '128,128,64'
 
 final_params = default_spark_params() + params
@@ -36,6 +37,7 @@ data_dir = file(final_params.data_dir)
 resolution = final_params.resolution
 axis_mapping = final_params.axis
 acq_names = Channel.fromList(final_params.acq_names?.tokenize(' '))
+channels = final_params.channels?.tokenize(' ')
 block_size = final_params.block_size
 
 if( !spark_work_dir.exists() ) {
@@ -45,21 +47,24 @@ if( !spark_work_dir.exists() ) {
 workflow {
     acq_names \
     | map { acq_name ->
+        println "Prepare stitching for $acq_name"
         [
-            stitching_app,
-            data_dir,
-            acq_name,
-            resolution,
-            axis_mapping,
-            block_size,
-            spark_conf,
-            spark_work_dir,
-            spark_workers,
-            spark_worker_cores,
-            gb_per_core,
-            driver_cores,
-            driver_memory,
-            driver_logconfig
+            stitching_app: stitching_app,
+            data_dir: data_dir,
+            acq_name: acq_name,
+            channels: channels,
+            resolution: resolution,
+            axis_mapping: axis_mapping,
+            block_size: block_size,
+            spark_conf: spark_conf,
+            spark_work_dir: spark_work_dir,
+            spark_workers: spark_workers,
+            spark_worker_cores: spark_worker_cores,
+            spark_executor_cores: spark_worker_cores,
+            spark_gbmem_per_core: gb_per_core,
+            spark_driver_cores: driver_cores,
+            spark_driver_memory: driver_memory,
+            spark_driver_logconfig: driver_logconfig
         ]
     } \
     | stitching \
