@@ -16,73 +16,118 @@ include {
 
 workflow stitching {
     take:
-    stitching_app
-    data_dir
-    data_entries
-    resolution
-    axis_mapping
-    block_size
-    spark_conf
-    spark_work_dir
-    nworkers
-    worker_cores
-    memgb_per_core
-    driver_cores
-    driver_memory
-    driver_logconfig
+    stitching_inputs
+
 
     main:
     // start a spark cluster
-    spark_uri = spark_cluster(spark_conf, spark_work_dir, nworkers, worker_cores)
 
-    // parse tiles
-    mvl_inputs = entries_inputs_args(data_dir, data_entries, '-i', '', '.mvl')
-    czi_inputs = entries_inputs_args('', data_entries, '-f', '', '.czi')
+    stitching_inputs \
+    | map {
+        spark_conf = it[6]
+        spark_work_dir = it[7]
+        nworkers = it[8]
+        worker_cores = it[9]
+        [
+            spark_conf,
+            spark_work_dir,
+            nworkers,
+            worker_cores
+        ]
+    } \
+    | spark_cluster \
+    | combine(stitching_inputs) \
+    | map {
+        println "Prepare parse czi tiles inputs from ${it}"
+        spark_uri = it[0]
+        stitching_app = it[1]
+        data_dir = it[2]
+        acq_name = it[3]
+        resolution = it[4]
+        axis_mapping = it[5]
+        block_size = it[6]
+        spark_conf = it[7]
+        spark_work_dir = it[8]
+        nworkers = it[9]
+        worker_cores = it[10]
+        memgb_per_core = it[11]
+        driver_cores = it[12]
+        driver_memory = it[13]
+        driver_logconfig = it[14]
 
-    parse_res = run_parse_czi_tiles(
-        spark_uri,
-        stitching_app,
-        "org.janelia.stitching.ParseCZITilesMetadata",
-        "${mvl_inputs} ${czi_inputs} \
-         -r '${resolution}' \
-         -a '${axis_mapping}' \
-         -b ${data_dir}",
-        "parseCZITiles.log",
-        spark_conf,
-        spark_work_dir,
-        nworkers,
-        worker_cores,
-        memgb_per_core,
-        driver_cores,
-        driver_memory,
-        '',
-        driver_logconfig,
-        ''
-    )
+        mvl_inputs = entries_inputs_args(data_dir, [acq_name], '-i', '', '.mvl')
+        czi_inputs = entries_inputs_args('', [acq_name], '-f', '', '.czi')
 
-    tile_json_inputs = entries_inputs_args(data_dir, ['tiles'], '-i', '', '.json')
-    czi2n5_res = run_tiff2n5(
-        parse_res,
-        stitching_app,
-        "org.janelia.stitching.ConvertCZITilesToN5Spark",
-        "${tile_json_inputs} --blockSize '${block_size}'",
-        "czi2n5.log",
-        spark_conf,
-        spark_work_dir,
-        nworkers,
-        worker_cores,
-        memgb_per_core,
-        driver_cores,
-        driver_memory,
-        '',
-        driver_logconfig,
-        ''
-    )
+        [
+            spark_uri,
+            stitching_app,
+            'org.janelia.stitching.ParseCZITilesMetadata',
+            "${mvl_inputs} ${czi_inputs} \
+            -r '${resolution}' \
+            -a '${axis_mapping}' \
+            -b ${data_dir}",
+            'parseCZITiles.log',
+            spark_conf,
+            spark_work_dir,
+            nworkers,
+            worker_cores,
+            memgb_per_core,
+            driver_cores,
+            driver_memory,
+            '',
+            driver_logconfig,
+            ''
+        ]
+    } \
+    | run_parse_czi_tiles \
+    | map {
+        // get the spark_uri only
+        it[0] 
+    } \
+    | combine(stitching_inputs) \
+    | map {
+        println "Prepare parse czi to n5 inputs from ${it}"
+        spark_uri = it[0]
+        stitching_app = it[1]
+        data_dir = it[2]
+        acq_name = it[3]
+        resolution = it[4]
+        axis_mapping = it[5]
+        block_size = it[6]
+        spark_conf = it[7]
+        spark_work_dir = it[8]
+        nworkers = it[9]
+        worker_cores = it[10]
+        memgb_per_core = it[11]
+        driver_cores = it[12]
+        driver_memory = it[13]
+        driver_logconfig = it[14]
 
-    czi2n5_res \
-    | map { spark_work_dir } \
+        tiles_json = entries_inputs_args(data_dir, ['tiles'], '-i', '', '.json')
+        [
+            spark_uri,
+            stitching_app,
+            'org.janelia.stitching.ConvertCZITilesToN5Spark',
+            "${tile_json_inputs} --blockSize '${block_size}'",
+            'czi2n5.log',
+            spark_conf,
+            spark_work_dir,
+            nworkers,
+            worker_cores,
+            memgb_per_core,
+            driver_cores,
+            driver_memory,
+            '',
+            driver_logconfig,
+            ''
+        ]
+    } \
+    | run_tiff2n5 \
+    | map {
+        // get the working dir only
+        it[1]
+    } \
     | terminate_stitching \
-    | map { data_dir }
     | set { done }
 
     emit:

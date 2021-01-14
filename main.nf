@@ -43,22 +43,25 @@ if( !spark_work_dir.exists() ) {
 }
 
 workflow {
-    stitching_res = stitching(
-        stitching_app,
-        data_dir,
-        acq_names,
-        resolution,
-        axis_mapping,
-        block_size,
-        spark_conf,
-        spark_work_dir,
-        spark_workers,
-        spark_worker_cores,
-        gb_per_core,
-        driver_cores,
-        driver_memory,
-        driver_logconfig
-    )
-    
-    stitching_res | view
+    acq_names \
+    | map { acq_name ->
+        [
+            stitching_app,
+            data_dir,
+            acq_name,
+            resolution,
+            axis_mapping,
+            block_size,
+            spark_conf,
+            spark_work_dir,
+            spark_workers,
+            spark_worker_cores,
+            gb_per_core,
+            driver_cores,
+            driver_memory,
+            driver_logconfig
+        ]
+    } \
+    | stitching \
+    | view
 }
