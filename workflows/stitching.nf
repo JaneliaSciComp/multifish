@@ -31,7 +31,7 @@ workflow stitching {
         stitching_output = it.stitching_output == null || it.stitching_output == ''
             ? it.data_dir
             : it.stitching_output
-        stitching_output_dir = new File(stitching_output, it.acq_name);
+        stitching_output_dir = file(stitching_output, it.acq_name)
         stitching_output_dir.mkdirs()
     } \
     | map {
