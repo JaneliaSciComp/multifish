@@ -8,6 +8,7 @@ include {
 
 // app parameters
 params.stitching_app = 'external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar'
+params.stitching_output = ''
 params.resolution = '0.23,0.23,0.42'
 params.axis = '-x,y,z'
 params.acq_names = ''
@@ -33,6 +34,7 @@ driver_memory = final_params.driver_memory
 driver_logconfig = final_params.driver_logconfig
 
 stitching_app = file(final_params.stitching_app)
+stitching_output = final_params.stitching_output
 data_dir = file(final_params.data_dir)
 resolution = final_params.resolution
 axis_mapping = final_params.axis
@@ -50,6 +52,7 @@ workflow {
         println "Prepare stitching for $acq_name"
         [
             stitching_app: stitching_app,
+            stitching_output: stitching_output,
             data_dir: data_dir,
             acq_name: acq_name,
             channels: channels,

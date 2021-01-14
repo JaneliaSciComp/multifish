@@ -26,7 +26,14 @@ workflow stitching {
     | combine(stitching_inputs) \
     | map {
         it[1] + [spark_uri: it[0]]
-    }
+    } \
+    | map {
+        stitching_output = it.stitching_output == null || it.stitching_output == ''
+            ? it.data_dir
+            : it.stitching_output
+        stitching_output_dir = new File(stitching_output, it.acq_name);
+        stitching_output_dir.mkdirs()
+    } \
     | map {
         println "Prepare parse czi tiles inputs from ${it}"
         mvl_inputs = entries_inputs_args(it.data_dir, [ it.acq_name ], '-i', '', '.mvl')
