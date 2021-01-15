@@ -9,5 +9,5 @@
         --stitching_app "$PWD/external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar" \
         --data_dir /nrs/scicompsoft/goinac/multifish/ex1 \
         --stitching_output stitching \
-        --acq_names "LHA3_R3 LHA3_R5"
+        --acq_names "LHA3_R3"
 
