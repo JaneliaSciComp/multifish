@@ -42,10 +42,6 @@ acq_names = Channel.fromList(final_params.acq_names?.tokenize(' '))
 channels = final_params.channels?.tokenize(' ')
 block_size = final_params.block_size
 
-if( !spark_work_dir.exists() ) {
-    spark_work_dir.mkdirs()
-}
-
 workflow {
     acq_names \
     | map { acq_name ->
