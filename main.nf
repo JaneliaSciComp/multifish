@@ -25,7 +25,7 @@ include {
 
 // spark config
 spark_conf = final_params.spark_conf
-spark_work_dir = file(final_params.spark_work_dir)
+spark_work_dir = final_params.spark_work_dir
 spark_workers = final_params.workers
 spark_worker_cores = final_params.worker_cores
 gb_per_core = final_params.gb_per_core
