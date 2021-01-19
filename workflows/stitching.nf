@@ -28,27 +28,6 @@ workflow stitching {
     // start a spark cluster
 
     stitching_inputs \
-    | map {
-        output_dir = new File(it.data_dir, it.acq_name)
-        stitching_output_dir = it.stitching_output == null || it.stitching_output == ''
-            ? output_dir
-            : new File(output_dir, it.stitching_output)
-        // create output dir
-        stitching_output_dir.mkdirs()
-        //  create the links
-        mvl_link = new File(stitching_output_dir, "${it.acq_name}.mvl")
-        if (!mvl_link.exists())
-            java.nio.file.Files.createSymbolicLink(mvl_link.toPath(), new File(it.data_dir, "${it.acq_name}.mvl").toPath())
-        czi_link = new File(stitching_output_dir, "${it.acq_name}.czi")
-        if (!czi_link.exists())
-            java.nio.file.Files.createSymbolicLink(czi_link.toPath(), new File(it.data_dir, "${it.acq_name}.czi").toPath())
-
-        spark_work_dir = "${it.spark_work_dir}/${it.acq_name}"
-        it + [
-            spark_work_dir: spark_work_dir,
-            stitching_output_dir: stitching_output_dir
-        ]
-    } \
     | spark_cluster \
     | combine(stitching_inputs) \
     | map {

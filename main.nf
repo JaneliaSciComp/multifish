@@ -54,10 +54,25 @@ workflow {
     acq_names \
     | map { acq_name ->
         println "Prepare stitching for $acq_name"
+        output_dir = new File(data_dir, acq_name)
+        stitching_output_dir = stitching_output == null || stitching_output == ''
+            ? output_dir
+            : new File(output_dir, stitching_output)
+        // create output dir
+        stitching_output_dir.mkdirs()
+        //  create the links
+        mvl_link = new File(stitching_output_dir, "${acq_name}.mvl")
+        if (!mvl_link.exists())
+            java.nio.file.Files.createSymbolicLink(mvl_link.toPath(), new File(data_dir, "${acq_name}.mvl").toPath())
+        czi_link = new File(stitching_output_dir, "${acq_name}.czi")
+        if (!czi_link.exists())
+            java.nio.file.Files.createSymbolicLink(czi_link.toPath(), new File(data_dir, "${acq_name}.czi").toPath())
+
         [
             stitching_app: stitching_app,
             stitching_output: stitching_output,
             data_dir: data_dir,
+            stitching_output_dir: stitching_output_dir,
             acq_name: acq_name,
             channels: channels,
             resolution: resolution,
