@@ -96,7 +96,7 @@ workflow stitching {
             spark_app: it.stitching_app,
             spark_app_entrypoint: 'org.janelia.stitching.StitchingSpark',
             spark_app_args: stitching_args,
-            spark_app_log: 'sttitching.log'
+            spark_app_log: 'stitching.log'
         ]
     } \
     | run_stitching \
