@@ -14,6 +14,10 @@ params.axis = '-x,y,z'
 params.acq_names = ''
 params.channels = 'c0 c1 c2 c3'
 params.block_size = '128,128,64'
+params.registration_channel = '2'
+params.stitching_mode = 'incremental'
+params.stitching_padding = '0,0,0'
+params.blur_sigma = '2'
 
 final_params = default_spark_params() + params
 
@@ -41,6 +45,10 @@ axis_mapping = final_params.axis
 acq_names = Channel.fromList(final_params.acq_names?.tokenize(' '))
 channels = final_params.channels?.tokenize(' ')
 block_size = final_params.block_size
+registration_channel = final_params.registration_channel
+stitching_mode = final_params.stitching_mode
+stitching_padding = final_params.stitching_padding
+blur_sigma = final_params.blur_sigma
 
 workflow {
     acq_names \
@@ -55,8 +63,12 @@ workflow {
             resolution: resolution,
             axis_mapping: axis_mapping,
             block_size: block_size,
+            registration_channel: registration_channel,
+            stitching_mode: stitching_mode,
+            stitching_padding: stitching_padding,
+            blur_sigma: blur_sigma,
             spark_conf: spark_conf,
-            spark_work_dir: spark_work_dir,
+            spark_work_dir: "${spark_work_dir}/${acq_name}",
             spark_workers: spark_workers,
             spark_worker_cores: spark_worker_cores,
             spark_executor_cores: spark_worker_cores,
