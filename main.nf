@@ -70,7 +70,6 @@ workflow {
 
         [
             stitching_app: stitching_app,
-            stitching_output: stitching_output,
             data_dir: data_dir,
             stitching_output_dir: stitching_output_dir,
             acq_name: acq_name,
