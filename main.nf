@@ -53,7 +53,8 @@ blur_sigma = final_params.blur_sigma
 spot_extraction_output = final_params.spot_extraction_output
 air_localize_channel_params = final_params.air_localize_channel_params?.tokenize(',')
 workflow {
-    acq_names \
+    // stitching
+    stitching_result = acq_names \
     | map { acq_name ->
         println "Prepare stitching for $acq_name"
         output_dir = new File(final_params.output_dir, acq_name)
@@ -95,7 +96,10 @@ workflow {
             spark_driver_logconfig: driver_logconfig
         ]
     } \
-    | stitching \
+    | stitching
+
+    // spot extraction
+    stitching_result \
     | map {
         spot_extraction_output_dir = spot_extraction_output == null || spot_extraction_output == ''
             ? it.output_dir
