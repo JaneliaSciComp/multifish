@@ -11,3 +11,5 @@ hs_err_pid*
 bin
 local
 __pycache__
+*.ctf
+
