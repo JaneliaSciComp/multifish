@@ -16,7 +16,7 @@ process cut_tiles {
 
     script:
     args_list = [
-        image_path,
+        "${image_path}/",
         "${ch}/${scale}",
         output_path,
         xy_stride,
