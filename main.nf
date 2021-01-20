@@ -96,26 +96,6 @@ workflow {
             spark_driver_logconfig: driver_logconfig
         ]
     } \
-    | stitching
-
-    // spot extraction
-    stitching_result \
-    | map {
-        spot_extraction_output_dir = spot_extraction_output == null || spot_extraction_output == ''
-            ? it.output_dir
-            : new File(it.output_dir, spot_extraction_output)
-        // create output dir
-        spot_extraction_output_dir.mkdirs()
-        it + [
-            data_dir: "${it.stitching_output_dir}/export.n5",
-            spot_extraction_output_dir: spot_extraction_output_dir
-            scale: it.scale_4_spot_extraction,
-            xy_stride: it.spot_extraction_xy_stride,
-            xy_overlap: it.spot_extraction_xy_overlap,
-            z_stride: it.spot_extraction_z_stride,
-            z_overlap: it.spot_extraction_z_overlap,
-        ]
-    } \
-    | spot_extraction \
     | view
+
 }
