@@ -52,6 +52,7 @@ blur_sigma = final_params.blur_sigma
 
 spot_extraction_output = final_params.spot_extraction_output
 air_localize_channel_params = final_params.air_localize_channel_params?.tokenize(',')
+spot_extraction_dapi_correction_channels = final_params.spot_extraction_dapi_correction_channels?.tokenize(',')
 workflow {
     // stitching
     stitching_result = acq_names \
@@ -114,6 +115,8 @@ workflow {
             xy_overlap: final_params.spot_extraction_xy_overlap,
             z_stride: final_params.spot_extraction_z_stride,
             z_overlap: final_params.spot_extraction_z_overlap,
+            dapi_channel: final_params.spot_extraction_dapi_channel,
+            dapi_correction_channels: spot_extraction_dapi_correction_channels,
         ]
     } \
     | spot_extraction \

@@ -23,6 +23,8 @@ def default_mf_params() {
         spot_extraction_xy_overlap: spot_extraction_xy_overlap,
         spot_extraction_z_stride: spot_extraction_z_stride,
         spot_extraction_z_overlap: spot_extraction_z_overlap,
+        spot_extraction_dapi_channel: 'c2',
+        spot_extraction_dapi_correction_channels: 'c3',
         air_localize_channel_params: "${airlocalize_default_params},${airlocalize_default_params},${airlocalize_default_params},${airlocalize_default_params}"
     ]
 }
