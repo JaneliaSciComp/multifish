@@ -6,26 +6,26 @@ include {
     default_spark_params;
 } from './external-modules/spark/lib/param_utils'
 
-// app parameters
-params.stitching_app = 'external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar'
-params.stitching_output = ''
-params.resolution = '0.23,0.23,0.42'
-params.axis = '-x,y,z'
-params.acq_names = ''
-params.channels = 'c0 c1 c2 c3'
-params.block_size = '128,128,64'
-params.registration_channel = '2'
-params.stitching_mode = 'incremental'
-params.stitching_padding = '0,0,0'
-params.blur_sigma = '2'
+include {
+    default_mf_params;
+} from './param_utils'
 
-final_params = default_spark_params() + params
+// app parameters
+params.output_dir = params.data_dir
+params.acq_names = ''
+
+final_params = default_spark_params() + default_mf_params() + params
 
 include {
     stitching;
 } from './workflows/stitching' addParams(lsf_opts: final_params.lsf_opts, 
                                          crepo: final_params.crepo,
                                          spark_version: final_params.spark_version)
+
+include {
+    spot_extraction;
+} from './workflows/spot_extraction' addParams(lsf_opts: final_params.lsf_opts,
+                                               mfrepo: final_params.mfrepo)
 
 // spark config
 spark_conf = final_params.spark_conf
@@ -43,18 +43,20 @@ data_dir = final_params.data_dir
 resolution = final_params.resolution
 axis_mapping = final_params.axis
 acq_names = Channel.fromList(final_params.acq_names?.tokenize(' '))
-channels = final_params.channels?.tokenize(' ')
+channels = final_params.channels?.tokenize(',')
 block_size = final_params.block_size
 registration_channel = final_params.registration_channel
 stitching_mode = final_params.stitching_mode
 stitching_padding = final_params.stitching_padding
 blur_sigma = final_params.blur_sigma
 
+spot_extraction_output = final_params.spot_extraction_output
+air_localize_channel_params = final_params.air_localize_channel_params?.tokenize(',')
 workflow {
     acq_names \
     | map { acq_name ->
         println "Prepare stitching for $acq_name"
-        output_dir = new File(data_dir, acq_name)
+        output_dir = new File(final_params.output_dir, acq_name)
         stitching_output_dir = stitching_output == null || stitching_output == ''
             ? output_dir
             : new File(output_dir, stitching_output)
@@ -71,6 +73,7 @@ workflow {
         [
             stitching_app: stitching_app,
             data_dir: data_dir,
+            output_dir: output_dir,
             stitching_output_dir: stitching_output_dir,
             acq_name: acq_name,
             channels: channels,
@@ -93,5 +96,20 @@ workflow {
         ]
     } \
     | stitching \
+    | map {
+        spot_extraction_output_dir = spot_extraction_output == null || spot_extraction_output == ''
+            ? it.output_dir
+            : new File(it.output_dir, spot_extraction_output)
+        // create output dir
+        spot_extraction_output_dir.mkdirs()
+        it + [
+            spot_extraction_output_dir: spot_extraction_output_dir
+            xy_stride: it.spot_extraction_xy_stride,
+            xy_overlap: it.spot_extraction_xy_overlap,
+            z_stride: it.spot_extraction_z_stride,
+            z_overlap: it.spot_extraction_z_overlap,
+        ]
+    } \
+    | spot_extraction \
     | view
 }

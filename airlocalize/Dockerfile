@@ -36,6 +36,7 @@ ENV MCR_CACHE_VERBOSE=true
 
 COPY compiled_matlab /app/airlocalize
 COPY scripts/python /app/airlocalize/scripts
+COPY params /app/airlocalize/params
 
 COPY conda-requirements.txt .
 

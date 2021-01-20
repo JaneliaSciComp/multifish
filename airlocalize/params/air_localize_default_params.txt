@@ -1,0 +1,37 @@
+sigma_xy:   1.4662  
+sigma_z:    2.864 
+dx:    230 
+dy:    230 
+dz:    420 
+cutsize:    3 
+tol:    0.01 
+thickness:    1 
+thresh.level:    130 
+thresh.units:    absolute 
+thresh.sd:    50.6274 
+max_spots:    10000000 
+ROIsize:    2 
+method:	threshold
+fit:    3D mask full
+maxcount:    100 
+data_fname:
+data_stackname:	air_localize.tif
+data_dirname:
+save_dirname:
+numdim:    3 
+filter.nlo:    2.15 
+filter.nhi:    1 
+type:	integrated gaussian
+set_psf_manually:    0 
+set_thresh_manually:    0 
+bg_mode:	local plane
+mode:	single file input
+AIRLOCALIZE_version:    1 
+dirmode:	recursive 
+output_spot_image:    0
+dense_spots:    0 
+select_ROI:    0 
+nx:
+ny:
+nz:
+curfname:   null

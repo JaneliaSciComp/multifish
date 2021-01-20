@@ -120,6 +120,8 @@ workflow stitching {
         ]
     } \
     | terminate_stitching \
+    | combine(stitching_inputs) \
+    | map { it[1] } \
     | set { done }
 
     emit:
