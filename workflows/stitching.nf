@@ -50,7 +50,7 @@ workflow stitching {
     } \
     | run_parse_czi_tiles \
     | map {
-        println "Prepare parse czi to n5 inputs for ${it}"
+        println "Prepare czi to n5 inputs for ${it}"
 
         tiles_json = entries_inputs_args(it.stitching_output_dir, ['tiles'], '-i', '', '.json')
         czi_to_n5_args = "${tiles_json} --blockSize '${it.block_size}'"
