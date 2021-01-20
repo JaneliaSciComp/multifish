@@ -109,11 +109,11 @@ workflow {
         it + [
             data_dir: "${it.stitching_output_dir}/export.n5",
             spot_extraction_output_dir: spot_extraction_output_dir,
-            scale: it.scale_4_spot_extraction,
-            xy_stride: it.spot_extraction_xy_stride,
-            xy_overlap: it.spot_extraction_xy_overlap,
-            z_stride: it.spot_extraction_z_stride,
-            z_overlap: it.spot_extraction_z_overlap,
+            scale: final_params.scale_4_spot_extraction,
+            xy_stride: final_params.spot_extraction_xy_stride,
+            xy_overlap: final_params.spot_extraction_xy_overlap,
+            z_stride: final_params.spot_extraction_z_stride,
+            z_overlap: final_params.spot_extraction_z_overlap,
         ]
     } \
     | spot_extraction \
