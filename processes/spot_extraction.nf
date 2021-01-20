@@ -3,7 +3,7 @@ process cut_tiles {
 
     input:
     tuple val(image_path),
-          val(channel),
+          val(ch),
           val(scale),
           val(output_path),
           val(xy_stride),
@@ -17,7 +17,7 @@ process cut_tiles {
     script:
     args_list = [
         image_path,
-        "${channel}/${scale}",
+        "${ch}/${scale}",
         output_path,
         xy_stride,
         xy_overlap,
@@ -37,7 +37,7 @@ process airlocalize {
 
     input: 
     tuple val(image_path),
-          val(channel),
+          val(ch),
           val(scale),
           val(coords),
           val(params_filename),
@@ -51,7 +51,7 @@ process airlocalize {
     script:
     args_list = [
         image_path,
-        "${channel}/${scale}",
+        "${ch}/${scale}",
         coords,
         params_filename,
         output,
