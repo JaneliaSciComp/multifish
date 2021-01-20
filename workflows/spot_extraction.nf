@@ -10,6 +10,7 @@ workflow spot_extraction {
     main:
     spot_extraction_inputs \
     | flatMap { args ->
+        println "Create per channel parameters for spot extraction: ${args}"
         args.channels.collect { ch ->
             [
                 args.data_dir,
