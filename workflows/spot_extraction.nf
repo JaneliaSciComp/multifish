@@ -1,4 +1,3 @@
-include
 include {
     cut_tiles;
 } from '../processes/spot_extraction' addParams(lsf_opts: params.lsf_opts, 
