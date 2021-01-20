@@ -18,6 +18,7 @@ def default_mf_params {
         stitching_padding: '0,0,0',
         blur_sigma: '2',
         spot_extraction_output: 'spots',
+        scale_4_spot_extraction: 's0',
         spot_extraction_xy_stride: spot_extraction_xy_stride,
         spot_extraction_xy_overlap: spot_extraction_xy_overlap,
         spot_extraction_z_stride: spot_extraction_z_stride,

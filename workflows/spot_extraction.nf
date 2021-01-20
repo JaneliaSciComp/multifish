@@ -13,14 +13,16 @@ workflow spot_extraction {
     spot_extraction_inputs \
     | flatMap { args ->
         args.channels.collect { ch ->
-            args.data_dir,
-            ch,
-            args.scale,
-            args.output_dir,
-            args.xy_stride
-            args.xy_overlap,
-            args.z_stride,
-            args.z_overlap
+            [
+                args.data_dir,
+                ch,
+                args.scale,
+                args.spot_extraction_output_dir,
+                args.xy_stride
+                args.xy_overlap,
+                args.z_stride,
+                args.z_overlap
+            ]
         }
     } \
     | cut_tiles \
