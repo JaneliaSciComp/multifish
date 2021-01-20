@@ -3,7 +3,6 @@ include {
 } from '../processes/spot_extraction' addParams(lsf_opts: params.lsf_opts, 
                                                 mfrepo: params.mfrepo)
 
-
 workflow spot_extraction {
     take:
     spot_extraction_inputs
@@ -17,7 +16,7 @@ workflow spot_extraction {
                 ch,
                 args.scale,
                 args.spot_extraction_output_dir,
-                args.xy_stride
+                args.xy_stride,
                 args.xy_overlap,
                 args.z_stride,
                 args.z_overlap
