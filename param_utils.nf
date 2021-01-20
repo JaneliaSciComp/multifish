@@ -1,4 +1,4 @@
-def default_mf_params {
+def default_mf_params() {
     airlocalize_default_params = '/app/airlocalize/params/air_localize_default_params.txt'
     spot_extraction_xy_stride = 2048
     spot_extraction_z_stride = 1024
