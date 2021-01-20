@@ -98,6 +98,7 @@ workflow {
     } \
     | stitching
 
+
     // spot extraction
     stitching_result \
     | map {
