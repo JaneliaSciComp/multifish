@@ -12,7 +12,7 @@ workflow spot_extraction {
     | flatMap { args ->
         println "Create per channel parameters for spot extraction: ${args}"
         args.channels.collect { ch ->
-            [
+            ch_args = [
                 args.data_dir,
                 ch,
                 args.scale,
@@ -22,6 +22,8 @@ workflow spot_extraction {
                 args.z_stride,
                 args.z_overlap
             ]
+            println "Cut args for ch: ${ch} -> ${ch_args}"
+            return ch_args
         }
     } \
     | cut_tiles \
