@@ -7,7 +7,9 @@ ENV DOWNLOAD_CONDA_URL=https://repo.continuum.io/miniconda/Miniconda3-latest-Lin
 
 RUN dnf install -y \
         wget unzip \
-        java-1.8.0-openjdk-devel \
+        java-1.8.0-openjdk
+
+RUN dnf install -y \
         atk \
         gsound \
         gdk-pixbuf2 \
@@ -18,7 +20,9 @@ RUN dnf install -y \
         libXScrnSaver \
         libXxf86vm \
         nss \
-        zlib \
+        zlib
+
+RUN dnf install -y \
         libXt libXtst libXext libXmu libXrandr libXrender libXcomposite
 
 RUN mkdir /tmp-install && \
@@ -51,15 +55,15 @@ COPY scripts/*.sh /app/airlocalize
 COPY scripts/python /app/airlocalize/scripts
 COPY params /app/airlocalize/params
 
-COPY conda-requirements.txt .
+COPY conda-requirements.yml .
 
 RUN conda config --set always_yes yes --set changeps1 no && \
-    conda update -q conda && \
-    conda info -a && \
-    conda install python=3.6 && \
-    conda install -c conda-forge z5py && \
-    conda install --file conda-requirements.txt && \
-    rm -f conda-requirements.txt
+    conda update -q conda
+
+RUN conda install python=3.6
+
+RUN conda env update -n base -f conda-requirements.yml && \
+    rm -f conda-requirements.yml
 
 RUN chmod 555 /app/airlocalize/*.sh && \
     cd /usr/local/MATLAB/MATLAB_Runtime/v95/toolbox/compiler_sdk/pysdk_py && \

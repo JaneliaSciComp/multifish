@@ -9,7 +9,7 @@ workflow spot_extraction {
     spot_extraction_inputs
 
     main:
-    
+
     spot_extraction_inputs \
     | map { args ->
         println "Create args for cutting tiles using only ${args.channels[0]} from ${args}"
@@ -40,6 +40,7 @@ workflow spot_extraction {
             dapi_correction = args.dapi_correction_channels.contains(ch)
                 ? "/${args.dapi_channel}/${args.scale}"
                 : ''
+            println "DAPI correction for channel ${ch}: ${dapi_correction}"
             airlocalize_args_per_tile_and_ch = [
                 args.data_dir,
                 ch,

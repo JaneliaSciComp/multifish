@@ -1,0 +1,8 @@
+channels:
+  - anaconda
+  - conda-forge
+  - defaults
+
+dependencies:
+  - numpy=1.19.4
+  - z5py=2.0.5
