@@ -35,6 +35,7 @@ ENV XAPPLRESDIR=/usr/local/MATLAB/MATLAB_Runtime/v95/X11/app-defaults
 ENV MCR_CACHE_VERBOSE=true
 
 COPY compiled_matlab /app/airlocalize
+COPY scripts/*.sh /app/airlocalize 
 COPY scripts/python /app/airlocalize/scripts
 COPY params /app/airlocalize/params
 
@@ -48,7 +49,10 @@ RUN conda config --set always_yes yes --set changeps1 no && \
     conda install --file conda-requirements.txt && \
     rm -f conda-requirements.txt
 
-RUN cd /app/airlocalize && \
+RUN chmod 555 /app/airlocalize/*.sh && \
+    cd /usr/local/MATLAB/MATLAB_Runtime/v95/toolbox/compiler_sdk/pysdk_py && \
+    python setup.py install && \
+    cd /app/airlocalize && \
     python setup.py install
 
 WORKDIR /app/airlocalize

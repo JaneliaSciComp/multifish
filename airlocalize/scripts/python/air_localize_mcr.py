@@ -100,7 +100,7 @@ if __name__ == '__main__':
         print('DAPI background:',bg_dapi)
         print('c3 background:',bg_data)
 
-    #use compiled matlab AIRLOCALIZE, no need for matlab license
+    # use compiled matlab AIRLOCALIZE, no need for matlab license
     AIRLOCALIZE_N5.initialize_runtime(['-nojvm', '-nodisplay'])
     AIRLOCALIZE=AIRLOCALIZE_N5.initialize()       
     matlab_data = as_matlab(data)

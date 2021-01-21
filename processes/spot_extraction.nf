@@ -42,12 +42,14 @@ process airlocalize {
           val(scale),
           val(coords),
           val(params_filename),
-          val(output),
+          val(tile_path),
           val(suffix),
           val(dapi_subpath)
 
     output: 
-    val(output)
+    tuple val(ch),
+          val(scale),
+          val(tile_path)
 
     script:
     args_list = [
@@ -55,7 +57,7 @@ process airlocalize {
         "/${ch}/${scale}",
         coords,
         params_filename,
-        output,
+        tile_path,
         suffix
     ]
     if (dapi_subpath != null && dapi_subpath != '') {
@@ -63,15 +65,40 @@ process airlocalize {
     }
     args = args_list.join(' ')
     """
-    echo "python /app/airlocalize/scripts/air_localize_mcr.py ${args}"
-    python /app/airlocalize/scripts/air_localize_mcr.py ${args}
+    echo "/app/airlocalize/airlocalize.sh ${args}"
+    /app/airlocalize/airlocalize.sh ${args}
     """
 }
 
-def val_or_default(val, default_val) {
-    return val == null || val == '' ? default_val : val
-}
+process merge_points {
+    container = "${params.mfrepo}/spotextraction:1.0"
 
-def process_log(work_dir, logname) {
-    return "${work_dir}/${logname}.log"
+    input:
+    tuple val(image_path),
+          val(ch),
+          val(scale),
+          val(tile_dir),
+          val(xy_overlap),
+          val(z_overlap),
+          val(output_path)
+
+    output:
+    val(merged_points_path)
+
+    script:
+    merged_points_path = "${output_path}/merged_points_${ch}.txt"
+    args_list = [
+        "${tile_dir}",
+        "_${ch}.txt",
+        merged_points_path,
+        xy_overlap,
+        z_overlap,
+        image_path,
+        "/${ch}/${scale}"
+    ]
+    args = args_list.join(' ')
+    """
+    echo "python /app/airlocalize/scripts/merge_points.py ${args}"
+    python /app/airlocalize/scripts/merge_points.py ${args}
+    """
 }
