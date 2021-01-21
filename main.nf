@@ -56,7 +56,6 @@ per_channel_air_localize_params = [
     channels,
     final_params.per_channel_air_localize_params?.split(',', -1)
 ].transpose()
- .map
  .inject([:]) { a, b ->
     ch = b[0]
     airlocalize_params = b[1] == null || b[1] == ''
