@@ -42,8 +42,8 @@ stitching_output = final_params.stitching_output
 data_dir = final_params.data_dir
 resolution = final_params.resolution
 axis_mapping = final_params.axis
-acq_names = Channel.fromList(final_params.acq_names?.tokenize(' '))
-channels = final_params.channels?.tokenize(',')
+acq_names = Channel.fromList(final_params.acq_names?.split(' '))
+channels = final_params.channels?.split(',')
 block_size = final_params.block_size
 registration_channel = final_params.registration_channel
 stitching_mode = final_params.stitching_mode
@@ -51,8 +51,20 @@ stitching_padding = final_params.stitching_padding
 blur_sigma = final_params.blur_sigma
 
 spot_extraction_output = final_params.spot_extraction_output
-air_localize_channel_params = final_params.air_localize_channel_params?.tokenize(',')
-spot_extraction_dapi_correction_channels = final_params.spot_extraction_dapi_correction_channels?.tokenize(',')
+spot_extraction_dapi_correction_channels = final_params.spot_extraction_dapi_correction_channels?.split(',')
+per_channel_air_localize_params = [
+    channels,
+    final_params.per_channel_air_localize_params?.split(',')
+].transpose()
+ .map
+ .inject([:]) { a, b ->
+    ch = b[0]
+    airlocalize_params = b[1] == null || b[1] == ''
+        ? final_params.default_airlocalize_params
+        : b[1]
+    a[ch] =  airlocalize_params
+    return a 
+}
 workflow {
     // stitching
     stitching_result = acq_names \
@@ -117,6 +129,7 @@ workflow {
             z_overlap: final_params.spot_extraction_z_overlap,
             dapi_channel: final_params.spot_extraction_dapi_channel,
             dapi_correction_channels: spot_extraction_dapi_correction_channels,
+            per_channel_air_localize_params:per_channel_air_localize_params,
         ]
     } \
     | spot_extraction \

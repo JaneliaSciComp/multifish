@@ -12,7 +12,10 @@ process cut_tiles {
           val(z_overlap)
 
     output:
-    val(output_path)
+    tuple val(image_path),
+          val(ch),
+          val(scale),
+          val(output_path)
 
     script:
     args_list = [
@@ -51,7 +54,7 @@ process airlocalize {
     script:
     args_list = [
         image_path,
-        "${ch}/${scale}",
+        "/${ch}/${scale}",
         coords,
         params_filename,
         output,

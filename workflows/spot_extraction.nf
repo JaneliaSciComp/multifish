@@ -27,8 +27,31 @@ workflow spot_extraction {
         }
     } \
     | cut_tiles \
+    | map {
+        // extract the channel only from the result
+        it[1]
+    } \
     | combine(spot_extraction_inputs) \
-    | map { it[1] } \
+    | flatMap {
+        current_ch = it[0]
+        args = it[1]
+        dapi_correction = args.dapi_correction_channels.contains(current_ch)
+            ? "/${args.dapi_channel}/${args.scale}"
+            : ''
+        Channel.fromPath("${args.spot_extraction_output_dir}/*[0-9]")
+            .map {
+                [
+                    args.data_dir,
+                    current_ch,
+                    args.scale,
+                    "${it}/coords.txt",
+                    args.per_channel_air_localize_params[current_ch],
+                    it,
+                    "_${current_ch}.txt",
+                    dapi_correction
+                ]
+            }
+    } \
     | set { done }
 
     emit:

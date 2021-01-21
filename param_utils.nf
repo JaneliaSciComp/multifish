@@ -1,5 +1,5 @@
 def default_mf_params() {
-    airlocalize_default_params = '/app/airlocalize/params/air_localize_default_params.txt'
+    default_airlocalize_params = '/app/airlocalize/params/air_localize_default_params.txt'
     spot_extraction_xy_stride = 2048
     spot_extraction_z_stride = 1024
     spot_extraction_xy_overlap = (int) (0.05 * spot_extraction_xy_stride)
@@ -25,6 +25,7 @@ def default_mf_params() {
         spot_extraction_z_overlap: spot_extraction_z_overlap,
         spot_extraction_dapi_channel: 'c2',
         spot_extraction_dapi_correction_channels: 'c3',
-        air_localize_channel_params: "${airlocalize_default_params},${airlocalize_default_params},${airlocalize_default_params},${airlocalize_default_params}"
+        default_airlocalize_params: default_airlocalize_params,
+        per_channel_air_localize_params: ",,,"
     ]
 }
