@@ -26,40 +26,32 @@ workflow spot_extraction {
         return cut_tiles_args
     } \
     | cut_tiles \
-    | map {
-        println "!!!! CUT TILES RES: $it"
-        it
+    | flatMap {
+        println "Cut tiles results: $it"
+        it.tokenize(' ')
     }
-
-    // spot_extraction_inputs \
-    // | map 
-    // | map {
-    //     // extract the channel only from the result
-    //     it[1]
-    // } \
-    // | combine(spot_extraction_inputs) \
-    // | flatMap {
-    //     current_ch = it[0]
-    //     args = it[1]
-    //     println "Prepare airlocalize parameters for "
-    //     dapi_correction = args.dapi_correction_channels.contains(current_ch)
-    //         ? "/${args.dapi_channel}/${args.scale}"
-    //         : ''
-    //     Channel.fromPath("${args.spot_extraction_output_dir}/*[0-9]")
-    //         .map {
-    //             [
-    //                 args.data_dir,
-    //                 current_ch,
-    //                 args.scale,
-    //                 "${it}/coords.txt",
-    //                 args.per_channel_air_localize_params[current_ch],
-    //                 it,
-    //                 "_${current_ch}.txt",
-    //                 dapi_correction
-    //             ]
-    //         }
-    // } \
-    // | set { done }
+    | combine(spot_extraction_inputs) \
+    | flatMap {
+        tile_dir = it[0]
+        args = it[1]
+        println "Prepare airlocalize parameters for tile ${tile_dir}: ${args}"
+        args.channels.collect { ch ->
+            dapi_correction = args.dapi_correction_channels.contains(ch)
+                ? "/${args.dapi_channel}/${args.scale}"
+                : ''
+            [
+                args.data_dir,
+                ch,
+                args.scale,
+                "${tile_dir}/coords.txt",
+                args.per_channel_air_localize_params[ch],
+                tile_dir,
+                "_${current_ch}.txt",
+                dapi_correction
+            ]
+        }
+    } \
+    | set { done }
 
     emit:
     done

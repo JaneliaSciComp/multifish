@@ -12,7 +12,7 @@ process cut_tiles {
           val(z_overlap)
 
     output:
-    Channel.fromPath("${output_path}/*[0-9]")
+    env CUT_TILES_RES
 
     script:
     args_list = [
@@ -29,6 +29,7 @@ process cut_tiles {
     mkdir -p ${output_path}
     echo "python /app/airlocalize/scripts/cut_tiles.py ${args}"
     python /app/airlocalize/scripts/cut_tiles.py ${args}
+    CUT_TILES_RES=`ls -d ${output_path}/*[0-9]`
     """
 }
 
