@@ -46,7 +46,7 @@ workflow spot_extraction {
                 "${tile_dir}/coords.txt",
                 args.per_channel_air_localize_params[ch],
                 tile_dir,
-                "_${current_ch}.txt",
+                "_${ch}.txt",
                 dapi_correction
             ]
         }
