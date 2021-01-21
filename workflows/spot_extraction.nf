@@ -51,6 +51,7 @@ workflow spot_extraction {
             ]
         }
     } \
+    | airlocalize \
     | set { done }
 
     emit:
