@@ -12,10 +12,7 @@ process cut_tiles {
           val(z_overlap)
 
     output:
-    tuple val(image_path),
-          val(ch),
-          val(scale),
-          val(output_path)
+    Channel.fromPath("${output_path}/*[0-9]")
 
     script:
     args_list = [

@@ -54,7 +54,7 @@ spot_extraction_output = final_params.spot_extraction_output
 spot_extraction_dapi_correction_channels = final_params.spot_extraction_dapi_correction_channels?.split(',')
 per_channel_air_localize_params = [
     channels,
-    final_params.per_channel_air_localize_params?.split(',')
+    final_params.per_channel_air_localize_params?.split(',', -1)
 ].transpose()
  .map
  .inject([:]) { a, b ->
