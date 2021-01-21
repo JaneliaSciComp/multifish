@@ -104,7 +104,7 @@ if __name__ == '__main__':
     AIRLOCALIZE_N5.initialize_runtime(['-nojvm', '-nodisplay'])
     AIRLOCALIZE=AIRLOCALIZE_N5.initialize()       
     matlab_data = as_matlab(data)
-    points=AIRLOCALIZE.AIRLOCALIZE_N5(params,matlab_data,output,nargout=1)
+    points=AIRLOCALIZE.AIRLOCALIZE_N5(params,matlab_data,output, nargout=1)
     points = np.array(points._data).reshape(points.size, order='F')
     # TODO: write default spot file for tiles that return 0 spots
     points[:, :3] = points[:, :3] * vox + offset

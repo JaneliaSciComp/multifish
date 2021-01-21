@@ -7,8 +7,20 @@ ENV DOWNLOAD_CONDA_URL=https://repo.continuum.io/miniconda/Miniconda3-latest-Lin
 
 RUN dnf install -y \
         wget unzip \
-        libXt libXext libXmu libXrender libXcomposite
-        
+        java-1.8.0-openjdk-devel \
+        atk \
+        gsound \
+        gdk-pixbuf2 \
+        gtk2 \
+        libnsl \
+        libX11 \
+        libX11-xcb \
+        libXScrnSaver \
+        libXxf86vm \
+        nss \
+        zlib \
+        libXt libXtst libXext libXmu libXrandr libXrender libXcomposite
+
 RUN mkdir /tmp-install && \
     cd /tmp-install && \
     wget --quiet ${DOWNLOAD_MATLAB_URL} && \
