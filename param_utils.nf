@@ -1,6 +1,6 @@
 def default_mf_params() {
     default_airlocalize_params = '/app/airlocalize/params/air_localize_default_params.txt'
-    spot_extraction_xy_stride = 2048
+    spot_extraction_xy_stride = 1024
     spot_extraction_z_stride = 1024
     spot_extraction_xy_overlap = (int) (0.05 * spot_extraction_xy_stride)
     spot_extraction_z_overlap = (int) (0.05 * spot_extraction_z_stride)
