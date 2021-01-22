@@ -48,7 +48,6 @@ process airlocalize {
 
     output: 
     tuple val(ch),
-          val(scale),
           val(tile_path)
 
     script:
@@ -77,7 +76,7 @@ process merge_points {
     tuple val(image_path),
           val(ch),
           val(scale),
-          val(tile_dir),
+          val(tiles_dir),
           val(xy_overlap),
           val(z_overlap),
           val(output_path)
@@ -88,7 +87,7 @@ process merge_points {
     script:
     merged_points_path = "${output_path}/merged_points_${ch}.txt"
     args_list = [
-        "${tile_dir}",
+        "${tiles_dir}",
         "_${ch}.txt",
         merged_points_path,
         xy_overlap,

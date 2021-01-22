@@ -10,6 +10,17 @@ workflow spot_extraction {
 
     main:
 
+    per_channel_spot_extraction_inputs = spot_extraction_inputs \
+    | flatMap { args ->
+        args.channels.collect { ch ->
+            [
+                ch,
+                args
+            ]
+        }
+    }
+
+
     spot_extraction_inputs \
     | map { args ->
         println "Create args for cutting tiles using only ${args.channels[0]} from ${args}"
@@ -56,6 +67,25 @@ workflow spot_extraction {
         }
     } \
     | airlocalize \
+    | groupTuple \
+    | combine(per_channel_spot_extraction_inputs) \
+    | map {
+        println "!!!!!! FOR MERGE $it"
+        it
+    } \
+    | map {
+        ch = it[0]
+        args = it[2]
+        [
+            args.data_dir,
+            ch,
+            args.scale,
+            args.spot_extraction_output_dir,
+            args.xy_overlap,
+            args.z_overlap,
+            args.spot_extraction_output_dir
+        ]
+    }
     | set { done }
 
     emit:
