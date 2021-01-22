@@ -1,6 +1,7 @@
 include {
     cut_tiles;
     airlocalize;
+    merge_points;
 } from '../processes/spot_extraction' addParams(lsf_opts: params.lsf_opts, 
                                                 mfrepo: params.mfrepo)
 
@@ -68,11 +69,7 @@ workflow spot_extraction {
     } \
     | airlocalize \
     | groupTuple \
-    | combine(per_channel_spot_extraction_inputs) \
-    | map {
-        println "!!!!!! FOR MERGE $it"
-        it
-    } \
+    | join(per_channel_spot_extraction_inputs) \
     | map {
         ch = it[0]
         args = it[2]
@@ -85,7 +82,8 @@ workflow spot_extraction {
             args.z_overlap,
             args.spot_extraction_output_dir
         ]
-    }
+    } \
+    | merge_points \
     | set { done }
 
     emit:
