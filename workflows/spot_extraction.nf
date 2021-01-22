@@ -73,7 +73,7 @@ workflow spot_extraction {
     | map {
         ch = it[0]
         args = it[2]
-        [
+        merge_points_args = [
             args.data_dir,
             ch,
             args.scale,
@@ -82,6 +82,8 @@ workflow spot_extraction {
             args.z_overlap,
             args.spot_extraction_output_dir
         ]
+        println "Prepare merge points args: ${merge_points_args}"
+        return merge_points_args
     } \
     | merge_points \
     | set { done }
