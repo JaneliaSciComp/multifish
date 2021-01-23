@@ -1,0 +1,13 @@
+maru_version: 0.1.1
+name: bigstream
+version: 0.1.0
+build_args:
+  GIT_TAG: prototype
+template_args:
+  flavor: python_conda
+  build:
+    repo_url: https://github.com/GFleishman/bigstream/tree/master/bigstream
+  python_conda:
+    python_version: "3.6"
+    dependencies: numpy z5py json scipy scikit-image
+    script_path: bigstream/run_stream.sh
