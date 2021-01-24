@@ -13,8 +13,8 @@ RUN git clone --branch $GIT_TAG --depth 1 https://github.com/GFleishman/bigstrea
 # Create final image
 FROM continuumio/miniconda3:4.9.2
 
-RUN conda create -n myenv -y -c conda-forge python=3.6 numpy scipy scikit-image zarr opencv pynrrd \
-    && pip install greedypy==0.0.3 \
+COPY environment.yml /tmp/
+RUN conda env create -f /tmp/environment.yml \
     && conda clean -afy \
     && mkdir -p /opt/conda/envs/myenv/etc/conda/activate.d \
     # It's necessary to set TMPDIR for running with Singularity, because /opt/conda will be read-only
@@ -26,8 +26,8 @@ COPY waitforpaths.sh /app/scripts/
 
 RUN echo "#!/bin/bash" >> /entrypoint.sh \
     && echo "source /opt/conda/etc/profile.d/conda.sh" >> /entrypoint.sh \
-    && echo "conda activate myenv" >> /entrypoint.sh \
     && echo "SCRIPT_NAME=\$1; shift" >> /entrypoint.sh \
+    && echo "conda activate myenv" >> /entrypoint.sh \
     && echo 'python /app/bigstream/${SCRIPT_NAME}.py "$@"' >> /entrypoint.sh \
     && chmod +x /entrypoint.sh
 ENTRYPOINT [ "/entrypoint.sh" ]
