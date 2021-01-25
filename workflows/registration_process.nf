@@ -116,7 +116,7 @@ process interpolate_affines {
     container = registration_container
 
     input:
-    val all_tiles from tile_outputs.collect()
+    val all_tiles
     val tiles_dir
 
     output:

@@ -91,7 +91,6 @@ workflow spots_for_tile {
         tile
         ransac_affine_mat
         affine_small // tuple ransac_affine, aff subpath
-        affine_big // tuple ransac_affine, def subpath
     main:
         tile_fixed_spots = spots_fixed(fixed, aff_scale_subpath, \
             tile, "fixed_spots.pkl", params.spots_cc_radius, params.spots_spot_number)
@@ -142,9 +141,9 @@ workflow {
 
     tiles = Channel.fromPath("${tiledir}/*", type: 'dir')
     //tiles.subscribe {  println "Got: $it"  }
-    tile_outputs = spots_for_tile(tiles, ransac_affine_mat, affine_small, affine_big)
+    tile_outputs = spots_for_tile(tiles, ransac_affine_mat, affine_small)
 
-    interpolation = interpolate_affines(tile_outputs, tiledir)
+    interpolation = interpolate_affines(tile_outputs.collect(), tiledir)
 
     tiles = Channel.fromPath("${tiledir}/*", type: 'dir')
     deform_for_tile(interpolation, tiles, fixed, def_scale_subpath, affine_big, \
