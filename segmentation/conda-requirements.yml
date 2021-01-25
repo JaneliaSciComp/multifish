@@ -1,0 +1,15 @@
+channels:
+  - anaconda
+  - conda-forge
+  - defaults
+
+dependencies:
+  - pip
+  - numpy
+  - z5py=2.0.5
+  - tensorflow=1.15
+  - tensorflow-gpu=1.15
+  - pip:
+    - gputools
+    - edt
+    - git+https://github.com/mpicbg-csbd/stardist@refinement
