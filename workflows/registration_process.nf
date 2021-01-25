@@ -149,10 +149,61 @@ process deform {
     //subpath = affine_big.map { t -> t[1] }
     """
     /app/scripts/waitforpaths.sh ${img_path}${img_subpath} ${ransac_affine}/${ransac_affine_subpath}
-    /entrypoint.sh $img_path $img_subpath $ransac_affine $ransac_affine_subpath \
+    /entrypoint.sh deform $img_path $img_subpath $ransac_affine $ransac_affine_subpath \
             $tile/coords.txt $tile/warp.nrrd $tile/ransac_affine.mat \
             $tile/final_lcc.nrrd $tile/invwarp.nrrd \
             $deform_iterations $deform_auto_mask
+    """
+}
+
+process stitch {
+    container = registration_container
+    cpus "2"
+
+    input:
+    val deform_outputs
+    val tile
+    val xy_overlap
+    val z_overlap
+    val img_path
+    val img_subpath
+    val ransac_affine_mat
+    val transform_dir
+    val invtransform_dir
+    val output_subpath
+
+    output:
+    val "$transform_dir/$output_subpath"
+
+    script:
+    """
+    /app/scripts/waitforpaths.sh $tile ${img_path}${img_subpath} $ransac_affine_mat
+    /entrypoint.sh stitch $tile $xy_overlap $z_overlap $img_path $img_subpath $ransac_affine_mat \
+        $transform_dir $invtransform_dir $output_subpath
+    """
+}
+
+process final_transform {
+    container = registration_container
+
+    input:
+    val stitch_outputs
+    val ref_img_path
+    val ref_img_subpath
+    val mov_img_path
+    val mov_img_subpath
+    val txm_path
+    val output_path
+
+    output:
+    tuple val(output_path), val(ref_img_subpath)
+
+    cpus "12"
+
+    script:
+    """
+    /app/scripts/waitforpaths.sh ${ref_img_path}${ref_img_subpath} ${mov_img_path}${mov_img_subpath}
+    /entrypoint.sh apply_transform_n5 $ref_img_path $ref_img_subpath $mov_img_path $mov_img_subpath $txm_path $output_path 
     """
 }
 
