@@ -13,4 +13,9 @@ git submodule update --init --recursive
 git pull --recurse-submodules
 ```
 
+### Compile modules
+```
+mvn -f external-modules/stitching-spark/pom.xml package
+```
+
 
