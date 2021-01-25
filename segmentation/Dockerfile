@@ -14,7 +14,8 @@ RUN mkdir /tmp-install && \
     cd /tmp-install && \
     wget ${DOWNLOAD_CONDA_URL} -O miniconda-install.sh && \
     bash miniconda-install.sh -b -p /miniconda && \
-    rm miniconda-install.sh
+    rm miniconda-install.sh && \
+    rm -rf /tmp-install
     
 ENV PATH=/miniconda/bin:${PATH}
 
@@ -31,9 +32,3 @@ RUN conda install python=3.6
 
 RUN conda env update -n base -f conda-requirements.yml && \
     rm -f conda-requirements.yml
-
-# RUN git clone -b refinement https://github.com/mpicbg-csbd/stardist.git /tmp-install/starfinity-repo && \
-#     cd /tmp-install/starfinity-repo && \
-#     python setup.py install
-    
-# rm -rf /tmp-install
