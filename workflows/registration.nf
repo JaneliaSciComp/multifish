@@ -91,7 +91,7 @@ include {
   stitch;
   final_transform;
   
-} from './registration_process.nf'
+} from '../processes/registration.nf'
 
 
 workflow spots_for_tile {
