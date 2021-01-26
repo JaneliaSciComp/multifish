@@ -42,7 +42,7 @@ workflow spot_extraction {
     | flatMap {
         println "Cut tiles results: $it"
         it.tokenize(' ')
-    }
+    } \
     | combine(spot_extraction_inputs) \
     | flatMap {
         tile_dir = it[0]

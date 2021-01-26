@@ -77,10 +77,8 @@ workflow {
     stitching_result = acq_names \
     | map { acq_name ->
         println "Prepare stitching for $acq_name"
-        output_dir = new File(final_params.output_dir, acq_name)
-        stitching_output_dir = stitching_output == null || stitching_output == ''
-            ? output_dir
-            : new File(output_dir, stitching_output)
+        output_dir = get_acq_output(final_params.output_dir, acq_name)
+        stitching_output_dir = get_step_output_dir(output_dir, stitching_output)
         // create output dir
         stitching_output_dir.mkdirs()
         //  create the links
@@ -121,9 +119,7 @@ workflow {
     // spot extraction
     stitching_result \
     | map {
-        spot_extraction_output_dir = spot_extraction_output == null || spot_extraction_output == ''
-            ? it.output_dir
-            : new File(it.output_dir, spot_extraction_output)
+        spot_extraction_output_dir = get_step_output_dir(it.output_dir, spot_extraction_output)
         // create output dir
         spot_extraction_output_dir.mkdirs()
         it + [
@@ -144,14 +140,16 @@ workflow {
 
     // segmentation
     stitching_result \
+    | filter {
+        it.acq_name == final_params.reference_acq_name
+    } \
     | map {
-        segmentation_output_dir = segmentation_output == null || segmentation_output == ''
-            ? it.output_dir
-            : new File(it.output_dir, segmentation_output)
+        stitching_output_dir = get_step_output_dir(it.output_dir, stitching_output)
+        segmentation_output_dir = get_step_output_dir(it.output_dir, segmentation_output)
         // create output dir
         segmentation_output_dir.mkdirs()
         it + [
-            data_dir: "${it.stitching_output_dir}/export.n5",
+            data_dir: "${stitching_output_dir}/export.n5",
             segmentation_output_dir: segmentation_output_dir,
             dapi_channel: final_params.dapi_channel
             scale: final_params.scale_4_segmentation,
@@ -162,3 +160,12 @@ workflow {
     | view
 }
 
+def get_acq_output(output, acq_name) {
+    new File(output, acq_name)
+}
+
+def get_step_output_dir(output_dir, step_output) {
+    return step_output == null || step_output == ''
+        ? output_dir
+        : new File(output_dir, step_output)
+}

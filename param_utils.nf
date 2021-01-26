@@ -19,7 +19,7 @@ def default_mf_params() {
         blur_sigma: '2',
 
         dapi_channel: 'c2',
-        fixed_acq: '',
+        reference_acq_name: '', // reference acq - this is the fixed round
 
         spot_extraction_output: 'spots',
         scale_4_spot_extraction: 's0',
