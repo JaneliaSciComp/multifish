@@ -17,15 +17,22 @@ def default_mf_params() {
         stitching_mode: 'incremental',
         stitching_padding: '0,0,0',
         blur_sigma: '2',
+
+        dapi_channel: 'c2',
+        fixed_acq: '',
+
         spot_extraction_output: 'spots',
         scale_4_spot_extraction: 's0',
         spot_extraction_xy_stride: spot_extraction_xy_stride,
         spot_extraction_xy_overlap: spot_extraction_xy_overlap,
         spot_extraction_z_stride: spot_extraction_z_stride,
         spot_extraction_z_overlap: spot_extraction_z_overlap,
-        spot_extraction_dapi_channel: 'c2',
         spot_extraction_dapi_correction_channels: 'c3',
         default_airlocalize_params: default_airlocalize_params,
-        per_channel_air_localize_params: ",,,"
+        per_channel_air_localize_params: ",,,",
+
+        segmentation_model_dir: '',
+        segmentation_output: 'segmentation',
+        scale_4_segmentation: 's2'
     ]
 }

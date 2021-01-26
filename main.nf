@@ -27,6 +27,11 @@ include {
 } from './workflows/spot_extraction' addParams(lsf_opts: final_params.lsf_opts,
                                                mfrepo: final_params.mfrepo)
 
+include {
+    segmentation;
+} from './workflows/segmentation' addParams(lsf_opts: final_params.lsf_opts,
+                                            mfrepo: final_params.mfrepo)
+
 // spark config
 spark_conf = final_params.spark_conf
 spark_work_dir = final_params.spark_work_dir
@@ -64,6 +69,9 @@ per_channel_air_localize_params = [
     a[ch] =  airlocalize_params
     return a 
 }
+
+segmentation_output = final_params.segmentation_output
+
 workflow {
     // stitching
     stitching_result = acq_names \
@@ -126,12 +134,31 @@ workflow {
             xy_overlap: final_params.spot_extraction_xy_overlap,
             z_stride: final_params.spot_extraction_z_stride,
             z_overlap: final_params.spot_extraction_z_overlap,
-            dapi_channel: final_params.spot_extraction_dapi_channel,
+            dapi_channel: final_params.dapi_channel,
             dapi_correction_channels: spot_extraction_dapi_correction_channels,
             per_channel_air_localize_params:per_channel_air_localize_params,
         ]
     } \
     | spot_extraction \
+    | view
+
+    // segmentation
+    stitching_result \
+    | map {
+        segmentation_output_dir = segmentation_output == null || segmentation_output == ''
+            ? it.output_dir
+            : new File(it.output_dir, segmentation_output)
+        // create output dir
+        segmentation_output_dir.mkdirs()
+        it + [
+            data_dir: "${it.stitching_output_dir}/export.n5",
+            segmentation_output_dir: segmentation_output_dir,
+            dapi_channel: final_params.dapi_channel
+            scale: final_params.scale_4_segmentation,
+            model_dir: final_params.segmentation_model_dir,
+        ]
+    } \
+    | segmentation \
     | view
 }
 

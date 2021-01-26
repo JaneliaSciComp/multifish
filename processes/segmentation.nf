@@ -1,7 +1,7 @@
 process predict {
     label "withGPU"
 
-    container = "${params.seg_repo}/segmentation:1.0"
+    container = "${params.mfrepo}/segmentation:1.0"
 
     input:
     tuple val(image_path),

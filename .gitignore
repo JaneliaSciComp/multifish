@@ -13,3 +13,4 @@ local
 __pycache__
 *.ctf
 *.sif
+models
