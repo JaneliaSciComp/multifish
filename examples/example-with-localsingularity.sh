@@ -1,7 +1,7 @@
 ./main.nf \
         -with-tower 'http://nextflow.int.janelia.org/api' \
         -profile localsingularity \
-        --runtime_opts "-B /nrs/scicompsoft/goinac" \
+        --runtime_opts "--nv -B /nrs/scicompsoft/goinac" \
         --workers 4 \
         --worker_cores 4 \
         --driver_memory 15g \

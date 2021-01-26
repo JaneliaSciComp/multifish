@@ -1,7 +1,7 @@
 ./main.nf \
         -with-tower 'http://nextflow.int.janelia.org/api' \
         -profile lsf \
-        --runtime_opts "-B /nrs/scicompsoft/goinac" \
+        --runtime_opts "--nv -B /nrs/scicompsoft/goinac" \
         --lsf_opts "-P multifish" \
         --workers 4 \
         --worker_cores 4 \
