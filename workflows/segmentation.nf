@@ -1,22 +1,13 @@
 include {
     predict;
-} from '..'
+} from '../processes/segmentation'  addParams(lsf_opts: params.lsf_opts,
+                                              mfrepo: params.mfrepo)
 
 workflow segmentation {
     take:
     segmentation_inputs
 
     main:
-    
-    per_channel_segmentation_inputs = segmentation_inputs \
-    | flatMap { args ->
-        args.channels.collect { ch ->
-            [
-                args + [ch: ch]
-            ]
-        }
-    }
-
 
     segmentation_inputs \
     | map { args ->
@@ -27,7 +18,10 @@ workflow segmentation {
             args.model_dir,
             args.segmentation_output_dir
         ]
-    }
+    } \
+    | predict \
+    | set { done }
 
-
+    emit:
+    done
 }
