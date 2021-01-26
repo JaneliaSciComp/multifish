@@ -83,8 +83,8 @@ include {
   ransac as coarse_ransac;
   apply_transform as apply_affine_small;
   apply_transform as apply_affine_big;
-  spots_for_tile as spots_fixed;
-  spots_for_tile as spots_moving;
+  spots as spots_fixed;
+  spots as spots_moving;
   ransac as ransac_for_tile;
   interpolate_affines;
   deform;
@@ -122,8 +122,9 @@ workflow {
     xy_overlap = params.xy_stride / 8
     z_overlap = params.z_stride / 8
 
-    coords = cut_tiles(fixed, def_scale_subpath, tiledir, \
-        params.xy_stride, xy_overlap, params.z_stride, z_overlap)
+    tiles = cut_tiles(fixed, def_scale_subpath, tiledir, \
+        params.xy_stride, xy_overlap, params.z_stride, z_overlap) \
+        | flatMap { it.tokenize(' ') }
 
     fixed_spots = coarse_spots_fixed(fixed, aff_scale_subpath, \
         "${affdir}/fixed_spots.pkl", params.spots_cc_radius, params.spots_spot_number)
@@ -148,15 +149,12 @@ workflow {
         moving, def_scale_subpath, \
         ransac_affine_mat, "${affdir}/ransac_affine", "")
 
-    tiles = Channel.fromPath("${tiledir}/*", type: 'dir')
     spot_output = spots_for_tile(tiles, ransac_affine_mat, affine_small)
     interpolation = interpolate_affines(spot_output.collect(), tiledir)
 
-    tiles = Channel.fromPath("${tiledir}/*", type: 'dir')
     deform_output = deform(interpolation, tiles, fixed, def_scale_subpath, affine_big, \
         params.deform_iterations, params.deform_auto_mask)
 
-    tiles = Channel.fromPath("${tiledir}/*", type: 'dir')
     stitch_output = stitch(deform_output.collect(), \
          tiles, xy_overlap, z_overlap, fixed, def_scale_subpath, ransac_affine_mat, \
          transform_dir, invtransform_dir, "/${params.def_scale}")
@@ -167,3 +165,9 @@ workflow {
         transform_dir, warped_dir)
 
 }
+
+workflow.onComplete {
+    println "Pipeline $workflow.scriptName completed at: $workflow.complete "
+    println "Execution status: ${ workflow.success ? 'OK' : 'failed' }"
+}
+

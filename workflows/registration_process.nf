@@ -14,12 +14,13 @@ process cut_tiles {
     val z_overlap
 
     output:
-    val "${tiledir}/0/coords.txt"
+    env CUT_TILES_RES
 
     script:
     """
     /app/scripts/waitforpaths.sh ${ref_img_path}${ref_img_subpath}
     /entrypoint.sh cut_tiles $ref_img_path $ref_img_subpath $tiles_dir $xy_stride $xy_overlap $z_stride $z_overlap
+    CUT_TILES_RES=`ls -d ${tiles_dir}/*[0-9]`
     """
 }
 
@@ -90,7 +91,7 @@ process apply_transform {
     """
 }
 
-process spots_for_tile {
+process spots {
     container = registration_container
 
     input:
@@ -142,11 +143,9 @@ process deform {
     val deform_auto_mask
 
     output:
-    val output_file
+    val "$tile/warp.nrrd"
 
     script:
-    //ransac_affine = affine_big.map { t -> t[0] }
-    //subpath = affine_big.map { t -> t[1] }
     """
     /app/scripts/waitforpaths.sh ${img_path}${img_subpath} ${ransac_affine}/${ransac_affine_subpath}
     /entrypoint.sh deform $img_path $img_subpath $ransac_affine $ransac_affine_subpath \
@@ -178,8 +177,8 @@ process stitch {
     script:
     """
     /app/scripts/waitforpaths.sh $tile ${img_path}${img_subpath} $ransac_affine_mat
-    /entrypoint.sh stitch $tile $xy_overlap $z_overlap $img_path $img_subpath $ransac_affine_mat \
-        $transform_dir $invtransform_dir $output_subpath
+    /entrypoint.sh stitch_and_write $tile $xy_overlap $z_overlap $img_path $img_subpath \
+        $ransac_affine_mat $transform_dir $invtransform_dir $output_subpath
     """
 }
 
@@ -203,7 +202,7 @@ process final_transform {
     script:
     """
     /app/scripts/waitforpaths.sh ${ref_img_path}${ref_img_subpath} ${mov_img_path}${mov_img_subpath}
-    /entrypoint.sh apply_transform_n5 $ref_img_path $ref_img_subpath $mov_img_path $mov_img_subpath $txm_path $output_path 
+    /entrypoint.sh apply_transform_n5 $ref_img_path $ref_img_subpath $mov_img_path $mov_img_subpath $txm_path $output_path
     """
 }
 
