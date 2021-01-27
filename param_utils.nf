@@ -13,6 +13,8 @@ def default_mf_params() {
         segmentation_container: '',
         registration_container: '',
 
+        output_dir = '',
+
         stitching_app: 'external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar',
         stitching_output: 'stitching',
         resolution: '0.23,0.23,0.42',
@@ -45,24 +47,32 @@ def default_mf_params() {
 
 def segmentation_container_param(Map ps) {
     segmentation_container = ps.segmentation_container
-    if (!segmentation_container) {
+    if (!segmentation_container)
         "${ps.mfrepo}/segmentation:1.0"
-    } else
+    else
         segmentation_container
 }
 
 def spotextraction_container_param(Map ps) {
     spotextraction_container = ps.spotextraction_container
-    if (!spotextraction_container) {
+    if (!spotextraction_container)
         "${ps.mfrepo}/spotextraction:1.0"
-    } else
+    else
         spotextraction_container
 }
 
 def registration_container_param(Map ps) {
     registration_container = ps.registration_container
-    if (!registration_container) {
+    if (!registration_container)
         "${ps.mfrepo}/registration:1.0"
-    } else
+    else
         registration_container
+}
+
+def output_dir_param(Map ps) {
+    output_dir = ps.output_dir
+    if (!output_dir)
+        ps.data_dir
+    else
+        output_dir
 }

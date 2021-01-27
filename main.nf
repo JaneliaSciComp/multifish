@@ -8,6 +8,7 @@ include {
 
 include {
     default_mf_params;
+    output_dir_param;
 } from './param_utils'
 
 // app parameters
@@ -76,7 +77,7 @@ workflow {
     // stitching
     acqs = Channel.fromList(acq_names)
     output_dirs = acqs.map { acq_name ->
-        get_acq_output(final_params.output_dir, acq_name)
+        get_acq_output(output_dir_param(final_params), acq_name)
     }
     stitching_dirs = output_dirs.map { output_dir ->
         stitching_dir = get_step_output_dir(output_dir, stitching_output)
