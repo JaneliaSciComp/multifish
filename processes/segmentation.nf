@@ -2,7 +2,7 @@ process predict {
     label "withGPU"
 
     container = "${params.mfrepo}/segmentation:1.0"
-    cpus =  2
+    cpus = 3
 
     input:
     tuple val(image_path),
