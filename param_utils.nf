@@ -13,7 +13,7 @@ def default_mf_params() {
         segmentation_container: '',
         registration_container: '',
 
-        output_dir = '',
+        output_dir: '',
 
         stitching_app: 'external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar',
         stitching_output: 'stitching',
