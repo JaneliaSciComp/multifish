@@ -1,5 +1,4 @@
-
-registration_container = "/groups/scicompsoft/home/rokickik/dev/multifish/containers/bigstream/out.sif"
+registration_container = params.registration_container
 
 process cut_tiles {
     container = registration_container
@@ -24,26 +23,6 @@ process cut_tiles {
     """
 }
 
-process coarse_spots {
-    container = registration_container
-
-    input:
-    val img_path
-    val img_subpath
-    val output_file
-    val radius
-    val spotNum
-
-    output:
-    val output_file
-
-    script:
-    """
-    /app/scripts/waitforpaths.sh ${img_path}${img_subpath}
-    /entrypoint.sh spots coarse $img_path $img_subpath $output_file $radius $spotNum
-    """
-
-}
 
 process ransac {
     container = registration_container
@@ -88,6 +67,26 @@ process apply_transform {
     """
     /app/scripts/waitforpaths.sh ${ref_img_path}${ref_img_subpath} ${mov_img_path}${mov_img_subpath}
     /entrypoint.sh apply_transform_n5 $ref_img_path $ref_img_subpath $mov_img_path $mov_img_subpath $txm_path $output_path $points_path
+    """
+}
+
+process coarse_spots {
+    container = registration_container
+
+    input:
+    val img_path
+    val img_subpath
+    val output_file
+    val radius
+    val spotNum
+
+    output:
+    val output_file
+
+    script:
+    """
+    /app/scripts/waitforpaths.sh ${img_path}${img_subpath}
+    /entrypoint.sh spots coarse $img_path $img_subpath $output_file $radius $spotNum
     """
 }
 
@@ -184,6 +183,7 @@ process stitch {
 
 process final_transform {
     container = registration_container
+    cpus "12"
 
     input:
     val stitch_outputs
@@ -196,8 +196,6 @@ process final_transform {
 
     output:
     tuple val(output_path), val(ref_img_subpath)
-
-    cpus "12"
 
     script:
     """

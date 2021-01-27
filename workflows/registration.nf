@@ -1,21 +1,16 @@
 #!/usr/bin/env nextflow
-
 /*
-    Registration using Bigstream
-    Parameters:
-        fixed
-        moving
-        outdir
+    Image registration using Bigstream
 */
 nextflow.enable.dsl=2
 
-// the fixed n5 image
+// path to the fixed n5 image
 params.fixed = ""
 
-// the moving n5 image
+// path to the moving n5 image
 params.moving = ""
 
-// the folder where you'd like all outputs to be written
+// path to the folder where you'd like all outputs to be written
 params.outdir = ""
 
 // the channel used to drive registration
@@ -90,7 +85,6 @@ include {
   deform;
   stitch;
   final_transform;
-  
 } from '../processes/registration.nf'
 
 
@@ -98,11 +92,12 @@ workflow spots_for_tile {
     take:
         tile
         ransac_affine_mat
-        affine_small // tuple ransac_affine, aff subpath
+        affine_small // tuple ransac_affine, subpath
     main:
         tile_fixed_spots = spots_fixed(fixed, aff_scale_subpath, \
             tile, "fixed_spots.pkl", params.spots_cc_radius, params.spots_spot_number)
 
+        // extract the tuple parts
         affine_small_path = affine_small.map { t -> t[0] }
         affine_small_subpath = affine_small.map { t -> t[1] }
 
@@ -111,7 +106,6 @@ workflow spots_for_tile {
 
         tile_ransac = ransac_for_tile(tile_fixed_spots, tile_moving_spots, \
             tile, "ransac_affine.mat", params.ransac_cc_cutoff, params.ransac_dist_threshold)
-
     emit:
         tile_ransac
 }
