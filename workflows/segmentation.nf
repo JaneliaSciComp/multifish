@@ -1,7 +1,7 @@
 include {
     predict;
 } from '../processes/segmentation'  addParams(lsf_opts: params.lsf_opts,
-                                              mfrepo: params.mfrepo)
+                                              segmentation_container: params.segmentation_container)
 
 workflow segmentation {
     take:

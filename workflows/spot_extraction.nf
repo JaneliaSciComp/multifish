@@ -3,7 +3,7 @@ include {
     airlocalize;
     merge_points;
 } from '../processes/spot_extraction' addParams(lsf_opts: params.lsf_opts, 
-                                                mfrepo: params.mfrepo)
+                                                spotextraction_container: params.spotextraction_container)
 
 workflow spot_extraction {
     take:
