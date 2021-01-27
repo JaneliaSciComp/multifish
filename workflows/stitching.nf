@@ -43,10 +43,11 @@ workflow stitch_single_acquisition {
     spark_gbmem_per_core
     spark_driver_cores
     spark_driver_memory
-    spark_driver_stack_size
     spark_driver_logconfig
 
     main:
+    spark_driver_stack_size = ''
+    spark_driver_deploy_mode = ''
     terminate_stitching_name = 'terminate-stitching'
 
     // start a spark cluster
