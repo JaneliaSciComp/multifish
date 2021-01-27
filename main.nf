@@ -28,12 +28,12 @@ include {
 include {
     spot_extraction;
 } from './workflows/spot_extraction' addParams(lsf_opts: final_params.lsf_opts,
-                                               spotextraction_container: spotextraction_container_param(final_params)
+                                               spotextraction_container: spotextraction_container_param(final_params))
 
 include {
     segmentation;
 } from './workflows/segmentation' addParams(lsf_opts: final_params.lsf_opts,
-                                            segmentation_container: segmentation_container_param(final_params)
+                                            segmentation_container: segmentation_container_param(final_params))
 
 // spark config
 spark_conf = final_params.spark_conf
