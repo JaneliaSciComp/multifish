@@ -16,7 +16,7 @@ workflow segmentation {
             args.dapi_channel,
             args.scale,
             args.model_dir,
-            args.segmentation_output_dir
+            "${args.segmentation_output_dir}/${args.acq_name}-${args.dapi_channel}.tif"
         ]
     } \
     | predict \
