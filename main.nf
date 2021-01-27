@@ -117,6 +117,7 @@ workflow {
         gb_per_core,
         driver_cores,
         driver_memory,
+        '',
         driver_logconfig
     )
 
