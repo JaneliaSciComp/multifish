@@ -9,6 +9,8 @@ include {
 include {
     default_mf_params;
     output_dir_param;
+    spotextraction_container_param;
+    segmentation_container_param;
 } from './param_utils'
 
 // app parameters

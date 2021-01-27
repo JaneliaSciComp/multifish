@@ -45,6 +45,14 @@ def default_mf_params() {
     ]
 }
 
+def output_dir_param(Map ps) {
+    output_dir = ps.output_dir
+    if (!output_dir)
+        ps.data_dir
+    else
+        output_dir
+}
+
 def segmentation_container_param(Map ps) {
     segmentation_container = ps.segmentation_container
     if (!segmentation_container)
@@ -67,12 +75,4 @@ def registration_container_param(Map ps) {
         "${ps.mfrepo}/registration:1.0"
     else
         registration_container
-}
-
-def output_dir_param(Map ps) {
-    output_dir = ps.output_dir
-    if (!output_dir)
-        ps.data_dir
-    else
-        output_dir
 }
