@@ -9,17 +9,13 @@ import argparse, sys, z5py
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='')
-    parser.add_argument('-i','--input', type=str, help = "input file")
+    parser.add_argument('-i','--input', type=str, help = "z5 input directory")
     parser.add_argument('-m','--model', type=str, help = "model directory")
-    parser.add_argument('-o','--outdir', type=str, help = "output directory")
+    parser.add_argument('-o','--output', type=str, help = "output file")
     parser.add_argument('-c','--channel', type=str, help = "channel")
     parser.add_argument('-s','--scale', type=str, help = "scale")
     
     args = parser.parse_args()
-
-
-    input        = sys.argv[1]
-    output       = sys.argv[2]
     
     print("reading ...", args.input, args.channel + '/' + args.scale)
     im = z5py.File(args.input, use_zarr_format=False)
@@ -49,6 +45,6 @@ if __name__ == '__main__':
 
     print("saving...")
     
-    imsave(output,label_starfinity, compress=3)
+    imsave(args.output, label_starfinity, compress=3)
     
     print("done")
