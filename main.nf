@@ -87,10 +87,10 @@ workflow {
         stitching_dir.mkdirs()
         acq_name = output_dir.name
         //  create the links
-        mvl_link = new File(stitching_output_dir, "${acq_name}.mvl")
+        mvl_link = new File(stitching_dir, "${acq_name}.mvl")
         if (!mvl_link.exists())
             java.nio.file.Files.createSymbolicLink(mvl_link.toPath(), new File(data_dir, "${acq_name}.mvl").toPath())
-        czi_link = new File(stitching_output_dir, "${acq_name}.czi")
+        czi_link = new File(stitching_dir, "${acq_name}.czi")
         if (!czi_link.exists())
             java.nio.file.Files.createSymbolicLink(czi_link.toPath(), new File(data_dir, "${acq_name}.czi").toPath())
         return stitching_dir
