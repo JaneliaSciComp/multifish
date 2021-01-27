@@ -1,7 +1,5 @@
-registration_container = params.registration_container
-
 process cut_tiles {
-    container = registration_container
+    container = params.registration_container
 
     input:
     val ref_img_path
@@ -25,7 +23,7 @@ process cut_tiles {
 
 
 process ransac {
-    container = registration_container
+    container = params.registration_container
 
     input:
     val fixed_spots
@@ -46,7 +44,7 @@ process ransac {
 }
 
 process apply_transform {
-    container = registration_container
+    container = params.registration_container
 
     input:
     val cpus
@@ -71,7 +69,7 @@ process apply_transform {
 }
 
 process coarse_spots {
-    container = registration_container
+    container = params.registration_container
 
     input:
     val img_path
@@ -91,7 +89,7 @@ process coarse_spots {
 }
 
 process spots {
-    container = registration_container
+    container = params.registration_container
 
     input:
     val img_path
@@ -113,7 +111,7 @@ process spots {
 }
 
 process interpolate_affines {
-    container = registration_container
+    container = params.registration_container
 
     input:
     val all_tiles
@@ -130,7 +128,7 @@ process interpolate_affines {
 
 
 process deform {
-    container = registration_container
+    container = params.registration_container
 
     input:
     val interpolation
@@ -155,7 +153,7 @@ process deform {
 }
 
 process stitch {
-    container = registration_container
+    container = params.registration_container
     cpus "2"
 
     input:
@@ -182,7 +180,7 @@ process stitch {
 }
 
 process final_transform {
-    container = registration_container
+    container = params.registration_container
     cpus "12"
 
     input:

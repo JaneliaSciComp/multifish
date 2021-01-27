@@ -20,109 +20,187 @@ include {
     entries_inputs_args
 } from './stitching_utils'
 
-workflow stitching {
+/**
+ * run stitching for a single acquisition
+ */
+workflow stitch_single_acquisition {
     take:
-    stitching_inputs
+    stitching_app
+    acq_name
+    stitching_dir
+    channels
+    resolution
+    axis_mapping
+    block_size
+    registration_channel
+    stitching_mode
+    stitching_padding
+    blur_sigma
+    spark_conf
+    spark_work_dir
+    spark_workers
+    spark_worker_cores
+    spark_gbmem_per_core
+    spark_driver_cores
+    spark_driver_memory
+    spark_driver_logconfig
 
     main:
+    terminate_stitching_name = 'terminate-stitching'
+
     // start a spark cluster
+    spark_uri = spark_cluster(
+        spark_conf,
+        spark_work_dir,
+        spark_workers,
+        spark_worker_cores,
+        terminate_stitching_name
+    )
 
-    stitching_inputs \
-    | spark_cluster \
-    | combine(stitching_inputs) \
-    | map {
-        it[1] + [spark_uri: it[0]]
-    } \
-    | map {
-        println "Prepare parse czi tiles inputs for ${it}"
-        mvl_inputs = entries_inputs_args(it.stitching_output_dir, [ it.acq_name ], '-i', '', '.mvl')
-        czi_inputs = entries_inputs_args('', [ it.acq_name ], '-f', '', '.czi')
-        parse_czi_args = "${mvl_inputs} ${czi_inputs} \
-                          -r '${it.resolution}' \
-                          -a '${it.axis_mapping}' \
-                          -b ${it.stitching_output_dir}"
-        it + [
-            spark_app: it.stitching_app,
-            spark_app_entrypoint: 'org.janelia.stitching.ParseCZITilesMetadata',
-            spark_app_args: parse_czi_args,
-            spark_app_log: 'parseCZITiles.log'
-        ]
-    } \
-    | run_parse_czi_tiles \
-    | map {
-        println "Prepare czi to n5 inputs for ${it}"
-
-        tiles_json = entries_inputs_args(it.stitching_output_dir, ['tiles'], '-i', '', '.json')
-        czi_to_n5_args = "${tiles_json} --blockSize '${it.block_size}'"
-        it + [
-            spark_app: it.stitching_app,
-            spark_app_entrypoint: 'org.janelia.stitching.ConvertCZITilesToN5Spark',
-            spark_app_args: czi_to_n5_args,
-            spark_app_log: 'czi2n5.log'
-        ]
-    } \
-    | run_czi2n5 \
-    | map {
-        println "Prepare flatfield correction inputs for ${it}"
-
-        n5_channels_args = entries_inputs_args(it.stitching_output_dir, it.channels, '-i', '-n5', '.json')
-        flatfield_args = "${n5_channels_args} --2d --bins 256"
-        it + [
-            spark_app: it.stitching_app,
-            spark_app_entrypoint: 'org.janelia.flatfield.FlatfieldCorrection',
-            spark_app_args: flatfield_args,
-            spark_app_log: 'flatfieldCorrection.log'
-        ]
-    } \
-    | run_flatfield_correction \
-    | map {
-        println "Prepare retiling inputs for ${it}"
-
-        retile_args = entries_inputs_args(it.stitching_output_dir, it.channels, '-i', '-n5', '.json')
-        it + [
-            spark_app: it.stitching_app,
-            spark_app_entrypoint: 'org.janelia.stitching.ResaveAsSmallerTilesSpark',
-            spark_app_args: retile_args,
-            spark_app_log: 'retileImages.log'
-        ]
-    } \
-    | run_retile \
-    | map {
-        println "Prepare stitching inputs for ${it}"
-
-        retiled_n5_channels_args = entries_inputs_args(it.stitching_output_dir, it.channels, '-i', '-n5-retiled', '.json')
-        stitching_args = "--stitch -r ${it.registration_channel} ${retiled_n5_channels_args} --mode '${it.stitching_mode}' --padding '${it.stitching_padding}' --blurSigma ${it.blur_sigma}"
-        it + [
-            spark_app: it.stitching_app,
-            spark_app_entrypoint: 'org.janelia.stitching.StitchingSpark',
-            spark_app_args: stitching_args,
-            spark_app_log: 'stitching.log'
-        ]
-    } \
-    | run_stitching \
-    | map {
-        println "Prepare stitching export to n5 inputs for ${it}"
-
-        stitched_n5_channels_args = entries_inputs_args(it.stitching_output_dir, it.channels, '-i', '-n5-retiled-final', '.json')
-        export_args = "--fuse ${stitched_n5_channels_args} --blending --fill"
-        it + [
-            spark_app: it.stitching_app,
-            spark_app_entrypoint: 'org.janelia.stitching.StitchingSpark',
-            spark_app_args: export_args,
-            spark_app_log: 'export2n5.log'
-        ]
-    } \
-    | run_stitching_export \
-    | map {
-        [
-            it.spark_work_dir,
-            it.spark_app_terminate_name
-        ]
-    } \
-    | terminate_stitching \
-    | combine(stitching_inputs) \
-    | map { it[1] } \
-    | set { done }
+    // prepare parse czi tiles
+    parse_czi_args = spark_uri | map {
+        mvl_inputs = entries_inputs_args(stitching_dir, [ acq_name ], '-i', '', '.mvl')
+        czi_inputs = entries_inputs_args('', [ acq_name ], '-f', '', '.czi')
+        "${mvl_inputs} \
+         ${czi_inputs} \
+         -r '${resolution}' \
+         -a '${axis_mapping}' \
+         -b ${stitching_dir}"
+    }
+    parse_czi_done = run_parse_czi_tiles(
+        spark_uri,
+        stitching_app,
+        'org.janelia.stitching.ParseCZITilesMetadata',
+        parse_czi_args,
+        'parseCZITiles.log',
+        terminate_stitching_name,
+        spark_conf,
+        spark_work_dir,
+        spark_workers,
+        spark_worker_cores,
+        spark_gbmem_per_core,
+        spark_driver_cores,
+        spark_driver_memory,
+        spark_driver_stack_size,
+        spark_driver_logconfig,
+        spark_driver_deploy_mode
+    )
+    // prepare czi to n5
+    czi_to_n5_args = parse_czi_done | map { 
+        tiles_json = entries_inputs_args(stitching_dir, ['tiles'], '-i', '', '.json')
+        "${tiles_json} --blockSize '${block_size}'"
+    }
+    czi_to_n5_done = run_czi2n5(
+        spark_uri,
+        stitching_app,
+        'org.janelia.stitching.ConvertCZITilesToN5Spark',
+        czi_to_n5_args,
+        'czi2n5.log',
+        terminate_stitching_name,
+        spark_conf,
+        spark_work_dir,
+        spark_workers,
+        spark_worker_cores,
+        spark_gbmem_per_core,
+        spark_driver_cores,
+        spark_driver_memory,
+        spark_driver_stack_size,
+        spark_driver_logconfig,
+        spark_driver_deploy_mode
+    )
+    // prepare flatfield args
+    flatfield_args = czi_to_n5_done | map {
+        n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5', '.json')
+        "${n5_channels_args} --2d --bins 256"
+    }
+    flatfield_done = run_flatfield_correction(
+        spark_uri,
+        stitching_app,
+        'org.janelia.flatfield.FlatfieldCorrection',
+        flatfield_args,
+        'flatfieldCorrection.log',
+        terminate_stitching_name,
+        spark_conf,
+        spark_work_dir,
+        spark_workers,
+        spark_worker_cores,
+        spark_gbmem_per_core,
+        spark_driver_cores,
+        spark_driver_memory,
+        spark_driver_stack_size,
+        spark_driver_logconfig,
+        spark_driver_deploy_mode
+    )
+    // prepare retile args
+    retile_args = flatfield_done | map {
+        entries_inputs_args(stitching_dir, channels, '-i', '-n5', '.json')
+    }
+    retile_done = run_retile(
+        spark_uri,
+        stitching_app,
+        'org.janelia.stitching.ResaveAsSmallerTilesSpark',
+        retile_args,
+        'retileImages.log',
+        terminate_stitching_name,
+        spark_conf,
+        spark_work_dir,
+        spark_workers,
+        spark_worker_cores,
+        spark_gbmem_per_core,
+        spark_driver_cores,
+        spark_driver_memory,
+        spark_driver_stack_size,
+        spark_driver_logconfig,
+        spark_driver_deploy_mode
+    )
+    // prepare stitching args
+    stitching_args = retile_done | map {
+        retiled_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5-retiled', '.json')
+        "--stitch -r ${registration_channel} ${retiled_n5_channels_args} --mode '${stitching_mode}' --padding '${stitching_padding}' --blurSigma ${blur_sigma}"
+    }
+    stitching_done = run_stitching(
+        spark_uri,
+        stitching_app,
+        'org.janelia.stitching.StitchingSpark',
+        stitching_args,
+        'stitching.log',
+        terminate_stitching_name,
+        spark_conf,
+        spark_work_dir,
+        spark_workers,
+        spark_worker_cores,
+        spark_gbmem_per_core,
+        spark_driver_cores,
+        spark_driver_memory,
+        spark_driver_stack_size,
+        spark_driver_logconfig,
+        spark_driver_deploy_mode
+    )
+    // prepare fuse args
+    fuse_args = stitching_done | map {
+        stitched_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5-retiled-final', '.json')
+        "--fuse ${stitched_n5_channels_args} --blending --fill"
+    }
+    fuse_done = run_stitching_export(
+        spark_uri,
+        stitching_app,
+        'org.janelia.stitching.StitchingSpark',
+        fuse_args,
+        'export2n5.log',
+        terminate_stitching_name,
+        spark_conf,
+        spark_work_dir,
+        spark_workers,
+        spark_worker_cores,
+        spark_gbmem_per_core,
+        spark_driver_cores,
+        spark_driver_memory,
+        spark_driver_stack_size,
+        spark_driver_logconfig,
+        spark_driver_deploy_mode
+    )
+    // terminate stitching cluster
+    done = terminate_stitching(fuse_done, terminate_stitching_name) | map { stitching_dir }
 
     emit:
     done

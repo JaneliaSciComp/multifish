@@ -5,8 +5,14 @@ def default_mf_params() {
     spot_extraction_xy_overlap = (int) (0.05 * spot_extraction_xy_stride)
     spot_extraction_z_overlap = (int) (0.05 * spot_extraction_z_stride)
 
+    multifish_container_repo = 'registry.int.janelia.org/janeliascicomp'
+
     [
-        mfrepo: 'registry.int.janelia.org/janeliascicomp',
+        mfrepo: multifish_container_repo,
+        spotextraction_container: '',
+        segmentation_container: '',
+        registration_container: '',
+
         stitching_app: 'external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar',
         stitching_output: 'stitching',
         resolution: '0.23,0.23,0.42',
@@ -35,4 +41,28 @@ def default_mf_params() {
         segmentation_output: 'segmentation',
         scale_4_segmentation: 's2'
     ]
+}
+
+def segmentation_container_param(Map ps) {
+    segmentation_container = ps.segmentation_container
+    if (!segmentation_container) {
+        "${ps.mfrepo}/segmentation:1.0"
+    } else
+        segmentation_container
+}
+
+def spotextraction_container_param(Map ps) {
+    spotextraction_container = ps.spotextraction_container
+    if (!spotextraction_container) {
+        "${ps.mfrepo}/spotextraction:1.0"
+    } else
+        spotextraction_container
+}
+
+def registration_container_param(Map ps) {
+    registration_container = ps.registration_container
+    if (!registration_container) {
+        "${ps.mfrepo}/registration:1.0"
+    } else
+        registration_container
 }

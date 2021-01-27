@@ -17,7 +17,7 @@ params.acq_names = ''
 final_params = default_spark_params() + default_mf_params() + params
 
 include {
-    stitching;
+    stitch_single_acquisition;
 } from './workflows/stitching' addParams(lsf_opts: final_params.lsf_opts, 
                                          crepo: final_params.crepo,
                                          spark_version: final_params.spark_version)
@@ -25,12 +25,12 @@ include {
 include {
     spot_extraction;
 } from './workflows/spot_extraction' addParams(lsf_opts: final_params.lsf_opts,
-                                               mfrepo: final_params.mfrepo)
+                                               spotextraction_container: spotextraction_container_param(final_params)
 
 include {
     segmentation;
 } from './workflows/segmentation' addParams(lsf_opts: final_params.lsf_opts,
-                                            mfrepo: final_params.mfrepo)
+                                            segmentation_container: segmentation_container_param(final_params)
 
 // spark config
 spark_conf = final_params.spark_conf
@@ -47,7 +47,7 @@ stitching_output = final_params.stitching_output
 data_dir = final_params.data_dir
 resolution = final_params.resolution
 axis_mapping = final_params.axis
-acq_names = Channel.fromList(final_params.acq_names?.tokenize(','))
+acq_names = final_params.acq_names?.tokenize(',')
 channels = final_params.channels?.split(',')
 block_size = final_params.block_size
 registration_channel = final_params.registration_channel
@@ -74,13 +74,15 @@ segmentation_output = final_params.segmentation_output
 
 workflow {
     // stitching
-    stitching_result = acq_names \
-    | map { acq_name ->
-        println "Prepare stitching for $acq_name"
-        output_dir = get_acq_output(final_params.output_dir, acq_name)
-        stitching_output_dir = get_step_output_dir(output_dir, stitching_output)
+    acqs = Channel.fromList(acq_names)
+    output_dirs = acqs.map { acq_name ->
+        get_acq_output(final_params.output_dir, acq_name)
+    }
+    stitching_dirs = output_dirs.map { output_dir ->
+        stitching_dir = get_step_output_dir(output_dir, stitching_output)
         // create output dir
-        stitching_output_dir.mkdirs()
+        stitching_dir.mkdirs()
+        acq_name = output_dir.name
         //  create the links
         mvl_link = new File(stitching_output_dir, "${acq_name}.mvl")
         if (!mvl_link.exists())
@@ -88,76 +90,117 @@ workflow {
         czi_link = new File(stitching_output_dir, "${acq_name}.czi")
         if (!czi_link.exists())
             java.nio.file.Files.createSymbolicLink(czi_link.toPath(), new File(data_dir, "${acq_name}.czi").toPath())
+        return stitching_dir
+    }
+    stitching_spark_work_dirs = acqs.map { acq_name ->
+        "${spark_work_dir}/${acq_name}"
+    }
+    stitching_done = stitch_single_acquisition(
+        stitching_app,
+        acqs,
+        stitching_dirs,
+        channels,
+        resolution,
+        axis_mapping,
+        block_size,
+        registration_channel,
+        stitching_mode,
+        stitching_padding,
+        blur_sigma,
+        spark_conf,
+        stitching_spark_work_dirs,
+        spark_workers,
+        spark_worker_cores,
+        gb_per_core,
+        driver_cores,
+        driver_memory,
+        driver_logconfig
+    )
 
-        [
-            stitching_app: stitching_app,
-            data_dir: data_dir,
-            output_dir: output_dir,
-            stitching_output_dir: stitching_output_dir,
-            acq_name: acq_name,
-            channels: channels,
-            resolution: resolution,
-            axis_mapping: axis_mapping,
-            block_size: block_size,
-            registration_channel: registration_channel,
-            stitching_mode: stitching_mode,
-            stitching_padding: stitching_padding,
-            blur_sigma: blur_sigma,
-            spark_conf: spark_conf,
-            spark_work_dir: "${spark_work_dir}/${acq_name}",
-            spark_workers: spark_workers,
-            spark_worker_cores: spark_worker_cores,
-            spark_executor_cores: spark_worker_cores,
-            spark_gbmem_per_core: gb_per_core,
-            spark_driver_cores: driver_cores,
-            spark_driver_memory: driver_memory,
-            spark_driver_logconfig: driver_logconfig
-        ]
-    } \
-    | stitching
+    // stitching_result = acq_names \
+    // | map { acq_name ->
+    //     println "Prepare stitching for $acq_name"
+    //     output_dir = get_acq_output(final_params.output_dir, acq_name)
+    //     stitching_output_dir = get_step_output_dir(output_dir, stitching_output)
+    //     // create output dir
+    //     stitching_output_dir.mkdirs()
+    //     //  create the links
+    //     mvl_link = new File(stitching_output_dir, "${acq_name}.mvl")
+    //     if (!mvl_link.exists())
+    //         java.nio.file.Files.createSymbolicLink(mvl_link.toPath(), new File(data_dir, "${acq_name}.mvl").toPath())
+    //     czi_link = new File(stitching_output_dir, "${acq_name}.czi")
+    //     if (!czi_link.exists())
+    //         java.nio.file.Files.createSymbolicLink(czi_link.toPath(), new File(data_dir, "${acq_name}.czi").toPath())
 
-    // spot extraction
-    stitching_result \
-    | map {
-        spot_extraction_output_dir = get_step_output_dir(it.output_dir, spot_extraction_output)
-        // create output dir
-        spot_extraction_output_dir.mkdirs()
-        it + [
-            data_dir: "${it.stitching_output_dir}/export.n5",
-            spot_extraction_output_dir: spot_extraction_output_dir,
-            scale: final_params.scale_4_spot_extraction,
-            xy_stride: final_params.spot_extraction_xy_stride,
-            xy_overlap: final_params.spot_extraction_xy_overlap,
-            z_stride: final_params.spot_extraction_z_stride,
-            z_overlap: final_params.spot_extraction_z_overlap,
-            dapi_channel: final_params.dapi_channel,
-            dapi_correction_channels: spot_extraction_dapi_correction_channels,
-            per_channel_air_localize_params:per_channel_air_localize_params,
-        ]
-    } \
-    | spot_extraction \
-    | view
+    //     [
+    //         stitching_app: stitching_app,
+    //         data_dir: data_dir,
+    //         output_dir: output_dir,
+    //         stitching_output_dir: stitching_output_dir,
+    //         acq_name: acq_name,
+    //         channels: channels,
+    //         resolution: resolution,
+    //         axis_mapping: axis_mapping,
+    //         block_size: block_size,
+    //         registration_channel: registration_channel,
+    //         stitching_mode: stitching_mode,
+    //         stitching_padding: stitching_padding,
+    //         blur_sigma: blur_sigma,
+    //         spark_conf: spark_conf,
+    //         spark_work_dir: "${spark_work_dir}/${acq_name}",
+    //         spark_workers: spark_workers,
+    //         spark_worker_cores: spark_worker_cores,
+    //         spark_executor_cores: spark_worker_cores,
+    //         spark_gbmem_per_core: gb_per_core,
+    //         spark_driver_cores: driver_cores,
+    //         spark_driver_memory: driver_memory,
+    //         spark_driver_logconfig: driver_logconfig
+    //     ]
+    // } \
+    // | stitching
 
-    // segmentation
-    stitching_result \
-    | filter {
-        it.acq_name == final_params.reference_acq_name
-    } \
-    | map {
-        stitching_output_dir = get_step_output_dir(it.output_dir, stitching_output)
-        segmentation_output_dir = get_step_output_dir(it.output_dir, segmentation_output)
-        // create output dir
-        segmentation_output_dir.mkdirs()
-        it + [
-            data_dir: "${stitching_output_dir}/export.n5",
-            segmentation_output_dir: segmentation_output_dir,
-            dapi_channel: final_params.dapi_channel,
-            scale: final_params.scale_4_segmentation,
-            model_dir: final_params.segmentation_model_dir,
-        ]
-    } \
-    | segmentation \
-    | view
+    // // spot extraction
+    // stitching_result \
+    // | map {
+    //     spot_extraction_output_dir = get_step_output_dir(it.output_dir, spot_extraction_output)
+    //     // create output dir
+    //     spot_extraction_output_dir.mkdirs()
+    //     it + [
+    //         data_dir: "${it.stitching_output_dir}/export.n5",
+    //         spot_extraction_output_dir: spot_extraction_output_dir,
+    //         scale: final_params.scale_4_spot_extraction,
+    //         xy_stride: final_params.spot_extraction_xy_stride,
+    //         xy_overlap: final_params.spot_extraction_xy_overlap,
+    //         z_stride: final_params.spot_extraction_z_stride,
+    //         z_overlap: final_params.spot_extraction_z_overlap,
+    //         dapi_channel: final_params.dapi_channel,
+    //         dapi_correction_channels: spot_extraction_dapi_correction_channels,
+    //         per_channel_air_localize_params:per_channel_air_localize_params,
+    //     ]
+    // } \
+    // | spot_extraction \
+    // | view
+
+    // // segmentation
+    // stitching_result \
+    // | filter {
+    //     it.acq_name == final_params.reference_acq_name
+    // } \
+    // | map {
+    //     stitching_output_dir = get_step_output_dir(it.output_dir, stitching_output)
+    //     segmentation_output_dir = get_step_output_dir(it.output_dir, segmentation_output)
+    //     // create output dir
+    //     segmentation_output_dir.mkdirs()
+    //     it + [
+    //         data_dir: "${stitching_output_dir}/export.n5",
+    //         segmentation_output_dir: segmentation_output_dir,
+    //         dapi_channel: final_params.dapi_channel,
+    //         scale: final_params.scale_4_segmentation,
+    //         model_dir: final_params.segmentation_model_dir,
+    //     ]
+    // } \
+    // | segmentation \
+    // | view
 }
 
 def get_acq_output(output, acq_name) {

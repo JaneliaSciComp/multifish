@@ -1,15 +1,15 @@
 process cut_tiles {
-    container = "${params.mfrepo}/spotextraction:1.0"
+    container = params.spotextraction_container
 
     input:
-    tuple val(image_path),
-          val(ch),
-          val(scale),
-          val(output_path),
-          val(xy_stride),
-          val(xy_overlap),
-          val(z_stride),
-          val(z_overlap)
+    val(image_path)
+    val(ch)
+    val(scale)
+    val(output_path)
+    val(xy_stride)
+    val(xy_overlap)
+    val(z_stride)
+    val(z_overlap)
 
     output:
     env CUT_TILES_RES
@@ -34,21 +34,20 @@ process cut_tiles {
 }
 
 process airlocalize {
-    container = "${params.mfrepo}/spotextraction:1.0"
+    container = params.spotextraction_container
 
     input: 
-    tuple val(image_path),
-          val(ch),
-          val(scale),
-          val(coords),
-          val(params_filename),
-          val(tile_path),
-          val(suffix),
-          val(dapi_subpath)
+    val(image_path)
+    val(ch)
+    val(scale)
+    val(coords)
+    val(params_filename)
+    val(tile_path)
+    val(suffix)
+    val(dapi_subpath)
 
     output: 
-    tuple val(ch),
-          val(tile_path)
+    tuple val(tile_path), val(ch)
 
     script:
     args_list = [
@@ -70,16 +69,16 @@ process airlocalize {
 }
 
 process merge_points {
-    container = "${params.mfrepo}/spotextraction:1.0"
+    container = params.spotextraction_container
 
     input:
-    tuple val(image_path),
-          val(ch),
-          val(scale),
-          val(tiles_dir),
-          val(xy_overlap),
-          val(z_overlap),
-          val(output_path)
+    val(image_path)
+    val(ch)
+    val(scale)
+    val(tiles_dir)
+    val(xy_overlap)
+    val(z_overlap)
+    val(output_path)
 
     output:
     val(merged_points_path)

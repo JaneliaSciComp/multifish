@@ -1,15 +1,15 @@
 process predict {
     label "withGPU"
 
-    container = "${params.mfrepo}/segmentation:1.0"
+    container = params.segmentation_container
     cpus = 3
 
     input:
-    tuple val(image_path),
-          val(ch),
-          val(scale),
-          val(model_path),
-          val(output_path)
+    val(image_path)
+    val(ch)
+    val(scale)
+    val(model_path)
+    val(output_path)
 
     output:
     val(output_path)
