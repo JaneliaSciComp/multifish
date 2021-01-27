@@ -151,7 +151,7 @@ workflow {
         it + [
             data_dir: "${stitching_output_dir}/export.n5",
             segmentation_output_dir: segmentation_output_dir,
-            dapi_channel: final_params.dapi_channel
+            dapi_channel: final_params.dapi_channel,
             scale: final_params.scale_4_segmentation,
             model_dir: final_params.segmentation_model_dir,
         ]
