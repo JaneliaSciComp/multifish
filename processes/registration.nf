@@ -29,18 +29,17 @@ process ransac {
 
     input:
     tuple val(tile_dir), val(fixed_spots), val(moving_spots)
-    val output_dir
     val output_file
     val cutoff
     val threshold
 
     output:
-    val "$output_dir/$output_file"
+    val "${tile_dir}${output_file}"
 
     script:
     """
     /app/scripts/waitforpaths.sh ${tile_dir}${fixed_spots} ${tile_dir}${moving_spots}
-    /entrypoint.sh ransac ${tile_dir}${fixed_spots} ${tile_dir}${moving_spots} $output_dir/$output_file $cutoff $threshold
+    /entrypoint.sh ransac ${tile_dir}${fixed_spots} ${tile_dir}${moving_spots} ${tile_dir}${output_file} $cutoff $threshold
     """
 }
 
@@ -93,8 +92,7 @@ process spots {
     container = registration_container
 
     input:
-    val img_path
-    val img_subpath
+    tuple val(img_path), val(img_subpath)
     val tile
     val output_file
     val radius

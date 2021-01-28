@@ -89,24 +89,7 @@ include {
 
 
 workflow spots_for_tile {
-    take:
-        tile
-        ransac_affine_mat
-        affine_small // tuple ransac_affine, subpath
-    main:
-        fixed_spots_for_tile(fixed, aff_scale_subpath, \
-            tile, "/fixed_spots.pkl", params.spots_cc_radius, params.spots_spot_number)
 
-        // extract the tuple parts
-        affine_small_path = affine_small.map { t -> t[0] }
-        affine_small_subpath = affine_small.map { t -> t[1] }
-
-        moving_spots_for_tile(affine_small_path, affine_small_subpath, \
-            tile, "/moving_spots.pkl", params.spots_cc_radius, params.spots_spot_number)
-
-        joined_spots_for_tile = fixed_spots_for_tile.out.join(moving_spots_for_tile.out)
-        ransac_for_tile(joined_spots_for_tile, tile, "ransac_affine.mat", \
-            params.ransac_cc_cutoff, params.ransac_dist_threshold)
     emit:
         ransac_for_tile.out
 }
@@ -117,50 +100,61 @@ workflow {
     xy_overlap = params.xy_stride / 8
     z_overlap = params.z_stride / 8
 
-    cut_tiles(fixed, def_scale_subpath, tiledir, \
-        params.xy_stride, xy_overlap, params.z_stride, z_overlap)
-    tiles = cut_tiles.out | flatMap { it.tokenize(' ') }
+    tiles = cut_tiles(fixed, def_scale_subpath, tiledir, \
+        params.xy_stride, xy_overlap, params.z_stride, z_overlap) \
+        | flatMap { it.tokenize(' ') }
 
     coarse_spots_fixed(fixed, aff_scale_subpath, \
-        affdir, "fixed_spots.pkl", params.spots_cc_radius, params.spots_spot_number)
+        affdir, "/fixed_spots.pkl", params.spots_cc_radius, params.spots_spot_number)
 
     coarse_spots_moving(moving, aff_scale_subpath, \
-        affdir, "moving_spots.pkl", params.spots_cc_radius, params.spots_spot_number)
+        affdir, "/moving_spots.pkl", params.spots_cc_radius, params.spots_spot_number)
 
     joined_spots = coarse_spots_fixed.out.join(coarse_spots_moving.out)
 
     // compute transformation matrix (ransac_affine.mat)
-    coarse_ransac(joined_spots, \
-        affdir, "ransac_affine.mat", \
-        params.ransac_cc_cutoff, params.ransac_dist_threshold)
+    coarse_ransac_out = coarse_ransac(joined_spots, \
+        "/ransac_affine.mat", \
+        params.ransac_cc_cutoff, params.ransac_dist_threshold) | first
 
     // compute ransac_affine at aff scale
-    apply_affine_small(1, \
+    apply_affine_small_out = apply_affine_small(1, \
         fixed, aff_scale_subpath, \
         moving, aff_scale_subpath, \
-        coarse_ransac.out, "${affdir}/ransac_affine")
+        coarse_ransac_out, "${affdir}/ransac_affine") | first
 
     // ransac_affine at def scale
-    apply_affine_big(8, \
+    apply_affine_big_out = apply_affine_big(8, \
         fixed, def_scale_subpath, \
         moving, def_scale_subpath, \
-        coarse_ransac.out, "${affdir}/ransac_affine")
+        coarse_ransac_out, "${affdir}/ransac_affine") | first
 
-    spots_for_tile(tiles, coarse_ransac.out, apply_affine_small.out)
-    interpolate_affines(spots_for_tile.out.collect(), tiledir)
+    fixed_spots_for_tile([fixed, aff_scale_subpath], \
+        tiles, "/fixed_spots.pkl", \
+        params.spots_cc_radius, params.spots_spot_number)
 
-    deform(interpolate_affines.out, tiles, fixed, def_scale_subpath, \
-        apply_affine_big.out, params.deform_iterations, params.deform_auto_mask)
+    moving_spots_for_tile(apply_affine_small_out, \
+        tiles, "/moving_spots.pkl", \
+        params.spots_cc_radius, params.spots_spot_number)
+
+    joined_spots_for_tile = fixed_spots_for_tile.out.join(moving_spots_for_tile.out)
+    ransac_for_tile(joined_spots_for_tile, \
+        "/ransac_affine.mat", \
+        params.ransac_cc_cutoff, params.ransac_dist_threshold)
+
+    interpolate_affines_out = interpolate_affines(ransac_for_tile.out.collect(), tiledir)
+
+    deform(interpolate_affines_out, tiles, fixed, def_scale_subpath, \
+        apply_affine_big_out, params.deform_iterations, params.deform_auto_mask)
 
     stitch(deform.out.collect(), \
-         tiles, xy_overlap, z_overlap, fixed, def_scale_subpath, coarse_ransac.out, \
+         tiles, xy_overlap, z_overlap, fixed, def_scale_subpath, coarse_ransac_out, \
          transform_dir, invtransform_dir, "/${params.def_scale}")
 
     final_transform(stitch.out.collect(), \
         fixed, def_scale_subpath, \
         moving, def_scale_subpath, \
         transform_dir, warped_dir)
-
 }
 
 workflow.onComplete {
