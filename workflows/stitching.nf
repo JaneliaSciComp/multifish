@@ -126,6 +126,9 @@ workflow stitch_acquisition {
     indexed_stitching_dirs = index_channel(stitching_dirs)
     indexed_spark_work_dirs = index_channel(spark_work_dirs)
 
+    indexed_acq_names.subscribe { println "Indexed acq: $it" }
+    indexed_stitching_dirs.subscribe { println "Stitching dir: $it" }
+    
     // start a spark cluster
     spark_cluster_res = spark_cluster(
         spark_conf,
@@ -146,11 +149,11 @@ workflow stitch_acquisition {
 
     indexed_spark_uris.subscribe { println "Spark URI: $it" }
 
-    // create a channel of tuples:  [index, acq, spark_uri, stitching_dir, spark_work_dir]
-    indexed_acq_data = indexed_spark_uris
-        .join(indexed_acq_names)
-        .join(indexed_stitching_dirs)
-        .join(indexed_spark_work_dirs)
+    // create a channel of tuples:  [index, spark_uri, acq, stitching_dir, spark_work_dir]
+    indexed_acq_data = indexed_spark_uris \
+        | join(indexed_acq_names)
+        | join(indexed_stitching_dirs)
+        | join(indexed_spark_work_dirs)
 
     // prepare parse czi tiles
     parse_czi_args = indexed_acq_data | map {
