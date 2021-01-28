@@ -61,7 +61,9 @@ workflow stitch_multiple_acquisitions {
             acq_name = it[0]
             acq_stitching_dir = it[1]
             acq_spark_work_dir = "${spark_work_dir}/${acq_name}"
-            [ acq_name, acq_stitching_dir, acq_spark_work_dir ]
+            acq_input = [ acq_name, acq_stitching_dir, acq_spark_work_dir ]
+            println "Create acq input ${acq_input} from ${it} and ${spark_work_dir}"
+            return acq_input
         }
 
     done = stitch_acquisition(
@@ -145,15 +147,17 @@ workflow stitch_acquisition {
     indexed_spark_uris.subscribe { println "Spark URI: $it" }
 
     // create a channel of tuples:  [index, acq, spark_uri, stitching_dir, spark_work_dir]
-    indexed_acq_data = indexed_acq_names
-        .join(indexed_spark_uris)
+    indexed_acq_data = indexed_spark_uris
+        .join(indexed_acq_names)
         .join(indexed_stitching_dirs)
         .join(indexed_spark_work_dirs)
 
     // prepare parse czi tiles
     parse_czi_args = indexed_acq_data | map {
-        acq_name = it[1]
-        spark_uri = it[2]
+        println "Create parse czi app inputs  from ${it}"
+        idx = it[0]
+        acq_name = it[2]
+        spark_uri = it[1]
         stitching_dir = it[3]
         spark_work_dir = it[4]
         mvl_inputs = entries_inputs_args(stitching_dir, [ acq_name ], '-i', '', '.mvl')
@@ -163,7 +167,9 @@ workflow stitch_acquisition {
          -r '${resolution}' \
          -a '${axis_mapping}' \
          -b ${stitching_dir}"
-         [ spark_uri, app_args, spark_work_dir ]
+         parse_czi_app_inputs = [ spark_uri, app_args, spark_work_dir ]
+         println "Parse czi app input ${idx}: ${parse_czi_app_inputs}"
+         return parse_czi_app_inputs
     }
     parse_czi_done = run_parse_czi_tiles(
         parse_czi_args.map { it[0] },
