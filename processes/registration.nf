@@ -28,8 +28,7 @@ process ransac {
     container = registration_container
 
     input:
-    val fixed_spots
-    val moving_spots
+    tuple val(tile_dir), val(fixed_spots), val(moving_spots)
     val output_dir
     val output_file
     val cutoff
@@ -40,8 +39,8 @@ process ransac {
 
     script:
     """
-    /app/scripts/waitforpaths.sh $fixed_spots $moving_spots
-    /entrypoint.sh ransac $fixed_spots $moving_spots $output_dir/$output_file $cutoff $threshold
+    /app/scripts/waitforpaths.sh ${tile_dir}${fixed_spots} ${tile_dir}${moving_spots}
+    /entrypoint.sh ransac ${tile_dir}${fixed_spots} ${tile_dir}${moving_spots} $output_dir/$output_file $cutoff $threshold
     """
 }
 
@@ -56,7 +55,6 @@ process apply_transform {
     val mov_img_subpath
     val txm_path
     val output_path
-    val points_path
 
     output:
     tuple val(output_path), val(ref_img_subpath)
@@ -66,7 +64,7 @@ process apply_transform {
     script:
     """
     /app/scripts/waitforpaths.sh ${ref_img_path}${ref_img_subpath} ${mov_img_path}${mov_img_subpath}
-    /entrypoint.sh apply_transform_n5 $ref_img_path $ref_img_subpath $mov_img_path $mov_img_subpath $txm_path $output_path $points_path
+    /entrypoint.sh apply_transform_n5 $ref_img_path $ref_img_subpath $mov_img_path $mov_img_subpath $txm_path $output_path
     """
 }
 
@@ -76,17 +74,18 @@ process coarse_spots {
     input:
     val img_path
     val img_subpath
+    val output_path
     val output_file
     val radius
     val spotNum
 
     output:
-    val output_file
+    tuple val(output_path), val(output_file)
 
     script:
     """
     /app/scripts/waitforpaths.sh ${img_path}${img_subpath}
-    /entrypoint.sh spots coarse $img_path $img_subpath $output_file $radius $spotNum
+    /entrypoint.sh spots coarse $img_path $img_subpath ${output_path}${output_file} $radius $spotNum
     """
 }
 
@@ -102,12 +101,12 @@ process spots {
     val spotNum
 
     output:
-    val "$tile/$output_file"
+    tuple val(tile), val(output_file)
 
     script:
     """
     /app/scripts/waitforpaths.sh ${img_path}${img_subpath}
-    /entrypoint.sh spots $tile/coords.txt $img_path $img_subpath $tile/$output_file $radius $spotNum
+    /entrypoint.sh spots $tile/coords.txt $img_path $img_subpath ${tile}${output_file} $radius $spotNum
     """
 
 }
@@ -147,10 +146,7 @@ process deform {
     script:
     """
     /app/scripts/waitforpaths.sh ${img_path}${img_subpath} ${ransac_affine}/${ransac_affine_subpath}
-    /entrypoint.sh deform $img_path $img_subpath $ransac_affine $ransac_affine_subpath \
-            $tile/coords.txt $tile/warp.nrrd $tile/ransac_affine.mat \
-            $tile/final_lcc.nrrd $tile/invwarp.nrrd \
-            $deform_iterations $deform_auto_mask
+    /entrypoint.sh deform $img_path $img_subpath $ransac_affine $ransac_affine_subpath $tile/coords.txt $tile/warp.nrrd $tile/ransac_affine.mat $tile/final_lcc.nrrd $tile/invwarp.nrrd $deform_iterations $deform_auto_mask
     """
 }
 
@@ -176,8 +172,7 @@ process stitch {
     script:
     """
     /app/scripts/waitforpaths.sh $tile ${img_path}${img_subpath} $ransac_affine_mat
-    /entrypoint.sh stitch_and_write $tile $xy_overlap $z_overlap $img_path $img_subpath \
-        $ransac_affine_mat $transform_dir $invtransform_dir $output_subpath
+    /entrypoint.sh stitch_and_write $tile $xy_overlap $z_overlap $img_path $img_subpath $ransac_affine_mat $transform_dir $invtransform_dir $output_subpath
     """
 }
 
