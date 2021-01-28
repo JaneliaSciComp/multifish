@@ -20,7 +20,7 @@ params.acq_names = ''
 final_params = default_spark_params() + default_mf_params() + params
 
 include {
-    stitch_single_acquisition;
+    stitch_multiple_acquisitions;
 } from './workflows/stitching' addParams(lsf_opts: final_params.lsf_opts, 
                                          crepo: final_params.crepo,
                                          spark_version: final_params.spark_version)
@@ -46,7 +46,6 @@ driver_memory = final_params.driver_memory
 driver_logconfig = final_params.driver_logconfig
 
 stitching_app = final_params.stitching_app
-stitching_output = final_params.stitching_output
 data_dir = final_params.data_dir
 resolution = final_params.resolution
 axis_mapping = final_params.axis
@@ -77,31 +76,12 @@ segmentation_output = final_params.segmentation_output
 
 workflow {
     // stitching
-    acqs = Channel.fromList(acq_names)
-    output_dirs = acqs.map { acq_name ->
-        get_acq_output(output_dir_param(final_params), acq_name)
-    }
-    stitching_dirs = output_dirs.map { output_dir ->
-        stitching_dir = get_step_output_dir(output_dir, stitching_output)
-        // create output dir
-        stitching_dir.mkdirs()
-        acq_name = output_dir.name
-        //  create the links
-        mvl_link = new File(stitching_dir, "${acq_name}.mvl")
-        if (!mvl_link.exists())
-            java.nio.file.Files.createSymbolicLink(mvl_link.toPath(), new File(data_dir, "${acq_name}.mvl").toPath())
-        czi_link = new File(stitching_dir, "${acq_name}.czi")
-        if (!czi_link.exists())
-            java.nio.file.Files.createSymbolicLink(czi_link.toPath(), new File(data_dir, "${acq_name}.czi").toPath())
-        return stitching_dir
-    }
-    stitching_spark_work_dirs = acqs.map { acq_name ->
-        "${spark_work_dir}/${acq_name}"
-    }
-    stitching_done = stitch_single_acquisition(
+    stitching_done = stitch_multiple_acquisitions(
         stitching_app,
-        acqs,
-        stitching_dirs,
+        acq_names,
+        final_params.data_dir,
+        output_dir_param(final_params),
+        final_params.stitching_output,
         channels,
         resolution,
         axis_mapping,
@@ -111,7 +91,7 @@ workflow {
         stitching_padding,
         blur_sigma,
         spark_conf,
-        stitching_spark_work_dirs,
+        spark_work_dir,
         spark_workers,
         spark_worker_cores,
         gb_per_core,
