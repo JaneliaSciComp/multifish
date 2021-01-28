@@ -133,9 +133,16 @@ workflow stitch_acquisition {
         terminate_stitching_name
     )
 
+    spark_cluster_res.subscribe {  println "Spark cluster result: $it"  }
+
     indexed_spark_uris = indexed_spark_work_dirs
         .join(spark_cluster_res, by:1)
-        .map { [ it[0], it[2] ] }
+        .map {
+            println "Create indexed spark URI from: $it"
+            [ it[1], it[2] ]
+        }
+
+    indexed_spark_uris.subscribe { println "Spark URI: $it" }
 
     // create a channel of tuples:  [index, acq, spark_uri, stitching_dir, spark_work_dir]
     indexed_acq_data = indexed_acq_names
