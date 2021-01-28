@@ -302,5 +302,5 @@ def index_channel(c) {
         indexed_elem = [a[0], b]
         a[1].add(indexed_elem)
         [a[0]+1, a[1]]
-    } | map { it[1] }
+    } | flatMap { it[1] }
 }
