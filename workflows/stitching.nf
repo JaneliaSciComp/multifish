@@ -135,11 +135,11 @@ workflow stitch_acquisition {
 
     spark_cluster_res.subscribe {  println "Spark cluster result: $it"  }
 
-    indexed_spark_uris = indexed_spark_work_dirs
-        .join(spark_cluster_res, by:1)
+    indexed_spark_uris = spark_cluster_res
+        .join(indexed_spark_work_dirs, by:1)
         .map {
             println "Create indexed spark URI from: $it"
-            [ it[1], it[2] ]
+            [ it[2], it[1] ]
         }
 
     indexed_spark_uris.subscribe { println "Spark URI: $it" }
