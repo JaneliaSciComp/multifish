@@ -298,7 +298,7 @@ workflow stitch_acquisition {
 }
 
 def index_channel(c) {
-    l1.reduce([0, []]) { a, b ->
+    c.reduce([0, []]) { a, b ->
         indexed_elem = [a[0], b]
         a[1].add(indexed_elem)
         [a[0]+1, a[1]]
