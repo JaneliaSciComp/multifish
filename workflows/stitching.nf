@@ -66,10 +66,26 @@ workflow stitch_multiple_acquisitions {
             return acq_input
         }
 
+    acq_names = acq_inputs.map { 
+        println "Acq name from ${it}: ${it[0]}"
+        it[0]
+    }
+
+    stitching_dirs = acq_inputs
+    .map { 
+        println "Stitching dir from ${it}: ${it[1]}"
+        it[1]
+    }
+    spark_work_dirs = acq_inputs
+    .map {
+        println "Spark work dir from ${it}: ${it[2]}"
+        it[2]
+    }
+
     done = stitch_acquisition(
         stitching_app,
-        acq_inputs.map { it[0] },
-        acq_inputs.map { it[1] },
+        acq_names,
+        stitching_dirs,
         channels,
         resolution,
         axis_mapping,
@@ -79,7 +95,7 @@ workflow stitch_multiple_acquisitions {
         stitching_padding,
         blur_sigma,
         spark_conf,
-        acq_inputs.map { it[2] },
+        spark_work_dirs,
         spark_workers,
         spark_worker_cores,
         spark_gbmem_per_core,
@@ -128,7 +144,7 @@ workflow stitch_acquisition {
 
     indexed_acq_names.subscribe { println "Indexed acq: $it" }
     indexed_stitching_dirs.subscribe { println "Stitching dir: $it" }
-    
+
     // start a spark cluster
     spark_cluster_res = spark_cluster(
         spark_conf,
