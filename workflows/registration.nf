@@ -121,13 +121,13 @@ workflow {
     apply_affine_small_out = apply_affine_small(1, \
         fixed, aff_scale_subpath, \
         moving, aff_scale_subpath, \
-        coarse_ransac_out, "${affdir}/ransac_affine") | first
+        coarse_ransac_out, "${affdir}/ransac_affine")
 
     // ransac_affine at def scale
     apply_affine_big_out = apply_affine_big(8, \
         fixed, def_scale_subpath, \
         moving, def_scale_subpath, \
-        coarse_ransac_out, "${affdir}/ransac_affine") | first
+        coarse_ransac_out, "${affdir}/ransac_affine")
 
     fixed_spots_for_tile([fixed, aff_scale_subpath], \
         tiles, "/fixed_spots.pkl", \
