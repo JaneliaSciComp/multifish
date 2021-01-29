@@ -1,6 +1,6 @@
 maru_version: 0.1.1
 name: bigstream
-version: 0.1.0
+version: 1.0.0
 build_args:
   GIT_TAG: prototype
 template_args:
@@ -11,3 +11,5 @@ template_args:
     python_version: "3.6"
     dependencies: numpy z5py json scipy scikit-image
     script_path: bigstream/run_stream.sh
+remotes:
+- janeliascicomp
