@@ -65,27 +65,19 @@ workflow stitch_multiple_acquisitions {
             println "Create acq input ${acq_input} from ${it} and ${spark_work_dir}"
             return acq_input
         }
-
-    acq_names = acq_inputs.map { 
-        println "Acq name from ${it}: ${it[0]}"
-        it[0]
-    }
-
-    stitching_dirs = acq_inputs
-    .map { 
-        println "Stitching dir from ${it}: ${it[1]}"
-        it[1]
-    }
-    spark_work_dirs = acq_inputs
-    .map {
-        println "Spark work dir from ${it}: ${it[2]}"
-        it[2]
-    }
+        .multiMap { it ->
+            println "Acq name: ${it[0]}"
+            println "Stitching dir: ${it[1]}"
+            println "Spark work dir: ${it[2]}"
+            acq_names: it[0]
+            stitching_dirs: it[1]
+            spark_work_dirs: it[2]
+        }
 
     done = stitch_acquisition(
         stitching_app,
-        acq_names,
-        stitching_dirs,
+        acq_inputs.acq_names,
+        acq_inputs.stitching_dirs,
         channels,
         resolution,
         axis_mapping,
@@ -95,7 +87,7 @@ workflow stitch_multiple_acquisitions {
         stitching_padding,
         blur_sigma,
         spark_conf,
-        spark_work_dirs,
+        acq_inputs.spark_work_dirs,
         spark_workers,
         spark_worker_cores,
         spark_gbmem_per_core,
