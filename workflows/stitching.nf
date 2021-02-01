@@ -325,7 +325,7 @@ workflow stitch_acquisition {
     //     spark_driver_deploy_mode
     // )
     // terminate stitching cluster
-    done = terminate_stitching(parse_czi_done, terminate_stitching_name)
+    done = terminate_stitching(czi_to_n5_done, terminate_stitching_name)
 
     emit:
     done
