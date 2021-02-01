@@ -49,7 +49,7 @@ stitching_app = final_params.stitching_app
 data_dir = final_params.data_dir
 resolution = final_params.resolution
 axis_mapping = final_params.axis
-acq_names = final_params.acq_names?.tokenize(',')
+stitch_acq_names = final_params.stitch_acq_names?.tokenize(',')
 channels = final_params.channels?.split(',')
 block_size = final_params.block_size
 registration_channel = final_params.registration_channel
@@ -78,7 +78,7 @@ workflow {
     // stitching
     stitching_done = stitch_multiple_acquisitions(
         stitching_app,
-        acq_names,
+        stitch_acq_names,
         final_params.data_dir,
         output_dir_param(final_params),
         final_params.stitching_output,
