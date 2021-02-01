@@ -202,16 +202,18 @@ workflow stitch_acquisition {
         spark_driver_deploy_mode
     )
     // prepare czi to n5
-    def czi_to_n5_args = parse_czi_done \
-    | map {
+    def czi_to_n5_args = parse_czi_done | map {
         [it, it]
+    } | join(indexed_spark_work_dirs, by: 1) | map {
+        // reverse the order in the tuple because the join key is the working dir
+         [ it[1], it[0] ]
     } | join(indexed_acq_data) | map {
-        println "Create parse czi to n5 app inputs from ${it}"
-        def idx = it[1]
+        println "Create czi to n5 app inputs from ${it}"
+        def idx = it[0]
         def acq_name = it[2]
         def spark_uri = it[3]
         def stitching_dir = it[4]
-        def spark_work_dir = it[0] // this is the join key
+        def spark_work_dir = it[1] // spark work dir comes from parse czi result
         def tiles_json = entries_inputs_args(stitching_dir, [ 'tiles' ], '-i', '', '.json')
         def app_args = "${tiles_json} --blockSize '${block_size}'"
          def app_inputs = [ spark_uri, app_args, spark_work_dir ]
