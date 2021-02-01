@@ -130,7 +130,9 @@ workflow stitch_acquisition {
     spark_driver_deploy_mode = ''
     terminate_stitching_name = 'terminate-stitching'
 
-    acq_names.view()
+    acq_names | view
+    stitching_dirs | view
+    spark_work_dirs | view
 
     indexed_acq_names = index_channel(acq_names)
     indexed_stitching_dirs = index_channel(stitching_dirs)
