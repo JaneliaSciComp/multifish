@@ -66,9 +66,9 @@ workflow stitch_multiple_acquisitions {
             return acq_input
         }
         .multiMap { it ->
-            println "Acq name: ${it[0]}"
-            println "Stitching dir: ${it[1]}"
-            println "Spark work dir: ${it[2]}"
+            println "Put acq name '${it[0]}' into acq_names channel"
+            println "Put stitching dir '${it[1]}' into stitching_dirs channel"
+            println "Put spark work dir '${it[2]}' into spark_work_dirs channel"
             acq_names: it[0]
             stitching_dirs: it[1]
             spark_work_dirs: it[2]
@@ -137,8 +137,8 @@ workflow stitch_acquisition {
     indexed_spark_work_dirs = index_channel(spark_work_dirs)
 
     indexed_acq_names.subscribe { println "Indexed acq: $it" }
-    indexed_stitching_dirs.subscribe { println "Stitching dir: $it" }
-    indexed_spark_work_dirs.subscribe { println "Spark working dir: $it" }
+    indexed_stitching_dirs.subscribe { println "Indexed stitching dir: $it" }
+    indexed_spark_work_dirs.subscribe { println "Indexed spark working dir: $it" }
 
     // start a spark cluster
     spark_cluster_res = spark_cluster(
@@ -328,5 +328,5 @@ def index_channel(c) {
     c.reduce([0, []]) { a, b ->
         indexed_elem = [a[0], b]
         [ a[0]+1, a[1]+indexed_elem ]
-    } | flatMap { it[1] }
+    } | map { it[1] }
 }
