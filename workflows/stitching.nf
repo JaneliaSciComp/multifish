@@ -346,7 +346,8 @@ workflow stitch_acquisition {
         [ it[2], it[0] ]
     } | join(indexed_acq_data) | map {
         println "Completed stitching for ${it}"
-        [ it[2], it[3], it[4] ]
+        // acq_name, acq_stitching_dir, acq_spark_work_dir
+        [ it[2], it[4], it[5] ]
     }
 
     emit:
