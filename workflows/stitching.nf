@@ -138,6 +138,7 @@ workflow stitch_acquisition {
 
     indexed_acq_names.subscribe { println "Indexed acq: $it" }
     indexed_stitching_dirs.subscribe { println "Stitching dir: $it" }
+    indexed_spark_work_dirs.subscribe { println "Spark working dir: $it" }
 
     // start a spark cluster
     spark_cluster_res = spark_cluster(
