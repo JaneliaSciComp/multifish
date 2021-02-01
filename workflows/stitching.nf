@@ -130,6 +130,7 @@ workflow stitch_acquisition {
     def spark_driver_deploy_mode = ''
     def terminate_stitching_name = 'terminate-stitching'
 
+    // index inputs so that I can pair acq name with the corresponding spark URI and/or spark working dir
     def indexed_acq_names = index_channel(acq_names)
     def indexed_stitching_dirs = index_channel(stitching_dirs)
     def indexed_spark_work_dirs = index_channel(spark_work_dirs)
@@ -146,17 +147,16 @@ workflow stitch_acquisition {
         spark_worker_cores,
         terminate_stitching_name
     )
-
+    // print spark cluster result
     spark_cluster_res.subscribe {  println "Spark cluster result: $it"  }
 
     def indexed_spark_uris = spark_cluster_res
         .join(indexed_spark_work_dirs, by:1)
         .map {
-            println "Create indexed spark URI from: $it"
-            [ it[2], it[1] ]
+            def indexed_uri = [ it[2], it[1] ]
+            println "Create indexed spark URI from $it -> ${indexed_uri}"
+            return indexed_uri
         }
-
-    indexed_spark_uris.subscribe { println "Spark URI: $it" }
 
     // create a channel of tuples:  [index, spark_uri, acq, stitching_dir, spark_work_dir]
     def indexed_acq_data = indexed_acq_names \
@@ -165,24 +165,16 @@ workflow stitch_acquisition {
         | join(indexed_spark_work_dirs)
 
     // prepare parse czi tiles
-    def parse_czi_args = indexed_acq_data | map {
-        println "Create parse czi app inputs from ${it}"
-        def idx = it[0]
-        def acq_name = it[1]
-        def spark_uri = it[2]
-        def stitching_dir = it[3]
-        def spark_work_dir = it[4]
-        def mvl_inputs = entries_inputs_args(stitching_dir, [ acq_name ], '-i', '', '.mvl')
-        def czi_inputs = entries_inputs_args('', [ acq_name ], '-f', '', '.czi')
-        def app_args = "${mvl_inputs} \
-         ${czi_inputs} \
-         -r '${resolution}' \
-         -a '${axis_mapping}' \
-         -b ${stitching_dir}"
-         def app_inputs = [ spark_uri, app_args, spark_work_dir ]
-         println "Parse czi app input ${idx}: ${app_inputs}"
-         return app_inputs
-    }
+    def parse_czi_args = prepare_app_args(
+        "parseCZI",
+        indexed_spark_work_dirs, //  here I only want a tuple that has the working dir as the 2nd element
+        indexed_spark_work_dirs,
+        { acq_name, stitching_dir ->
+            def mvl_inputs = entries_inputs_args(stitching_dir, [ acq_name ], '-i', '', '.mvl')
+            def czi_inputs = entries_inputs_args('', [ acq_name ], '-f', '', '.czi')
+            return "${mvl_inputs} ${czi_inputs} -r '${resolution}' -a '${axis_mapping}' -b ${stitching_dir}"
+        }
+    )
     def parse_czi_done = run_parse_czi_tiles(
         parse_czi_args.map { it[0] }, // spark URI
         stitching_app,
@@ -202,26 +194,15 @@ workflow stitch_acquisition {
         spark_driver_deploy_mode
     )
     // prepare czi to n5
-    def czi_to_n5_args = parse_czi_done | map {
-        [it, it]
-    } | join(indexed_spark_work_dirs, by: 1) | map {
-        // reverse the order in the tuple because the join key is the working dir
-        def r = [ it[2], it[0] ]
-        println "Indexed parse czi result from: $it -> $r"
-        return r
-    } | join(indexed_acq_data) | map {
-        println "Create czi to n5 app inputs from ${it}"
-        def idx = it[0]
-        def acq_name = it[2]
-        def spark_uri = it[3]
-        def stitching_dir = it[4]
-        def spark_work_dir = it[1] // spark work dir comes from parse czi result
-        def tiles_json = entries_inputs_args(stitching_dir, [ 'tiles' ], '-i', '', '.json')
-        def app_args = "${tiles_json} --blockSize '${block_size}'"
-         def app_inputs = [ spark_uri, app_args, spark_work_dir ]
-         println "CZI to N5 app input ${idx}: ${app_inputs}"
-         return app_inputs
-    }
+    def czi_to_n5_args = prepare_app_args(
+        "czi2N5",
+        parse_czi_done,
+        indexed_spark_work_dirs,
+        { acq_name, stitching_dir ->
+            def tiles_json = entries_inputs_args(stitching_dir, [ 'tiles' ], '-i', '', '.json')
+            return "${tiles_json} --blockSize '${block_size}'"
+        }
+    )
     def czi_to_n5_done = run_czi2n5(
         czi_to_n5_args.map { it[0] }, // spark URI
         stitching_app,
@@ -240,99 +221,127 @@ workflow stitch_acquisition {
         spark_driver_logconfig,
         spark_driver_deploy_mode
     )
-    // // prepare flatfield args
-    // flatfield_args = czi_to_n5_done | map {
-    //     n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5', '.json')
-    //     "${n5_channels_args} --2d --bins 256"
-    // }
-    // flatfield_done = run_flatfield_correction(
-    //     spark_uri,
-    //     stitching_app,
-    //     'org.janelia.flatfield.FlatfieldCorrection',
-    //     flatfield_args,
-    //     'flatfieldCorrection.log',
-    //     terminate_stitching_name,
-    //     spark_conf,
-    //     spark_work_dir,
-    //     spark_workers,
-    //     spark_worker_cores,
-    //     spark_gbmem_per_core,
-    //     spark_driver_cores,
-    //     spark_driver_memory,
-    //     spark_driver_stack_size,
-    //     spark_driver_logconfig,
-    //     spark_driver_deploy_mode
-    // )
-    // // prepare retile args
-    // retile_args = flatfield_done | map {
-    //     entries_inputs_args(stitching_dir, channels, '-i', '-n5', '.json')
-    // }
-    // retile_done = run_retile(
-    //     spark_uri,
-    //     stitching_app,
-    //     'org.janelia.stitching.ResaveAsSmallerTilesSpark',
-    //     retile_args,
-    //     'retileImages.log',
-    //     terminate_stitching_name,
-    //     spark_conf,
-    //     spark_work_dir,
-    //     spark_workers,
-    //     spark_worker_cores,
-    //     spark_gbmem_per_core,
-    //     spark_driver_cores,
-    //     spark_driver_memory,
-    //     spark_driver_stack_size,
-    //     spark_driver_logconfig,
-    //     spark_driver_deploy_mode
-    // )
-    // // prepare stitching args
-    // stitching_args = retile_done | map {
-    //     retiled_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5-retiled', '.json')
-    //     "--stitch -r ${registration_channel} ${retiled_n5_channels_args} --mode '${stitching_mode}' --padding '${stitching_padding}' --blurSigma ${blur_sigma}"
-    // }
-    // stitching_done = run_stitching(
-    //     spark_uri,
-    //     stitching_app,
-    //     'org.janelia.stitching.StitchingSpark',
-    //     stitching_args,
-    //     'stitching.log',
-    //     terminate_stitching_name,
-    //     spark_conf,
-    //     spark_work_dir,
-    //     spark_workers,
-    //     spark_worker_cores,
-    //     spark_gbmem_per_core,
-    //     spark_driver_cores,
-    //     spark_driver_memory,
-    //     spark_driver_stack_size,
-    //     spark_driver_logconfig,
-    //     spark_driver_deploy_mode
-    // )
-    // // prepare fuse args
-    // fuse_args = stitching_done | map {
-    //     stitched_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5-retiled-final', '.json')
-    //     "--fuse ${stitched_n5_channels_args} --blending --fill"
-    // }
-    // fuse_done = run_stitching_export(
-    //     spark_uri,
-    //     stitching_app,
-    //     'org.janelia.stitching.StitchingSpark',
-    //     fuse_args,
-    //     'export2n5.log',
-    //     terminate_stitching_name,
-    //     spark_conf,
-    //     spark_work_dir,
-    //     spark_workers,
-    //     spark_worker_cores,
-    //     spark_gbmem_per_core,
-    //     spark_driver_cores,
-    //     spark_driver_memory,
-    //     spark_driver_stack_size,
-    //     spark_driver_logconfig,
-    //     spark_driver_deploy_mode
-    // )
+    // prepare flatfield args
+    def flatfield_args = prepare_app_args(
+        "flatfield",
+        czi_to_n5_done,
+        indexed_spark_work_dirs,
+        { acq_name, stitching_dir ->
+            def n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5', '.json')
+            return "${n5_channels_args} --2d --bins 256"
+        }
+    )
+    def flatfield_done = run_flatfield_correction(
+        flatfield_args.map { it[0] }, // spark URI
+        stitching_app,
+        'org.janelia.flatfield.FlatfieldCorrection',
+        flatfield_args.map { it[1] }, // app args
+        'flatfieldCorrection.log',
+        terminate_stitching_name,
+        spark_conf,
+        flatfield_args.map { it[2] }, // spark working dir
+        spark_workers,
+        spark_worker_cores,
+        spark_gbmem_per_core,
+        spark_driver_cores,
+        spark_driver_memory,
+        spark_driver_stack_size,
+        spark_driver_logconfig,
+        spark_driver_deploy_mode
+    )
+    // prepare retile args
+    def retile_args = prepare_app_args(
+        "retile",
+        flatfield_done,
+        indexed_spark_work_dirs,
+        { acq_name, stitching_dir ->
+            entries_inputs_args(stitching_dir, channels, '-i', '-n5', '.json')
+        }
+    )
+    def retile_done = run_retile(
+        retile_args.map { it[0] }, // spark URI
+        stitching_app,
+        'org.janelia.stitching.ResaveAsSmallerTilesSpark',
+        retile_args.map { it[1] }, // app args
+        'retileImages.log',
+        terminate_stitching_name,
+        spark_conf,
+        retile_args.map { it[2] }, // spark working dir
+        spark_workers,
+        spark_worker_cores,
+        spark_gbmem_per_core,
+        spark_driver_cores,
+        spark_driver_memory,
+        spark_driver_stack_size,
+        spark_driver_logconfig,
+        spark_driver_deploy_mode
+    )
+    // prepare stitching args
+    def stitching_args = prepare_app_args(
+        "stitching",
+        retile_done,
+        indexed_spark_work_dirs,
+        { acq_name, stitching_dir ->
+            retiled_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5-retiled', '.json')
+            return "--stitch -r ${registration_channel} ${retiled_n5_channels_args} --mode '${stitching_mode}' --padding '${stitching_padding}' --blurSigma ${blur_sigma}"
+        }
+    )
+    def stitching_done = run_stitching(
+        stitching_args.map { it[0] }, // spark URI
+        stitching_app,
+        'org.janelia.stitching.StitchingSpark',
+        stitching_args.map { it[1] }, // app args
+        'stitching.log',
+        terminate_stitching_name,
+        spark_conf,
+        stitching_args.map { it[2] }, // spark working dir
+        spark_workers,
+        spark_worker_cores,
+        spark_gbmem_per_core,
+        spark_driver_cores,
+        spark_driver_memory,
+        spark_driver_stack_size,
+        spark_driver_logconfig,
+        spark_driver_deploy_mode
+    )
+    // prepare fuse args
+    def fuse_args = prepare_app_args(
+        "fuse",
+        stitching_done,
+        indexed_spark_work_dirs,
+        { acq_name, stitching_dir ->
+            stitched_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5-retiled-final', '.json')
+            return "--fuse ${stitched_n5_channels_args} --blending --fill"
+        }
+    )
+    def fuse_done = run_stitching(
+        fuse_args.map { it[0] }, // spark URI
+        stitching_app,
+        'org.janelia.stitching.StitchingSpark',
+        fuse_args.map { it[1] }, // app args
+        'fuse.log',
+        terminate_stitching_name,
+        spark_conf,
+        fuse_args.map { it[2] }, // spark working dir
+        spark_workers,
+        spark_worker_cores,
+        spark_gbmem_per_core,
+        spark_driver_cores,
+        spark_driver_memory,
+        spark_driver_stack_size,
+        spark_driver_logconfig,
+        spark_driver_deploy_mode
+    )
     // terminate stitching cluster
-    done = terminate_stitching(czi_to_n5_done, terminate_stitching_name)
+    done = terminate_stitching(
+        fuse_done.map { it[1] },
+        terminate_stitching_name
+    ) | join(indexed_spark_work_dirs, by:1) | map { 
+        [ it[2], it[0] ]
+    } | join(indexed_acq_data) | map {
+        println "Completed stitching for ${it}"
+        [ it[2], it[3], it[4] ]
+    }
 
     emit:
     done
@@ -343,4 +352,29 @@ def index_channel(c) {
         def indexed_elem = [accum[0], elem]
         [ accum[0]+1, accum[1]+[indexed_elem] ]
     } | flatMap { it[1] }
+}
+
+def prepare_app_args(app_name,
+                     previous_result_dirs,
+                     indexed_working_dirs,
+                     indexed_acq_data,
+                     app_args_closure) {
+    return previous_result_dirs | join(indexed_working_dirs, by: 1) | map {
+        // reverse the order in the tuple because the join key is the working dir
+        def r = [ it[2], it[0] ]
+        println "Indexed result from: $it -> $r"
+        return r
+    } | join(indexed_acq_data) | map {
+        println "Create retile app inputs from ${it}"
+        def idx = it[0]
+        def acq_name = it[2]
+        def spark_uri = it[3]
+        def stitching_dir = it[4]
+        def spark_work_dir = it[1] // spark work dir comes from previous result
+        def app_args = app_args_closure.call(acq_name, stitching_dir)
+        def app_inputs = [ spark_uri, app_args, spark_work_dir ]
+        println "${app_name} app input ${idx}: ${app_inputs}"
+        return app_inputs
+    }
+
 }
