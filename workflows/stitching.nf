@@ -131,7 +131,7 @@ workflow stitch_acquisition {
     terminate_stitching_name = 'terminate-stitching'
 
     acq_names.view()
-    
+
     indexed_acq_names = index_channel(acq_names)
     indexed_stitching_dirs = index_channel(stitching_dirs)
     indexed_spark_work_dirs = index_channel(spark_work_dirs)
@@ -326,7 +326,6 @@ workflow stitch_acquisition {
 def index_channel(c) {
     c.reduce([0, []]) { a, b ->
         indexed_elem = [a[0], b]
-        a[1].add(indexed_elem)
-        [a[0]+1, a[1]]
+        [ a[0]+1, a[1]+indexed_elem ]
     } | flatMap { it[1] }
 }
