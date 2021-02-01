@@ -206,7 +206,9 @@ workflow stitch_acquisition {
         [it, it]
     } | join(indexed_spark_work_dirs, by: 1) | map {
         // reverse the order in the tuple because the join key is the working dir
-         [ it[1], it[0] ]
+        def r = [ it[2], it[0] ]
+        println "Indexed parse czi result from: $it -> $r"
+        return r
     } | join(indexed_acq_data) | map {
         println "Create czi to n5 app inputs from ${it}"
         def idx = it[0]
