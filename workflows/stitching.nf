@@ -202,7 +202,10 @@ workflow stitch_acquisition {
         spark_driver_deploy_mode
     )
     // prepare czi to n5
-    def czi_to_n5_args = parse_czi_done | join(indexed_acq_data) | map {
+    def czi_to_n5_args = parse_czi_done \
+    | map {
+        [it, it]
+    } | join(indexed_acq_data) | map {
         println "Create parse czi to n5 app inputs from ${it}"
         def idx = it[1]
         def acq_name = it[2]
