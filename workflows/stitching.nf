@@ -166,7 +166,7 @@ workflow stitch_acquisition {
 
     // prepare parse czi tiles
     def parse_czi_args = indexed_acq_data | map {
-        println "Create parse czi app inputs  from ${it}"
+        println "Create parse czi app inputs from ${it}"
         def idx = it[0]
         def acq_name = it[1]
         def spark_uri = it[2]
@@ -179,19 +179,19 @@ workflow stitch_acquisition {
          -r '${resolution}' \
          -a '${axis_mapping}' \
          -b ${stitching_dir}"
-         def parse_czi_app_inputs = [ spark_uri, app_args, spark_work_dir ]
-         println "Parse czi app input ${idx}: ${parse_czi_app_inputs}"
-         return parse_czi_app_inputs
+         def app_inputs = [ spark_uri, app_args, spark_work_dir ]
+         println "Parse czi app input ${idx}: ${app_inputs}"
+         return app_inputs
     }
     def parse_czi_done = run_parse_czi_tiles(
-        parse_czi_args.map { it[0] },
+        parse_czi_args.map { it[0] }, // spark URI
         stitching_app,
         'org.janelia.stitching.ParseCZITilesMetadata',
-        parse_czi_args.map { it[1] },
+        parse_czi_args.map { it[1] }, // app args
         'parseCZITiles.log',
         terminate_stitching_name,
         spark_conf,
-        parse_czi_args.map { it[2] },
+        parse_czi_args.map { it[2] }, // spark working dir
         spark_workers,
         spark_worker_cores,
         spark_gbmem_per_core,
@@ -201,29 +201,38 @@ workflow stitch_acquisition {
         spark_driver_logconfig,
         spark_driver_deploy_mode
     )
-    // // prepare czi to n5
-    // czi_to_n5_args = parse_czi_done | map { 
-    //     tiles_json = entries_inputs_args(stitching_dir, ['tiles'], '-i', '', '.json')
-    //     "${tiles_json} --blockSize '${block_size}'"
-    // }
-    // czi_to_n5_done = run_czi2n5(
-    //     spark_uri,
-    //     stitching_app,
-    //     'org.janelia.stitching.ConvertCZITilesToN5Spark',
-    //     czi_to_n5_args,
-    //     'czi2n5.log',
-    //     terminate_stitching_name,
-    //     spark_conf,
-    //     spark_work_dir,
-    //     spark_workers,
-    //     spark_worker_cores,
-    //     spark_gbmem_per_core,
-    //     spark_driver_cores,
-    //     spark_driver_memory,
-    //     spark_driver_stack_size,
-    //     spark_driver_logconfig,
-    //     spark_driver_deploy_mode
-    // )
+    // prepare czi to n5
+    def czi_to_n5_args = parse_czi_done | join(indexed_acq_data) | map {
+        println "Create parse czi to n5 app inputs from ${it}"
+        def idx = it[1]
+        def acq_name = it[2]
+        def spark_uri = it[3]
+        def stitching_dir = it[4]
+        def spark_work_dir = it[0] // this is the join key
+        def tiles_json = entries_inputs_args(stitching_dir, [ 'tiles' ], '-i', '', '.json')
+        def app_args = "${tiles_json} --blockSize '${block_size}'"
+         def app_inputs = [ spark_uri, app_args, spark_work_dir ]
+         println "CZI to N5 app input ${idx}: ${app_inputs}"
+         return app_inputs
+    }
+    def czi_to_n5_done = run_parse_czi_tiles(
+        czi_to_n5_args.map { it[0] }, // spark URI
+        stitching_app,
+        'org.janelia.stitching.ConvertCZITilesToN5Spark',
+        czi_to_n5_args.map { it[1] }, // app args
+        'czi2n5.log',
+        terminate_stitching_name,
+        spark_conf,
+        czi_to_n5_args.map { it[2] }, // spark working dir
+        spark_workers,
+        spark_worker_cores,
+        spark_gbmem_per_core,
+        spark_driver_cores,
+        spark_driver_memory,
+        spark_driver_stack_size,
+        spark_driver_logconfig,
+        spark_driver_deploy_mode
+    )
     // // prepare flatfield args
     // flatfield_args = czi_to_n5_done | map {
     //     n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5', '.json')
@@ -316,7 +325,7 @@ workflow stitch_acquisition {
     //     spark_driver_deploy_mode
     // )
     // terminate stitching cluster
-    done = terminate_stitching(parse_czi_done, terminate_stitching_name) | map { stitching_dir }
+    done = terminate_stitching(parse_czi_done, terminate_stitching_name)
 
     emit:
     done
