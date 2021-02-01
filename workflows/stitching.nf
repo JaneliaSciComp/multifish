@@ -169,6 +169,7 @@ workflow stitch_acquisition {
         "parseCZI",
         indexed_spark_work_dirs, //  here I only want a tuple that has the working dir as the 2nd element
         indexed_spark_work_dirs,
+        indexed_acq_data,
         { acq_name, stitching_dir ->
             def mvl_inputs = entries_inputs_args(stitching_dir, [ acq_name ], '-i', '', '.mvl')
             def czi_inputs = entries_inputs_args('', [ acq_name ], '-f', '', '.czi')
@@ -198,6 +199,7 @@ workflow stitch_acquisition {
         "czi2N5",
         parse_czi_done,
         indexed_spark_work_dirs,
+        indexed_acq_data,
         { acq_name, stitching_dir ->
             def tiles_json = entries_inputs_args(stitching_dir, [ 'tiles' ], '-i', '', '.json')
             return "${tiles_json} --blockSize '${block_size}'"
@@ -226,6 +228,7 @@ workflow stitch_acquisition {
         "flatfield",
         czi_to_n5_done,
         indexed_spark_work_dirs,
+        indexed_acq_data,
         { acq_name, stitching_dir ->
             def n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5', '.json')
             return "${n5_channels_args} --2d --bins 256"
@@ -254,6 +257,7 @@ workflow stitch_acquisition {
         "retile",
         flatfield_done,
         indexed_spark_work_dirs,
+        indexed_acq_data,
         { acq_name, stitching_dir ->
             entries_inputs_args(stitching_dir, channels, '-i', '-n5', '.json')
         }
@@ -281,6 +285,7 @@ workflow stitch_acquisition {
         "stitching",
         retile_done,
         indexed_spark_work_dirs,
+        indexed_acq_data,
         { acq_name, stitching_dir ->
             retiled_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5-retiled', '.json')
             return "--stitch -r ${registration_channel} ${retiled_n5_channels_args} --mode '${stitching_mode}' --padding '${stitching_padding}' --blurSigma ${blur_sigma}"
@@ -309,6 +314,7 @@ workflow stitch_acquisition {
         "fuse",
         stitching_done,
         indexed_spark_work_dirs,
+        indexed_acq_data,
         { acq_name, stitching_dir ->
             stitched_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5-retiled-final', '.json')
             return "--fuse ${stitched_n5_channels_args} --blending --fill"
