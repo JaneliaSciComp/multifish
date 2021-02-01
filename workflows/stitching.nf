@@ -215,7 +215,7 @@ workflow stitch_acquisition {
          println "CZI to N5 app input ${idx}: ${app_inputs}"
          return app_inputs
     }
-    def czi_to_n5_done = run_parse_czi_tiles(
+    def czi_to_n5_done = run_czi2n5(
         czi_to_n5_args.map { it[0] }, // spark URI
         stitching_app,
         'org.janelia.stitching.ConvertCZITilesToN5Spark',
