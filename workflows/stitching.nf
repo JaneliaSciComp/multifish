@@ -5,7 +5,7 @@ include {
     run_spark_app_on_existing_cluster as run_flatfield_correction;
     run_spark_app_on_existing_cluster as run_retile;
     run_spark_app_on_existing_cluster as run_stitching;
-    run_spark_app_on_existing_cluster as run_stitching_export;
+    run_spark_app_on_existing_cluster as run_fuse;
 } from '../external-modules/spark/lib/workflows' addParams(lsf_opts: params.lsf_opts, 
                                                            crepo: params.crepo,
                                                            spark_version: params.spark_version)
@@ -320,7 +320,7 @@ workflow stitch_acquisition {
             return "--fuse ${stitched_n5_channels_args} --blending --fill"
         }
     )
-    def fuse_done = run_stitching(
+    def fuse_done = run_fuse(
         fuse_args.map { it[0] }, // spark URI
         stitching_app,
         'org.janelia.stitching.StitchingSpark',
