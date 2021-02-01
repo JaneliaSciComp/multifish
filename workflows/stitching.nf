@@ -49,14 +49,14 @@ workflow stitch_multiple_acquisitions {
     spark_driver_logconfig
 
     main:
-    acq_stitching_dir_pairs = prepare_stitching_data(
+    def acq_stitching_dir_pairs = prepare_stitching_data(
         input_dir,
         output_dir,
         Channel.fromList(acquisitions),
         stitching_output
     )
 
-    acq_inputs = acq_stitching_dir_pairs
+    def acq_inputs = acq_stitching_dir_pairs
         .map {
             acq_name = it[0]
             acq_stitching_dir = it[1]
@@ -126,24 +126,20 @@ workflow stitch_acquisition {
     spark_driver_logconfig
 
     main:
-    spark_driver_stack_size = ''
-    spark_driver_deploy_mode = ''
-    terminate_stitching_name = 'terminate-stitching'
+    def spark_driver_stack_size = ''
+    def spark_driver_deploy_mode = ''
+    def terminate_stitching_name = 'terminate-stitching'
 
-    acq_names | view
-    stitching_dirs | view
-    spark_work_dirs | view
-
-    indexed_acq_names = index_channel(acq_names)
-    indexed_stitching_dirs = index_channel(stitching_dirs)
-    indexed_spark_work_dirs = index_channel(spark_work_dirs)
+    def indexed_acq_names = index_channel(acq_names)
+    def indexed_stitching_dirs = index_channel(stitching_dirs)
+    def indexed_spark_work_dirs = index_channel(spark_work_dirs)
 
     indexed_acq_names.subscribe { println "Indexed acq: $it" }
     indexed_stitching_dirs.subscribe { println "Indexed stitching dir: $it" }
     indexed_spark_work_dirs.subscribe { println "Indexed spark working dir: $it" }
 
     // start a spark cluster
-    spark_cluster_res = spark_cluster(
+    def spark_cluster_res = spark_cluster(
         spark_conf,
         spark_work_dirs,
         spark_workers,
@@ -153,7 +149,7 @@ workflow stitch_acquisition {
 
     spark_cluster_res.subscribe {  println "Spark cluster result: $it"  }
 
-    indexed_spark_uris = spark_cluster_res
+    def indexed_spark_uris = spark_cluster_res
         .join(indexed_spark_work_dirs, by:1)
         .map {
             println "Create indexed spark URI from: $it"
@@ -163,31 +159,31 @@ workflow stitch_acquisition {
     indexed_spark_uris.subscribe { println "Spark URI: $it" }
 
     // create a channel of tuples:  [index, spark_uri, acq, stitching_dir, spark_work_dir]
-    indexed_acq_data = indexed_spark_uris \
-        | join(indexed_acq_names)
+    def indexed_acq_data = indexed_acq_names \
+        | join(indexed_spark_uris)
         | join(indexed_stitching_dirs)
         | join(indexed_spark_work_dirs)
 
     // prepare parse czi tiles
-    parse_czi_args = indexed_acq_data | map {
+    def parse_czi_args = indexed_acq_data | map {
         println "Create parse czi app inputs  from ${it}"
-        idx = it[0]
-        acq_name = it[2]
-        spark_uri = it[1]
-        stitching_dir = it[3]
-        spark_work_dir = it[4]
-        mvl_inputs = entries_inputs_args(stitching_dir, [ acq_name ], '-i', '', '.mvl')
-        czi_inputs = entries_inputs_args('', [ acq_name ], '-f', '', '.czi')
-        app_args = "${mvl_inputs} \
+        def idx = it[0]
+        def acq_name = it[1]
+        def spark_uri = it[2]
+        def stitching_dir = it[3]
+        def spark_work_dir = it[4]
+        def mvl_inputs = entries_inputs_args(stitching_dir, [ acq_name ], '-i', '', '.mvl')
+        def czi_inputs = entries_inputs_args('', [ acq_name ], '-f', '', '.czi')
+        def app_args = "${mvl_inputs} \
          ${czi_inputs} \
          -r '${resolution}' \
          -a '${axis_mapping}' \
          -b ${stitching_dir}"
-         parse_czi_app_inputs = [ spark_uri, app_args, spark_work_dir ]
+         def parse_czi_app_inputs = [ spark_uri, app_args, spark_work_dir ]
          println "Parse czi app input ${idx}: ${parse_czi_app_inputs}"
          return parse_czi_app_inputs
     }
-    parse_czi_done = run_parse_czi_tiles(
+    def parse_czi_done = run_parse_czi_tiles(
         parse_czi_args.map { it[0] },
         stitching_app,
         'org.janelia.stitching.ParseCZITilesMetadata',
