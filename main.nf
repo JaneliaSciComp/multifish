@@ -136,15 +136,20 @@ workflow {
         return acq_spot_extraction_output_dir
     }
 
+    spot_extraction_xy_stride = spot_extraction_xy_stride_param(final_params)
+    spot_extraction_xy_overlap = spot_extraction_xy_overlap_param(final_params)
+    spot_extraction_z_stride = spot_extraction_z_stride_param(final_params)
+    spot_extraction_z_overlap = spot_extraction_z_overlap_param(final_params)
+
     spot_extraction_results = spot_extraction(
         stitched_acqs.map { "${it[1]}/export.n5" },
         spot_extraction_output_dirs,
         channels,
         final_params.scale_4_spot_extraction,
-        spot_extraction_xy_stride_param(final_params),
-        spot_extraction_xy_overlap_param(final_params),
-        spot_extraction_z_stride_param(final_params),
-        spot_extraction_z_overlap_param(final_params),
+        spot_extraction_xy_stride,
+        spot_extraction_xy_overlap,
+        spot_extraction_z_stride,
+        spot_extraction_z_overlap,
         final_params.dapi_channel,
         spot_extraction_dapi_correction_channels,
         per_channel_air_localize_params
