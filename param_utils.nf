@@ -103,10 +103,10 @@ def spot_extraction_xy_overlap_param(Map ps) {
 
 def spot_extraction_z_stride_param(Map ps) {
     def spot_extraction_z_stride = ps.spot_extraction_z_stride
-    if (!spot_extraction_xy_stride) {
+    if (!spot_extraction_z_stride) {
         return 1024
     } else {
-        return spot_extraction_xy_stride
+        return spot_extraction_z_stride
     }
 }
 
