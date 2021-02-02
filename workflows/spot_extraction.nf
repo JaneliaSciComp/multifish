@@ -103,7 +103,7 @@ workflow spot_extraction {
         println "Merge ${tiles} using ${merge_points_args}"
         return merge_points_args
     }
-/*
+
     def merge_points_results = merge_points(
         merge_points_inputs.map { it[0] }
         merge_points_inputs.map { it[1] }
@@ -113,24 +113,6 @@ workflow spot_extraction {
         merge_points_inputs.map { it[5] }
         merge_points_inputs.map { it[6] }
     )
-*/
-    // | map {
-    //     ch = it[0]
-    //     args = it[2]
-    //     merge_points_args = [
-    //         args.data_dir,
-    //         ch,
-    //         args.scale,
-    //         args.spot_extraction_output_dir,
-    //         args.xy_overlap,
-    //         args.z_overlap,
-    //         args.spot_extraction_output_dir
-    //     ]
-    //     println "Prepare merge points args: ${merge_points_args}"
-    //     return merge_points_args
-    // } \
-    // | merge_points \
-    // | set { done }
 
     emit:
     done = merge_points_inputs
