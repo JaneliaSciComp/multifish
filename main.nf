@@ -83,7 +83,7 @@ segmentation_output = final_params.segmentation_output
 
 workflow {
     // stitching
-    stitching_results = stitch_multiple_acquisitions(
+    def stitching_results = stitch_multiple_acquisitions(
         stitching_app,
         stitch_acq_names,
         final_params.data_dir,
@@ -110,34 +110,23 @@ workflow {
     // in order to allow users to skip stitching - if that is already done
     // we build a channel of expected stitched results which we 
     // concatenate to the actual stitched results and then filter them
-    // for uniqueness in order to do the spot extraction only once
+    // for uniqueness in order to do the step only once for for an acq
 
-    expected_stitched_results = Channel.fromList(spot_extraction_acq_names) | map {
-        [ 
-            it,
-            get_step_output_dir(
-                get_acq_output(output_dir_param(final_params), it),
-                final_params.stitching_output
-            )
-        ]
-    }
-    expected_stitched_results.subscribe { println "Expected  stitched acquisition: ${it}"}
+    def spot_extraction_inputs = get_stitched_inputs_for_step(
+        spot_extraction_acq_names,
+        final_params.stitching_output,
+        stitching_results
 
-    stitched_acqs = stitching_results | concat(expected_stitched_results) | unique
+    )
 
-    spot_extraction_output_dirs = stitched_acqs | map {
-        def acq_name = it[0]
-        def acq_spot_extraction_output_dir = get_step_output_dir(
-            get_acq_output(output_dir_param(final_params), acq_name),
-            spot_extraction_output
-        )
-        println "Create spot extraction output for ${acq_name} -> ${acq_spot_extraction_output_dir}"
-        acq_spot_extraction_output_dir.mkdirs()
-        return acq_spot_extraction_output_dir
-    }
+    spot_extraction_output_dirs = get_step_output_dirs(
+        spot_extraction_inputs,
+        output_dir_param(final_params),
+        spot_extraction_output
+    )
 
     spot_extraction_results = spot_extraction(
-        stitched_acqs.map { "${it[1]}/export.n5" },
+        spot_extraction_inputs.map { "${it[1]}/export.n5" },
         spot_extraction_output_dirs,
         channels,
         final_params.scale_4_spot_extraction,
@@ -150,27 +139,6 @@ workflow {
         per_channel_air_localize_params
     )
 
-    // // spot extraction
-    // stitching_result \
-    // | map {
-    //     spot_extraction_output_dir = get_step_output_dir(it.output_dir, spot_extraction_output)
-    //     // create output dir
-    //     spot_extraction_output_dir.mkdirs()
-    //     it + [
-    //         data_dir: "${it.stitching_output_dir}/export.n5",
-    //         spot_extraction_output_dir: spot_extraction_output_dir,
-    //         scale: final_params.scale_4_spot_extraction,
-    //         xy_stride: final_params.spot_extraction_xy_stride,
-    //         xy_overlap: final_params.spot_extraction_xy_overlap,
-    //         z_stride: final_params.spot_extraction_z_stride,
-    //         z_overlap: final_params.spot_extraction_z_overlap,
-    //         dapi_channel: final_params.dapi_channel,
-    //         dapi_correction_channels: spot_extraction_dapi_correction_channels,
-    //         per_channel_air_localize_params:per_channel_air_localize_params,
-    //     ]
-    // } \
-    // | spot_extraction \
-    // | view
 
     // // segmentation
     // stitching_result \
@@ -202,4 +170,32 @@ def get_step_output_dir(output_dir, step_output) {
     return step_output == null || step_output == ''
         ? output_dir
         : new File(output_dir, step_output)
+}
+
+def get_stitched_inputs_for_step(step_acq_names, stitching_output, stitching_results) {
+    def expected_stitched_results = Channel.fromList(step_acq_names) | map {
+        [ 
+            it,
+            get_step_output_dir(
+                get_acq_output(output_dir_param(final_params), it),
+                stitching_output
+            )
+        ]
+    }
+    stitching_results | concat(expected_stitched_results) | unique
+}
+
+def get_step_output_dirs(stitched_acqs, output_dir, step_output_name) {
+
+    step_output_dirs = stitched_acqs | map {
+        def acq_name = it[0]
+        def step_output_dir = get_step_output_dir(
+            get_acq_output(output_dir, acq_name),
+            step_output_name
+        )
+        println "Create ${step_output_name} output for ${acq_name} -> ${step_output_dir}"
+        step_output_dir.mkdirs()
+        return step_output_dir
+    }
+
 }
