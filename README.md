@@ -1,35 +1,32 @@
-## Multifish Pipeline
+# Multifish Pipeline
 
+![Pipeline Diagram](docs/pipeline_diagram.png)
 
-### Pull external modules
+## Prerequisites
 
-* First time
-```
-git submodule update --init --recursive
-```
+You must have [Nextflow](https://www.nextflow.io) and [Singularity](https://sylabs.io) installed to run this pipeline. If you are running in an HPC cluster, [Singularity](https://sylabs.io) must be installed on all the cluster nodes.
 
-* Not first time
-```
-git pull --recurse-submodules
-```
+## Getting Started
 
-### Compile modules
+### Configure and build
 ```
-mvn -f external-modules/stitching-spark/pom.xml package
+./setup.sh
 ```
 
-
-### Building containers
-
-All containers used by the pipeline have alredy been registered at the internal Janelia docker registry. 
-This step is required only if the pipeline is run outside Janelia and there's no access to the internal docker registry.
-
-#### Airlocalize container
+### Run the pipeline locally
 ```
-docker build -t registry.int.janelia.org/janeliascicomp/spotextraction:1.0 airlocalize
+./main.nf [arguments]
 ```
 
-#### Segmentation container
+### Run the pipeline on IBM Platform LSF 
+This also sets a project flag to show how to set LSF options.
 ```
-docker build -t registry.int.janelia.org/janeliascicomp/segmentation:1.0 segmentation
+./main.nf -profile lsf --lsf_opts "-P multifish" [arguments]
 ```
+
+More examples are available in the [examples](examples) directory.
+
+## Development
+
+If you are a software developer, please refer to the [Development docs](docs/Development.md).
+

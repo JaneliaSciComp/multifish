@@ -20,8 +20,10 @@ RUN conda env create -f /tmp/environment.yml \
     # It's necessary to set TMPDIR for running with Singularity, because /opt/conda will be read-only
     && echo "export TMPDIR=/tmp" > /opt/conda/envs/myenv/etc/conda/activate.d/env_vars.sh
 
+# OpenGL is needed for opencv
+# procps is needed to get ps so that Nextflow Tower can do metrics collection
 RUN apt-get update \
-    && apt-get install -y libgl1-mesa-glx
+    && apt-get install -y libgl1-mesa-glx procps
 
 COPY --from=builder /tmp/app /app
 COPY --from=builder /buildinfo /
