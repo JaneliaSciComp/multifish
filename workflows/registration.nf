@@ -87,14 +87,6 @@ include {
   final_transform;
 } from '../processes/registration.nf'
 
-
-workflow spots_for_tile {
-
-    emit:
-        ransac_for_tile.out
-}
-
-
 workflow {
 
     xy_overlap = params.xy_stride / 8
