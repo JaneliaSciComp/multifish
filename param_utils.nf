@@ -1,11 +1,11 @@
 def default_mf_params() {
-    default_airlocalize_params = '/app/airlocalize/params/air_localize_default_params.txt'
-    spot_extraction_xy_stride = 1024
-    spot_extraction_z_stride = 1024
-    spot_extraction_xy_overlap = (int) (0.05 * spot_extraction_xy_stride)
-    spot_extraction_z_overlap = (int) (0.05 * spot_extraction_z_stride)
+    def default_airlocalize_params = '/app/airlocalize/params/air_localize_default_params.txt'
+    def spot_extraction_xy_stride = 1024
+    def spot_extraction_z_stride = 1024
+    def spot_extraction_xy_overlap = (int) (0.05 * spot_extraction_xy_stride)
+    def spot_extraction_z_overlap = (int) (0.05 * spot_extraction_z_stride)
 
-    multifish_container_repo = 'registry.int.janelia.org/janeliascicomp'
+    def multifish_container_repo = 'registry.int.janelia.org/janeliascicomp'
 
     [
         mfrepo: multifish_container_repo,
@@ -46,7 +46,7 @@ def default_mf_params() {
 }
 
 def output_dir_param(Map ps) {
-    output_dir = ps.output_dir
+    def output_dir = ps.output_dir
     if (!output_dir)
         ps.data_dir
     else
@@ -54,7 +54,7 @@ def output_dir_param(Map ps) {
 }
 
 def segmentation_container_param(Map ps) {
-    segmentation_container = ps.segmentation_container
+    def segmentation_container = ps.segmentation_container
     if (!segmentation_container)
         "${ps.mfrepo}/segmentation:1.0"
     else
@@ -62,7 +62,7 @@ def segmentation_container_param(Map ps) {
 }
 
 def spotextraction_container_param(Map ps) {
-    spotextraction_container = ps.spotextraction_container
+    def spotextraction_container = ps.spotextraction_container
     if (!spotextraction_container)
         "${ps.mfrepo}/spotextraction:1.0"
     else
@@ -70,9 +70,18 @@ def spotextraction_container_param(Map ps) {
 }
 
 def registration_container_param(Map ps) {
-    registration_container = ps.registration_container
+    def registration_container = ps.registration_container
     if (!registration_container)
         "${ps.mfrepo}/registration:1.0"
     else
         registration_container
+}
+
+def get_acqs_for_step(Map ps, String step_param, String default_param) {
+    def step_acq_names
+    if (!ps[step_param])
+        step_acq_names = ps[step_param]
+    else
+        step_acq_names = ps[default_param]
+    return step_acq_names ? step_acq_names.tokenize(',') : []
 }

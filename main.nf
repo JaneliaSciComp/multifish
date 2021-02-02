@@ -8,6 +8,7 @@ include {
 
 include {
     default_mf_params;
+    get_acqs_for_step:
     output_dir_param;
     spotextraction_container_param;
     segmentation_container_param;
@@ -49,7 +50,8 @@ stitching_app = final_params.stitching_app
 data_dir = final_params.data_dir
 resolution = final_params.resolution
 axis_mapping = final_params.axis
-stitch_acq_names = final_params.stitch_acq_names?.tokenize(',')
+
+stitch_acq_names = get_acqs_for_step(final_params, 'stitch_acq_names', 'acq_names')
 channels = final_params.channels?.split(',')
 block_size = final_params.block_size
 registration_channel = final_params.registration_channel
@@ -57,6 +59,7 @@ stitching_mode = final_params.stitching_mode
 stitching_padding = final_params.stitching_padding
 blur_sigma = final_params.blur_sigma
 
+spot_extraction_acq_names = get_acqs_for_step(final_params, 'spot_extraction_acq_names', 'acq_names')
 spot_extraction_output = final_params.spot_extraction_output
 spot_extraction_dapi_correction_channels = final_params.spot_extraction_dapi_correction_channels?.split(',')
 per_channel_air_localize_params = [
@@ -76,7 +79,7 @@ segmentation_output = final_params.segmentation_output
 
 workflow {
     // stitching
-    stitching_done = stitch_multiple_acquisitions(
+    stitching_results = stitch_multiple_acquisitions(
         stitching_app,
         stitch_acq_names,
         final_params.data_dir,
@@ -100,47 +103,48 @@ workflow {
         driver_logconfig
     )
 
-    // stitching_result = acq_names \
-    // | map { acq_name ->
-    //     println "Prepare stitching for $acq_name"
-    //     output_dir = get_acq_output(final_params.output_dir, acq_name)
-    //     stitching_output_dir = get_step_output_dir(output_dir, stitching_output)
-    //     // create output dir
-    //     stitching_output_dir.mkdirs()
-    //     //  create the links
-    //     mvl_link = new File(stitching_output_dir, "${acq_name}.mvl")
-    //     if (!mvl_link.exists())
-    //         java.nio.file.Files.createSymbolicLink(mvl_link.toPath(), new File(data_dir, "${acq_name}.mvl").toPath())
-    //     czi_link = new File(stitching_output_dir, "${acq_name}.czi")
-    //     if (!czi_link.exists())
-    //         java.nio.file.Files.createSymbolicLink(czi_link.toPath(), new File(data_dir, "${acq_name}.czi").toPath())
+    // in order to allow users to skip stitching - if that is already done
+    // we build a channel of expected stitched results which we 
+    // concatenate to the actual stitched results and then filter them
+    // for uniqueness in order to do the spot extraction only once
 
-    //     [
-    //         stitching_app: stitching_app,
-    //         data_dir: data_dir,
-    //         output_dir: output_dir,
-    //         stitching_output_dir: stitching_output_dir,
-    //         acq_name: acq_name,
-    //         channels: channels,
-    //         resolution: resolution,
-    //         axis_mapping: axis_mapping,
-    //         block_size: block_size,
-    //         registration_channel: registration_channel,
-    //         stitching_mode: stitching_mode,
-    //         stitching_padding: stitching_padding,
-    //         blur_sigma: blur_sigma,
-    //         spark_conf: spark_conf,
-    //         spark_work_dir: "${spark_work_dir}/${acq_name}",
-    //         spark_workers: spark_workers,
-    //         spark_worker_cores: spark_worker_cores,
-    //         spark_executor_cores: spark_worker_cores,
-    //         spark_gbmem_per_core: gb_per_core,
-    //         spark_driver_cores: driver_cores,
-    //         spark_driver_memory: driver_memory,
-    //         spark_driver_logconfig: driver_logconfig
-    //     ]
-    // } \
-    // | stitching
+    expected_stitched_results = Channel.fromList(spot_extraction_acq_names) | map {
+        [ 
+            it,
+            get_step_output_dir(
+                get_acq_output(output_dir_param(final_params), acq_name),
+                stitching_output
+            )
+        ]
+    }
+
+    stitched_acqs = stitching_results | concat(expected_stitched_results) | unique
+
+    spot_extraction_output_dirs = stitched_acqs | map {
+        def acq_name = it[0]
+        def acq_spot_extraction_output_dir = get_step_output_dir(
+            get_acq_output(output_dir_param(final_params), acq_name),
+            spot_extraction_output
+        )
+        println "Create spot extraction output for ${acq_name} -> ${acq_spot_extraction_output_dir}"
+        acq_spot_extraction_output_dir.mkdirs()
+        return acq_spot_extraction_output_dir
+    }
+
+
+    spot_extraction_results = spot_extraction(
+        stitched_acqs.map { "${it[1]}/export.n5" },
+        spot_extraction_output_dirs,
+        channels,
+        final_params.scale_4_spot_extraction,
+        final_params.spot_extraction_xy_stride,
+        final_params.spot_extraction_xy_overlap,
+        final_params.spot_extraction_z_stride,
+        final_params.spot_extraction_z_overlap,
+        final_params.dapi_channel,
+        spot_extraction_dapi_correction_channels,
+        per_channel_air_localize_params
+    )
 
     // // spot extraction
     // stitching_result \

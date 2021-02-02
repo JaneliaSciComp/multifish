@@ -24,6 +24,12 @@ include {
     entries_inputs_args
 } from './stitching_utils'
 
+/**
+ * prepares the work and output directories and invoke stitching 
+ * for the aquisitions list - this is a value channel containing a list of acquistins
+ *
+ * @return tuple of <acq_name, acq_stitching_dir>
+ */
 workflow stitch_multiple_acquisitions {
     take:
     stitching_app
@@ -101,7 +107,9 @@ workflow stitch_multiple_acquisitions {
 }
 
 /**
- * run stitching for a single acquisition
+ * run stitching for the given acquisitions.
+ *
+ * @return tuple of <acq_name, acq_stitching_dir>
  */
 workflow stitch_acquisition {
     take:
@@ -346,8 +354,8 @@ workflow stitch_acquisition {
         [ it[2], it[0] ]
     } | join(indexed_acq_data) | map {
         println "Completed stitching for ${it}"
-        // acq_name, acq_stitching_dir, acq_spark_work_dir
-        [ it[2], it[4], it[5] ]
+        // acq_name, acq_stitching_dir
+        [ it[2], it[4] ]
     }
 
     emit:
