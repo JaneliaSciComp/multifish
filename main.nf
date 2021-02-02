@@ -8,7 +8,7 @@ include {
 
 include {
     default_mf_params;
-    get_acqs_for_step:
+    get_acqs_for_step;
     output_dir_param;
     spotextraction_container_param;
     segmentation_container_param;
@@ -112,11 +112,12 @@ workflow {
         [ 
             it,
             get_step_output_dir(
-                get_acq_output(output_dir_param(final_params), acq_name),
-                stitching_output
+                get_acq_output(output_dir_param(final_params), it),
+                final_params.stitching_output
             )
         ]
     }
+    expected_stitched_results.subscribe { println "Expected  stitched acquisition: ${it}"}
 
     stitched_acqs = stitching_results | concat(expected_stitched_results) | unique
 

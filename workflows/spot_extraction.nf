@@ -31,14 +31,15 @@ workflow spot_extraction {
         z_overlap
     ) |  flatMap { it.tokenize(' ') }
 
-    airlocalize_args = tile_dirs | combine(channels) | map {
-        tile_dir = it[0]
-        ch = it[1]
-        dapi_correction = dapi_correction_channels.contains(ch)
+    airlocalize_inputs = tile_dirs | combine(channels) | map {
+        def tile_dir = it[0]
+        def ch = it[1]
+        def dapi_correction = dapi_correction_channels.contains(ch)
                 ? "/${args.dapi_channel}/${args.scale}"
                 : ''
-        return [
-            tile_dir,
+        // return a tuple with all required arguments for airlocalize
+        def airlocalize_args = [
+            input_dir,
             ch,
             scale,
             "${tile_dir}/coords.txt",
@@ -47,9 +48,20 @@ workflow spot_extraction {
             "_${ch}.txt",
             dapi_correction
         ]
+        println "Create airlocalize args: ${airlocalize_args}"
+        return airlocalize_args
     }
 
-
+    airlocalize_results = airlocalize(
+        airlocalize_inputs.map { it[0] },
+        airlocalize_inputs.map { it[1] },
+        airlocalize_inputs.map { it[2] },
+        airlocalize_inputs.map { it[3] },
+        airlocalize_inputs.map { it[4] },
+        airlocalize_inputs.map { it[5] },
+        airlocalize_inputs.map { it[6] },
+        airlocalize_inputs.map { it[7] }
+    )
 
     // per_channel_spot_extraction_inputs = spot_extraction_inputs \
     // | flatMap { args ->
