@@ -12,6 +12,7 @@ process cut_tiles {
     val(z_overlap)
 
     output:
+    val(image_path)
     env CUT_TILES_RES
 
     script:

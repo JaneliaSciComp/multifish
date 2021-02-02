@@ -5,6 +5,10 @@ include {
 } from '../processes/spot_extraction' addParams(lsf_opts: params.lsf_opts, 
                                                 spotextraction_container: params.spotextraction_container)
 
+include {
+    index_channel;
+} from '../utils/utils'
+
 workflow spot_extraction {
     take:
     input_dir
@@ -20,7 +24,7 @@ workflow spot_extraction {
     per_channel_air_localize_params
 
     main:
-    tile_dirs = cut_tiles(
+    tile_cut_res = cut_tiles(
         input_dir,
         channels[0],
         scale,
@@ -30,6 +34,14 @@ workflow spot_extraction {
         z_stride,
         z_overlap
     ) |  flatMap { it.tokenize(' ') }
+
+    indexed_tile_cut_input = index_channel(tile_cut_res[0])
+    indexed_tiles = indexed_tile_cut_input | join(index_channel(tile_cut_res[1])) | flatMap {
+        def tile_input = it[1]
+        def tile_dirs = it[2].tokenize(' ').collect {
+            [ tile_input, it ]
+        }
+    }
 
     airlocalize_inputs = tile_dirs | combine(channels) | map {
         def tile_dir = it[0]

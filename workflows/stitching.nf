@@ -24,6 +24,10 @@ include {
     entries_inputs_args
 } from './stitching_utils'
 
+include {
+    index_channel;
+} from '../utils/utils'
+
 /**
  * prepares the work and output directories and invoke stitching 
  * for the aquisitions list - this is a value channel containing a list of acquistins
@@ -360,13 +364,6 @@ workflow stitch_acquisition {
 
     emit:
     done
-}
-
-def index_channel(c) {
-    c.reduce([ 0, [] ]) { accum, elem ->
-        def indexed_elem = [accum[0], elem]
-        [ accum[0]+1, accum[1]+[indexed_elem] ]
-    } | flatMap { it[1] }
 }
 
 def prepare_app_args(app_name,
