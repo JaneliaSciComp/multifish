@@ -48,7 +48,7 @@ process airlocalize {
     val(dapi_subpath)
 
     output: 
-    tuple val(tile_path), val(ch)
+    tuple val(image_path), val(tile_path), val(ch)
 
     script:
     args_list = [

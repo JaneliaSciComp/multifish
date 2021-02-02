@@ -24,7 +24,7 @@ workflow spot_extraction {
     per_channel_air_localize_params
 
     main:
-    tile_cut_res = cut_tiles(
+    def tile_cut_res = cut_tiles(
         input_dir,
         channels[0],
         scale,
@@ -35,20 +35,20 @@ workflow spot_extraction {
         z_overlap
     )
 
-    indexed_tile_cut_input = index_channel(tile_cut_res[0])
-    tiles_with_inputs = indexed_tile_cut_input | join(index_channel(tile_cut_res[1])) | flatMap {
+    def indexed_tile_cut_input = index_channel(tile_cut_res[0])
+    def tiles_with_inputs = indexed_tile_cut_input | join(index_channel(tile_cut_res[1])) | flatMap {
         def tile_input = it[1]
         it[2].tokenize(' ').collect {
             [ tile_input, it ]
         }
     }
 
-    airlocalize_inputs = tiles_with_inputs | combine(channels) | map {
+    def airlocalize_inputs = tiles_with_inputs | combine(channels) | map {
         def tile_input = it[0]
         def tile_dir = it[1]
         def ch = it[2]
         def dapi_correction = dapi_correction_channels.contains(ch)
-                ? "/${args.dapi_channel}/${args.scale}"
+                ? "/${dapi_channel}/${scale}"
                 : ''
         // return a tuple with all required arguments for airlocalize
         def airlocalize_args = [
@@ -65,8 +65,7 @@ workflow spot_extraction {
         return airlocalize_args
     }
 
-/*
-    airlocalize_results = airlocalize(
+    def airlocalize_results = airlocalize(
         airlocalize_inputs.map { it[0] },
         airlocalize_inputs.map { it[1] },
         airlocalize_inputs.map { it[2] },
@@ -75,52 +74,24 @@ workflow spot_extraction {
         airlocalize_inputs.map { it[5] },
         airlocalize_inputs.map { it[6] },
         airlocalize_inputs.map { it[7] }
+    ) | groupTuple(by: [0, 1])
+
+    def merge_points_inputs = airlocalize_results | map {
+        def merge_points_args = it
+        println "Create merge point args: ${merge_points_args}"
+        return merge_points_args
+    }
+
+    def merge_points_results = merge_points(
+        merge_points_inputs.map { it[0] }
+        merge_points_inputs.map { it[1] }
+        merge_points_inputs.map { it[2] }
+        merge_points_inputs.map { it[3] }
+        merge_points_inputs.map { it[4] }
+        merge_points_inputs.map { it[5] }
+        merge_points_inputs.map { it[6] }
     )
-*/
 
-    // per_channel_spot_extraction_inputs = spot_extraction_inputs \
-    // | flatMap { args ->
-    //     args.channels.collect { ch ->
-    //         [
-    //             ch,
-    //             args
-    //         ]
-    //     }
-    // }
-
-
-
-    // | flatMap {
-    //     println "Cut tiles results: $it"
-    //     it.tokenize(' ')
-    // } \
-    // | combine(spot_extraction_inputs) \
-    // | flatMap {
-    //     tile_dir = it[0]
-    //     args = it[1]
-    //     println "Prepare airlocalize parameters for tile ${tile_dir}: ${args}"
-    //     args.channels.collect { ch ->
-    //         dapi_correction = args.dapi_correction_channels.contains(ch)
-    //             ? "/${args.dapi_channel}/${args.scale}"
-    //             : ''
-    //         println "DAPI correction for channel ${ch}: ${dapi_correction}"
-    //         airlocalize_args_per_tile_and_ch = [
-    //             args.data_dir,
-    //             ch,
-    //             args.scale,
-    //             "${tile_dir}/coords.txt",
-    //             args.per_channel_air_localize_params[ch],
-    //             tile_dir,
-    //             "_${ch}.txt",
-    //             dapi_correction
-    //         ]
-    //         println "Airlocalize args for tile ${tile_dir} channel ${ch}: ${airlocalize_args_per_tile_and_ch}"
-    //         airlocalize_args_per_tile_and_ch
-    //     }
-    // } \
-    // | airlocalize \
-    // | groupTuple \
-    // | join(per_channel_spot_extraction_inputs) \
     // | map {
     //     ch = it[0]
     //     args = it[2]
@@ -140,5 +111,5 @@ workflow spot_extraction {
     // | set { done }
 
     emit:
-    done = airlocalize_inputs
+    done = merge_points_results
 }
