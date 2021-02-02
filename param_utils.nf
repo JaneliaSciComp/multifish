@@ -79,7 +79,7 @@ def registration_container_param(Map ps) {
 
 def get_acqs_for_step(Map ps, String step_param, String default_param) {
     def step_acq_names
-    if (!ps[step_param])
+    if (ps[step_param])
         step_acq_names = ps[step_param]
     else
         step_acq_names = ps[default_param]
