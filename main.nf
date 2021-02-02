@@ -119,13 +119,13 @@ workflow {
 
     )
 
-    spot_extraction_output_dirs = get_step_output_dirs(
+    def spot_extraction_output_dirs = get_step_output_dirs(
         spot_extraction_inputs,
         output_dir_param(final_params),
         spot_extraction_output
     )
 
-    spot_extraction_results = spot_extraction(
+    def spot_extraction_results = spot_extraction(
         spot_extraction_inputs.map { "${it[1]}/export.n5" },
         spot_extraction_output_dirs,
         channels,
@@ -139,27 +139,27 @@ workflow {
         per_channel_air_localize_params
     )
 
+    def segmentation_inputs = get_stitched_inputs_for_step(
+        [ final_params.reference_acq_name ],
+        final_params.stitching_output,
+        stitching_results
+    )
 
-    // // segmentation
-    // stitching_result \
-    // | filter {
-    //     it.acq_name == final_params.reference_acq_name
-    // } \
-    // | map {
-    //     stitching_output_dir = get_step_output_dir(it.output_dir, stitching_output)
-    //     segmentation_output_dir = get_step_output_dir(it.output_dir, segmentation_output)
-    //     // create output dir
-    //     segmentation_output_dir.mkdirs()
-    //     it + [
-    //         data_dir: "${stitching_output_dir}/export.n5",
-    //         segmentation_output_dir: segmentation_output_dir,
-    //         dapi_channel: final_params.dapi_channel,
-    //         scale: final_params.scale_4_segmentation,
-    //         model_dir: final_params.segmentation_model_dir,
-    //     ]
-    // } \
-    // | segmentation \
-    // | view
+    def segmentation_output_dirs = get_step_output_dirs(
+        segmentation_inputs,
+        output_dir_param(final_params),
+        segmentation_output
+    )
+
+    def segmentation_results = segmentation(
+        segmentation_inputs.map { "${it[1]}/export.n5" },
+        segmentation_inputs.map { "${it[0]}" },
+        segmentation_output_dirs,
+        final_params.dapi_channel,
+        final_params.scale_4_segmentation,
+        final_params.segmentation_model_dir,
+    )
+
 }
 
 def get_acq_output(output, acq_name) {

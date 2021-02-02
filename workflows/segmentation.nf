@@ -1,27 +1,36 @@
 include {
+    index_channel;
+} from '../utils/utils'
+
+include {
     predict;
 } from '../processes/segmentation'  addParams(lsf_opts: params.lsf_opts,
                                               segmentation_container: params.segmentation_container)
 
 workflow segmentation {
     take:
-    segmentation_inputs
+    input_dirs
+    acqs
+    output_dirs
+    dapi_channel
+    scale
+    model_dir
 
     main:
+    def indexed_acqs = index_channel(acqs)
+    def output_files = indexed_acqs | join(index_channel(output_dirs)) | map {
+        // <output_dir>/<acq>-<dapi-ch>.tif
+         "${it[2]}/${it[1]}-${dapi_channel}.tif"
+    }
 
-    segmentation_inputs \
-    | map { args ->
-        [
-            args.data_dir,
-            args.dapi_channel,
-            args.scale,
-            args.model_dir,
-            "${args.segmentation_output_dir}/${args.acq_name}-${args.dapi_channel}.tif"
-        ]
-    } \
-    | predict \
-    | set { done }
+    def segmentation_results = predict(
+        input_dirs,
+        dapi_channel,
+        scale,
+        model_dir,
+        output_files
+    )
 
     emit:
-    done
+    done = segmentation_results
 }

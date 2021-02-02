@@ -12,7 +12,7 @@ process predict {
     val(output_path)
 
     output:
-    val(output_path)
+    tuple val(image_path), val(output_path)
 
     script:
     args_list = [
