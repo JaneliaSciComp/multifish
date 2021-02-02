@@ -94,7 +94,7 @@ def spot_extraction_xy_overlap_param(Map ps) {
     def spot_extraction_xy_overlap = ps.spot_extraction_xy_overlap
     if (!spot_extraction_xy_overlap) {
         // consider 20% of xy stride
-        spot_extraction_xy_overlap = (int) (0.05 * spot_extraction_xy_stride_param())
+        spot_extraction_xy_overlap = (int) (0.05 * spot_extraction_xy_stride_param(ps))
         return spot_extraction_xy_overlap < 50 ?  50 : spot_extraction_xy_overlap
     } else {
         return spot_extraction_xy_overlap
@@ -114,7 +114,7 @@ def spot_extraction_z_overlap_param(Map ps) {
     def spot_extraction_z_overlap = ps.spot_extraction_z_overlap
     if (!spot_extraction_z_overlap) {
         // consider 20% of z stride
-        spot_extraction_z_overlap = (int) (0.05 * spot_extraction_z_stride_param())
+        spot_extraction_z_overlap = (int) (0.05 * spot_extraction_z_stride_param(ps))
         return spot_extraction_z_overlap < 50 ?  50 : spot_extraction_z_overlap
     } else {
         return spot_extraction_z_overlap
