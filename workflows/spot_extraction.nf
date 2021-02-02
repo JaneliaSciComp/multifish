@@ -89,7 +89,8 @@ workflow spot_extraction {
     def merge_points_inputs = airlocalize_results | groupTuple(by: [0, 1, 3]) | map {
         def tile_input = it[0]
         def tiles_dir = it[1]
-        def ch = it[2]
+        def tiles = it[2]
+        def ch = it[3]
         def merge_points_args = [
             tile_input,
             ch,
@@ -99,7 +100,7 @@ workflow spot_extraction {
             z_overlap,
             tiles_dir
         ]
-        println "Merge ${it[3]} using ${merge_points_args}"
+        println "Merge ${tiles} using ${merge_points_args}"
         return merge_points_args
     }
 /*
