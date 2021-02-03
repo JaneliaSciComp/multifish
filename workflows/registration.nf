@@ -55,7 +55,7 @@ workflow prepare_fixed_acq {
     // get coarse spots
     def coarse_fixed_spots_results = fixed_coarse_spots(
         input_dirs,
-        "/${dapi_channel}/${spots_scale}",
+        "/${ch}/${spots_scale}",
         output_dirs.map { "${it}/aff" },
         'fixed_spots.pkl',
         spots_cc_radius,
@@ -73,6 +73,7 @@ workflow prepare_fixed_acq {
     ) | groupTuple
 
     def all_fixed_spots_results = coarse_fixed_spots_results | join(fixed_spots_results)
+    all_fixed_spots_results.subscribe { println "Fixed spots results: ${it}" }
 
     emit:
     done = all_fixed_spots_results
@@ -84,13 +85,9 @@ workflow registration {
     working_dir
     moving_input_dirs
     output_dirs
-    dapi_channel
+    ch
     affine_scale
     deformation_scale
-    xy_stride
-    xy_overlap
-    z_stride
-    z_overlap
     spots_cc_radius
     spots_spot_number
     ransac_cc_cutoff
@@ -98,7 +95,7 @@ workflow registration {
 
     main:
 
-    // def fixed_affine_dir = "${working_dir}/aff"
+    def fixed_affine_dir = "${working_dir}/aff"
     // def coarse_fixed_spots_results = coarse_spots_fixed(
     //     fixed_input_dir,
     //     "/${dapi_channel}/${affine_scale}",
