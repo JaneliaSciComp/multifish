@@ -25,14 +25,15 @@ workflow prepare_fixed_acq {
     output_dirs
     ch
     retiling_scale
+    xy_stride
+    xy_overlap
+    z_stride
+    z_overlap
     spots_scale
     spots_cc_radius
     spots_spot_number
 
     main:
-    indexed_input_dirs = index_channel(input_dirs)
-    indexed_output_dirs = index_channel(output_dirs)
-
     // prepare tile coordinates
     def tile_cut_res = cut_tiles(
         input_dirs,

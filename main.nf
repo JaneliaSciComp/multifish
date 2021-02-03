@@ -18,6 +18,10 @@ include {
     spot_extraction_xy_overlap_param;
     spot_extraction_z_stride_param;
     spot_extraction_z_overlap_param;
+    registration_xy_stride_param;
+    registration_xy_overlap_param;
+    registration_z_stride_param;
+    registration_z_overlap_param;
 } from './param_utils'
 
 // app parameters
@@ -199,6 +203,10 @@ workflow {
         prep_registration_fixed_output_dirs,
         final_params.dapi_channel,
         final_params.def_scale, // retile at the deformation scale
+        registration_xy_stride_param(final_params),
+        registration_xy_overlap_param(final_params),
+        registration_z_stride_param(final_params),
+        registration_z_overlap_param(final_params),
         final_params.aff_scale, // for spots use affine scale
         final_params.spots_cc_radius,
         final_params.spots_spot_number
