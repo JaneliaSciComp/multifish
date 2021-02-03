@@ -8,6 +8,8 @@ def default_mf_params() {
         segmentation_container: '',
         registration_container: '',
 
+        acq_names: '', // this is the default parameter for all acquisitions that must be processed
+                       // should only be used when all steps must be performed for all acquisions
         output_dir: '',
 
         stitching_app: 'external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar',
@@ -22,7 +24,8 @@ def default_mf_params() {
         blur_sigma: '2',
 
         dapi_channel: 'c2',
-        reference_acq_name: '', // reference acq - this is the fixed round
+        reference_acq_name: '', // this is the default parameter for the fixed round and 
+                                // should be used only when all steps that require a fixed round must be done
 
         spot_extraction_output: 'spots',
         scale_4_spot_extraction: 's0',
@@ -119,4 +122,11 @@ def spot_extraction_z_overlap_param(Map ps) {
     } else {
         return spot_extraction_z_overlap
     }
+}
+
+def get_value_or_alt(Map ps, String param, String alt_param) {
+    if (ps[param])
+        ps[param]
+    else
+        ps[alt_param]
 }

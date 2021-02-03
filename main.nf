@@ -9,6 +9,7 @@ include {
 include {
     default_mf_params;
     get_acqs_for_step;
+    get_value_or_alt;
     output_dir_param;
     spotextraction_container_param;
     segmentation_container_param;
@@ -55,6 +56,7 @@ data_dir = final_params.data_dir
 resolution = final_params.resolution
 axis_mapping = final_params.axis
 
+// if stitching is not desired do not set 'stitch_acq_names' or acq_names in the command line parameters
 stitch_acq_names = get_acqs_for_step(final_params, 'stitch_acq_names', 'acq_names')
 channels = final_params.channels?.split(',')
 block_size = final_params.block_size
@@ -63,6 +65,7 @@ stitching_mode = final_params.stitching_mode
 stitching_padding = final_params.stitching_padding
 blur_sigma = final_params.blur_sigma
 
+// if spot extraction is not desired do not set spot_extraction_acq_names or acq_names in the command line parameters
 spot_extraction_acq_names = get_acqs_for_step(final_params, 'spot_extraction_acq_names', 'acq_names')
 spot_extraction_output = final_params.spot_extraction_output
 spot_extraction_dapi_correction_channels = final_params.spot_extraction_dapi_correction_channels?.split(',')
@@ -79,6 +82,9 @@ per_channel_air_localize_params = [
     return a 
 }
 
+// if segmentation is not desired do not set segmentation_acq_name or reference_acq_name in the command line
+segmentation_acq = get_value_or_alt(final_params, 'segmentation_acq_name', 'reference_acq_name')
+segmentation_acqs = segmentation_acq ? [ segmentation_acq ] : []
 segmentation_output = final_params.segmentation_output
 
 workflow {
@@ -140,7 +146,7 @@ workflow {
     )
 
     def segmentation_inputs = get_stitched_inputs_for_step(
-        [ final_params.reference_acq_name ],
+        segmentation_acqs,
         final_params.stitching_output,
         stitching_results
     )
