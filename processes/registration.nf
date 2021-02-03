@@ -2,8 +2,8 @@ process cut_tiles {
     container = params.registration_container
 
     input:
-    val(ref_img_path)
-    val(ref_img_subpath)
+    val(image_path)
+    val(image_subpath)
     val(tiles_dir)
     val(xy_stride)
     val(xy_overlap)
@@ -11,13 +11,14 @@ process cut_tiles {
     val(z_overlap)
 
     output:
+    val(image_path)
     env CUT_TILES_RES
 
     script:
     """
     mkdir -p ${tiles_dir}
-    /app/scripts/waitforpaths.sh ${ref_img_path}${ref_img_subpath}
-    /entrypoint.sh cut_tiles $ref_img_path $ref_img_subpath $tiles_dir $xy_stride $xy_overlap $z_stride $z_overlap
+    /app/scripts/waitforpaths.sh ${image_path}${image_subpath}
+    /entrypoint.sh cut_tiles $image_path $image_subpath $tiles_dir $xy_stride $xy_overlap $z_stride $z_overlap
     CUT_TILES_RES=`ls -d ${tiles_dir}/*[0-9]`
     """
 }
@@ -79,7 +80,7 @@ process coarse_spots {
     val(spotNum)
 
     output:
-    val(output_path)
+    tuple val(img_path), val(output_path)
 
     script:
     output_path = "${output_dir}/${output_filename}"
@@ -95,20 +96,20 @@ process spots {
     input:
     val(img_path),
     val(img_subpath)
-    val(tile)
-    val(output_file)
+    val(tile_dir)
+    val(output_filename)
     val(radius)
     val(spotNum)
 
     output:
-    tuple val(tile), val(output_file)
+    tuple val(img_path), val(output_path)
 
     script:
+    output_path = "${tile_dir}/${output_filename}"
     """
     /app/scripts/waitforpaths.sh ${img_path}${img_subpath}
-    /entrypoint.sh spots $tile/coords.txt $img_path $img_subpath ${tile}${output_file} $radius $spotNum
+    /entrypoint.sh spots ${tile_dir}/coords.txt $img_path $img_subpath ${tile_dir}/${output_filename} $radius $spotNum
     """
-
 }
 
 process interpolate_affines {

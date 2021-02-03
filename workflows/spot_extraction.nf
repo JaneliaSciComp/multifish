@@ -35,8 +35,7 @@ workflow spot_extraction {
         z_overlap
     )
 
-    def indexed_tile_cut_input = index_channel(tile_cut_res[0])
-    def tiles_with_inputs = indexed_tile_cut_input | join(index_channel(tile_cut_res[1])) | flatMap {
+    def tiles_with_inputs = index_channel(tile_cut_res[0]) | join(index_channel(tile_cut_res[1])) | flatMap {
         def tile_input = it[1]
         it[2].tokenize(' ').collect {
             [ tile_input, it ]

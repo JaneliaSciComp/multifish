@@ -43,11 +43,12 @@ include {
                                             segmentation_container: segmentation_container_param(final_params))
 
 include {
+    prepare_fixed_acq;
     registration;
-} from './workflows/segmentation' addParams(lsf_opts: final_params.lsf_opts,
+} from './workflows/registration' addParams(lsf_opts: final_params.lsf_opts,
                                             registration_container: registration_container_param(final_params),
-                                            small_transform_cpus: final_params.small_transform_cpus,
-                                            large_transform_cpus: final_params.large_transform_cpus,
+                                            aff_scale_transform_cpus: final_params.aff_scale_transform_cpus,
+                                            def_scale_transform_cpus: final_params.def_scale_transform_cpus,
                                             stitch_registered_cpus: final_params.stitch_registered_cpus,
                                             final_transform_cpus: final_params.final_transform_cpus)
 
@@ -93,9 +94,14 @@ per_channel_air_localize_params = [
 }
 
 // if segmentation is not desired do not set segmentation_acq_name or reference_acq_name in the command line
-segmentation_acq = get_value_or_alt(final_params, 'segmentation_acq_name', 'reference_acq_name')
-segmentation_acqs = segmentation_acq ? [ segmentation_acq ] : []
+segmentation_acq_name = get_value_or_alt(final_params, 'segmentation_acq_name', 'reference_acq_name')
+segmentation_acq_names = segmentation_acq_name ? [ segmentation_acq_name ] : []
 segmentation_output = final_params.segmentation_output
+
+prep_registration_fixed_acq_names = get_acqs_for_step(final_params, 'prep_registration_fixed_acq_name', 'acq_names')
+prep_registration_fixed_output = final_params.prep_registration_fixed_output
+
+registration_moving_acq_names = get_acqs_for_step(final_params, 'registration_moving_acq_names', 'acq_names')
 
 workflow {
     // stitching
@@ -156,7 +162,7 @@ workflow {
     )
 
     def segmentation_inputs = get_stitched_inputs_for_step(
-        segmentation_acqs,
+        segmentation_acq_names,
         final_params.stitching_output,
         stitching_results
     )
@@ -177,6 +183,36 @@ workflow {
         final_params.predict_cpus
     )
 
+    def prep_registration_fixed_inputs = get_stitched_inputs_for_step(
+        prep_registration_fixed_acq_names,
+        final_params.stitching_output,
+        stitching_results
+    )
+    def prep_registration_fixed_output_dirs = get_step_output_dirs(
+        prep_registration_fixed_inputs,
+        output_dir_param(final_params),
+        prep_registration_fixed_output
+    )
+
+    def prep_fixed_results =  prepare_fixed_acq(
+        prep_registration_fixed_inputs.map { "${it[1]}/export.n5" },
+        prep_registration_fixed_output_dirs,
+        final_params.dapi_channel,
+        final_params.def_scale, // retile at the deformation scale
+        final_params.aff_scale, // for spots use affine scale
+        final_params.spots_cc_radius,
+        final_params.spots_spot_number
+    )
+
+    // def registration_moving_inputs = get_stitched_inputs_for_step(
+    //     registration_moving_acq_names,
+    //     final_params.stitching_output,
+    //     stitching_results
+    // )
+
+    // def registration_results = registration(
+
+    // )
 }
 
 def get_acq_output(output, acq_name) {
