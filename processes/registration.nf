@@ -50,21 +50,21 @@ process apply_transform {
     cpus { cpus }
 
     input:
-    val(ref_img_path)
-    val(ref_img_subpath)
-    val(mov_img_path)
-    val(mov_img_subpath)
+    val(ref_image_path)
+    val(ref_image_subpath)
+    val(mov_image_path)
+    val(mov_image_subpath)
     val(txm_path)
     val(output_path)
     val(cpus)
 
     output:
-    tuple val(output_path), val(ref_img_subpath)
+    tuple val(output_path), val(ref_image_subpath)
 
     script:
     """
-    /app/scripts/waitforpaths.sh ${ref_img_path}${ref_img_subpath} ${mov_img_path}${mov_img_subpath}
-    /entrypoint.sh apply_transform_n5 $ref_img_path $ref_img_subpath $mov_img_path $mov_img_subpath $txm_path $output_path
+    /app/scripts/waitforpaths.sh ${ref_image_path}${ref_image_subpath} ${mov_image_path}${mov_image_subpath}
+    /entrypoint.sh apply_transform_n5 $ref_image_path $ref_image_subpath $mov_image_path $mov_image_subpath $txm_path $output_path
     """
 }
 
@@ -72,21 +72,21 @@ process coarse_spots {
     container = params.registration_container
 
     input:
-    val(img_path)
-    val(img_subpath)
+    val(image_path)
+    val(image_subpath)
     val(output_dir)
     val(output_filename)
     val(radius)
     val(spotNum)
 
     output:
-    tuple val(img_path), val(output_path)
+    tuple val(image_path), val(output_path)
 
     script:
     output_path = "${output_dir}/${output_filename}"
     """
-    /app/scripts/waitforpaths.sh ${img_path}${img_subpath}
-    /entrypoint.sh spots coarse ${img_path} ${img_subpath} ${output_path} ${radius} ${spotNum}
+    /app/scripts/waitforpaths.sh ${image_path}${image_subpath}
+    /entrypoint.sh spots coarse ${image_path} ${image_subpath} ${output_path} ${radius} ${spotNum}
     """
 }
 
@@ -94,21 +94,21 @@ process spots {
     container = params.registration_container
 
     input:
-    val(img_path),
-    val(img_subpath)
+    val(image_path)
+    val(image_subpath)
     val(tile_dir)
     val(output_filename)
     val(radius)
     val(spotNum)
 
     output:
-    tuple val(img_path), val(output_path)
+    tuple val(image_path), val(output_path)
 
     script:
     output_path = "${tile_dir}/${output_filename}"
     """
-    /app/scripts/waitforpaths.sh ${img_path}${img_subpath}
-    /entrypoint.sh spots ${tile_dir}/coords.txt $img_path $img_subpath ${tile_dir}/${output_filename} $radius $spotNum
+    /app/scripts/waitforpaths.sh ${image_path}${image_subpath}
+    /entrypoint.sh spots ${tile_dir}/coords.txt $image_path $image_subpath ${tile_dir}/${output_filename} $radius $spotNum
     """
 }
 
@@ -116,11 +116,9 @@ process interpolate_affines {
     container = params.registration_container
 
     input:
-    val all_tiles
-    val tiles_dir
+    val(tiles_dir)
 
     output:
-    val "done"
 
     script:
     """
@@ -135,8 +133,8 @@ process deform {
     input:
     val(interpolation)
     val(tile)
-    val(img_path)
-    val(img_subpath)
+    val(image_path)
+    val(image_subpath)
     val(ransac_affine)
     val(ransac_affine_subpath)
     val(deform_iterations)
@@ -148,8 +146,8 @@ process deform {
     script:
     deform_output = "$tile/warp.nrrd"
     """
-    /app/scripts/waitforpaths.sh ${img_path}${img_subpath} ${ransac_affine}/${ransac_affine_subpath}
-    /entrypoint.sh deform $img_path $img_subpath $ransac_affine $ransac_affine_subpath $tile/coords.txt $deform_output $tile/ransac_affine.mat $tile/final_lcc.nrrd $tile/invwarp.nrrd $deform_iterations $deform_auto_mask
+    /app/scripts/waitforpaths.sh ${image_path}${image_subpath} ${ransac_affine}/${ransac_affine_subpath}
+    /entrypoint.sh deform $image_path $image_subpath $ransac_affine $ransac_affine_subpath $tile/coords.txt $deform_output $tile/ransac_affine.mat $tile/final_lcc.nrrd $tile/invwarp.nrrd $deform_iterations $deform_auto_mask
     """
 }
 
@@ -162,8 +160,8 @@ process stitch {
     val(tile)
     val(xy_overlap)
     val(z_overlap)
-    val(img_path)
-    val(img_subpath)
+    val(image_path)
+    val(image_subpath)
     val(ransac_affine_mat)
     val(transform_dir)
     val(invtransform_dir)
@@ -176,8 +174,8 @@ process stitch {
     script:
     stitch_output = "$transform_dir/$output_subpath"
     """
-    /app/scripts/waitforpaths.sh $tile ${img_path}${img_subpath} $ransac_affine_mat
-    /entrypoint.sh stitch_and_write $tile $xy_overlap $z_overlap $img_path $img_subpath $ransac_affine_mat $transform_dir $invtransform_dir $output_subpath
+    /app/scripts/waitforpaths.sh $tile ${image_path}${image_subpath} $ransac_affine_mat
+    /entrypoint.sh stitch_and_write $tile $xy_overlap $z_overlap $image_path $image_subpath $ransac_affine_mat $transform_dir $invtransform_dir $output_subpath
     """
 }
 
@@ -187,21 +185,21 @@ process final_transform {
 
     input:
     val(stitch_outputs)
-    val(ref_img_path)
-    val(ref_img_subpath)
-    val(mov_img_path)
-    val(mov_img_subpath)
+    val(ref_image_path)
+    val(ref_image_subpath)
+    val(mov_image_path)
+    val(mov_image_subpath)
     val(txm_path)
     val(output_path)
     val(cpus)
 
     output:
-    tuple val(output_path), val(ref_img_subpath)
+    tuple val(output_path), val(ref_image_subpath)
 
     script:
     """
-    /app/scripts/waitforpaths.sh ${ref_img_path}${ref_img_subpath} ${mov_img_path}${mov_img_subpath}
-    /entrypoint.sh apply_transform_n5 $ref_img_path $ref_img_subpath $mov_img_path $mov_img_subpath $txm_path $output_path
+    /app/scripts/waitforpaths.sh ${ref_image_path}${ref_image_subpath} ${mov_image_path}${mov_image_subpath}
+    /entrypoint.sh apply_transform_n5 $ref_image_path $ref_image_subpath $mov_image_path $mov_image_subpath $txm_path $output_path
     """
 }
 
