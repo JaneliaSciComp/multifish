@@ -98,7 +98,7 @@ segmentation_acq_name = get_value_or_alt(final_params, 'segmentation_acq_name', 
 segmentation_acq_names = segmentation_acq_name ? [ segmentation_acq_name ] : []
 segmentation_output = final_params.segmentation_output
 
-prep_registration_fixed_acq_names = get_acqs_for_step(final_params, 'prep_registration_fixed_acq_name', 'acq_names')
+prep_registration_fixed_acq_names = get_acqs_for_step(final_params, 'prep_registration_fixed_acq_names', 'acq_names')
 prep_registration_fixed_output = final_params.prep_registration_fixed_output
 
 registration_moving_acq_names = get_acqs_for_step(final_params, 'registration_moving_acq_names', 'acq_names')
