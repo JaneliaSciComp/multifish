@@ -84,7 +84,7 @@ workflow stitch_multiple_acquisitions {
             spark_work_dirs: it[2]
         }
 
-    done = stitch_acquisition(
+    def stitching_results = stitch_acquisition(
         stitching_app,
         acq_inputs.acq_names,
         acq_inputs.stitching_dirs,
@@ -107,7 +107,7 @@ workflow stitch_multiple_acquisitions {
     )
 
     emit:
-    done
+    done = stitching_results
 }
 
 /**
