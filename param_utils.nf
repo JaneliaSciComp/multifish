@@ -47,21 +47,20 @@ def default_mf_params() {
 
         // registration params
         prep_registration_fixed_output: 'fixed',
-        aff_scale = 's3', // the scale level for affine alignments
-        def_scale = "s2", // the scale level for deformable alignments
+        aff_scale: 's3', // the scale level for affine alignments
+        def_scale: "s2", // the scale level for deformable alignments
         registration_xy_stride: 0, // use the default defined by registration_xy_stride_param
         registration_xy_overlap: 0, // use the default defined by registration_xy_overlap_param
         registration_z_stride: 0, // use the default defined by registration_z_stride_param
         registration_z_overlap: 0, // use the default defined by registration_z_overlap_param
         spots_cc_radius: '8',
-        spots_spot_number:  '2000',
+        spots_spot_number: '2000',
         // ransac params
         ransac_cc_cutoff: '0.9',
         ransac_dist_threshold: '2.5',
         // deformation parameters
         deform_iterations: '500x200x25x1',
         deform_auto_mask: '0',
-        registration_tiles_output
         affine_output: 'aff',
         transform_output: 'transform',
         invtransform_output: 'invtransform',
