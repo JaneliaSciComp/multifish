@@ -13,6 +13,7 @@ include {
     output_dir_param;
     spotextraction_container_param;
     segmentation_container_param;
+    registration_container_param;
     spot_extraction_xy_stride_param;
     spot_extraction_xy_overlap_param;
     spot_extraction_z_stride_param;
@@ -40,6 +41,15 @@ include {
     segmentation;
 } from './workflows/segmentation' addParams(lsf_opts: final_params.lsf_opts,
                                             segmentation_container: segmentation_container_param(final_params))
+
+include {
+    registration;
+} from './workflows/segmentation' addParams(lsf_opts: final_params.lsf_opts,
+                                            registration_container: registration_container_param(final_params),
+                                            small_transform_cpus: final_params.small_transform_cpus,
+                                            large_transform_cpus: final_params.large_transform_cpus,
+                                            stitch_registered_cpus: final_params.stitch_registered_cpus,
+                                            final_transform_cpus: final_params.final_transform_cpus)
 
 // spark config
 spark_conf = final_params.spark_conf
@@ -164,6 +174,7 @@ workflow {
         final_params.dapi_channel,
         final_params.scale_4_segmentation,
         final_params.segmentation_model_dir,
+        final_params.predict_cpus
     )
 
 }

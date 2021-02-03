@@ -12,6 +12,7 @@ def default_mf_params() {
                        // should only be used when all steps must be performed for all acquisions
         output_dir: '',
 
+        // stitching params
         stitching_app: 'external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar',
         stitching_output: 'stitching',
         resolution: '0.23,0.23,0.42',
@@ -23,10 +24,11 @@ def default_mf_params() {
         stitching_padding: '0,0,0',
         blur_sigma: '2',
 
-        dapi_channel: 'c2',
+        dapi_channel: 'c2', // DAPI channel used to drive both the segmentation and the registration
         reference_acq_name: '', // this is the default parameter for the fixed round and 
                                 // should be used only when all steps that require a fixed round must be done
 
+        // spot extraction params
         spot_extraction_output: 'spots',
         scale_4_spot_extraction: 's0',
         spot_extraction_xy_stride: 0, // use the default defined by spot_extraction_xy_stride_param
@@ -37,10 +39,44 @@ def default_mf_params() {
         default_airlocalize_params: default_airlocalize_params,
         per_channel_air_localize_params: ",,,",
 
+        // segmentatioon params
         segmentation_model_dir: '',
         segmentation_output: 'segmentation',
-        scale_4_segmentation: 's2'
+        scale_4_segmentation: 's2',
+        predict_cpus: 3, // it needs at least 3 cpus for Janelia cluster config because of memory requirements
+
+        // registration params
+        aff_scale = 's3', // the scale level for affine alignments
+        def_scale = "s2", // the scale level for deformable alignments
+        registration_xy_stride: 0, // use the default defined by registration_xy_stride_param
+        registration_xy_overlap: 0, // use the default defined by registration_xy_overlap_param
+        registration_z_stride: 0, // use the default defined by registration_z_stride_param
+        registration_z_overlap: 0, // use the default defined by registration_z_overlap_param
+        spots_cc_radius: '8',
+        spots_spot_number:  '2000',
+        // ransac params
+        ransac_cc_cutoff: '0.9',
+        ransac_dist_threshold: '2.5',
+        // deformation parameters
+        deform_iterations: '500x200x25x1',
+        deform_auto_mask: '0',
+        registration_tiles_output
+        affine_output: 'aff',
+        transform_output: 'transform',
+        invtransform_output: 'invtransform',
+        warped_output: 'warped',
+        small_transform_cpus: 1,
+        large_transform_cpus: 8,
+        stitch_registered_cpus: 2,
+        final_transform_cpus: 12,
     ]
+}
+
+def get_value_or_alt(Map ps, String param, String alt_param) {
+    if (ps[param])
+        ps[param]
+    else
+        ps[alt_param]
 }
 
 def output_dir_param(Map ps) {
@@ -124,9 +160,38 @@ def spot_extraction_z_overlap_param(Map ps) {
     }
 }
 
-def get_value_or_alt(Map ps, String param, String alt_param) {
-    if (ps[param])
-        ps[param]
-    else
-        ps[alt_param]
+def registration_xy_stride_param(Map ps) {
+    def registration_xy_stride = ps.registration_xy_stride
+    if (!registration_xy_stride) {
+        return 256
+    } else {
+        return registration_xy_stride
+    }
+}
+
+def registration_xy_overlap_param(Map ps) {
+    def registration_xy_overlap = ps.registration_xy_overlap
+    if (!registration_xy_overlap) {
+        return (int) (registration_xy_stride_param(ps) / 8)
+    } else {
+        return registration_xy_overlap
+    }
+}
+
+def registration_z_stride_param(Map ps) {
+    def registration_z_stride = ps.registration_z_stride
+    if (!registration_z_stride) {
+        return 256
+    } else {
+        return registration_z_stride
+    }
+}
+
+def registration_z_overlap_param(Map ps) {
+    def registration_z_overlap = ps.registration_z_overlap
+    if (!registration_z_overlap) {
+        return (int) (registration_z_stride_param(ps) / 8)
+    } else {
+        return registration_z_overlap
+    }
 }

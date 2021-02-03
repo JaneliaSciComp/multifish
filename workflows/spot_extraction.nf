@@ -26,7 +26,7 @@ workflow spot_extraction {
     main:
     def tile_cut_res = cut_tiles(
         input_dir,
-        channels[0],
+        dapi_channel,
         scale,
         output_dir,
         xy_stride,

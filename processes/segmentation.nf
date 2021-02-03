@@ -2,7 +2,7 @@ process predict {
     label "withGPU"
 
     container = params.segmentation_container
-    cpus = 3
+    cpus { cpus }
 
     input:
     val(image_path)
@@ -10,6 +10,7 @@ process predict {
     val(scale)
     val(model_path)
     val(output_path)
+    val(cpus)
 
     output:
     tuple val(image_path), val(output_path)

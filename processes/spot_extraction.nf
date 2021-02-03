@@ -5,7 +5,7 @@ process cut_tiles {
     val(image_path)
     val(ch)
     val(scale)
-    val(output_path)
+    val(tiles_dir)
     val(xy_stride)
     val(xy_overlap)
     val(z_stride)
@@ -19,7 +19,7 @@ process cut_tiles {
     args_list = [
         "${image_path}",
         "/${ch}/${scale}",
-        output_path,
+        tiles_dir,
         xy_stride,
         xy_overlap,
         z_stride,
@@ -27,10 +27,10 @@ process cut_tiles {
     ]
     args = args_list.join(' ')
     """
-    mkdir -p ${output_path}
+    mkdir -p ${tiles_dir}
     echo "python /app/airlocalize/scripts/cut_tiles.py ${args}"
     python /app/airlocalize/scripts/cut_tiles.py ${args}
-    CUT_TILES_RES=`ls -d ${output_path}/*[0-9]`
+    CUT_TILES_RES=`ls -d ${tiles_dir}/*[0-9]`
     """
 }
 
@@ -97,6 +97,7 @@ process merge_points {
     ]
     args = args_list.join(' ')
     """
+    mkdir -p ${output_path}
     echo "python /app/airlocalize/scripts/merge_points.py ${args}"
     python /app/airlocalize/scripts/merge_points.py ${args}
     """
