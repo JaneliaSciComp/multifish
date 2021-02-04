@@ -134,7 +134,7 @@ workflow registration {
     )
 
     // get fixed spots per tile
-    def fixed_spots_results = fixed_spots(
+    def fixed_spots_results_per_tile = fixed_spots(
         tiles_with_inputs.map { it[0] }, //  image input for the tile
         "/${ch}/${affine_scale}",
         tiles_with_inputs.map { it[1] }, // coord dir (tile dir)
@@ -156,7 +156,7 @@ workflow registration {
     }
 
     // get moving spots per tile taking as input the output of the coarse affined at affine scale
-    def moving_spots_results = moving_spots(
+    def moving_spots_results_per_tile = moving_spots(
         indexed_aff_scale_affine_results.map { it[1] }, // image input for the tile
         "/${ch}/${affine_scale}",
         indexed_aff_scale_affine_results.map { it[it.size-1] }, // coord dir
@@ -170,16 +170,31 @@ workflow registration {
     )
 
     // compute transformation matrix (ransac_affine.mat) for each moving tile
-    def indexed_moving_spots_results = indexed_aff_scale_affine_results | map {
+    def indexed_moving_spots_results_per_tile = indexed_aff_scale_affine_results | map {
         def tile_path = file(it[it.size-1])
         [ it[1], "${it[11]}/tiles/${tile_path.name}/moving_spots.pkl"] + it
-    } | join(moving_spots_results, by:[0,1]) | map {
-        println "Indexed moving spot result per tile  $it"
+    } | join(moving_spots_results_per_tile, by:[0,2]) | map {
+        // insert the fixed input and the tile coord location at the beginning
+        def r = [ it[4], it[it.size-1] ] + it[0..it.size-2]
+        println "Indexed moving spot result per tile  $r"
+        return r
+    }
+
+    // cross join by fixed input and tile coord
+    def tile_ransac_inputs = fixed_spots_results_per_tile \
+    | combine(indexed_moving_spots_results_per_tile, by:[0, 1]) | map {
+        println "Per tile ransac input $it"
         it
     }
 
+    // ransac_for_tile(
+    //     tile_ransac_inputs.map { it[0] },
+    //     tile_ransac_inputs.map { it[1] },
+    //     tile_ransac_inputs.map { it}
+    // )
+
     emit:
-    done = indexed_moving_spots_results
+    done = tile_ransac_inputs
 }
 
 def index_coarse_results(name, coarse_inputs, coarse_results) {
