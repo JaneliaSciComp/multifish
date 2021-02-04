@@ -40,6 +40,7 @@ process ransac {
     script:
     output_path = "${output_dir}${output_filename}"
     """
+    mkdir -p ${output_dir}
     /app/scripts/waitforpaths.sh ${fixed_spots_file} ${moving_spots_file}
     /entrypoint.sh ransac ${fixed_spots_file} ${moving_spots_file} ${output_path} $cutoff $threshold
     """
@@ -85,6 +86,7 @@ process coarse_spots {
     script:
     output_path = "${output_dir}/${output_filename}"
     """
+    mkdir -p ${output_dir}
     /app/scripts/waitforpaths.sh ${image_path}${image_subpath}
     /entrypoint.sh spots coarse ${image_path} ${image_subpath} ${output_path} ${radius} ${spotNum}
     """
