@@ -175,7 +175,7 @@ workflow registration {
         [ it[1], "${it[11]}/tiles/${tile_path.name}/moving_spots.pkl"] + it
     } | join(moving_spots_results_per_tile.map { [ it[0], it[2], it[1] ] }, by:[0,1]) | map {
         // insert the fixed input and the tile coord location at the beginning
-        def r = [ it[4], it[it.size-1] ] + it[0..it.size-2]
+        def r = [ it[2], it[it.size-1] ] + it[0..it.size-2]
         println "Indexed moving spot result per tile  $r"
         return r
     }
@@ -188,9 +188,12 @@ workflow registration {
     }
 
     def tt = ransac_for_tile(
-        tile_ransac_inputs.map { it[3] }, // fixed spots
-        tile_ransac_inputs.map { it[8] }, // moving spots
-        tile_ransac_inputs.map { "${it[10]}/aff" },
+        tile_ransac_inputs.map { it[2] }, // fixed spots
+        tile_ransac_inputs.map { it[4] }, // moving spots
+        tile_ransac_inputs.map {
+            def moving_spots_file = file(it[4])
+            moving_spots_file.parent // output is in the same location as moving spots file
+        },
         'ransac_affine.mat', \
         ransac_cc_cutoff,
         ransac_dist_threshold

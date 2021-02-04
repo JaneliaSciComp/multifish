@@ -27,8 +27,8 @@ process ransac {
     container = params.registration_container
 
     input:
-    val(fixed_spots_file)
-    val(moving_spots_file)
+    val(fixed_spots_file) // fixed spots pkl
+    val(moving_spots_file) // moving spots pkl
     val(output_dir)
     val(output_filename)
     val(cutoff)
