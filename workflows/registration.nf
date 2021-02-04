@@ -209,27 +209,28 @@ workflow registration {
         [ "${it[10]}/aff/ransac_affine" ] + it
     } | join (aff_scale_affine_results) | map {
         // prepend the fixed input path
-        [ it[4] ] + it[2..it.size-1]
+        [ it[3] ] + it[1..it.size-1]
     } |  combine(tiles_with_inputs, by:0) | map {
         println "Indexed affine  result: $it"
         it
     }
 
-
-
     // get moving spots per tile taking as input the output of the coarse affined at affine scale
-    // def moving_spots_results = moving_spots(
-    //     aff_scale_affine_results.map { it[0] }, // image input for the tile
-    //     "/${ch}/${affine_scale}",
-    //     indexed_aff_scale_affine_results.map { it[1] }, // coord dir
-    //     indexed_aff_scale_affine_results.map {}, // output  results
-    //     'moving_spots.pkl',
-    //     spots_cc_radius,
-    //     spots_spot_number
-    // ) | groupTuple // group  results by input path
+    def moving_spots_results = moving_spots(
+        aff_scale_affine_results.map { it[0] }, // image input for the tile
+        "/${ch}/${affine_scale}",
+        indexed_aff_scale_affine_results.map { it[it.size-1] }, // coord dir
+        indexed_aff_scale_affine_results.map {
+            def tile_path = file(it[it.size-1])
+            "${it[11]}/tiles/${tile_path.name}"
+        }, // output  results
+        'moving_spots.pkl',
+        spots_cc_radius,
+        spots_spot_number
+    ) | groupTuple // group  results by input path
 
     emit:
-    done = coarse_ransac_inputs
+    done = moving_spots_results
 }
 
 def index_coarse_results(name, coarse_inputs, coarse_results) {
