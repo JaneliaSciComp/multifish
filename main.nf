@@ -193,11 +193,11 @@ workflow {
         stitching_results
     )
 
-    def registration_fixed_output_dirs = get_step_output_dirs(
-        registration_fixed_inputs,
-        output_dir_param(final_params),
-        registration_fixed_output
-    )
+    // def registration_fixed_output_dirs = get_step_output_dirs(
+    //     registration_fixed_inputs,
+    //     output_dir_param(final_params),
+    //     registration_fixed_output
+    // )
 
     def registration_moving_inputs = get_stitched_inputs_for_step(
         registration_moving_acq_names,
@@ -205,12 +205,27 @@ workflow {
         stitching_results
     )
 
-    def registration_moving_output_dirs = get_step_output_dirs(
-        registration_moving_inputs,
-        output_dir_param(final_params),
-        registration_output
-    )
+    def registration_inputs = registration_fixed_inputs.combine(registration_moving_inputs) | map {
+        println "Create registration input for $it"
+        def fixed_acq = it[0]
+        def moving_acq = it[2]
+        def registration_output_dir = get_step_output_dir(
+            get_acq_output(output_dir, moving_acq),
+            "${registration_output}/${moving_acq}-to-${fixed_acq}"
+        )
+        println "Create registration output for ${moving_acq} to ${fixed_acq} -> ${registration_output_dir}"
+        step_output_dir.mkdirs()
+        [
+            fixed_acq,
+            it[1], // stitching dir for fixed acq
+            moving_acq,
+            it[2], // stitching dir for moving acq
+            registration_output_dir   
+        ]
+    }
+    registration_inputs | view
 
+/*
     def registration_results =  registration(
         registration_fixed_inputs.map { it[0] },
         registration_fixed_inputs.map { "${it[1]}/export.n5" },
@@ -230,7 +245,7 @@ workflow {
         final_params.ransac_cc_cutoff,
         final_params.ransac_dist_threshold
     ) | view
-
+*/
 }
 
 def get_acq_output(output, acq_name) {

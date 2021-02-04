@@ -21,9 +21,7 @@ include {
 
 workflow registration {
     take:
-    fixed_name
     fixed_input_dir
-    fixed_output_dir
     moving_names
     moving_input_dirs
     moving_output_dirs
