@@ -81,11 +81,17 @@ workflow prepare_fixed_acq {
 
 workflow registration {
     take:
+    fixed_name
     fixed_input_dir
-    working_dir
+    fixed_output_dir
+    moving_names
     moving_input_dirs
-    output_dirs
+    moving_output_dirs
     ch
+    xy_stride
+    xy_overlap
+    z_stride
+    z_overlap
     affine_scale
     deformation_scale
     spots_cc_radius
@@ -94,47 +100,74 @@ workflow registration {
     ransac_dist_threshold
 
     main:
+    // prepare tile coordinates
+    def tile_cut_res = cut_tiles(
+        fixed_input_dir,
+        "/${ch}/${deformation_scale}",
+        fixed_output_dir.map { "${it}/tiles" },
+        xy_stride,
+        xy_overlap,
+        z_stride,
+        z_overlap
+    )
 
-    def fixed_affine_dir = "${working_dir}/aff"
-    // def coarse_fixed_spots_results = coarse_spots_fixed(
-    //     fixed_input_dir,
-    //     "/${dapi_channel}/${affine_scale}",
-    //     fixed_affine_dir,
-    //     'fixed_spots.pkl',
-    //     spots_cc_radius,
-    //     spots_spot_number
-    // )
+    def tiles_with_inputs = index_channel(tile_cut_res[0]) | join(index_channel(tile_cut_res[1])) | flatMap {
+        def tile_input = it[1]
+        it[2].tokenize(' ').collect {
+            [ tile_input, it ]
+        }
+    }
 
-    // def coarse_moving_spots_results = coarse_spots_moving(
-    //     moving_input_dirs,
-    //     "/${dapi_channel}/${affine_scale}",
-    //     output_dirs.map { "${it}/aff" },
-    //     'moving_spots.pkl',
-    //     spots_cc_radius,
-    //     spots_spot_number
-    // )
+    // get fixed coarse spots
+    def indexed_coarse_fixed_spots_results = index_coarse_results(
+        fixed_name,
+        fixed_input_dir, 
+        fixed_coarse_spots(
+            fixed_input_dir,
+            "/${ch}/${affine_scale}",
+            fixed_output_dir.map { "${it}/aff" },
+            'fixed_spots.pkl',
+            spots_cc_radius,
+            spots_spot_number
+        ))
 
-    // def indexed_moving_inputs =  index_channel(moving_input_dirs)
-    // def indexed_outputs = index_channel(output_dirs)
+    // get fixed spots per tile
+    def fixed_spots_results = fixed_spots(
+        tiles_with_inputs.map { it[0] }, //  image input for the tile
+        "/${ch}/${affine_scale}",
+        tiles_with_inputs.map { it[1] }, // tile dir 
+        'fixed_spots.pkl',
+        spots_cc_radius,
+        spots_spot_number
+    ) | groupTuple // group  results by input path
+
+    // get moving coarse spots
+    def indexed_coarse_moving_spots_results = index_coarse_results(
+        moving_names,
+        moving_input_dirs,
+        moving_coarse_spots(
+            moving_input_dirs,
+            "/${ch}/${affine_scale}",
+            moving_output_dirs.map { "${it}/aff" },
+            'moving_spots.pkl',
+            spots_cc_radius,
+            spots_spot_number
+        ))
 
     // // create all combinations fixed coarse spots with moving coarse spots
-    // def coarse_spots_results = coarse_fixed_spots_results.combine(coarse_moving_spots_results)
+    def coarse_ransac_inputs = indexed_coarse_fixed_spots_results \
+    | combine(indexed_coarse_moving_spots_results) \
+    | map { println "Coarse ransac input: $it"; it}
 
-    // // compute transformation matrix (ransac_affine.mat)
+    // compute transformation matrix (ransac_affine.mat)
     // def indexed_coarse_ransac_results = coarse_ransac(
-    //     coarse_spots_results.map { it[0] }, // fixed spots
-    //     coarse_spots_results.map { it[1] }, // moving spots
-    //     output_dirs,
+    //     coarse_ransac_inputs.map { it[0] }, // fixed spots
+    //     coarse_ransac_inputs.map { it[1] }, // moving spots
+    //     coarse_ransac_inputs.map { it[2] }, // moving output dir
     //     'ransac_affine.mat', \
     //     ransac_cc_cutoff,
     //     ransac_dist_threshold
-    // ) | join(indexed_outputs, by:1) | map { 
-    //     [ 
-    //         it[2], //  index
-    //         it[1], // full ransac output file path
-    //         it[0], // ransac output dir
-    //     ]
-    // }
+    // )
 
     // affine_inputs = indexed_moving_inputs \
     // | combine(fixed_input_dir) \
@@ -176,4 +209,32 @@ workflow registration {
     //     tiles, "/fixed_spots.pkl", \
     //     params.spots_cc_radius, params.spots_spot_number)
 
+    emit:
+    done = coarse_ransac_inputs
+}
+
+def index_coarse_results(name, coarse_inputs, coarse_results) {
+    def indexed_name = index_channel(name)
+    def indexed_coarse_inputs = index_channel(coarse_inputs)
+
+    coarse_results | map { 
+        [ it[1], it[0] ] // swap input path with coarse result path
+    } \
+    | join(indexed_fixed_input_dir, by:1) \
+    | map {
+        [
+            it[2], // index
+            it[0], // input path
+            it[1] // coarse result
+        ]
+    } \
+    | join (indexed_fixed_name) \
+    | map {
+        [
+            it[0], // index
+            it[3], // name
+            it[1], // input path
+            it[2]  // coarse result
+        ]
+    }
 }

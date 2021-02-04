@@ -46,7 +46,8 @@ def default_mf_params() {
         predict_cpus: 3, // it needs at least 3 cpus for Janelia cluster config because of memory requirements
 
         // registration params
-        prep_registration_fixed_output: 'fixed',
+        registration_fixed_output: 'fixed',
+        registratin_output: 'registration',
         aff_scale: 's3', // the scale level for affine alignments
         def_scale: "s2", // the scale level for deformable alignments
         registration_xy_stride: 0, // use the default defined by registration_xy_stride_param
@@ -61,10 +62,6 @@ def default_mf_params() {
         // deformation parameters
         deform_iterations: '500x200x25x1',
         deform_auto_mask: '0',
-        affine_output: 'aff',
-        transform_output: 'transform',
-        invtransform_output: 'invtransform',
-        warped_output: 'warped',
         aff_scale_transform_cpus: 1, // cores for affine scale transforms
         def_scale_transform_cpus: 8, // cores for deformable scale transforms
         stitch_registered_cpus: 2,
