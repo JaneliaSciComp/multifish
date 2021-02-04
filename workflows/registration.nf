@@ -187,7 +187,7 @@ workflow registration {
         it
     }
 
-    def tt = ransac_for_tile(
+    def tile_ransac_results = ransac_for_tile(
         tile_ransac_inputs.map { it[2] }, // fixed spots
         tile_ransac_inputs.map { it[4] }, // moving spots
         tile_ransac_inputs.map {
@@ -198,6 +198,14 @@ workflow registration {
         ransac_cc_cutoff,
         ransac_dist_threshold
     )
+
+    tile_ransac_results | map {
+        def tile_dir = file(it[1])
+        return [ tile_dir.parent, tile_dir]
+    } \
+    | groupTuple \
+    | map { it[0] } \
+    | interpolate_affines
 
     emit:
     done = tt

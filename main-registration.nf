@@ -129,10 +129,10 @@ workflow {
     //     tiles, "/moving_spots.pkl", \
     //     params.spots_cc_radius, params.spots_spot_number)
 
-    joined_spots_for_tile = fixed_spots_for_tile.out.join(moving_spots_for_tile.out)
-    ransac_for_tile(joined_spots_for_tile, \
-        "/ransac_affine.mat", \
-        params.ransac_cc_cutoff, params.ransac_dist_threshold)
+    // joined_spots_for_tile = fixed_spots_for_tile.out.join(moving_spots_for_tile.out)
+    // ransac_for_tile(joined_spots_for_tile, \
+    //     "/ransac_affine.mat", \
+    //     params.ransac_cc_cutoff, params.ransac_dist_threshold)
 
     interpolate_affines_out = interpolate_affines(ransac_for_tile.out.collect(), tiledir)
 
