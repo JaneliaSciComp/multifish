@@ -214,7 +214,7 @@ workflow {
     def registration_results =  registration(
         registration_fixed_inputs.map { it[0] },
         registration_fixed_inputs.map { "${it[1]}/export.n5" },
-        egistration_fixed_output_dirs,
+        registration_fixed_output_dirs,
         registration_moving_inputs.map { it[0] },
         registration_moving_inputs.map { "${it[1]}/export.n5" },
         registration_moving_output_dirs,
