@@ -229,7 +229,7 @@ workflow {
         final_params.spots_spot_number,
         final_params.ransac_cc_cutoff,
         final_params.ransac_dist_threshold
-    )
+    ) | view
 
 }
 
