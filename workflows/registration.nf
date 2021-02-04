@@ -220,7 +220,7 @@ def index_coarse_results(name, coarse_inputs, coarse_results) {
     coarse_results | map { 
         [ it[1], it[0] ] // swap input path with coarse result path
     } \
-    | join(indexed_fixed_input_dir, by:1) \
+    | join(indexed_coarse_inputs, by:1) \
     | map {
         [
             it[2], // index
@@ -228,7 +228,7 @@ def index_coarse_results(name, coarse_inputs, coarse_results) {
             it[1] // coarse result
         ]
     } \
-    | join (indexed_fixed_name) \
+    | join (indexed_name) \
     | map {
         [
             it[0], // index
