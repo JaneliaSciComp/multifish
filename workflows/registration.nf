@@ -157,17 +157,18 @@ workflow registration {
     // // create all combinations fixed coarse spots with moving coarse spots
     def coarse_ransac_inputs = indexed_coarse_fixed_spots_results \
     | combine(indexed_coarse_moving_spots_results) \
-    | map { println "Coarse ransac input: $it"; it}
+    | map {
+        println "Coarse ransac input: $it"; it}
 
     // compute transformation matrix (ransac_affine.mat)
-    // def indexed_coarse_ransac_results = coarse_ransac(
-    //     coarse_ransac_inputs.map { it[0] }, // fixed spots
-    //     coarse_ransac_inputs.map { it[1] }, // moving spots
-    //     coarse_ransac_inputs.map { it[2] }, // moving output dir
-    //     'ransac_affine.mat', \
-    //     ransac_cc_cutoff,
-    //     ransac_dist_threshold
-    // )
+    def indexed_coarse_ransac_results = coarse_ransac(
+        coarse_ransac_inputs.map { it[3] }, // fixed spots
+        coarse_ransac_inputs.map { it[8] }, // moving spots
+        coarse_ransac_inputs.map { get_moving_results_dir(it[9], it[0], it[5]) },
+        'ransac_affine.mat', \
+        ransac_cc_cutoff,
+        ransac_dist_threshold
+    )
 
     // affine_inputs = indexed_moving_inputs \
     // | combine(fixed_input_dir) \
@@ -230,11 +231,19 @@ def index_coarse_results(name, coarse_inputs, coarse_results) {
     } \
     | join (indexed_name) \
     | map {
+        def coarse_res_file = file(it[2])
+        // get the acquisition output knowing that coarse results are generated in a 'aff' subdir
+        def output_dir = coarse_res_file.parent.parent
         [
             it[0], // index
             it[3], // name
             it[1], // input path
-            it[2]  // coarse result
+            it[2], // coarse result
+            output_dir
         ]
     }
+}
+
+def get_moving_results_dir(moving_output_dir, fixed_name, moving_name) {
+    return "${moving_output_dir}/${moving_name}-to-${fixed_name}"
 }

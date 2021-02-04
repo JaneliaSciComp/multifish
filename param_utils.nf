@@ -47,7 +47,7 @@ def default_mf_params() {
 
         // registration params
         registration_fixed_output: 'fixed',
-        registratin_output: 'registration',
+        registration_output: 'registration',
         aff_scale: 's3', // the scale level for affine alignments
         def_scale: "s2", // the scale level for deformable alignments
         registration_xy_stride: 0, // use the default defined by registration_xy_stride_param
