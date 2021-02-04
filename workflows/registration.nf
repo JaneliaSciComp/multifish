@@ -164,7 +164,7 @@ workflow registration {
     def indexed_coarse_ransac_results = coarse_ransac(
         coarse_ransac_inputs.map { it[3] }, // fixed spots
         coarse_ransac_inputs.map { it[8] }, // moving spots
-        coarse_ransac_inputs.map { get_moving_results_dir(it[9], it[0], it[5]) },
+        coarse_ransac_inputs.map { get_moving_results_dir(it[9], it[1], it[6]) },
         'ransac_affine.mat', \
         ransac_cc_cutoff,
         ransac_dist_threshold

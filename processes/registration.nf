@@ -38,7 +38,7 @@ process ransac {
     tuple val(output_path), val(output_dir)
 
     script:
-    output_path = "${output_dir}${output_filename}"
+    output_path = "${output_dir}/${output_filename}"
     """
     mkdir -p ${output_dir}
     /app/scripts/waitforpaths.sh ${fixed_spots_file} ${moving_spots_file}
