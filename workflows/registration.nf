@@ -131,16 +131,6 @@ workflow registration {
             spots_spot_number
         ))
 
-    // get fixed spots per tile
-    def fixed_spots_results = fixed_spots(
-        tiles_with_inputs.map { it[0] }, //  image input for the tile
-        "/${ch}/${affine_scale}",
-        tiles_with_inputs.map { it[1] }, // tile dir 
-        'fixed_spots.pkl',
-        spots_cc_radius,
-        spots_spot_number
-    ) | groupTuple // group  results by input path
-
     // get moving coarse spots
     def indexed_coarse_moving_spots_results = index_coarse_results(
         moving_names,
@@ -173,31 +163,70 @@ workflow registration {
         ransac_dist_threshold
     )
 
+    def indexed_coarse_ransac_results = coarse_ransac_inputs | map {
+         // prepend the ransac result in order to join with the result
+        [ "${it[10]}/aff/ransac_affine.mat" ] + it
+    } | join (coarse_ransac_results) | map {
+        println "Indexed coarse result: $it"
+        it
+    }
+
     // compute ransac_affine at affine scale
     def aff_scale_affine_results = apply_transform_at_aff_scale(
-        coarse_ransac_inputs.map { it[2] },
+        indexed_coarse_ransac_results.map { it[4] },
         "/${ch}/${affine_scale}",
-        coarse_ransac_inputs.map { it[7] },
+        indexed_coarse_ransac_results.map { it[9] },
         "/${ch}/${affine_scale}",
-        coarse_ransac_inputs.map { "${it[10]}/aff/ransac_affine.mat" },
-        coarse_ransac_inputs.map { "${it[10]}/aff/ransac_affine" },
+        indexed_coarse_ransac_results.map { "${it[12]}/aff/ransac_affine.mat" },
+        indexed_coarse_ransac_results.map { "${it[12]}/aff/ransac_affine" },
         params.aff_scale_transform_cpus
     )
 
     // compute ransac_affine at deformation scale
     def def_scale_affine_results = apply_transform_at_def_scale(
-        coarse_ransac_inputs.map { it[2] },
-        "/${dapi_channel}/${deformation_scale}",
-        coarse_ransac_inputs.map { it[7] },
-        "/${dapi_channel}/${deformation_scale}",
-        coarse_ransac_inputs.map { "${it[10]}/aff/ransac_affine.mat" },
-        coarse_ransac_inputs.map { "${it[10]}/aff/ransac_affine" },
+        indexed_coarse_ransac_results.map { it[4] },
+        "/${ch}/${deformation_scale}",
+        indexed_coarse_ransac_results.map { it[9] },
+        "/${ch}/${deformation_scale}",
+        indexed_coarse_ransac_results.map { "${it[12]}/aff/ransac_affine.mat" },
+        indexed_coarse_ransac_results.map { "${it[12]}/aff/ransac_affine" },
         params.def_scale_transform_cpus
     )
 
-    // fixed_spots_for_tile([fixed, aff_scale_subpath], \
-    //     tiles, "/fixed_spots.pkl", \
-    //     params.spots_cc_radius, params.spots_spot_number)
+    // get fixed spots per tile
+    def fixed_spots_results = fixed_spots(
+        tiles_with_inputs.map { it[0] }, //  image input for the tile
+        "/${ch}/${affine_scale}",
+        tiles_with_inputs.map { it[1] }, // coord dir (tile dir)
+        tiles_with_inputs.map { it[1] }, // put results  in the tile dir 
+        'fixed_spots.pkl',
+        spots_cc_radius,
+        spots_spot_number
+    ) | groupTuple // group  results by input path
+
+    def indexed_aff_scale_affine_results = coarse_ransac_inputs | map {
+         // prepend the transform result in order to join with the affine result
+        [ "${it[10]}/aff/ransac_affine" ] + it
+    } | join (aff_scale_affine_results) | map {
+        // prepend the fixed input path
+        [ it[4] ] + it[2..it.size-1]
+    } |  combine(tiles_with_inputs, by:0) | map {
+        println "indexed affine  result: $it"
+        it
+    }
+
+
+
+    // get moving spots per tile taking as input the output of the coarse affined at affine scale
+    // def moving_spots_results = moving_spots(
+    //     aff_scale_affine_results.map { it[0] }, // image input for the tile
+    //     "/${ch}/${affine_scale}",
+    //     indexed_aff_scale_affine_results.map { it[1] }, // coord dir
+    //     indexed_aff_scale_affine_results.map {}, // output  results
+    //     'moving_spots.pkl',
+    //     spots_cc_radius,
+    //     spots_spot_number
+    // ) | groupTuple // group  results by input path
 
     emit:
     done = coarse_ransac_inputs

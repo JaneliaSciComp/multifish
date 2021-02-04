@@ -121,9 +121,9 @@ workflow {
     //     moving, def_scale_subpath, \
     //     coarse_ransac_out, "${affdir}/ransac_affine")
 
-    fixed_spots_for_tile([fixed, aff_scale_subpath], \
-        tiles, "/fixed_spots.pkl", \
-        params.spots_cc_radius, params.spots_spot_number)
+    // fixed_spots_for_tile([fixed, aff_scale_subpath], \
+    //     tiles, "/fixed_spots.pkl", \
+    //     params.spots_cc_radius, params.spots_spot_number)
 
     moving_spots_for_tile(apply_affine_small_out, \
         tiles, "/moving_spots.pkl", \

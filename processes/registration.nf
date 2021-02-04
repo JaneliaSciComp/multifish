@@ -98,7 +98,8 @@ process spots {
     input:
     val(image_path)
     val(image_subpath)
-    val(tile_dir)
+    val(coord_dir)
+    val(output_dir)
     val(output_filename)
     val(radius)
     val(spotNum)
@@ -107,10 +108,11 @@ process spots {
     tuple val(image_path), val(output_path)
 
     script:
-    output_path = "${tile_dir}/${output_filename}"
+    output_path = "${output_dir}/${output_filename}"
     """
+    mkdir -p ${output_dir}
     /app/scripts/waitforpaths.sh ${image_path}${image_subpath}
-    /entrypoint.sh spots ${tile_dir}/coords.txt $image_path $image_subpath ${tile_dir}/${output_filename} $radius $spotNum
+    /entrypoint.sh spots ${coord_dir}/coords.txt ${image_path} ${image_subpath} ${output_path} ${radius} ${spotNum}
     """
 }
 
