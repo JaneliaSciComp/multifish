@@ -158,13 +158,16 @@ workflow registration {
     def coarse_ransac_inputs = indexed_coarse_fixed_spots_results \
     | combine(indexed_coarse_moving_spots_results) \
     | map {
-        println "Coarse ransac input: $it"; it}
+        def coarse_input = it + get_moving_results_dir(it[9], it[1], it[6])
+        println "Coarse ransac input: ${coarse_input}"
+        return coarse_input
+    }
 
     // compute transformation matrix (ransac_affine.mat)
-    def indexed_coarse_ransac_results = coarse_ransac(
+    def coarse_ransac_results = coarse_ransac(
         coarse_ransac_inputs.map { it[3] }, // fixed spots
         coarse_ransac_inputs.map { it[8] }, // moving spots
-        coarse_ransac_inputs.map { get_moving_results_dir(it[9], it[1], it[6]) },
+        coarse_ransac_inputs.map { "${it[10]}/aff" },
         'ransac_affine.mat', \
         ransac_cc_cutoff,
         ransac_dist_threshold
@@ -184,16 +187,16 @@ workflow registration {
     //     ]
     // }
 
-    // // compute ransac_affine at affine scale
-    // small_affine_results = apply_affine_small(
-    //     affine_inputs.map { it[1] },
-    //     "/${dapi_channel}/${affine_scale}",
-    //     affine_inputs.map { it[2] },
-    //     "/${dapi_channel}/${affine_scale}",
-    //     affine_inputs.map { it[3] },
-    //     affine_inputs.map { "${it[4]}/aff/ransac_affine" },
-    //     params.aff_scale_transform_cpus
-    // )
+    // compute ransac_affine at affine scale
+    small_affine_results = apply_affine_small(
+        coarse_ransac_inputs.map { it[2] },
+        "/${ch}/${affine_scale}",
+        coarse_ransac_inputs.map { it[7] },
+        "/${ch}/${affine_scale}",
+        coarse_ransac_inputs.map { "${it[10]}/aff/ransac_affine.mat" },
+        coarse_ransac_inputs.map { "${it[10]}/aff/ransac_affine" },
+        params.aff_scale_transform_cpus
+    )
 
     // // compute ransac_affine at deformation scale
     // big_affine_results = apply_affine_big(
