@@ -209,7 +209,7 @@ workflow registration {
         [ "${it[10]}/aff/ransac_affine" ] + it
     } | join (aff_scale_affine_results) | map {
         // prepend the fixed input path
-        [ it[3] ] + it[1..it.size-1]
+        [ it[3] ] + it
     } |  combine(tiles_with_inputs, by:0) | map {
         println "Indexed affine  result: $it"
         it
@@ -217,7 +217,7 @@ workflow registration {
 
     // get moving spots per tile taking as input the output of the coarse affined at affine scale
     def moving_spots_results = moving_spots(
-        aff_scale_affine_results.map { it[0] }, // image input for the tile
+        aff_scale_affine_results.map { it[1]] }, // image input for the tile
         "/${ch}/${affine_scale}",
         indexed_aff_scale_affine_results.map { it[it.size-1] }, // coord dir
         indexed_aff_scale_affine_results.map {
