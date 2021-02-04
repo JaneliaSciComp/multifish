@@ -3,8 +3,8 @@ include {
   coarse_spots as fixed_coarse_spots;
   coarse_spots as moving_coarse_spots;
   ransac as coarse_ransac;
-  apply_transform as apply_affine_small;
-  apply_transform as apply_affine_big;
+  apply_transform as apply_transform_at_aff_scale;
+  apply_transform as apply_transform_at_def_scale;
   spots as fixed_spots;
   spots as moving_spots;
   ransac as ransac_for_tile;
@@ -173,22 +173,8 @@ workflow registration {
         ransac_dist_threshold
     )
 
-    // affine_inputs = indexed_moving_inputs \
-    // | combine(fixed_input_dir) \
-    // | join(indexed_coarse_ransac_results) \
-    // | join
-    // | map {
-    //     [ 
-    //         it[0], // index
-    //         it[2], // fixed dir
-    //         it[1], // moving dir
-    //         it[3], // coarse ransac result
-    //         it[4]  // coarse ransac output dir
-    //     ]
-    // }
-
     // compute ransac_affine at affine scale
-    small_affine_results = apply_affine_small(
+    def aff_scale_affine_results = apply_transform_at_aff_scale(
         coarse_ransac_inputs.map { it[2] },
         "/${ch}/${affine_scale}",
         coarse_ransac_inputs.map { it[7] },
@@ -198,16 +184,16 @@ workflow registration {
         params.aff_scale_transform_cpus
     )
 
-    // // compute ransac_affine at deformation scale
-    // big_affine_results = apply_affine_big(
-    //     affine_inputs.map { it[1] },
-    //     "/${dapi_channel}/${deformation_scale}",
-    //     affine_inputs.map { it[2] },
-    //     "/${dapi_channel}/${deformation_scale}",
-    //     affine_inputs.map { it[3] },
-    //     affine_inputs.map { "${it[4]}/aff/ransac_affine" },
-    //     params.def_scale_transform_cpus
-    // )
+    // compute ransac_affine at deformation scale
+    def def_scale_affine_results = apply_transform_at_def_scale(
+        coarse_ransac_inputs.map { it[2] },
+        "/${dapi_channel}/${deformation_scale}",
+        coarse_ransac_inputs.map { it[7] },
+        "/${dapi_channel}/${deformation_scale}",
+        coarse_ransac_inputs.map { "${it[10]}/aff/ransac_affine.mat" },
+        coarse_ransac_inputs.map { "${it[10]}/aff/ransac_affine" },
+        params.def_scale_transform_cpus
+    )
 
     // fixed_spots_for_tile([fixed, aff_scale_subpath], \
     //     tiles, "/fixed_spots.pkl", \
