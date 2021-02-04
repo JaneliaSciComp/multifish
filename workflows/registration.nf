@@ -173,7 +173,7 @@ workflow registration {
     def indexed_moving_spots_results_per_tile = indexed_aff_scale_affine_results | map {
         def tile_path = file(it[it.size-1])
         [ it[1], "${it[11]}/tiles/${tile_path.name}/moving_spots.pkl"] + it
-    } | join(moving_spots_results_per_tile, by:[0,2]) | map {
+    } | join(moving_spots_results_per_tile.map { [ it[0], it[2], it[1] ] }, by:[0,1]) | map {
         // insert the fixed input and the tile coord location at the beginning
         def r = [ it[4], it[it.size-1] ] + it[0..it.size-2]
         println "Indexed moving spot result per tile  $r"
