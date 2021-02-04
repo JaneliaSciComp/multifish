@@ -19,66 +19,6 @@ include {
     index_channel;
 } from '../utils/utils'
 
-workflow prepare_fixed_acq {
-    take:
-    input_dirs
-    output_dirs
-    ch
-    retiling_scale
-    xy_stride
-    xy_overlap
-    z_stride
-    z_overlap
-    spots_scale
-    spots_cc_radius
-    spots_spot_number
-
-    main:
-    // prepare tile coordinates
-    def tile_cut_res = cut_tiles(
-        input_dirs,
-        "/${ch}/${retiling_scale}",
-        output_dirs.map { "${it}/tiles" },
-        xy_stride,
-        xy_overlap,
-        z_stride,
-        z_overlap
-    )
-    
-    def tiles_with_inputs = index_channel(tile_cut_res[0]) | join(index_channel(tile_cut_res[1])) | flatMap {
-        def tile_input = it[1]
-        it[2].tokenize(' ').collect {
-            [ tile_input, it ]
-        }
-    }
-
-    // get coarse spots
-    def coarse_fixed_spots_results = fixed_coarse_spots(
-        input_dirs,
-        "/${ch}/${spots_scale}",
-        output_dirs.map { "${it}/aff" },
-        'fixed_spots.pkl',
-        spots_cc_radius,
-        spots_spot_number
-    )
-
-    // get spots per tile
-    def fixed_spots_results = fixed_spots(
-        tiles_with_inputs.map { it[0] }, //  image input for the tile
-        "/${ch}/${spots_scale}",
-        tiles_with_inputs.map { it[1] }, // tile dir 
-        'fixed_spots.pkl',
-        spots_cc_radius,
-        spots_spot_number
-    ) | groupTuple
-
-    def all_fixed_spots_results = coarse_fixed_spots_results | join(fixed_spots_results)
-    all_fixed_spots_results.subscribe { println "Fixed spots results: ${it}" }
-
-    emit:
-    done = all_fixed_spots_results
-}
-
 workflow registration {
     take:
     fixed_name
@@ -202,7 +142,7 @@ workflow registration {
         'fixed_spots.pkl',
         spots_cc_radius,
         spots_spot_number
-    ) | groupTuple // group  results by input path
+    )
 
     def indexed_aff_scale_affine_results = coarse_ransac_inputs | map {
          // prepend the transform result in order to join with the affine result
@@ -211,7 +151,7 @@ workflow registration {
         // prepend the fixed input path
         [ it[3] ] + it
     } |  combine(tiles_with_inputs, by:0) | map {
-        println "Indexed affine  result: $it"
+        println "Indexed affine result: $it"
         it
     }
 
@@ -227,10 +167,19 @@ workflow registration {
         'moving_spots.pkl',
         spots_cc_radius,
         spots_spot_number
-    ) | groupTuple // group  results by input path
+    )
+
+    // compute transformation matrix (ransac_affine.mat) for each moving tile
+    def indexed_moving_spots_results = indexed_aff_scale_affine_results | map {
+        def tile_path = file(it[it.size-1])
+        [ it[1], "${it[11]}/tiles/${tile_path.name}/moving_spots.pkl"] + it
+    } | join(moving_spots_results, by:[0,1]) | map {
+        println "Indexed moving spot result per tile  $it"
+        it
+    }
 
     emit:
-    done = moving_spots_results
+    done = indexed_moving_spots_results
 }
 
 def index_coarse_results(name, coarse_inputs, coarse_results) {

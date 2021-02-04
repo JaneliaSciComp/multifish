@@ -125,9 +125,9 @@ workflow {
     //     tiles, "/fixed_spots.pkl", \
     //     params.spots_cc_radius, params.spots_spot_number)
 
-    moving_spots_for_tile(apply_affine_small_out, \
-        tiles, "/moving_spots.pkl", \
-        params.spots_cc_radius, params.spots_spot_number)
+    // moving_spots_for_tile(apply_affine_small_out, \
+    //     tiles, "/moving_spots.pkl", \
+    //     params.spots_cc_radius, params.spots_spot_number)
 
     joined_spots_for_tile = fixed_spots_for_tile.out.join(moving_spots_for_tile.out)
     ransac_for_tile(joined_spots_for_tile, \
