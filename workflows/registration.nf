@@ -173,23 +173,23 @@ workflow registration {
 
     // compute ransac_affine at affine scale
     def aff_scale_affine_results = apply_transform_at_aff_scale(
-        indexed_coarse_ransac_results.map { it[4] },
+        indexed_coarse_ransac_results.map { it[3] },
         "/${ch}/${affine_scale}",
-        indexed_coarse_ransac_results.map { it[9] },
+        indexed_coarse_ransac_results.map { it[8] },
         "/${ch}/${affine_scale}",
-        indexed_coarse_ransac_results.map { "${it[12]}/aff/ransac_affine.mat" },
-        indexed_coarse_ransac_results.map { "${it[12]}/aff/ransac_affine" },
+        indexed_coarse_ransac_results.map { it[0] }, // transform matrix was the join key
+        indexed_coarse_ransac_results.map { "${it[11]}/aff/ransac_affine" },
         params.aff_scale_transform_cpus
     )
 
     // compute ransac_affine at deformation scale
     def def_scale_affine_results = apply_transform_at_def_scale(
-        indexed_coarse_ransac_results.map { it[4] },
+        indexed_coarse_ransac_results.map { it[3] },
         "/${ch}/${deformation_scale}",
-        indexed_coarse_ransac_results.map { it[9] },
+        indexed_coarse_ransac_results.map { it[8] },
         "/${ch}/${deformation_scale}",
-        indexed_coarse_ransac_results.map { "${it[12]}/aff/ransac_affine.mat" },
-        indexed_coarse_ransac_results.map { "${it[12]}/aff/ransac_affine" },
+        indexed_coarse_ransac_results.map { it[0] }, // transform matrix was the join key
+        indexed_coarse_ransac_results.map { "${it[11]}/aff/ransac_affine" },
         params.def_scale_transform_cpus
     )
 
@@ -211,7 +211,7 @@ workflow registration {
         // prepend the fixed input path
         [ it[4] ] + it[2..it.size-1]
     } |  combine(tiles_with_inputs, by:0) | map {
-        println "indexed affine  result: $it"
+        println "Indexed affine  result: $it"
         it
     }
 
