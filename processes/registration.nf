@@ -123,6 +123,7 @@ process interpolate_affines {
     val(tiles_dir)
 
     output:
+    stdout
 
     script:
     """

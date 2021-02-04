@@ -199,7 +199,7 @@ workflow registration {
         ransac_dist_threshold
     )
 
-    tile_ransac_results | map {
+    def interpolated_results = tile_ransac_results | map {
         def tile_dir = file(it[1])
         return [ tile_dir.parent, tile_dir]
     } \
@@ -208,7 +208,7 @@ workflow registration {
     | interpolate_affines
 
     emit:
-    done = tt
+    done = interpolated_results
 }
 
 def index_coarse_results(name, coarse_inputs, coarse_results) {
