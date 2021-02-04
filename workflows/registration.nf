@@ -187,14 +187,17 @@ workflow registration {
         it
     }
 
-    // ransac_for_tile(
-    //     tile_ransac_inputs.map { it[0] },
-    //     tile_ransac_inputs.map { it[1] },
-    //     tile_ransac_inputs.map { it}
-    // )
+    def tt = ransac_for_tile(
+        tile_ransac_inputs.map { it[3] }, // fixed spots
+        tile_ransac_inputs.map { it[8] }, // moving spots
+        tile_ransac_inputs.map { "${it[10]}/aff" },
+        'ransac_affine.mat', \
+        ransac_cc_cutoff,
+        ransac_dist_threshold
+    )
 
     emit:
-    done = tile_ransac_inputs
+    done = tt
 }
 
 def index_coarse_results(name, coarse_inputs, coarse_results) {
