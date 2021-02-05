@@ -105,7 +105,9 @@ workflow registration {
     ) | map {
         def ransac_affine_output = file(it[0])
         // [ ransac_affine_output, output_dir, scale_path]
-        [ ransac_affine_output, ransac_affine_output.parent.parent, it[1] ]
+        def r = [ ransac_affine_output, ransac_affine_output.parent.parent, it[1] ]
+        println "Affine results at affine scale: $r"
+        return r
     }
 
     // compute ransac_affine at deformation scale
@@ -130,7 +132,6 @@ workflow registration {
     ) // [ fixed, tile_dir, fixed_pkl_path ]
 
     def indexed_moving_spots_inputs = aff_scale_affine_results \
-    // join by output_dir
     | join(index_channel(output_dir), by:1) \
     | map {
         // put the index as the first element in the tuple
@@ -166,6 +167,14 @@ workflow registration {
         ransac_cc_cutoff,
         ransac_dist_threshold
     ) // [ tile_transform_matrix, tile_dir ]
+
+    def interpolated_results = tile_ransac_results | map {
+        def tile_dir = file(it[1])
+        return [ tile_dir.parent, tile_dir]
+    } \
+    | groupTuple \
+    | map { it[0] } \
+    | interpolate_affines
 
     //  \
     // | map {
@@ -235,16 +244,9 @@ workflow registration {
     }
 
 
-    def interpolated_results = tile_ransac_results | map {
-        def tile_dir = file(it[1])
-        return [ tile_dir.parent, tile_dir]
-    } \
-    | groupTuple \
-    | map { it[0] } \
-    | interpolate_affines
 */
     emit:
-    done = tile_ransac_results
+    done = interpolated_results
 }
 
 def index_coarse_results(name, coarse_inputs, coarse_results) {
