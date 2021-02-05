@@ -105,7 +105,7 @@ workflow registration {
     ) | map {
         def ransac_affine_output = file(it[0])
         // [ ransac_affine_output, output_dir, scale_path]
-        def r = [ ransac_affine_output, ransac_affine_output.parent.parent, it[1] ]
+        def r = [ it[0], "${ransac_affine_output.parent.parent}", it[1] ]
         println "Affine results at affine scale: $r"
         return r
     }
@@ -134,13 +134,13 @@ workflow registration {
     def indexed_output = index_channel(output_dir)
 
     def indexed_moving_spots_inputs = aff_scale_affine_results \
-    | join(indexed_output, by:1) \
-    | map {
+    | join(indexed_output, by:1) | map {
         // put the index as the first element in the tuple
         // [ index, output_dir, ransac_affine_output, scale_path ]
-        [ it[it.size-1] ] + it[0..it.size-2]
-    } \
-    | combine(tiles_with_inputs, by:0) | map {
+        def ar = [ it[it.size-1] ] + it[0..it.size-2]
+        println "Affine result to combine with tiles: $ar"
+        ar
+    } | combine(tiles_with_inputs, by:0) | map {
         // [ index, output_dir, ransac_affine, scale_path, fixed_input, tile_dir ]
         println "Moving spots input: $it"
         it
@@ -172,7 +172,7 @@ workflow registration {
 
     def interpolated_results = tile_ransac_results | map {
         def tile_dir = file(it[1])
-        return [ tile_dir.parent, tile_dir]
+        return [ "${tile_dir.parent}", it[1]]
     } \
     | groupTuple \
     | map { it[0] } \
