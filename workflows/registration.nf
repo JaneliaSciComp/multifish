@@ -52,7 +52,7 @@ workflow registration {
         def index = it[0]
         def tile_input = it[1]
         it[2].tokenize(' ').collect {
-            [ it[0], tile_input, it ]
+            [ index, tile_input, it ]
         }
     }
 
@@ -131,8 +131,10 @@ workflow registration {
         spots_spot_number
     ) // [ fixed, tile_dir, fixed_pkl_path ]
 
+    def indexed_output = index_channel(output_dir)
+
     def indexed_moving_spots_inputs = aff_scale_affine_results \
-    | join(index_channel(output_dir), by:1) \
+    | join(indexed_output, by:1) \
     | map {
         // put the index as the first element in the tuple
         // [ index, output_dir, ransac_affine_output, scale_path ]
