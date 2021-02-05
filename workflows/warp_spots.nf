@@ -16,11 +16,11 @@ params.fixed_subpath = "/c2/s2"
 // the scale level for affine alignments
 params.moving_subpath = "/c2/s2"
 
-// extracted spots
-params.points_path = ""
-
 // inverse transform matrix to use for warping the spots
 params.warped_spots_txmpath = ""
+
+// extracted spots
+params.points_path = ""
 
 // path to the folder where you'd like all outputs to be written
 params.warped_spots_outdir = ""
@@ -39,14 +39,17 @@ process warp_spots_transform {
     val mov_img_path
     val mov_img_subpath
     val txm_path
-    val output_path
+    val output_dir
+    val output_file
     val points_path
 
     output:
-    tuple val(output_path), val(ref_img_subpath)
+    val output_path
 
     script:
+    output_path = "${output_dir}/${output_file}"
     """
+    mkdir -p $output_dir
     /app/scripts/waitforpaths.sh ${ref_img_path}${ref_img_subpath} ${mov_img_path}${mov_img_subpath} $txm_path
     /entrypoint.sh apply_transform_n5 $ref_img_path $ref_img_subpath $mov_img_path $mov_img_subpath $txm_path $output_path $points_path
     """
@@ -65,7 +68,6 @@ workflow warp_spots {
         points_path
 
     main:
-        warped_spots_out = "${warped_spots_outdir}/${warped_spots_outfile}"
         
         log.info """\
                 WARP SPOTS
@@ -73,15 +75,12 @@ workflow warp_spots {
                 workDir              : $workDir
                 warped_spots_txmpath : $warped_spots_txmpath
                 warped_spots_outdir  : $warped_spots_outdir
-                warped_spots_outfile : $warped_spots_outfile
                 """
                 .stripIndent()
                 
-        if(!warped_spots_outdir.exists()) warped_spots_outdir.mkdirs()
-
         warp_spots_transform( \
             fixed, fixed_subpath, moving, moving_subpath, \
-            warped_spots_txmpath, warped_spots_out, points_path)
+            warped_spots_txmpath, warped_spots_outdir, warped_spots_outfile, points_path).view()
 }
 
 workflow {
