@@ -214,7 +214,7 @@ workflow {
             it[1], // stitching dir for fixed acq
             moving_acq,
             it[3], // stitching dir for moving acq
-            registration_output_dir   
+            "${registration_output_dir}" // pass it as string to be consistent, otherwise if types differ channel joins will not work properly
         ]
     }
 
