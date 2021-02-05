@@ -153,6 +153,20 @@ workflow registration {
         spots_spot_number
     ) // [ ransac_output, tile_dir, moving_pkl_path ]
 
+    def per_tile_ransac_inputs = fixed_spots_results_per_tile.join(
+        moving_spots_results_per_tile,
+        by:1
+    )
+
+    def tile_ransac_results = ransac_for_tile(
+        per_tile_ransac_inputs.map { it[2] }, // fixed spots
+        per_tile_ransac_inputs.map { it[4] }, // moving spots
+        per_tile_ransac_inputs.map { it[0] }, // tile dir
+        'ransac_affine.mat',
+        ransac_cc_cutoff,
+        ransac_dist_threshold
+    ) // [ tile_transform_matrix, tile_dir ]
+
     //  \
     // | map {
     //     def coarse_input = it + get_moving_results_dir(it[9], it[1], it[6])
@@ -220,17 +234,6 @@ workflow registration {
         it
     }
 
-    def tile_ransac_results = ransac_for_tile(
-        tile_ransac_inputs.map { it[2] }, // fixed spots
-        tile_ransac_inputs.map { it[4] }, // moving spots
-        tile_ransac_inputs.map {
-            def moving_spots_file = file(it[4])
-            moving_spots_file.parent // output is in the same location as moving spots file
-        },
-        'ransac_affine.mat', \
-        ransac_cc_cutoff,
-        ransac_dist_threshold
-    )
 
     def interpolated_results = tile_ransac_results | map {
         def tile_dir = file(it[1])
@@ -241,7 +244,7 @@ workflow registration {
     | interpolate_affines
 */
     emit:
-    done = fixed_spots_results_per_tile | join (moving_spots_results_per_tile, by:1)
+    done = tile_ransac_results
 }
 
 def index_coarse_results(name, coarse_inputs, coarse_results) {
