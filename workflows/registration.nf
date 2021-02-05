@@ -22,9 +22,8 @@ include {
 workflow registration {
     take:
     fixed_input_dir
-    moving_names
-    moving_input_dirs
-    moving_output_dirs
+    moving_input_dir
+    output_dir
     ch
     xy_stride
     xy_overlap
@@ -42,7 +41,7 @@ workflow registration {
     def tile_cut_res = cut_tiles(
         fixed_input_dir,
         "/${ch}/${deformation_scale}",
-        fixed_output_dir.map { "${it}/tiles" },
+        output_dir.map { "${it}/tiles" },
         xy_stride,
         xy_overlap,
         z_stride,
@@ -57,79 +56,99 @@ workflow registration {
     }
 
     // get fixed coarse spots
-    def indexed_coarse_fixed_spots_results = index_coarse_results(
-        fixed_name,
-        fixed_input_dir, 
-        fixed_coarse_spots(
-            fixed_input_dir,
-            "/${ch}/${affine_scale}",
-            fixed_output_dir.map { "${it}/aff" },
-            'fixed_spots.pkl',
-            spots_cc_radius,
-            spots_spot_number
-        ))
+    def fixed_coarse_spots_results = fixed_coarse_spots(
+        fixed_input_dir,
+        "/${ch}/${affine_scale}",
+        output_dir.map { "${it}/aff" },
+        'fixed_spots.pkl',
+        spots_cc_radius,
+        spots_spot_number
+    )
 
     // get moving coarse spots
-    def indexed_coarse_moving_spots_results = index_coarse_results(
-        moving_names,
+    def moving_coarse_spots_results = moving_coarse_spots(
         moving_input_dirs,
-        moving_coarse_spots(
-            moving_input_dirs,
-            "/${ch}/${affine_scale}",
-            moving_output_dirs.map { "${it}/aff" },
-            'moving_spots.pkl',
-            spots_cc_radius,
-            spots_spot_number
-        ))
+        "/${ch}/${affine_scale}",
+        output_dir.map { "${it}/aff" },
+        'moving_spots.pkl',
+        spots_cc_radius,
+        spots_spot_number
+    )
 
-    // // create all combinations fixed coarse spots with moving coarse spots
-    def coarse_ransac_inputs = indexed_coarse_fixed_spots_results \
-    | combine(indexed_coarse_moving_spots_results) \
-    | map {
-        def coarse_input = it + get_moving_results_dir(it[9], it[1], it[6])
-        println "Coarse ransac input: ${coarse_input}"
-        return coarse_input
-    }
-
+    def coarse_ransac_inputs = fixed_coarse_spots_results.join(
+        moving_coarse_spots_results,
+        by:1
+    ) // [output_dir, fixed_input, fixed_spots, moving_input, moving_spots]
+    
     // compute transformation matrix (ransac_affine.mat)
     def coarse_ransac_results = coarse_ransac(
-        coarse_ransac_inputs.map { it[3] }, // fixed spots
-        coarse_ransac_inputs.map { it[8] }, // moving spots
-        coarse_ransac_inputs.map { "${it[10]}/aff" },
+        coarse_ransac_inputs.map { it[2] }, // fixed spots
+        coarse_ransac_inputs.map { it[4] }, // moving spots
+        coarse_ransac_inputs.map { it[0] }, // output dir
         'ransac_affine.mat', \
         ransac_cc_cutoff,
         ransac_dist_threshold
-    )
-
-    def indexed_coarse_ransac_results = coarse_ransac_inputs | map {
-         // prepend the ransac result in order to join with the result
-        [ "${it[10]}/aff/ransac_affine.mat" ] + it
-    } | join (coarse_ransac_results) | map {
-        println "Indexed coarse result: $it"
-        it
-    }
+    ) | map {
+        [ it[1], it[0] ] // [output_dir, result_file]
+    } | join(coarse_ransac_inputs) // [ output_dir, fixed_input, fixed_spots, moving_input, moving_spots, ransac_affine_tx_matrix]
 
     // compute ransac_affine at affine scale
     def aff_scale_affine_results = apply_transform_at_aff_scale(
-        indexed_coarse_ransac_results.map { it[3] },
+        coarse_ransac_results.map { it[1] }, // fixed input
         "/${ch}/${affine_scale}",
-        indexed_coarse_ransac_results.map { it[8] },
+        coarse_ransac_results.map { it[3] }, // moving input
         "/${ch}/${affine_scale}",
-        indexed_coarse_ransac_results.map { it[0] }, // transform matrix was the join key
-        indexed_coarse_ransac_results.map { "${it[11]}/aff/ransac_affine" },
+        coarse_ransac_results.map { it[5] }, // transform matrix was the join key
+        coarse_ransac_results.map { "${it[0]}/ransac_affine" },
         params.aff_scale_transform_cpus
     )
 
     // compute ransac_affine at deformation scale
     def def_scale_affine_results = apply_transform_at_def_scale(
-        indexed_coarse_ransac_results.map { it[3] },
+        coarse_ransac_results.map { it[1] }, // fixed input
         "/${ch}/${deformation_scale}",
-        indexed_coarse_ransac_results.map { it[8] },
+        coarse_ransac_results.map { it[3] }, // moving input
         "/${ch}/${deformation_scale}",
-        indexed_coarse_ransac_results.map { it[0] }, // transform matrix was the join key
-        indexed_coarse_ransac_results.map { "${it[11]}/aff/ransac_affine" },
+        coarse_ransac_results.map { it[5] }, // transform matrix was the join key
+        coarse_ransac_results.map { "${it[0]}/ransac_affine" },
         params.def_scale_transform_cpus
     )
+    
+    //  \
+    // | map {
+    //     def coarse_input = it + get_moving_results_dir(it[9], it[1], it[6])
+    //     println "Coarse ransac input: ${coarse_input}"
+    //     return coarse_input
+    // }
+
+    // def indexed_coarse_fixed_spots_results = index_coarse_results(
+    //     fixed_input_dir, 
+    // )
+
+    // def indexed_coarse_moving_spots_results = index_coarse_results(
+    //     moving_names,
+    //     moving_input_dirs,
+    //     )
+
+    // // // create all combinations fixed coarse spots with moving coarse spots
+    // def coarse_ransac_inputs = indexed_coarse_fixed_spots_results \
+    // | combine(indexed_coarse_moving_spots_results) \
+    // | map {
+    //     def coarse_input = it + get_moving_results_dir(it[9], it[1], it[6])
+    //     println "Coarse ransac input: ${coarse_input}"
+    //     return coarse_input
+    // }
+
+
+    // def indexed_coarse_ransac_results = coarse_ransac_inputs | map {
+    //      // prepend the ransac result in order to join with the result
+    //     [ "${it[10]}/aff/ransac_affine.mat" ] + it
+    // } | join (coarse_ransac_results) | map {
+    //     println "Indexed coarse result: $it"
+    //     it
+    // }
+
+
 
     // get fixed spots per tile
     def fixed_spots_results_per_tile = fixed_spots(

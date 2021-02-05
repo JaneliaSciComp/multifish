@@ -81,7 +81,7 @@ process coarse_spots {
     val(spotNum)
 
     output:
-    tuple val(image_path), val(output_path)
+    tuple val(image_path), val(output_dir), val(output_path)
 
     script:
     output_path = "${output_dir}/${output_filename}"
