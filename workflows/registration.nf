@@ -49,9 +49,10 @@ workflow registration {
     )
 
     def tiles_with_inputs = index_channel(tile_cut_res[0]) | join(index_channel(tile_cut_res[1])) | flatMap {
+        def index = it[0]
         def tile_input = it[1]
         it[2].tokenize(' ').collect {
-            [ tile_input, it ]
+            [ it[0], tile_input, it ]
         }
     }
 
@@ -67,7 +68,7 @@ workflow registration {
 
     // get moving coarse spots
     def moving_coarse_spots_results = moving_coarse_spots(
-        moving_input_dirs,
+        moving_input_dir,
         "/${ch}/${affine_scale}",
         output_dir.map { "${it}/aff" },
         'moving_spots.pkl',
@@ -78,7 +79,7 @@ workflow registration {
     def coarse_ransac_inputs = fixed_coarse_spots_results.join(
         moving_coarse_spots_results,
         by:1
-    ) // [output_dir, fixed_input, fixed_spots, moving_input, moving_spots]
+    ) // [aff_output_dir, fixed_input, fixed_spots, moving_input, moving_spots]
     
     // compute transformation matrix (ransac_affine.mat)
     def coarse_ransac_results = coarse_ransac(
@@ -89,31 +90,69 @@ workflow registration {
         ransac_cc_cutoff,
         ransac_dist_threshold
     ) | map {
-        [ it[1], it[0] ] // [output_dir, result_file]
-    } | join(coarse_ransac_inputs) // [ output_dir, fixed_input, fixed_spots, moving_input, moving_spots, ransac_affine_tx_matrix]
+        [ it[1], it[0] ] // [aff_output_dir, result_file]
+    } | join(coarse_ransac_inputs) // [ aff_output_dir, ransac_affine_tx_matrix, fixed_input, fixed_spots, moving_input, moving_spots]
 
     // compute ransac_affine at affine scale
     def aff_scale_affine_results = apply_transform_at_aff_scale(
-        coarse_ransac_results.map { it[1] }, // fixed input
+        coarse_ransac_results.map { it[2] }, // fixed input
         "/${ch}/${affine_scale}",
-        coarse_ransac_results.map { it[3] }, // moving input
+        coarse_ransac_results.map { it[4] }, // moving input
         "/${ch}/${affine_scale}",
-        coarse_ransac_results.map { it[5] }, // transform matrix was the join key
+        coarse_ransac_results.map { it[1] }, // transform matrix
         coarse_ransac_results.map { "${it[0]}/ransac_affine" },
         params.aff_scale_transform_cpus
-    )
+    ) | map {
+        def ransac_affine_output = file(it[0])
+        // [ ransac_affine_output, output_dir, scale_path]
+        [ ransac_affine_output, ransac_affine_output.parent.parent, it[1] ]
+    }
 
     // compute ransac_affine at deformation scale
     def def_scale_affine_results = apply_transform_at_def_scale(
-        coarse_ransac_results.map { it[1] }, // fixed input
+        coarse_ransac_results.map { it[2] }, // fixed input
         "/${ch}/${deformation_scale}",
-        coarse_ransac_results.map { it[3] }, // moving input
+        coarse_ransac_results.map { it[4] }, // moving input
         "/${ch}/${deformation_scale}",
-        coarse_ransac_results.map { it[5] }, // transform matrix was the join key
+        coarse_ransac_results.map { it[1] }, // transform matrix
         coarse_ransac_results.map { "${it[0]}/ransac_affine" },
         params.def_scale_transform_cpus
-    )
+    ) // [ ransac_affine_output, scale_path]
     
+    // get fixed spots per tile
+    def fixed_spots_results_per_tile = fixed_spots(
+        tiles_with_inputs.map { it[1] }, //  image input for the tile
+        "/${ch}/${affine_scale}",
+        tiles_with_inputs.map { it[2] }, // tile dir
+        'fixed_spots.pkl',
+        spots_cc_radius,
+        spots_spot_number
+    ) // [ fixed, tile_dir, fixed_pkl_path ]
+
+    def indexed_moving_spots_inputs = aff_scale_affine_results \
+    // join by output_dir
+    | join(index_channel(output_dir), by:1) \
+    | map {
+        // put the index as the first element in the tuple
+        // [ index, output_dir, ransac_affine_output, scale_path ]
+        [ it[it.size-1] ] + it[0..it.size-2]
+    } \
+    | combine(tiles_with_inputs, by:0) | map {
+        // [ index, output_dir, ransac_affine, scale_path, fixed_input, tile_dir ]
+        println "Moving spots input: $it"
+        it
+    }
+
+    // get moving spots per tile taking as input the output of the coarse affined at affine scale
+    def moving_spots_results_per_tile = moving_spots(
+        indexed_moving_spots_inputs.map { it[2] }, // input is the ransac_affine
+        "/${ch}/${affine_scale}",
+        indexed_moving_spots_inputs.map { it[it.size-1] }, // tile dir
+        'moving_spots.pkl',
+        spots_cc_radius,
+        spots_spot_number
+    ) // [ ransac_output, tile_dir, moving_pkl_path ]
+
     //  \
     // | map {
     //     def coarse_input = it + get_moving_results_dir(it[9], it[1], it[6])
@@ -149,17 +188,7 @@ workflow registration {
     // }
 
 
-
-    // get fixed spots per tile
-    def fixed_spots_results_per_tile = fixed_spots(
-        tiles_with_inputs.map { it[0] }, //  image input for the tile
-        "/${ch}/${affine_scale}",
-        tiles_with_inputs.map { it[1] }, // coord dir (tile dir)
-        tiles_with_inputs.map { it[1] }, // put results  in the tile dir 
-        'fixed_spots.pkl',
-        spots_cc_radius,
-        spots_spot_number
-    )
+/*
 
     def indexed_aff_scale_affine_results = coarse_ransac_inputs | map {
          // prepend the transform result in order to join with the affine result
@@ -172,19 +201,6 @@ workflow registration {
         it
     }
 
-    // get moving spots per tile taking as input the output of the coarse affined at affine scale
-    def moving_spots_results_per_tile = moving_spots(
-        indexed_aff_scale_affine_results.map { it[1] }, // image input for the tile
-        "/${ch}/${affine_scale}",
-        indexed_aff_scale_affine_results.map { it[it.size-1] }, // coord dir
-        indexed_aff_scale_affine_results.map {
-            def tile_path = file(it[it.size-1])
-            "${it[11]}/tiles/${tile_path.name}"
-        }, // output  results
-        'moving_spots.pkl',
-        spots_cc_radius,
-        spots_spot_number
-    )
 
     // compute transformation matrix (ransac_affine.mat) for each moving tile
     def indexed_moving_spots_results_per_tile = indexed_aff_scale_affine_results | map {
@@ -223,9 +239,9 @@ workflow registration {
     | groupTuple \
     | map { it[0] } \
     | interpolate_affines
-
+*/
     emit:
-    done = interpolated_results
+    done = fixed_spots_results_per_tile | join (moving_spots_results_per_tile, by:1)
 }
 
 def index_coarse_results(name, coarse_inputs, coarse_results) {
