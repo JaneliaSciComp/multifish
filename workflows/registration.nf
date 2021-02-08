@@ -35,6 +35,8 @@ workflow registration {
     spots_spot_number
     ransac_cc_cutoff
     ransac_dist_threshold
+    deform_iterations
+    deform_auto_mask
 
     main:
     // prepare tile coordinates
@@ -173,82 +175,37 @@ workflow registration {
     def interpolated_results = tile_ransac_results | map {
         def tile_dir = file(it[1])
         return [ "${tile_dir.parent}", it[1]]
-    } \
-    | groupTuple \
-    | map { it[0] } \
-    | interpolate_affines
+    } | groupTuple | map {
+        println "Interpolate ${it[0]}"
+        it[0]
+    } | interpolate_affines
 
-    //  \
-    // | map {
-    //     def coarse_input = it + get_moving_results_dir(it[9], it[1], it[6])
-    //     println "Coarse ransac input: ${coarse_input}"
-    //     return coarse_input
-    // }
-
-    // def indexed_coarse_fixed_spots_results = index_coarse_results(
-    //     fixed_input_dir, 
-    // )
-
-    // def indexed_coarse_moving_spots_results = index_coarse_results(
-    //     moving_names,
-    //     moving_input_dirs,
-    //     )
-
-    // // // create all combinations fixed coarse spots with moving coarse spots
-    // def coarse_ransac_inputs = indexed_coarse_fixed_spots_results \
-    // | combine(indexed_coarse_moving_spots_results) \
-    // | map {
-    //     def coarse_input = it + get_moving_results_dir(it[9], it[1], it[6])
-    //     println "Coarse ransac input: ${coarse_input}"
-    //     return coarse_input
-    // }
-
-
-    // def indexed_coarse_ransac_results = coarse_ransac_inputs | map {
-    //      // prepend the ransac result in order to join with the result
-    //     [ "${it[10]}/aff/ransac_affine.mat" ] + it
-    // } | join (coarse_ransac_results) | map {
-    //     println "Indexed coarse result: $it"
-    //     it
-    // }
-
-
-/*
-
-    def indexed_aff_scale_affine_results = coarse_ransac_inputs | map {
-         // prepend the transform result in order to join with the affine result
-        [ "${it[10]}/aff/ransac_affine" ] + it
-    } | join (aff_scale_affine_results) | map {
-        // prepend the fixed input path
-        [ it[3] ] + it
-    } |  combine(tiles_with_inputs, by:0) | map {
-        println "Indexed affine result: $it"
-        it
-    }
-
-
-    // compute transformation matrix (ransac_affine.mat) for each moving tile
-    def indexed_moving_spots_results_per_tile = indexed_aff_scale_affine_results | map {
-        def tile_path = file(it[it.size-1])
-        [ it[1], "${it[11]}/tiles/${tile_path.name}/moving_spots.pkl"] + it
-    } | join(moving_spots_results_per_tile.map { [ it[0], it[2], it[1] ] }, by:[0,1]) | map {
-        // insert the fixed input and the tile coord location at the beginning
-        def r = [ it[2], it[it.size-1] ] + it[0..it.size-2]
-        println "Indexed moving spot result per tile  $r"
+    def deform_inputs = tiles_with_inputs | map {
+        def tile_path = file(it[2])
+        // [ <tile_parent_dir>, <index>, <tile_input>, <tile_path> ]
+        [ "${tile_path.parent}", it[0], it[1], it[2] ]
+    } | combine(interpolated_results, by:0) | map {
+        // [ <index>, <tile_input>, <tile_parent_dir>, <tile_path> ]
+        [ it[1], it[2], it[0], it[3] ]
+    } | combine(indexed_output, by:0) | map {
+        // append the parent location for moving coarse ransac results
+        def r = it + [ "${it[4]}/aff/ransac_affine" ]
+        println "Deform input: $r"
         return r
     }
 
-    // cross join by fixed input and tile coord
-    def tile_ransac_inputs = fixed_spots_results_per_tile \
-    | combine(indexed_moving_spots_results_per_tile, by:[0, 1]) | map {
-        println "Per tile ransac input $it"
-        it
-    }
+    done = deform(
+        deform_inputs.map { it[3] }, // tile path
+        deform_inputs.map { it[1] }, // fixed image -> tile input
+        "/${ch}/${deformation_scale}",
+        deform_inputs.map { it[5] }, // affine moving coarse ransac results at deform scale
+        "/${ch}/${deformation_scale}",
+        deform_iterations,
+        deform_auto_mask
+    )
 
-
-*/
     emit:
-    done = interpolated_results
+    done
 }
 
 def index_coarse_results(name, coarse_inputs, coarse_results) {

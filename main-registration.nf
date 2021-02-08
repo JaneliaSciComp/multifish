@@ -134,9 +134,13 @@ workflow {
     //     "/ransac_affine.mat", \
     //     params.ransac_cc_cutoff, params.ransac_dist_threshold)
 
-    interpolate_affines_out = interpolate_affines(ransac_for_tile.out.collect(), tiledir)
+    // interpolate_affines_out = interpolate_affines(ransac_for_tile.out.collect(), tiledir)
 
-    deform(interpolate_affines_out, tiles, fixed, def_scale_subpath, \
+    deform(
+        interpolate_affines_out, 
+        tiles, 
+        fixed, 
+        def_scale_subpath, \
         apply_affine_big_out, params.deform_iterations, params.deform_auto_mask)
 
     stitch(deform.out.collect(), \

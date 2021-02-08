@@ -121,7 +121,7 @@ process interpolate_affines {
     val(tiles_dir)
 
     output:
-    stdout
+    val(tiles_dir)
 
     script:
     """
@@ -134,7 +134,6 @@ process deform {
     container = params.registration_container
 
     input:
-    val(interpolation)
     val(tile)
     val(image_path)
     val(image_subpath)
