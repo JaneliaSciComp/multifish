@@ -121,8 +121,13 @@ workflow registration {
         coarse_ransac_results.map { it[1] }, // transform matrix
         coarse_ransac_results.map { "${it[0]}/ransac_affine" },
         params.def_scale_transform_cpus
-    ) // [ ransac_affine_output, scale_path]
-    def_scale_affine_results.subscribe { println "Coarse affine results at deform scale: $it" }
+    ) | map {
+        def ransac_affine_output = file(it[0])
+        // [ ransac_affine_output, output_dir, scale_path]
+        def r = [ it[0], "${ransac_affine_output.parent.parent}", it[1] ]
+        println "Affine results at deform scale: $r"
+        return r
+    }
     
     // get fixed spots per tile
     def fixed_spots_results_per_tile = fixed_spots(
@@ -185,7 +190,7 @@ workflow registration {
         def tile_path = file(it[2])
         // [ <tile_parent_dir>, <index>, <tile_input>, <tile_path> ]
         [ "${tile_path.parent}", it[0], it[1], it[2] ]
-    } | combine(interpolated_results, by:0) | map {
+    } | combine(interpolated_results) | map {
         def tile_parent_dir = file(it[0])
         // [ <index>, <tile_input>, <tile_parent_dir>, <tile_path>, <ransac_output> ]
         def r = [ "${tile_parent_dir.parent}/aff/ransac_affine", it[1], it[2], it[0], it[3] ]
