@@ -184,7 +184,10 @@ workflow registration {
     } | groupTuple | map {
         println "Interpolate ${it[0]}"
         it[0]
-    } | interpolate_affines
+    } | interpolate_affines | map {
+        println "Interpolated result: $it"
+        it
+    }
 
     def deform_inputs = tiles_with_inputs | map {
         def tile_path = file(it[2])
