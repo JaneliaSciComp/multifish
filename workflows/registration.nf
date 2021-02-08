@@ -80,7 +80,7 @@ workflow registration {
 
     def coarse_ransac_inputs = fixed_coarse_spots_results.join(
         moving_coarse_spots_results,
-        by:1
+        by:1 // join by coarse results output dir
     ) // [aff_output_dir, fixed_input, fixed_spots, moving_input, moving_spots]
     
     // compute transformation matrix (ransac_affine.mat)
@@ -212,9 +212,13 @@ workflow registration {
         "/${ch}/${deformation_scale}",
         deform_iterations,
         deform_auto_mask
-    ) // [ <tile>, <tile_input>, <deform_output> ]
+    ) | map {
+        // [ <tile>, <tile_input>, <deform_output> ]
+        println "Deform result: $it"
+        it
+    }
 
-    done = stitch(
+    def stitch_results = stitch(
         deform_results.map { it[0] }, // tile
         xy_overlap,
         z_overlap,
@@ -225,6 +229,15 @@ workflow registration {
         output_dir.map { "${it}/invtransform" }, // inverse transform directory
         "/${deformation_scale}",
         params.stitch_registered_cpus
+    )
+
+    done = final_transform(
+        fixed_input_dir,
+        "/${ch}/${deformation_scale}",
+        moving_input_dir,
+        "/${ch}/${deformation_scale}",
+        stitch_results.map { it[0] }, // stitch transform dir
+        output_dir.map { "${it}/warped" }, // warped directory
     )
 
     emit:

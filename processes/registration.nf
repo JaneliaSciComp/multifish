@@ -149,7 +149,7 @@ process deform {
     script:
     deform_output = "$tile/warp.nrrd"
     """
-    /app/scripts/waitforpaths.sh ${image_path}${image_subpath} ${ransac_affine}/${ransac_affine_subpath}
+    /app/scripts/waitforpaths.sh ${image_path}${image_subpath} ${ransac_affine}${ransac_affine_subpath}
     /entrypoint.sh deform $image_path $image_subpath $ransac_affine $ransac_affine_subpath $tile/coords.txt $deform_output $tile/ransac_affine.mat $tile/final_lcc.nrrd $tile/invwarp.nrrd $deform_iterations $deform_auto_mask
     """
 }
@@ -171,10 +171,10 @@ process stitch {
     val(cpus)
 
     output:
-    val(stitch_output)
+    tuple val(transform_dir), val(invtransform_dir), val(stitch_output)
 
     script:
-    stitch_output = "$transform_dir/$output_subpath"
+    stitch_output = "${transform_dir}${output_subpath}"
     """
     /app/scripts/waitforpaths.sh $tile ${image_path}${image_subpath} $ransac_affine_mat
     /entrypoint.sh stitch_and_write $tile $xy_overlap $z_overlap $image_path $image_subpath $ransac_affine_mat $transform_dir $invtransform_dir $output_subpath
@@ -186,7 +186,6 @@ process final_transform {
     cpus { cpus }
 
     input:
-    val(stitch_outputs)
     val(ref_image_path)
     val(ref_image_subpath)
     val(mov_image_path)
@@ -196,7 +195,7 @@ process final_transform {
     val(cpus)
 
     output:
-    tuple val(output_path), val(ref_image_subpath)
+    tuple val(ref_image_path), val(output_path), val(ref_image_subpath)
 
     script:
     """
