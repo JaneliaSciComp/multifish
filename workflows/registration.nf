@@ -185,7 +185,7 @@ workflow registration {
         // [ <tile_parent_dir>, <index>, <tile_input>, <tile_path> ]
         [ "${tile_path.parent}", it[0], it[1], it[2] ]
     } | combine(interpolated_results, by:0) | map {
-        def tile_parent_dir = file(it[1])
+        def tile_parent_dir = file(it[0])
         // [ <index>, <tile_input>, <tile_parent_dir>, <tile_path>, <ransac_output> ]
         def r = [ it[1], it[2], it[0], it[3], "${tile_parent_dir.parent}/aff/ransac_affine" ]
         println "Deform input: $r"
