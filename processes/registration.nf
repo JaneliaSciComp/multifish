@@ -212,7 +212,13 @@ process final_transform {
     val(cpus)
 
     output:
-    tuple val(ref_image_path), val(output_path), val(ref_image_subpath)
+    tuple val(ref_image_path),
+          val(ref_image_subpath),
+          val(mov_image_path),
+          val(mov_image_subpath),
+          val(txm_path),
+          val(output_path),
+
 
     script:
     """

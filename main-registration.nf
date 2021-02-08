@@ -89,52 +89,52 @@ include {
 
 workflow {
 
-    // xy_overlap = params.xy_stride / 8
-    // z_overlap = params.z_stride / 8
+    xy_overlap = params.xy_stride / 8
+    z_overlap = params.z_stride / 8
 
-    // tiles = cut_tiles(fixed, def_scale_subpath, tiledir, \
-    //     params.xy_stride, xy_overlap, params.z_stride, z_overlap) \
-    //     | flatMap { it.tokenize(' ') }
+    tiles = cut_tiles(fixed, def_scale_subpath, tiledir, \
+        params.xy_stride, xy_overlap, params.z_stride, z_overlap) \
+        | flatMap { it.tokenize(' ') }
 
-    // coarse_spots_fixed(fixed, aff_scale_subpath, \
-    //     affdir, "/fixed_spots.pkl", params.spots_cc_radius, params.spots_spot_number)
+    coarse_spots_fixed(fixed, aff_scale_subpath, \
+        affdir, "/fixed_spots.pkl", params.spots_cc_radius, params.spots_spot_number)
 
-    // coarse_spots_moving(moving, aff_scale_subpath, \
-    //     affdir, "/moving_spots.pkl", params.spots_cc_radius, params.spots_spot_number)
+    coarse_spots_moving(moving, aff_scale_subpath, \
+        affdir, "/moving_spots.pkl", params.spots_cc_radius, params.spots_spot_number)
 
-    // joined_spots = coarse_spots_fixed.out.join(coarse_spots_moving.out)
+    joined_spots = coarse_spots_fixed.out.join(coarse_spots_moving.out)
 
-    // // compute transformation matrix (ransac_affine.mat)
-    // coarse_ransac_out = coarse_ransac(joined_spots, \
-    //     "/ransac_affine.mat", \
-    //     params.ransac_cc_cutoff, params.ransac_dist_threshold) | first
+    // compute transformation matrix (ransac_affine.mat)
+    coarse_ransac_out = coarse_ransac(joined_spots, \
+        "/ransac_affine.mat", \
+        params.ransac_cc_cutoff, params.ransac_dist_threshold) | first
 
-    // // compute ransac_affine at aff scale
-    // apply_affine_small_out = apply_affine_small(1, \
-    //     fixed, aff_scale_subpath, \
-    //     moving, aff_scale_subpath, \
-    //     coarse_ransac_out, "${affdir}/ransac_affine")
+    // compute ransac_affine at aff scale
+    apply_affine_small_out = apply_affine_small(1, \
+        fixed, aff_scale_subpath, \
+        moving, aff_scale_subpath, \
+        coarse_ransac_out, "${affdir}/ransac_affine")
 
-    // // ransac_affine at def scale
-    // apply_affine_big_out = apply_affine_big(8, \
-    //     fixed, def_scale_subpath, \
-    //     moving, def_scale_subpath, \
-    //     coarse_ransac_out, "${affdir}/ransac_affine")
+    // ransac_affine at def scale
+    apply_affine_big_out = apply_affine_big(8, \
+        fixed, def_scale_subpath, \
+        moving, def_scale_subpath, \
+        coarse_ransac_out, "${affdir}/ransac_affine")
 
-    // fixed_spots_for_tile([fixed, aff_scale_subpath], \
-    //     tiles, "/fixed_spots.pkl", \
-    //     params.spots_cc_radius, params.spots_spot_number)
+    fixed_spots_for_tile([fixed, aff_scale_subpath], \
+        tiles, "/fixed_spots.pkl", \
+        params.spots_cc_radius, params.spots_spot_number)
 
-    // moving_spots_for_tile(apply_affine_small_out, \
-    //     tiles, "/moving_spots.pkl", \
-    //     params.spots_cc_radius, params.spots_spot_number)
+    moving_spots_for_tile(apply_affine_small_out, \
+        tiles, "/moving_spots.pkl", \
+        params.spots_cc_radius, params.spots_spot_number)
 
-    // joined_spots_for_tile = fixed_spots_for_tile.out.join(moving_spots_for_tile.out)
-    // ransac_for_tile(joined_spots_for_tile, \
-    //     "/ransac_affine.mat", \
-    //     params.ransac_cc_cutoff, params.ransac_dist_threshold)
+    joined_spots_for_tile = fixed_spots_for_tile.out.join(moving_spots_for_tile.out)
+    ransac_for_tile(joined_spots_for_tile, \
+        "/ransac_affine.mat", \
+        params.ransac_cc_cutoff, params.ransac_dist_threshold)
 
-    // interpolate_affines_out = interpolate_affines(ransac_for_tile.out.collect(), tiledir)
+    interpolate_affines_out = interpolate_affines(ransac_for_tile.out.collect(), tiledir)
 
     deform(
         interpolate_affines_out, 
@@ -155,9 +155,12 @@ workflow {
          "/${params.def_scale}")
 
     final_transform(stitch.out.collect(), \
-        fixed, def_scale_subpath, \
-        moving, def_scale_subpath, \
-        transform_dir, warped_dir)
+        fixed,
+        def_scale_subpath, \
+        moving,
+        def_scale_subpath, \
+        transform_dir,
+        warped_dir)
 }
 
 workflow.onComplete {
