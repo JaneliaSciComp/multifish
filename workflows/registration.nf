@@ -190,7 +190,7 @@ workflow registration {
         def tile_path = file(it[2])
         // [ <tile_parent_dir>, <index>, <tile_input>, <tile_path> ]
         [ "${tile_path.parent}", it[0], it[1], it[2] ]
-    } | combine(interpolated_results) | map {
+    } | combine(interpolated_results, by:0) | map {
         def tile_parent_dir = file(it[0])
         // [ <index>, <tile_input>, <tile_parent_dir>, <tile_path>, <ransac_output> ]
         def r = [ "${tile_parent_dir.parent}/aff/ransac_affine", it[1], it[2], it[0], it[3] ]
@@ -202,10 +202,10 @@ workflow registration {
     }
 
     done = deform(
-        deform_inputs.map { it[3] }, // tile path
-        deform_inputs.map { it[1] }, // fixed image -> tile input
+        deform_inputs.map { it[4] }, // tile path
+        deform_inputs.map { it[2] }, // fixed image -> tile input
         "/${ch}/${deformation_scale}",
-        deform_inputs.map { it[4] }, // affine moving coarse ransac results at deform scale
+        deform_inputs.map { it[0] }, // affine moving coarse ransac results at deform scale
         "${ch}/${deformation_scale}",
         deform_iterations,
         deform_auto_mask

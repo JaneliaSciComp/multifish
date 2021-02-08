@@ -121,11 +121,12 @@ process interpolate_affines {
     val(tiles_dir)
 
     output:
-    val(tiles_dir)
+    val(interpolated_dir)
 
     script:
+    interpolated_dir = tiles_dir
     """
-    /entrypoint.sh interpolate_affines $tiles_dir
+    /entrypoint.sh interpolate_affines ${interpolated_dir}
     """
 }
 
