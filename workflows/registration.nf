@@ -186,7 +186,7 @@ workflow registration {
         it[0]
     } | interpolate_affines
 
-    def deform_inputs = tiles_with_inputs | map {
+    def deform_input = tiles_with_inputs | map {
         def tile_path = file(it[2])
         // [ <tile_parent_dir>, <index>, <tile_input>, <tile_path> ]
         [ "${tile_path.parent}", it[0], it[1], it[2] ]
@@ -194,9 +194,9 @@ workflow registration {
         def tile_parent_dir = file(it[0])
         // [ <index>, <tile_input>, <tile_parent_dir>, <tile_path>, <ransac_output> ]
         def r = [ "${tile_parent_dir.parent}/aff/ransac_affine", it[1], it[2], it[0], it[3] ]
-        println "Deform tile input: $r"
+        println "Extended interpolated result: $r"
         return r
-    } | combine(def_scale_affine_results) {
+    } | combine(def_scale_affine_results, by:0) | map {
         println "Deform input: $it"
         return it
     }
