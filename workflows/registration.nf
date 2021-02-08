@@ -186,7 +186,7 @@ workflow registration {
         it[0]
     } | interpolate_affines
 
-    def deform_input = tiles_with_inputs | map {
+    def deform_inputs = tiles_with_inputs | map {
         def tile_path = file(it[2])
         // [ <tile_parent_dir>, <index>, <tile_input>, <tile_path> ]
         [ "${tile_path.parent}", it[0], it[1], it[2] ]
