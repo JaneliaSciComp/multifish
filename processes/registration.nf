@@ -65,11 +65,11 @@ process apply_transform {
 
     script:
     args_list = [
-        ref_image_path
-        ref_image_subpath
-        mov_image_path
-        mov_image_subpath
-        txm_path
+        ref_image_path,
+        ref_image_subpath,
+        mov_image_path,
+        mov_image_subpath,
+        txm_path,
         output_path,
         points_path
     ]
