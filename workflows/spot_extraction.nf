@@ -104,13 +104,13 @@ workflow spot_extraction {
     }
 
     def merge_points_results = merge_points(
-        merge_points_inputs.map { it[0] },
-        merge_points_inputs.map { it[1] },
-        merge_points_inputs.map { it[2] },
-        merge_points_inputs.map { it[3] },
-        merge_points_inputs.map { it[4] },
-        merge_points_inputs.map { it[5] },
-        merge_points_inputs.map { it[6] }
+        merge_points_inputs.map { it[0] }, // image path
+        merge_points_inputs.map { it[1] }, // channel
+        merge_points_inputs.map { it[2] }, // spot extraction scale
+        merge_points_inputs.map { it[3] }, // tiles dir
+        merge_points_inputs.map { it[4] }, // xy overlap
+        merge_points_inputs.map { it[5] }, // z overlap
+        merge_points_inputs.map { it[6] } // merged points output dir
     )
 
     emit:
