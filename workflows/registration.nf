@@ -216,7 +216,7 @@ workflow registration {
         deform_auto_mask
     ) | map {
         // [ <tile>, <tile_input>, <deform_output> ]
-        def tile_dir = file(tile)
+        def tile_dir = file(it[0])
         def reg_output = "${tile_dir.parent.parent}"
         def aff_matrix = "${reg_output}/aff/ransac_affine.mat"
         def r = [ it[0], it[1],  reg_output, aff_matrix]
