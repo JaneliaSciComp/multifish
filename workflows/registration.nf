@@ -237,7 +237,8 @@ workflow registration {
         moving_input_dir,
         "/${ch}/${deformation_scale}",
         stitch_results.map { it[0] }, // stitch transform dir
-        output_dir.map { "${it}/warped" } // warped directory
+        output_dir.map { "${it}/warped" }, // warped directory
+        params.final_transform_cpus
     )
 
     emit:
