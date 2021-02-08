@@ -196,7 +196,7 @@ workflow registration {
         def r = [ "${tile_parent_dir.parent}/aff/ransac_affine", it[1], it[2], it[0], it[3] ]
         println "Deform tile input: $r"
         return r
-    } | combine(def_scale_affine_results, by: 0) {
+    } | combine(def_scale_affine_results) {
         println "Deform input: $it"
         return it
     }
