@@ -215,7 +215,8 @@ workflow registration {
     ) | map {
         // [ <tile>, <tile_input>, <deform_output> ]
         println "Deform result: $it"
-        it
+        // [ <tile>, <tile_input> ]
+        [ it[0], it[1] ]
     }
 
     def stitch_results = stitch(
@@ -229,14 +230,14 @@ workflow registration {
         output_dir.map { "${it}/invtransform" }, // inverse transform directory
         "/${deformation_scale}",
         params.stitch_registered_cpus
-    )
+    ) | groupTuple(by:[1,2,3,4,5]) // group all tiles in one collection
 
     done = final_transform(
-        fixed_input_dir,
+        stitch_results.map { it[1] },
         "/${ch}/${deformation_scale}",
         moving_input_dir,
         "/${ch}/${deformation_scale}",
-        stitch_results.map { it[0] }, // stitch transform dir
+        stitch_results.map { it[2] }, // stitch transform dir
         output_dir.map { "${it}/warped" }, // warped directory
         params.final_transform_cpus
     )
