@@ -144,8 +144,15 @@ workflow {
         apply_affine_big_out, params.deform_iterations, params.deform_auto_mask)
 
     stitch(deform.out.collect(), \
-         tiles, xy_overlap, z_overlap, fixed, def_scale_subpath, coarse_ransac_out, \
-         transform_dir, invtransform_dir, "/${params.def_scale}")
+         tiles, 
+         xy_overlap, 
+         z_overlap, 
+         fixed, 
+         def_scale_subpath, 
+         coarse_ransac_out, \
+         transform_dir,
+         invtransform_dir,
+         "/${params.def_scale}")
 
     final_transform(stitch.out.collect(), \
         fixed, def_scale_subpath, \

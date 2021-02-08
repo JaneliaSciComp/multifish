@@ -144,7 +144,7 @@ process deform {
     val(deform_auto_mask)
 
     output:
-    val(deform_output)
+    tuple val(tile), val(image_path), val(deform_output)
 
     script:
     deform_output = "$tile/warp.nrrd"
@@ -159,7 +159,6 @@ process stitch {
     cpus { cpus }
 
     input:
-    val(deform_outputs)
     val(tile)
     val(xy_overlap)
     val(z_overlap)
