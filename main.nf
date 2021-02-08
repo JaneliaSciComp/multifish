@@ -232,7 +232,9 @@ workflow {
         final_params.spots_cc_radius,
         final_params.spots_spot_number,
         final_params.ransac_cc_cutoff,
-        final_params.ransac_dist_threshold
+        final_params.ransac_dist_threshold,
+        final_params.deform_iterations,
+        final_params.deform_auto_mask
     ) | view
 
 }
