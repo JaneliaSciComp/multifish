@@ -103,6 +103,7 @@ workflow registration {
         "/${ch}/${affine_scale}",
         coarse_ransac_results.map { it[1] }, // transform matrix
         coarse_ransac_results.map { "${it[0]}/ransac_affine" },
+        '', // no points path
         params.aff_scale_transform_cpus
     ) | map {
         def ransac_affine_output = file(it[0])
@@ -120,6 +121,7 @@ workflow registration {
         "/${ch}/${deformation_scale}",
         coarse_ransac_results.map { it[1] }, // transform matrix
         coarse_ransac_results.map { "${it[0]}/ransac_affine" },
+        '', // no points path
         params.def_scale_transform_cpus
     ) | map {
         def ransac_affine_output = file(it[0])
@@ -214,9 +216,12 @@ workflow registration {
         deform_auto_mask
     ) | map {
         // [ <tile>, <tile_input>, <deform_output> ]
-        println "Deform result: $it"
-        // [ <tile>, <tile_input> ]
-        [ it[0], it[1] ]
+        def tile_dir = file(tile)
+        def reg_output = "${tile_dir.parent.parent}"
+        def aff_matrix = "${reg_output}/aff/ransac_affine.mat"
+        def r = [ it[0], it[1],  reg_output, aff_matrix]
+        println "Deform result: $it -> $r"
+        return r
     }
 
     def stitch_results = stitch(
@@ -225,14 +230,14 @@ workflow registration {
         z_overlap,
         deform_results.map { it[1] }, //  fixed image path
         "/${ch}/${deformation_scale}",
-        coarse_ransac_results.map { it[1] }, // coarse ransac transformation matrix -> ransac_affine.mat
-        output_dir.map { "${it}/transform" }, // transform directory
-        output_dir.map { "${it}/invtransform" }, // inverse transform directory
+        deform_results.map { it[3] }, // coarse ransac transformation matrix -> ransac_affine.mat
+        deform_results.map { "${it[2]}/transform" }, // transform directory
+        deform_results.map { "${it[2]}/invtransform" }, // inverse transform directory
         "/${deformation_scale}",
         params.stitch_registered_cpus
     ) | groupTuple(by:[1,2,3,4,5]) // group all tiles in one collection
 
-    done = final_transform(
+    def final_result = final_transform(
         stitch_results.map { it[1] },
         "/${ch}/${deformation_scale}",
         moving_input_dir,
@@ -243,7 +248,7 @@ workflow registration {
     )
 
     emit:
-    done
+    done = final_result
 }
 
 def index_coarse_results(name, coarse_inputs, coarse_results) {

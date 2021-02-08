@@ -57,15 +57,26 @@ process apply_transform {
     val(mov_image_subpath)
     val(txm_path)
     val(output_path)
+    val(points_path)
     val(cpus)
 
     output:
     tuple val(output_path), val(ref_image_subpath)
 
     script:
+    args_list = [
+        ref_image_path
+        ref_image_subpath
+        mov_image_path
+        mov_image_subpath
+        txm_path
+        output_path,
+        points_path
+    ]
+    args = args_list.join(' ')
     """
     /app/scripts/waitforpaths.sh ${ref_image_path}${ref_image_subpath} ${mov_image_path}${mov_image_subpath}
-    /entrypoint.sh apply_transform_n5 $ref_image_path $ref_image_subpath $mov_image_path $mov_image_subpath $txm_path $output_path
+    /entrypoint.sh apply_transform_n5 ${args}
     """
 }
 
