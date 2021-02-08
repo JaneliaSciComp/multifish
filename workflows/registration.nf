@@ -186,14 +186,14 @@ workflow registration {
         it[0]
     } | interpolate_affines | map {
         println "Interpolated result: $it"
-        it
+        [ it ]
     }
 
     def deform_inputs = tiles_with_inputs | map {
         def tile_path = file(it[2])
         // [ <tile_parent_dir>, <index>, <tile_input>, <tile_path> ]
         [ "${tile_path.parent}", it[0], it[1], it[2] ]
-    } | combine(interpolated_results) | map {
+    } | combine(interpolated_results, by:0) | map {
         def tile_parent_dir = file(it[0])
         // [ <index>, <tile_input>, <tile_parent_dir>, <tile_path>, <ransac_output> ]
         def r = [ "${tile_parent_dir.parent}/aff/ransac_affine", it[1], it[2], it[0], it[3] ]
@@ -214,7 +214,7 @@ workflow registration {
         deform_auto_mask
     ) // [ <tile>, <tile_input>, <deform_output> ]
 
-    done stitch(
+    done = stitch(
         deform_results.map { it[0] }, // tile
         xy_overlap,
         z_overlap,
