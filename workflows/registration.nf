@@ -122,6 +122,7 @@ workflow registration {
         coarse_ransac_results.map { "${it[0]}/ransac_affine" },
         params.def_scale_transform_cpus
     ) // [ ransac_affine_output, scale_path]
+    def_scale_affine_results.subscribe { println "Coarse affine results at deform scale: $it" }
     
     // get fixed spots per tile
     def fixed_spots_results_per_tile = fixed_spots(
