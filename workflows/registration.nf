@@ -222,7 +222,7 @@ workflow registration {
         def r = [ it[0], it[1],  reg_output, aff_matrix]
         println "Deform result: $it -> $r"
         return r
-    }
+    } | groupTuple(by: [1,2,3]) | flatMap
 
     def stitch_results = stitch(
         deform_results.map { it[0] }, // tile
@@ -245,7 +245,11 @@ workflow registration {
         stitch_results.map { it[2] }, // stitch transform dir
         output_dir.map { "${it}/warped" }, // warped directory
         params.final_transform_cpus
-    )
+    ) | map {
+        // include invtransform path in the result
+        def txm_path = file(it[4])
+        it[0..4] + [ "${txm_path.parent}/invtransform" ] + [ it[5] ]
+    }
 
     emit:
     done = final_result
