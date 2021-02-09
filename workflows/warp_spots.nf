@@ -11,18 +11,17 @@ workflow warp_spots {
     moving
     moving_subpath
     warped_spots_txmpath
-    warped_spots_outdir
+    warped_spots_path
     points_path
 
     main:
-                
     done = apply_transform(
         fixed,
         fixed_subpath,
         moving,
         moving_subpath,
         warped_spots_txmpath,
-        warped_spots_outdir,
+        warped_spots_path,
         points_path,
         1)
     

@@ -303,15 +303,26 @@ workflow {
         ]
     } | combine(spots_to_warp, by:0) | map {
         // [ moving, moving_subpath, fixed, fixed_subpath, inv_transform, warped_spots_output, spots_file]
-        println "Prepare  warp spots input  $it"
-        it
+        def spots_file =  file(it[6])
+        def warped_spots_fname = spots_file.name.replace('.txt', '_warped.txt')
+        def r = [
+            it[2], // fixed
+            it[3], // fixed subpath
+            it[0], // moving
+            it[1], // moving subpath
+            it[2], // transform subpath
+            "${it[5]}/${warped_spots_fname}", // warped spots file
+            it[6] // spots file
+        ]
+        println "Prepare  warp spots input  $it -> $r"
+        r
     }
 
     def warp_spots_results = warp_spots(
-        warp_spots_inputs.map { it[2] }, // fixed
-        warp_spots_inputs.map { it[3] }, // fixed_subpath
-        warp_spots_inputs.map { it[0] }, // moving
-        warp_spots_inputs.map { it[1] }, // moving_subpath
+        warp_spots_inputs.map { it[0] }, // fixed
+        warp_spots_inputs.map { it[1] }, // fixed_subpath
+        warp_spots_inputs.map { it[2] }, // moving
+        warp_spots_inputs.map { it[3] }, // moving_subpath
         warp_spots_inputs.map { it[4] }, // transform path
         warp_spots_inputs.map { it[5] }, // warped spots output
         warp_spots_inputs.map { it[6] }, // spots file path
