@@ -277,7 +277,10 @@ workflow {
             ]
         }
     }
-    def spots_to_warp = spot_extraction_results | concat(expected_spot_extraction_results) | unique
+    def spots_to_warp = spot_extraction_results | concat(expected_spot_extraction_results) | unique | map {
+        // only need the input and the spots file
+        [ it[0], it[3] ]
+    }
 
     def warp_spots_inputs = registration_results.map {
         def fixed_stitched_results = file(it[0])
@@ -298,20 +301,23 @@ workflow {
             it[5], // inv transform
             warped_spoots_output_dir
         ]
-    } | combine(spots_to_warp, by:0)
-
-    warp_spots_inputs | view
+    } | combine(spots_to_warp, by:0) | map {
+        // [ moving, moving_subpath, fixed, fixed_subpath, inv_transform, warped_spots_output, spots_file]
+        println "Prepare  warp spots input  $it"
+        it
+    }
 
     def warp_spots_results = warp_spots(
-        warp_spots_inputs.map { it[0] }, // fixed
-        warp_spots_inputs.map { it[1] }, // fixed_subpath
-        warp_spots_inputs.map { it[2] }, // moving
-        warp_spots_inputs.map { it[3] }, // moving_subpath
+        warp_spots_inputs.map { it[2] }, // fixed
+        warp_spots_inputs.map { it[3] }, // fixed_subpath
+        warp_spots_inputs.map { it[0] }, // moving
+        warp_spots_inputs.map { it[1] }, // moving_subpath
         warp_spots_inputs.map { it[4] }, // transform path
         warp_spots_inputs.map { it[5] }, // warped spots output
         warp_spots_inputs.map { it[6] }, // spots file path
     )
 
+    warp_spots_results | view
 }
 
 def get_acq_output(output, acq_name) {
