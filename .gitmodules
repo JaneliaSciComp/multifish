@@ -1,7 +1,6 @@
 [submodule "external-modules/spark"]
 	path = external-modules/spark
 	url = git@github.com:JaneliaSciComp/nextflow-spark.git
-	branch = multichannel-params
 [submodule "external-modules/stitching-spark"]
 	path = external-modules/stitching-spark
 	url = git@github.com:saalfeldlab/stitching-spark.git
