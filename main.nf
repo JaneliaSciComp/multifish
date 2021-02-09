@@ -57,8 +57,8 @@ include {
 
 include {
     warp_spots
-} from '.workflows/warp_spots' addParams(lsf_opts: final_params.lsf_opts,
-                                         registration_container: registration_container_param(final_params))
+} from './workflows/warp_spots' addParams(lsf_opts: final_params.lsf_opts,
+                                          registration_container: registration_container_param(final_params))
 
 // spark config
 spark_conf = final_params.spark_conf
@@ -245,26 +245,32 @@ workflow {
         final_params.deform_auto_mask
     )
 
-    def finalized_spot_extraction_results = spot_extraction_results | Channel.fromList(warp_spots_acq_names) | flatMap {
+    def expected_spot_extraction_results = Channel.fromList(warp_spots_acq_names) | flatMap {
         def acq_name = it
         def acq_stitching_output_dir = get_step_output_dir(
-            get_acq_output(output_dir_param(final_params), moving_acq),
+            get_acq_output(output_dir_param(final_params), acq_name),
             "${final_params.stitching_output}"
         )
-
         def acq_spot_extraction_output_dir = get_step_output_dir(
             get_acq_output(output_dir_param(final_params), acq_name),
             spot_extraction_output
         )
-        Channel.fromPath("${acq_spot_extraction_output_dir}/merged_points_*.txt") | map {
+        println "Collect ${acq_spot_extraction_output_dir}/merged_points_*.txt"
+        def spots_files = []
+        acq_spot_extraction_output_dir.eachFileMatch(~/merged_points_.*.txt/) { f ->
+            println "Found spots file: $f"
+            spots_files << f
+        }
+        spots_files.collect {
             [
-                "${acq_stitching_output_dir}/export.n5", // acq stitching,
+                "${acq_stitching_output_dir}/export.n5",
                 final_params.dapi_channel,
-                final_params.scale_4_spot_extraction
+                final_params.scale_4_spot_extraction,
                 it
             ]
         }
-    } | unique
+    }
+    def all_spot_extraction_results = spot_extraction_results | concat(expected_spot_extraction_results) | unique
 
     def warp_spots_inputs = registration_results.map {
         def fixed_stitched_results = file(it[0])
