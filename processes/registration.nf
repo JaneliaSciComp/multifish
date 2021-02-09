@@ -75,7 +75,7 @@ process apply_transform {
     ]
     args = args_list.join(' ')
     """
-    /app/scripts/waitforpaths.sh ${ref_image_path}${ref_image_subpath} ${mov_image_path}${mov_image_subpath}
+    /app/scripts/waitforpaths.sh ${ref_image_path}${ref_image_subpath} ${mov_image_path}${mov_image_subpath} ${txm_path}
     /entrypoint.sh apply_transform_n5 ${args}
     """
 }
