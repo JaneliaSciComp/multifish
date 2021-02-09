@@ -11,7 +11,7 @@ moving_rounds="LHA3_R5_subset"
         --driver_memory 15g \
         --spark_work_dir "$PWD/local" \
         --stitching_app "$PWD/external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar" \
-        --data_dir /nrs/scicompsoft/goinac/multifish/ex1 \
+        --data_dir /nrs/multifish/Pipeline/Examples/subset \
         --output_dir /nrs/scicompsoft/goinac/multifish/ex1 \
         --segmentation_model_dir "/nrs/scicompsoft/goinac/multifish/models/starfinity-model" \
         --reference_acq_name ${fixed_round} \
