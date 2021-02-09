@@ -58,7 +58,8 @@ include {
 include {
     warp_spots
 } from './workflows/warp_spots' addParams(lsf_opts: final_params.lsf_opts,
-                                          registration_container: registration_container_param(final_params))
+                                          registration_container: registration_container_param(final_params),
+                                          warp_spots_cpus: final_params.warp_spots_cpus)
 
 // spark config
 spark_conf = final_params.spark_conf

@@ -66,6 +66,9 @@ def default_mf_params() {
         def_scale_transform_cpus: 8, // cores for deformable scale transforms
         stitch_registered_cpus: 2,
         final_transform_cpus: 12,
+
+        // warp spots parameters
+        warp_spots_cpus: 2,
     ]
 }
 

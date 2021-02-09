@@ -23,7 +23,7 @@ workflow warp_spots {
         warped_spots_txmpath,
         warped_spots_path,
         points_path,
-        1)
+        params.warp_spots_cpus)
     
     emit:
     done
