@@ -226,8 +226,8 @@ workflow registration {
         def tile_input = it[1]
         def reg_output = it[2]
         def aff_matrix = it[3]
-        it[0].collect {
-            [ it, tile_input, reg_output, aff_matrix ]
+        it[0].collect { tile ->
+            [ tile, tile_input, reg_output, aff_matrix ]
         }
     }
 
@@ -244,7 +244,7 @@ workflow registration {
         params.stitch_registered_cpus
     ) | groupTuple(by:[1,2,3,4,5]) // group all tiles in one collection
 
-    def final_result = final_transform(
+    final_result = final_transform(
         stitch_results.map { it[1] },
         "/${ch}/${deformation_scale}",
         moving_input_dir,
@@ -255,11 +255,13 @@ workflow registration {
     ) | map {
         // include invtransform path in the result
         def txm_path = file(it[4])
-        it[0..4] + [ "${txm_path.parent}/invtransform" ] + [ it[5] ]
+        def r = it[0..4] + [ "${txm_path.parent}/invtransform" ] + [ it[5] ]
+        println "Registration result: $r"
+        r
     } // [ <fixed>, <fixed_subpath>, <moving>, <moving_subpath>, <direct_transform>, <inv_transform>, <warped_path> ]
 
     emit:
-    done = final_result
+    final_result
 }
 
 def index_coarse_results(name, coarse_inputs, coarse_results) {

@@ -268,6 +268,7 @@ workflow {
             println "Found spots file: $f"
             spots_files << f
         }
+        // map spot files to tuple of parameters
         spots_files.collect {
             [
                 "${acq_stitching_output_dir}/export.n5",

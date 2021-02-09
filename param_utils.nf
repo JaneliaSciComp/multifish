@@ -50,9 +50,9 @@ def default_mf_params() {
         registration_output: 'registration',
         aff_scale: 's3', // the scale level for affine alignments
         def_scale: "s2", // the scale level for deformable alignments
-        registration_xy_stride: 0, // use the default defined by registration_xy_stride_param
+        registration_xy_stride: 0, // use the default defined by registration_xy_stride_param - must be a power of 2
         registration_xy_overlap: 0, // use the default defined by registration_xy_overlap_param
-        registration_z_stride: 0, // use the default defined by registration_z_stride_param
+        registration_z_stride: 0, // use the default defined by registration_z_stride_param - must be a power of 2
         registration_z_overlap: 0, // use the default defined by registration_z_overlap_param
         spots_cc_radius: '8',
         spots_spot_number: '2000',
