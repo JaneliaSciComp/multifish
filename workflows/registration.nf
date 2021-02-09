@@ -222,7 +222,14 @@ workflow registration {
         def r = [ it[0], it[1],  reg_output, aff_matrix]
         println "Deform result: $it -> $r"
         return r
-    } | groupTuple(by: [1,2,3]) | flatMap
+    } | groupTuple(by: [1,2,3]) | flatMap {
+        def tile_input = it[1]
+        def reg_output = it[2]
+        def aff_matrix = it[3]
+        it[0].collect {
+            [ it, tile_input, reg_output, aff_matrix ]
+        }
+    }
 
     def stitch_results = stitch(
         deform_results.map { it[0] }, // tile
