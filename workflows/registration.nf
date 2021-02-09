@@ -293,7 +293,3 @@ def index_coarse_results(name, coarse_inputs, coarse_results) {
         ]
     }
 }
-
-def get_moving_results_dir(moving_output_dir, fixed_name, moving_name) {
-    return "${moving_output_dir}/${moving_name}-to-${fixed_name}"
-}
