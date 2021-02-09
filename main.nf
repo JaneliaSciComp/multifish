@@ -146,6 +146,7 @@ workflow {
     // concatenate to the actual stitched results and then filter them
     // for uniqueness in order to do the step only once for for an acq
 
+    // prepare spot extraction inputs
     def spot_extraction_inputs = get_stitched_inputs_for_step(
         spot_extraction_acq_names,
         final_params.stitching_output,
@@ -159,6 +160,7 @@ workflow {
         spot_extraction_output
     )
 
+    // run spot extraction
     def spot_extraction_results = spot_extraction(
         spot_extraction_inputs.map { "${it[1]}/export.n5" },
         spot_extraction_output_dirs,
@@ -173,6 +175,7 @@ workflow {
         per_channel_air_localize_params
     )
 
+    // prepare segmentation  inputs
     def segmentation_inputs = get_stitched_inputs_for_step(
         segmentation_acq_names,
         final_params.stitching_output,
@@ -185,6 +188,7 @@ workflow {
         segmentation_output
     )
 
+    // run segmentation
     def segmentation_results = segmentation(
         segmentation_inputs.map { "${it[1]}/export.n5" },
         segmentation_inputs.map { "${it[0]}" },
@@ -195,6 +199,7 @@ workflow {
         final_params.predict_cpus
     )
 
+    // prepare fixed and  moving inputs for the registration
     def registration_fixed_inputs = get_stitched_inputs_for_step(
         registration_fixed_acq_names,
         final_params.stitching_output,
@@ -226,6 +231,7 @@ workflow {
         ]
     }
 
+    // run registration
     def registration_results =  registration(
         registration_inputs.map { "${it[1]}/export.n5" },
         registration_inputs.map { "${it[3]}/export.n5" },
@@ -245,6 +251,7 @@ workflow {
         final_params.deform_auto_mask
     )
 
+    // prepare inputs for warping spots
     def expected_spot_extraction_results = Channel.fromList(warp_spots_acq_names) | flatMap {
         def acq_name = it
         def acq_stitching_output_dir = get_step_output_dir(
@@ -270,7 +277,7 @@ workflow {
             ]
         }
     }
-    def all_spot_extraction_results = spot_extraction_results | concat(expected_spot_extraction_results) | unique
+    def spots_to_warp = spot_extraction_results | concat(expected_spot_extraction_results) | unique
 
     def warp_spots_inputs = registration_results.map {
         def fixed_stitched_results = file(it[0])
@@ -284,14 +291,16 @@ workflow {
         println "Create warped spots output for ${moving_acq} to ${fixed_acq} -> ${warped_spoots_output_dir}"
         warped_spoots_output_dir.mkdirs()
         [
-            it[0], // fixed
-            it[1], // fixed subpath
             it[2], // moving
             it[3], // moving subpath
+            it[0], // fixed
+            it[1], // fixed subpath
             it[5], // inv transform
             warped_spoots_output_dir
         ]
-    }
+    } | combine(spots_to_warp, by:0)
+
+    warp_spots_inputs | view
 
     def warp_spots_results = warp_spots(
         warp_spots_inputs.map { it[0] }, // fixed
