@@ -69,11 +69,11 @@ def default_mf_params() {
     ]
 }
 
-def get_value_or_alt(Map ps, String param, String alt_param) {
+def get_value_or_default(Map ps, String param, String default_value) {
     if (ps[param])
         ps[param]
     else
-        ps[alt_param]
+        default_value
 }
 
 def output_dir_param(Map ps) {

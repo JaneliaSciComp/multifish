@@ -9,7 +9,7 @@ include {
 include {
     default_mf_params;
     get_acqs_for_step;
-    get_value_or_alt;
+    get_value_or_default;
     output_dir_param;
     spotextraction_container_param;
     segmentation_container_param;
@@ -102,12 +102,13 @@ per_channel_air_localize_params = [
     return a 
 }
 
+reference_acq_name = final_params.reference_acq_name
 // if segmentation is not desired do not set segmentation_acq_name or reference_acq_name in the command line
-segmentation_acq_name = get_value_or_alt(final_params, 'segmentation_acq_name', 'reference_acq_name')
+segmentation_acq_name = get_value_or_default(final_params, 'segmentation_acq_name', reference_acq_name)
 segmentation_acq_names = segmentation_acq_name ? [ segmentation_acq_name ] : []
 segmentation_output = final_params.segmentation_output
 
-registration_fixed_acq_names = get_acqs_for_step(final_params, 'registration_fixed_acq_names', stitch_acq_names)
+registration_fixed_acq_names = get_acqs_for_step(final_params, 'registration_fixed_acq_names', segmentation_acq_names)
 registration_fixed_output = final_params.registration_fixed_output
 
 registration_moving_acq_names = get_acqs_for_step(final_params, 'registration_moving_acq_names', spot_extraction_acq_names)
