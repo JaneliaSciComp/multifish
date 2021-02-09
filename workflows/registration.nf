@@ -256,7 +256,7 @@ workflow registration {
         // include invtransform path in the result
         def txm_path = file(it[4])
         it[0..4] + [ "${txm_path.parent}/invtransform" ] + [ it[5] ]
-    }
+    } // [ <fixed>, <fixed_subpath>, <moving>, <moving_subpath>, <direct_transform>, <inv_transform>, <warped_path> ]
 
     emit:
     done = final_result
