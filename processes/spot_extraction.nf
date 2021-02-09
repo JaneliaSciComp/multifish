@@ -82,7 +82,7 @@ process merge_points {
     val(output_path)
 
     output:
-    tuple val(image_path), val(ch), val(merged_points_path)
+    tuple val(image_path), val(ch), val<scale>, val(merged_points_path)
 
     script:
     merged_points_path = "${output_path}/merged_points_${ch}.txt"

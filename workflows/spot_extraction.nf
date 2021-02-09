@@ -111,7 +111,7 @@ workflow spot_extraction {
         merge_points_inputs.map { it[4] }, // xy overlap
         merge_points_inputs.map { it[5] }, // z overlap
         merge_points_inputs.map { it[6] } // merged points output dir
-    ) // [ <input_image>, <ch>, <merged_points_path> ]
+    ) // [ <input_image>, <ch>, <scale>, <merged_points_path> ]
 
     emit:
     done = merge_points_inputs

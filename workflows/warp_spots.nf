@@ -12,18 +12,9 @@ workflow warp_spots {
     moving_subpath
     warped_spots_txmpath
     warped_spots_outdir
-    warped_spots_outfile
     points_path
 
     main:
-    log.info """
-    WARP SPOTS
-    ===================================
-    workDir              : $workDir
-    warped_spots_txmpath : $warped_spots_txmpath
-    warped_spots_outdir  : $warped_spots_outdir
-    """
-    .stripIndent()
                 
     done = apply_transform(
         fixed,
@@ -32,8 +23,8 @@ workflow warp_spots {
         moving_subpath,
         warped_spots_txmpath,
         warped_spots_outdir,
-        warped_spots_outfile,
-        points_path)
+        points_path,
+        1)
     
     emit:
     done

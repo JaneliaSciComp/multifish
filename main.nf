@@ -55,6 +55,11 @@ include {
                                             stitch_registered_cpus: final_params.stitch_registered_cpus,
                                             final_transform_cpus: final_params.final_transform_cpus)
 
+include {
+    warp_spots
+} from '.workflows/warp_spots' addParams(lsf_opts: final_params.lsf_opts,
+                                         registration_container: registration_container_param(final_params))
+
 // spark config
 spark_conf = final_params.spark_conf
 spark_work_dir = final_params.spark_work_dir
@@ -71,7 +76,8 @@ resolution = final_params.resolution
 axis_mapping = final_params.axis
 
 // if stitching is not desired do not set 'stitch_acq_names' or acq_names in the command line parameters
-stitch_acq_names = get_acqs_for_step(final_params, 'stitch_acq_names', 'acq_names')
+acq_names_param = get_acqs_for_step(final_params, 'acq_names', [])
+stitch_acq_names = get_acqs_for_step(final_params, 'stitch_acq_names', acq_names_param)
 channels = final_params.channels?.split(',')
 block_size = final_params.block_size
 registration_channel = final_params.registration_channel
@@ -80,7 +86,7 @@ stitching_padding = final_params.stitching_padding
 blur_sigma = final_params.blur_sigma
 
 // if spot extraction is not desired do not set spot_extraction_acq_names or acq_names in the command line parameters
-spot_extraction_acq_names = get_acqs_for_step(final_params, 'spot_extraction_acq_names', 'acq_names')
+spot_extraction_acq_names = get_acqs_for_step(final_params, 'spot_extraction_acq_names', stitch_acq_names)
 spot_extraction_output = final_params.spot_extraction_output
 spot_extraction_dapi_correction_channels = final_params.spot_extraction_dapi_correction_channels?.split(',')
 per_channel_air_localize_params = [
@@ -101,11 +107,13 @@ segmentation_acq_name = get_value_or_alt(final_params, 'segmentation_acq_name', 
 segmentation_acq_names = segmentation_acq_name ? [ segmentation_acq_name ] : []
 segmentation_output = final_params.segmentation_output
 
-registration_fixed_acq_names = get_acqs_for_step(final_params, 'registration_fixed_acq_names', 'acq_names')
+registration_fixed_acq_names = get_acqs_for_step(final_params, 'registration_fixed_acq_names', stitch_acq_names)
 registration_fixed_output = final_params.registration_fixed_output
 
-registration_moving_acq_names = get_acqs_for_step(final_params, 'registration_moving_acq_names', 'acq_names')
+registration_moving_acq_names = get_acqs_for_step(final_params, 'registration_moving_acq_names', spot_extraction_acq_names)
 registration_output = final_params.registration_output
+
+warp_spots_acq_names = get_acqs_for_step(final_params, 'warp_spots_acq_names', spot_extraction_acq_names)
 
 workflow {
     // stitching
@@ -221,7 +229,7 @@ workflow {
     def registration_results =  registration(
         registration_inputs.map { "${it[1]}/export.n5" },
         registration_inputs.map { "${it[3]}/export.n5" },
-        registration_inputs.map { it[4] },
+        registration_inputs.map { it[4] }, // registration output
         final_params.dapi_channel,
         registration_xy_stride_param(final_params),
         registration_xy_overlap_param(final_params),
@@ -235,7 +243,59 @@ workflow {
         final_params.ransac_dist_threshold,
         final_params.deform_iterations,
         final_params.deform_auto_mask
-    ) | view
+    )
+
+    def finalized_spot_extraction_results = spot_extraction_results | Channel.fromList(warp_spots_acq_names) | flatMap {
+        def acq_name = it
+        def acq_stitching_output_dir = get_step_output_dir(
+            get_acq_output(output_dir_param(final_params), moving_acq),
+            "${final_params.stitching_output}"
+        )
+
+        def acq_spot_extraction_output_dir = get_step_output_dir(
+            get_acq_output(output_dir_param(final_params), acq_name),
+            spot_extraction_output
+        )
+        Channel.fromPath("${acq_spot_extraction_output_dir}/merged_points_*.txt") | map {
+            [
+                "${acq_stitching_output_dir}/export.n5", // acq stitching,
+                final_params.dapi_channel,
+                final_params.scale_4_spot_extraction
+                it
+            ]
+        }
+    } | unique
+
+    def warp_spots_inputs = registration_results.map {
+        def fixed_stitched_results = file(it[0])
+        def moving_stitched_results = file(it[2])
+        def fixed_acq = fixed_stitched_results.parent.parent.name
+        def moving_acq = moving_stitched_results.parent.parent.name
+        def warped_spoots_output_dir = get_step_output_dir(
+            get_acq_output(output_dir_param(final_params), moving_acq),
+            "${spot_extraction_output}/${moving_acq}-to-${fixed_acq}"
+        )
+        println "Create warped spots output for ${moving_acq} to ${fixed_acq} -> ${warped_spoots_output_dir}"
+        warped_spoots_output_dir.mkdirs()
+        [
+            it[0], // fixed
+            it[1], // fixed subpath
+            it[2], // moving
+            it[3], // moving subpath
+            it[5], // inv transform
+            warped_spoots_output_dir
+        ]
+    }
+
+    def warp_spots_results = warp_spots(
+        warp_spots_inputs.map { it[0] }, // fixed
+        warp_spots_inputs.map { it[1] }, // fixed_subpath
+        warp_spots_inputs.map { it[2] }, // moving
+        warp_spots_inputs.map { it[3] }, // moving_subpath
+        warp_spots_inputs.map { it[4] }, // transform path
+        warp_spots_inputs.map { it[5] }, // warped spots output
+        warp_spots_inputs.map { it[6] }, // spots file path
+    )
 
 }
 

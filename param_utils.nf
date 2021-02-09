@@ -108,13 +108,13 @@ def registration_container_param(Map ps) {
         registration_container
 }
 
-def get_acqs_for_step(Map ps, String step_param, String default_param) {
+def get_acqs_for_step(Map ps, String step_param, List default_val) {
     def step_acq_names
     if (ps[step_param])
         step_acq_names = ps[step_param]
     else
-        step_acq_names = ps[default_param]
-    return step_acq_names ? step_acq_names.tokenize(',') : []
+        step_acq_names = null
+    return step_acq_names ? step_acq_names.tokenize(',') : default_val
 }
 
 def spot_extraction_xy_stride_param(Map ps) {

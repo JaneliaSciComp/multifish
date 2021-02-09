@@ -72,95 +72,45 @@ log.info """\
          .stripIndent()
 
 include {
-  cut_tiles;
-  coarse_spots as coarse_spots_fixed;
-  coarse_spots as coarse_spots_moving;
-  ransac as coarse_ransac;
-  apply_transform as apply_affine_small;
-  apply_transform as apply_affine_big;
-  spots as fixed_spots_for_tile;
-  spots as moving_spots_for_tile;
-  ransac as ransac_for_tile;
-  interpolate_affines;
-  deform;
-  stitch;
-  final_transform;
-} from './processes/registration.nf'
+    default_mf_params;
+    registration_container_param;
+    registration_xy_stride_param;
+    registration_xy_overlap_param;
+    registration_z_stride_param;
+    registration_z_overlap_param;
+} from './param_utils'
+
+final_params = default_mf_params() + params
+
+include {
+    registration;
+} from './workflows/registration' addParams(lsf_opts: final_params.lsf_opts,
+                                            registration_container: registration_container_param(params),
+                                            aff_scale_transform_cpus: final_params.aff_scale_transform_cpus,
+                                            def_scale_transform_cpus: final_params.def_scale_transform_cpus,
+                                            stitch_registered_cpus: final_params.stitch_registered_cpus,
+                                            final_transform_cpus: final_params.final_transform_cpus)
 
 workflow {
 
-    xy_overlap = params.xy_stride / 8
-    z_overlap = params.z_stride / 8
-
-    tiles = cut_tiles(fixed, def_scale_subpath, tiledir, \
-        params.xy_stride, xy_overlap, params.z_stride, z_overlap) \
-        | flatMap { it.tokenize(' ') }
-
-    coarse_spots_fixed(fixed, aff_scale_subpath, \
-        affdir, "/fixed_spots.pkl", params.spots_cc_radius, params.spots_spot_number)
-
-    coarse_spots_moving(moving, aff_scale_subpath, \
-        affdir, "/moving_spots.pkl", params.spots_cc_radius, params.spots_spot_number)
-
-    joined_spots = coarse_spots_fixed.out.join(coarse_spots_moving.out)
-
-    // compute transformation matrix (ransac_affine.mat)
-    coarse_ransac_out = coarse_ransac(joined_spots, \
-        "/ransac_affine.mat", \
-        params.ransac_cc_cutoff, params.ransac_dist_threshold) | first
-
-    // compute ransac_affine at aff scale
-    apply_affine_small_out = apply_affine_small(1, \
-        fixed, aff_scale_subpath, \
-        moving, aff_scale_subpath, \
-        coarse_ransac_out, "${affdir}/ransac_affine")
-
-    // ransac_affine at def scale
-    apply_affine_big_out = apply_affine_big(8, \
-        fixed, def_scale_subpath, \
-        moving, def_scale_subpath, \
-        coarse_ransac_out, "${affdir}/ransac_affine")
-
-    fixed_spots_for_tile([fixed, aff_scale_subpath], \
-        tiles, "/fixed_spots.pkl", \
-        params.spots_cc_radius, params.spots_spot_number)
-
-    moving_spots_for_tile(apply_affine_small_out, \
-        tiles, "/moving_spots.pkl", \
-        params.spots_cc_radius, params.spots_spot_number)
-
-    joined_spots_for_tile = fixed_spots_for_tile.out.join(moving_spots_for_tile.out)
-    ransac_for_tile(joined_spots_for_tile, \
-        "/ransac_affine.mat", \
-        params.ransac_cc_cutoff, params.ransac_dist_threshold)
-
-    interpolate_affines_out = interpolate_affines(ransac_for_tile.out.collect(), tiledir)
-
-    deform(
-        interpolate_affines_out, 
-        tiles, 
-        fixed, 
-        def_scale_subpath, \
-        apply_affine_big_out, params.deform_iterations, params.deform_auto_mask)
-
-    stitch(deform.out.collect(), \
-         tiles, 
-         xy_overlap, 
-         z_overlap, 
-         fixed, 
-         def_scale_subpath, 
-         coarse_ransac_out, \
-         transform_dir,
-         invtransform_dir,
-         "/${params.def_scale}")
-
-    final_transform(stitch.out.collect(), \
+    registration(
         fixed,
-        def_scale_subpath, \
         moving,
-        def_scale_subpath, \
-        transform_dir,
-        warped_dir)
+        outdir,
+        final_params.channel,
+        registration_xy_stride_param(final_params),
+        registration_xy_overlap_param(final_params),
+        registration_z_stride_param(final_params),
+        registration_z_overlap_param(final_params),
+        final_params.aff_scale,
+        final_params.def_scale,
+        final_params.spots_cc_radius,
+        final_params.spots_spot_number,
+        final_params.ransac_cc_cutoff,
+        final_params.ransac_dist_threshold,
+        final_params.deform_iterations,
+        final_params.deform_auto_mask
+    )
 }
 
 workflow.onComplete {
