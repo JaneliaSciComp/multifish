@@ -210,7 +210,7 @@ workflow {
         final_params.scale_4_segmentation,
         final_params.segmentation_model_dir,
         final_params.predict_cpus
-    )
+    )  // [ input_image_path, output_labels_tiff ]
 
     // prepare fixed and  moving inputs for the registration
     def registration_fixed_inputs = get_stitched_inputs_for_step(
@@ -263,7 +263,7 @@ workflow {
         final_params.deform_iterations,
         final_params.deform_auto_mask,
         channels
-    }
+    )
 
     def extended_registration_results = registration_results | map {
         // extract the channel from the registration results
