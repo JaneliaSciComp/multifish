@@ -260,7 +260,7 @@ workflow registration {
             def r [
                 reference,
                 "/${warped_ch}/${deformation_scale}",
-                to_warp
+                to_warp,
                 "/${warped_ch}/${deformation_scale}",
                 transform_dir, // this is the transform dir as a file type
                 warp_dir,
