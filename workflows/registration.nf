@@ -257,7 +257,7 @@ workflow registration {
         def warp_dir = "${transform_dir.parent}/warped"
 
         warped_channels.collect { warped_ch ->
-            def r [
+            def r = [
                 reference,
                 "/${warped_ch}/${deformation_scale}",
                 to_warp,
