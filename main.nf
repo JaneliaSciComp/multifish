@@ -57,10 +57,22 @@ include {
                                             final_transform_cpus: final_params.final_transform_cpus)
 
 include {
-    warp_spots
+    warp_spots;
 } from './workflows/warp_spots' addParams(lsf_opts: final_params.lsf_opts,
                                           registration_container: registration_container_param(final_params),
                                           warp_spots_cpus: final_params.warp_spots_cpus)
+
+include {
+    quantify_spots;
+} from './processes/quantification'
+
+include {
+    quantify_spots;
+} from './processes/quantification'
+
+include {
+    assign_spots;
+} from './processes/assignment'
 
 // spark config
 spark_conf = final_params.spark_conf
@@ -363,7 +375,6 @@ workflow {
         final_params.dapi_channel, // dapi_channel
         final_params.bleed_channel, // bleed_channel
         final_params.intensity_cpus, // cpus
-
     )
 }
 
