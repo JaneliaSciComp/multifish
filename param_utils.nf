@@ -70,6 +70,13 @@ def default_mf_params() {
 
         // warp spots parameters
         warp_spots_cpus: 2,
+
+        // intensity measurement parameters
+        bleed_channel: 'c3',
+        intensity_cpus: 1,
+
+        // spot assignment parameters
+        assignment_cpus: 1,
     ]
 }
 

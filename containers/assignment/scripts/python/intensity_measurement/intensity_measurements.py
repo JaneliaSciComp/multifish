@@ -19,7 +19,14 @@ if __name__ == "__main__":
     r = sys.argv[4]
     channel = sys.argv[5]
     scale = sys.argv[6]
-
+    if len(sys.argv) > 7:
+        dapi_channel = sys.argv[7]
+    else:
+        dapi_channel = 'c2'
+    if len(sys.argv) > 8:
+        bleed_channel = sys.argv[8]
+    else:
+        bleed_channel = 'c3'
 
 lb = imread(label_path)
 roi = np.unique(lb)
@@ -28,8 +35,9 @@ roi = np.unique(lb)
 im = z5py.File(puncta_path, use_zarr_format=False)
 img = im[channel+'/' + scale][:, :, :]
 
-if channel == 'c3':
-    dapi = im['c2/s2'][:, :, :]
+if channel == bleed_channel:
+    dapi_ch_scale_path = '/{}/{}'.format(dapi_channel, scale) # c2/s2
+    dapi = im[dapi_ch_scale_path][:, :, :]
     lo = np.percentile(np.ndarray.flatten(dapi), 99.5)
     bg_dapi = np.percentile(np.ndarray.flatten(dapi[dapi != 0]), 1)
     bg_img = np.percentile(np.ndarray.flatten(img[img != 0]), 1)

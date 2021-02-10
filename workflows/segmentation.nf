@@ -24,7 +24,7 @@ workflow segmentation {
          "${it[2]}/${it[1]}-${dapi_channel}.tif"
     }
 
-    def segmentation_results = predict(
+    segmentation_results = predict(
         input_dirs,
         dapi_channel,
         scale,
@@ -34,5 +34,5 @@ workflow segmentation {
     )
 
     emit:
-    done = segmentation_results
+    segmentation_results // [ input_image_path, output_labels_tiff ]
 }

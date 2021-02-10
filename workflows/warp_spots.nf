@@ -27,4 +27,4 @@ workflow warp_spots {
     
     emit:
     done
-}
+} // [ warped_spots_path, fixed  subpath]

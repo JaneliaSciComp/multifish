@@ -273,23 +273,31 @@ workflow {
             spots_files << f
         }
         // map spot files to tuple of parameters
-        spots_files.collect {
+        spots_files.collect { spots_filepath ->
+            def spots_file = file(spots_filepath)
+            def spots_filename_comps = spots_file.name.replace('.txt', '').tokenize('_')
+            def spots_channel = spots_filename_comps[2]
             [
                 "${acq_stitching_output_dir}/export.n5",
-                final_params.dapi_channel,
+                spots_channel,
                 final_params.scale_4_spot_extraction,
                 it
             ]
         }
     }
-    def spots_to_warp = spot_extraction_results | concat(expected_spot_extraction_results) | unique | map {
-        // only need the input and the spots file
-        [ it[0], it[3] ]
+    def spots_to_warp = spot_extraction_results \
+    | concat(expected_spot_extraction_results) \
+    | unique \
+    | map {
+        // input, channel, spots_file
+        [ it[0], it[1], it[3] ]
     }
 
     def warp_spots_inputs = registration_results.map {
         def fixed_stitched_results = file(it[0])
         def moving_stitched_results = file(it[2])
+        def moving_subpath = it[3]
+        def moving_subpath_components = it[3].tokenize()
         def fixed_acq = fixed_stitched_results.parent.parent.name
         def moving_acq = moving_stitched_results.parent.parent.name
         def warped_spoots_output_dir = get_step_output_dir(
@@ -300,24 +308,25 @@ workflow {
         warped_spoots_output_dir.mkdirs()
         [
             it[2], // moving
-            it[3], // moving subpath
+            moving_subpath_components[0], // channel
+            moving_subpath, // moving subpath
             it[0], // fixed
             it[1], // fixed subpath
             it[5], // inv transform
             warped_spoots_output_dir
         ]
-    } | combine(spots_to_warp, by:0) | map {
-        // [ moving, moving_subpath, fixed, fixed_subpath, inv_transform, warped_spots_output, spots_file]
-        def spots_file =  file(it[6])
+    } | combine(spots_to_warp, by:[0,1]) | map {
+        // [ moving, channel, moving_subpath, fixed, fixed_subpath, inv_transform, warped_spots_output, spots_file]
+        def spots_file =  file(it[7])
         def warped_spots_fname = spots_file.name.replace('.txt', '_warped.txt')
         def r = [
-            it[2], // fixed
-            it[3], // fixed subpath
+            it[3], // fixed
+            it[4], // fixed subpath
             it[0], // moving
-            it[1], // moving subpath
-            it[2], // transform subpath
-            "${it[5]}/${warped_spots_fname}", // warped spots file
-            it[6] // spots file
+            it[2], // moving subpath
+            it[3], // transform subpath
+            "${it[6]}/${warped_spots_fname}", // warped spots file
+            "${spots_file}" // spots file (as string)
         ]
         println "Prepare  warp spots input  $it -> $r"
         r
@@ -331,9 +340,31 @@ workflow {
         warp_spots_inputs.map { it[4] }, // transform path
         warp_spots_inputs.map { it[5] }, // warped spots output
         warp_spots_inputs.map { it[6] }, // spots file path
-    )
+    ) // [ warped_spots_file, subpath ]
 
-    warp_spots_results | view
+    def quantify_inputs = warp_spots_inputs | map {
+        // put the spots file first
+        [ it[6] ] + it[0..5]
+    } | combine(warp_spots_results, by:0) | map {
+        // now switch the place of the fixed image
+        it[1..6] + [ it[0] ]
+    } | combine(segmentation_results, by:0) | map {
+        println "Prepare intensity measurement input $it"
+        it
+    }
+
+    def quantify_results = quantify_spots(
+        quantify_inputs[0], // labels
+        quantify_inputs[1], // warped spots image
+        quantify_inputs[2], // intensity measurements result file prefix (round name)
+        quantify_inputs[3], // channel
+        quantify_inputs[4], // scale
+        quantify_inputs[5], // result output dir
+        final_params.dapi_channel, // dapi_channel
+        final_params.bleed_channel, // bleed_channel
+        final_params.intensity_cpus, // cpus
+
+    )
 }
 
 def get_acq_output(output, acq_name) {
