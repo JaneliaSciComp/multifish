@@ -53,18 +53,20 @@ final_params = default_mf_params() + params
 include {
     registration;
 } from './workflows/registration' addParams(lsf_opts: final_params.lsf_opts,
-                                            registration_container: registration_container_param(params),
+                                            registration_container: registration_container_param(final_params),
                                             aff_scale_transform_cpus: final_params.aff_scale_transform_cpus,
                                             def_scale_transform_cpus: final_params.def_scale_transform_cpus,
                                             stitch_registered_cpus: final_params.stitch_registered_cpus,
                                             final_transform_cpus: final_params.final_transform_cpus)
 
+channels = final_params.channels?.split(',')
+
 workflow {
 
     registration(
-        fixed,
-        moving,
-        outdir,
+        Channel.of(fixed),
+        Channel.of(moving),
+        Channel.of(outdir),
         final_params.dapi_channel,
         registration_xy_stride_param(final_params),
         registration_xy_overlap_param(final_params),
@@ -77,7 +79,8 @@ workflow {
         final_params.ransac_cc_cutoff,
         final_params.ransac_dist_threshold,
         final_params.deform_iterations,
-        final_params.deform_auto_mask
+        final_params.deform_auto_mask,
+        channels
     )
 }
 

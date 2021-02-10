@@ -24,7 +24,7 @@ workflow registration {
     fixed_input_dir
     moving_input_dir
     output_dir
-    ch
+    reg_ch
     xy_stride
     xy_overlap
     z_stride
@@ -37,12 +37,13 @@ workflow registration {
     ransac_dist_threshold
     deform_iterations
     deform_auto_mask
+    warped_channels
 
     main:
     // prepare tile coordinates
     def tile_cut_res = cut_tiles(
         fixed_input_dir,
-        "/${ch}/${deformation_scale}",
+        "/${reg_ch}/${deformation_scale}",
         output_dir.map { "${it}/tiles" },
         xy_stride,
         xy_overlap,
@@ -61,7 +62,7 @@ workflow registration {
     // get fixed coarse spots
     def fixed_coarse_spots_results = fixed_coarse_spots(
         fixed_input_dir,
-        "/${ch}/${affine_scale}",
+        "/${reg_ch}/${affine_scale}",
         output_dir.map { "${it}/aff" },
         'fixed_spots.pkl',
         spots_cc_radius,
@@ -71,7 +72,7 @@ workflow registration {
     // get moving coarse spots
     def moving_coarse_spots_results = moving_coarse_spots(
         moving_input_dir,
-        "/${ch}/${affine_scale}",
+        "/${reg_ch}/${affine_scale}",
         output_dir.map { "${it}/aff" },
         'moving_spots.pkl',
         spots_cc_radius,
@@ -98,9 +99,9 @@ workflow registration {
     // compute ransac_affine at affine scale
     def aff_scale_affine_results = apply_transform_at_aff_scale(
         coarse_ransac_results.map { it[2] }, // fixed input
-        "/${ch}/${affine_scale}",
+        "/${reg_ch}/${affine_scale}",
         coarse_ransac_results.map { it[4] }, // moving input
-        "/${ch}/${affine_scale}",
+        "/${reg_ch}/${affine_scale}",
         coarse_ransac_results.map { it[1] }, // transform matrix
         coarse_ransac_results.map { "${it[0]}/ransac_affine" },
         '', // no points path
@@ -116,9 +117,9 @@ workflow registration {
     // compute ransac_affine at deformation scale
     def def_scale_affine_results = apply_transform_at_def_scale(
         coarse_ransac_results.map { it[2] }, // fixed input
-        "/${ch}/${deformation_scale}",
+        "/${reg_ch}/${deformation_scale}",
         coarse_ransac_results.map { it[4] }, // moving input
-        "/${ch}/${deformation_scale}",
+        "/${reg_ch}/${deformation_scale}",
         coarse_ransac_results.map { it[1] }, // transform matrix
         coarse_ransac_results.map { "${it[0]}/ransac_affine" },
         '', // no points path
@@ -134,7 +135,7 @@ workflow registration {
     // get fixed spots per tile
     def fixed_spots_results_per_tile = fixed_spots(
         tiles_with_inputs.map { it[1] }, //  image input for the tile
-        "/${ch}/${affine_scale}",
+        "/${reg_ch}/${affine_scale}",
         tiles_with_inputs.map { it[2] }, // tile dir
         'fixed_spots.pkl',
         spots_cc_radius,
@@ -159,7 +160,7 @@ workflow registration {
     // get moving spots per tile taking as input the output of the coarse affined at affine scale
     def moving_spots_results_per_tile = moving_spots(
         indexed_moving_spots_inputs.map { it[2] }, // input is the ransac_affine
-        "/${ch}/${affine_scale}",
+        "/${reg_ch}/${affine_scale}",
         indexed_moving_spots_inputs.map { it[it.size-1] }, // tile dir
         'moving_spots.pkl',
         spots_cc_radius,
@@ -209,9 +210,9 @@ workflow registration {
     def deform_results = deform(
         deform_inputs.map { it[4] }, // tile path
         deform_inputs.map { it[2] }, // fixed image -> tile input
-        "/${ch}/${deformation_scale}",
+        "/${reg_ch}/${deformation_scale}",
         deform_inputs.map { it[0] }, // affine moving coarse ransac results at deform scale
-        "/${ch}/${deformation_scale}",
+        "/${reg_ch}/${deformation_scale}",
         deform_iterations,
         deform_auto_mask
     ) | map {
@@ -236,22 +237,47 @@ workflow registration {
         xy_overlap,
         z_overlap,
         deform_results.map { it[1] }, //  fixed image path
-        "/${ch}/${deformation_scale}",
+        "/${reg_ch}/${deformation_scale}",
         deform_results.map { it[3] }, // coarse ransac transformation matrix -> ransac_affine.mat
         deform_results.map { "${it[2]}/transform" }, // transform directory
         deform_results.map { "${it[2]}/invtransform" }, // inverse transform directory
         "/${deformation_scale}",
         params.stitch_registered_cpus
-    ) | groupTuple(by:[1,2,3,4,5]) // group all tiles in one collection
+    )
 
+    // for final transformation wait until all tiles are stitched
+    // and combine the results with the warped_channels
+    def final_transform_inputs = stitch_results \
+    | groupTuple(by:[1,2,3,4,5]) \
+    | combine(moving_input_dir) \
+    | flatMap { stitch_res ->
+        def reference = stitch_res[1]
+        def to_warp = stitch_res[6]
+        def transform_dir = file(stitch_res[2])
+        def warp_dir = "${transform_dir.parent}/warped"
+
+        warped_channels.collect { warped_ch ->
+            def r [
+                reference,
+                "/${warped_ch}/${deformation_scale}",
+                to_warp
+                "/${warped_ch}/${deformation_scale}",
+                transform_dir, // this is the transform dir as a file type
+                warp_dir,
+                params.final_transform_cpus
+            ]
+            println "Create warp input: $r"
+            r
+        }
+    }
     final_result = final_transform(
-        stitch_results.map { it[1] },
-        "/${ch}/${deformation_scale}",
-        moving_input_dir,
-        "/${ch}/${deformation_scale}",
-        stitch_results.map { it[2] }, // stitch transform dir
-        output_dir.map { "${it}/warped" }, // warped directory
-        params.final_transform_cpus
+        final_transform_inputs.map { it[0] },
+        final_transform_inputs.map { it[1] },
+        final_transform_inputs.map { it[2] },
+        final_transform_inputs.map { it[3] },
+        final_transform_inputs.map { it[4] },
+        final_transform_inputs.map { it[5] },
+        final_transform_inputs.map { it[6] }
     ) | map {
         // include invtransform path in the result
         def txm_path = file(it[4])

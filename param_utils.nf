@@ -19,7 +19,7 @@ def default_mf_params() {
         axis: '-x,y,z',
         channels: 'c0,c1,c2,c3',
         block_size: '128,128,64',
-        registration_channel: '2',
+        registration_channel_for_stitching: '2',
         stitching_mode: 'incremental',
         stitching_padding: '0,0,0',
         blur_sigma: '2',
@@ -38,6 +38,7 @@ def default_mf_params() {
         spot_extraction_dapi_correction_channels: 'c3',
         default_airlocalize_params: default_airlocalize_params,
         per_channel_air_localize_params: ",,,",
+        spot_extraction_cpus: 1,
 
         // segmentatioon params
         segmentation_model_dir: '',

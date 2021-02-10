@@ -28,7 +28,7 @@ workflow spot_extraction {
         input_dir,
         dapi_channel,
         scale,
-        output_dir,
+        output_dir.map { "${it}/tiles" },
         xy_stride,
         xy_overlap,
         z_stride,
@@ -72,12 +72,13 @@ workflow spot_extraction {
         airlocalize_inputs.map { it[4] },
         airlocalize_inputs.map { it[5] },
         airlocalize_inputs.map { it[6] },
-        airlocalize_inputs.map { it[7] }
+        airlocalize_inputs.map { it[7] },
+        params.spot_extraction_cpus
     ) | map {
         def tile_dir = new File(it[1])
         [
             it[0], // input image path
-            tile_dir.parent, // tile parent dir -> all tiles dir
+            tile_dir.parent, // directory that contains all tiles
             it[1], // tile dir
             it[2] // channel
         ]
@@ -87,7 +88,7 @@ workflow spot_extraction {
 
     def merge_points_inputs = airlocalize_results | groupTuple(by: [0, 1, 3]) | map {
         def tile_input = it[0]
-        def tiles_dir = it[1]
+        def tiles_dir = new File(it[1])
         def tiles = it[2]
         def ch = it[3]
         def merge_points_args = [
@@ -97,13 +98,13 @@ workflow spot_extraction {
             tiles_dir,
             xy_overlap,
             z_overlap,
-            tiles_dir
+            tiles_dir.parent
         ]
         println "Merge ${tiles} using ${merge_points_args}"
         return merge_points_args
     }
 
-    def merge_points_results = merge_points(
+    merge_points_results = merge_points(
         merge_points_inputs.map { it[0] }, // image path
         merge_points_inputs.map { it[1] }, // channel
         merge_points_inputs.map { it[2] }, // spot extraction scale
@@ -114,5 +115,5 @@ workflow spot_extraction {
     ) // [ <input_image>, <ch>, <scale>, <merged_points_path> ]
 
     emit:
-    done = merge_points_inputs
+    merge_points_results
 }

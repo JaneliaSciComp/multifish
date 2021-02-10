@@ -39,7 +39,8 @@ include {
 include {
     spot_extraction;
 } from './workflows/spot_extraction' addParams(lsf_opts: final_params.lsf_opts,
-                                               spotextraction_container: spotextraction_container_param(final_params))
+                                               spotextraction_container: spotextraction_container_param(final_params),
+                                               spot_extraction_cpus: final_params.spot_extraction_cpus)
 
 include {
     segmentation;
@@ -81,7 +82,7 @@ acq_names_param = get_acqs_for_step(final_params, 'acq_names', [])
 stitch_acq_names = get_acqs_for_step(final_params, 'stitch_acq_names', acq_names_param)
 channels = final_params.channels?.split(',')
 block_size = final_params.block_size
-registration_channel = final_params.registration_channel
+registration_channel_for_stitching = final_params.registration_channel_for_stitching
 stitching_mode = final_params.stitching_mode
 stitching_padding = final_params.stitching_padding
 blur_sigma = final_params.blur_sigma
@@ -129,7 +130,7 @@ workflow {
         resolution,
         axis_mapping,
         block_size,
-        registration_channel,
+        registration_channel_for_stitching,
         stitching_mode,
         stitching_padding,
         blur_sigma,
@@ -238,7 +239,7 @@ workflow {
         registration_inputs.map { "${it[1]}/export.n5" },
         registration_inputs.map { "${it[3]}/export.n5" },
         registration_inputs.map { it[4] }, // registration output
-        final_params.dapi_channel,
+        final_params.dapi_channel, // dapi channel  used to calculate all transformations
         registration_xy_stride_param(final_params),
         registration_xy_overlap_param(final_params),
         registration_z_stride_param(final_params),
@@ -250,7 +251,8 @@ workflow {
         final_params.ransac_cc_cutoff,
         final_params.ransac_dist_threshold,
         final_params.deform_iterations,
-        final_params.deform_auto_mask
+        final_params.deform_auto_mask,
+        channels
     )
 
     // prepare inputs for warping spots

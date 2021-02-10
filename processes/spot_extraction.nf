@@ -36,6 +36,7 @@ process cut_tiles {
 
 process airlocalize {
     container = params.spotextraction_container
+    cpus { cpus }
 
     input: 
     val(image_path)
@@ -46,6 +47,7 @@ process airlocalize {
     val(tile_path)
     val(suffix)
     val(dapi_subpath)
+    val(cpus)
 
     output: 
     tuple val(image_path), val(tile_path), val(ch)
