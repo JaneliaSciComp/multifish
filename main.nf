@@ -339,7 +339,7 @@ workflow {
             get_acq_output(output_dir_param(final_params), moving_acq),
             "${spot_extraction_output}/${moving_acq}-to-${fixed_acq}"
         )
-        println "Create warped spots output for ${moving_acq} to ${fixed_acq} -> ${warped_spoots_output_dir}"
+        println "Create warped spots output for ${moving_acq} to ${fixed_acq} -> ${warped_spots_output_dir}"
         warped_spots_output_dir.mkdirs()
         def r = [
             it[2], // moving
