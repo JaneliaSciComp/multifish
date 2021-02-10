@@ -53,7 +53,7 @@ final_params = default_mf_params() + params
 include {
     registration;
 } from './workflows/registration' addParams(lsf_opts: final_params.lsf_opts,
-                                            registration_container: registration_container_param(params),
+                                            registration_container: registration_container_param(final_params),
                                             aff_scale_transform_cpus: final_params.aff_scale_transform_cpus,
                                             def_scale_transform_cpus: final_params.def_scale_transform_cpus,
                                             stitch_registered_cpus: final_params.stitch_registered_cpus,
