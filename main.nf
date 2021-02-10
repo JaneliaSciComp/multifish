@@ -64,11 +64,13 @@ include {
 
 include {
     quantify_spots;
-} from './processes/quantification'
+} from './processes/quantification' addParams(spots_assignment_container: spots_assignment_container_param(final_params),
+                                              intensity_cpus: final_params.intensity_cpus)
 
 include {
     assign_spots;
-} from './processes/assignment'
+} from './processes/assignment' addParams(spots_assignment_container: spots_assignment_container_param(final_params),
+                                          assignment_cpus: final_params.assignment_cpus)
 
 // spark config
 spark_conf = final_params.spark_conf
@@ -307,7 +309,7 @@ workflow {
                 "${acq_stitching_output_dir}/export.n5",
                 spots_channel,
                 final_params.scale_4_spot_extraction,
-                it
+                spots_filepath
             ]
         }
     }

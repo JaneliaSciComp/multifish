@@ -7,6 +7,7 @@ def default_mf_params() {
         spotextraction_container: '',
         segmentation_container: '',
         registration_container: '',
+        spots_assignment_container: '',
 
         acq_names: '', // this is the default parameter for all acquisitions that must be processed
                        // should only be used when all steps must be performed for all acquisions
@@ -118,6 +119,14 @@ def registration_container_param(Map ps) {
         "${ps.mfrepo}/registration:1.0"
     else
         registration_container
+}
+
+def spots_assignment_container_param(Map ps) {
+    def spots_assignment_container = ps.spots_assignment_container
+    if (!spots_assignment_container)
+        "${ps.mfrepo}/spot_assignment:1.0"
+    else
+        spots_assignment_container
 }
 
 def get_acqs_for_step(Map ps, String step_param, List default_val) {
