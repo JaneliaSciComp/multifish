@@ -67,10 +67,6 @@ include {
 } from './processes/quantification'
 
 include {
-    quantify_spots;
-} from './processes/quantification'
-
-include {
     assign_spots;
 } from './processes/assignment'
 
@@ -129,6 +125,8 @@ registration_moving_acq_names = get_acqs_for_step(final_params, 'registration_mo
 registration_output = final_params.registration_output
 
 warp_spots_acq_names = get_acqs_for_step(final_params, 'warp_spots_acq_names', spot_extraction_acq_names)
+
+intensities_output = final_params.intensities_output
 
 workflow {
     // stitching
@@ -212,7 +210,7 @@ workflow {
         final_params.scale_4_segmentation,
         final_params.segmentation_model_dir,
         final_params.predict_cpus
-    )
+    ) // [ input_image_path, output_labels_tiff ]
 
     // prepare fixed and  moving inputs for the registration
     def registration_fixed_inputs = get_stitched_inputs_for_step(
@@ -265,7 +263,23 @@ workflow {
         final_params.deform_iterations,
         final_params.deform_auto_mask,
         channels
-    )
+    }
+
+    def extended_registration_results = registration_results | map {
+        // extract the channel from the registration results
+        def moving_subpath = it[3]
+        def moving_subpath_components = it[3].tokenize()
+        // [
+        //   <fixed>, <fixed_subpath>,
+        //   <moving>, <moving_subpath>,
+        //   <direct_transform>, <inv_transform>,
+        //   <warped_path>,
+        //   <warped_channel>, <warped_scale>
+        // ]
+        def r = it + [ moving_subpath_components[0], moving_subpath_components[1] ]
+        println "Extended registration result: $r"
+        return r
+    }
 
     // prepare inputs for warping spots
     def expected_spot_extraction_results = Channel.fromList(warp_spots_acq_names) | flatMap {
@@ -302,31 +316,33 @@ workflow {
     | unique \
     | map {
         // input, channel, spots_file
-        [ it[0], it[1], it[3] ]
+        def r = [ it[0], it[1], it[3] ]
+        println "Exttrtacted spots to warp: $r"
+        return r
     }
 
-    def warp_spots_inputs = registration_results.map {
+    def warp_spots_inputs = extended_registration_results.map {
         def fixed_stitched_results = file(it[0])
         def moving_stitched_results = file(it[2])
-        def moving_subpath = it[3]
-        def moving_subpath_components = it[3].tokenize()
         def fixed_acq = fixed_stitched_results.parent.parent.name
         def moving_acq = moving_stitched_results.parent.parent.name
-        def warped_spoots_output_dir = get_step_output_dir(
+        def warped_spots_output_dir = get_step_output_dir(
             get_acq_output(output_dir_param(final_params), moving_acq),
             "${spot_extraction_output}/${moving_acq}-to-${fixed_acq}"
         )
         println "Create warped spots output for ${moving_acq} to ${fixed_acq} -> ${warped_spoots_output_dir}"
-        warped_spoots_output_dir.mkdirs()
-        [
+        warped_spots_output_dir.mkdirs()
+        def r = [
             it[2], // moving
-            moving_subpath_components[0], // channel
-            moving_subpath, // moving subpath
+            it[7], // channel
+            it[3], // moving subpath
             it[0], // fixed
             it[1], // fixed subpath
             it[5], // inv transform
-            warped_spoots_output_dir
+            warped_spots_output_dir
         ]
+        println "Registration result to be combined with extracted spots result: $r"
+        return r
     } | combine(spots_to_warp, by:[0,1]) | map {
         // [ moving, channel, moving_subpath, fixed, fixed_subpath, inv_transform, warped_spots_output, spots_file]
         def spots_file =  file(it[7])
@@ -354,28 +370,47 @@ workflow {
         warp_spots_inputs.map { it[6] }, // spots file path
     ) // [ warped_spots_file, subpath ]
 
-    def quantify_inputs = warp_spots_inputs | map {
-        // put the spots file first
-        [ it[6] ] + it[0..5]
-    } | combine(warp_spots_results, by:0) | map {
-        // now switch the place of the fixed image
-        it[1..6] + [ it[0] ]
-    } | combine(segmentation_results, by:0) | map {
-        println "Prepare intensity measurement input $it"
-        it
+    def quantify_inputs = extended_registration_results \
+    | combine(segmentation_results, by:0) \
+    | map {
+        // so far we appended the corresponding labels to the registration result
+        def fixed_stitched_results = file(it[0])
+        def fixed_acq = fixed_stitched_results.parent.parent.name
+        def moving_stitched_results = file(it[2])
+        def moving_acq = moving_stitched_results.parent.parent.name
+        def intensities_name = "${moving_acq}-to-${fixed_acq}"
+        def intensities_output_dir = get_step_output_dir(
+            get_acq_output(output_dir_param(final_params), moving_acq),
+            intensities_output
+        )
+        println "Create intensities output for ${moving_acq} to ${fixed_acq} -> ${intensities_output_dir}"
+        intensities_output_dir.mkdirs()
+        it + [intensities_name, intensities_output_dir]
     }
 
     def quantify_results = quantify_spots(
-        quantify_inputs[0], // labels
-        quantify_inputs[1], // warped spots image
-        quantify_inputs[2], // intensity measurements result file prefix (round name)
-        quantify_inputs[3], // channel
-        quantify_inputs[4], // scale
-        quantify_inputs[5], // result output dir
+        quantify_inputs.map { it[9] }, // labels
+        quantify_inputs.map { it[6] }, // warped spots image
+        quantify_inputs.map { it[10] }, // intensity measurements result file prefix (round name)
+        quantify_inputs.map { it[7] }, // channel
+        quantify_inputs.map { it[8] }, // scale
+        quantify_inputs.map { it[11] }, // result output dir
         final_params.dapi_channel, // dapi_channel
         final_params.bleed_channel, // bleed_channel
         final_params.intensity_cpus, // cpus
     )
+
+    // def quantify_inputs = warp_spots_inputs | map {
+    //     // put the spots file first
+    //     [ it[6] ] + it[0..5]
+    // } | combine(warp_spots_results, by:0) | map {
+    //     // now switch the place of the fixed image
+    //     it[1..6] + [ it[0] ]
+    // } | combine(segmentation_results, by:0) | map {
+    //     println "Prepare intensity measurement input $it"
+    //     it
+    // }
+
 }
 
 def get_acq_output(output, acq_name) {
