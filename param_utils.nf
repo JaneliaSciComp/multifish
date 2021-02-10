@@ -78,6 +78,7 @@ def default_mf_params() {
         intensity_cpus: 1,
 
         // spot assignment parameters
+        assign_spots_output: 'assignments',
         assignment_cpus: 1,
     ]
 }

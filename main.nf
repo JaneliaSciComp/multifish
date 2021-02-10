@@ -131,6 +131,8 @@ warp_spots_acq_names = get_acqs_for_step(final_params, 'warp_spots_acq_names', s
 
 intensities_output = final_params.intensities_output
 
+assign_spots_output = final_params.assign_spots_output
+
 workflow {
     // stitching
     def stitching_results = stitch_multiple_acquisitions(
@@ -374,6 +376,7 @@ workflow {
         warp_spots_inputs.map { it[6] }, // spots file path
     ) // [ warped_spots_file, subpath ]
 
+    // prepare intensities measurements inputs
     def quantify_inputs = extended_registration_results \
     | combine(segmentation_results, by:0) \
     | map {
@@ -392,6 +395,7 @@ workflow {
         it + [intensities_name, intensities_output_dir]
     }
 
+    // run intensities measurements
     def quantify_results = quantify_spots(
         quantify_inputs.map { it[9] }, // labels
         quantify_inputs.map { it[6] }, // warped spots image
@@ -404,17 +408,51 @@ workflow {
         final_params.intensity_cpus, // cpus
     )
 
-    // def quantify_inputs = warp_spots_inputs | map {
-    //     // put the spots file first
-    //     [ it[6] ] + it[0..5]
-    // } | combine(warp_spots_results, by:0) | map {
-    //     // now switch the place of the fixed image
-    //     it[1..6] + [ it[0] ]
-    // } | combine(segmentation_results, by:0) | map {
-    //     println "Prepare intensity measurement input $it"
-    //     it
-    // }
+    // prepare inputs for assign spots
+    def assign_spots_inputs = warp_spots_inputs | map {
+        [
+            it[5], // warped spots output
+            it[0], // fixed
+            it[1], // fixed_subpath
+            it[2], // moving
+            it[3], // moving_subpath
+            it[4] // transform path
+        ]
+    } | combine(warp_spots_results, by:0) | map {
+        // swap  again the fixed input in order 
+        // to combine it with segmentation results which are done only for fixed image
+        it[1..5] + [ it[0] ]
+    } | combine(segmentation_results, by:0) | map {
+        println "Prepare spot assignment input from $it"
+        def fixed_stitched_results = file(it[0])
+        def fixed_acq = fixed_stitched_results.parent.parent.name
+        def moving_stitched_results = file(it[2])
+        def moving_acq = moving_stitched_results.parent.parent.name
+        def assign_spots_output_dir = get_step_output_dir(
+            get_acq_output(output_dir_param(final_params), moving_acq),
+            "${assign_spots_output}/${moving_acq}-to-${fixed_acq}"
+        )
+        println "Create assignment output for ${moving_acq} to ${fixed_acq} -> ${assign_spots_output_dir}"
+        assign_spots_output_dir.mkdirs()
+        it + [intensities_name, intensities_output_dir]
+        def r = [
+            it[7], // labels
+            it[6], // warped spots
+            assign_spots_output_dir
+        ]
+        println "Assign spots input: $r"
+        return r
+    }
 
+    // run assign spots
+    def assign_spots_results = assign_spots(
+        assign_spots_inputs.map { it[0] },
+        assign_spots_inputs.map { it[1] },
+        assign_spots_inputs.map { it[2] }
+        final_params.assignment_cpus
+    )
+
+    assign_spots_results | view
 }
 
 def get_acq_output(output, acq_name) {

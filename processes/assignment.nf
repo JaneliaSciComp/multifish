@@ -6,6 +6,7 @@ process assign_spots {
     val(labels_path)
     val(spots_path)
     val(output_path)
+    val(cpus)
 
     output:
     tuple val(spots_path), val(output_path)
