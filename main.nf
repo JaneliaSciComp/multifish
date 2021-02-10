@@ -311,13 +311,14 @@ workflow {
             ]
         }
     }
+
     def spots_to_warp = spot_extraction_results \
     | concat(expected_spot_extraction_results) \
     | unique \
     | map {
         // input, channel, spots_file
         def r = [ it[0], it[1], it[3] ]
-        println "Exttrtacted spots to warp: $r"
+        println "Extracted spots to warp: $r"
         return r
     }
 
