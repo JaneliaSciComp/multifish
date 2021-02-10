@@ -271,7 +271,7 @@ workflow {
 
     def extended_registration_results = registration_results | map {
         // extract the channel from the registration results
-        def moving_subpath_components = it[3].tokenize()
+        def moving_subpath_components = it[3].tokenize('/')
         // [
         //   <fixed>, <fixed_subpath>,
         //   <moving>, <moving_subpath>,
@@ -350,7 +350,7 @@ workflow {
             it[5], // inv transform
             warped_spots_output_dir
         ]
-        println "Registration result to be combined with extracted spots result: $r"
+        println "Registration result to be combined with extracted spots result: $it -> $r"
         return r
     } | combine(spots_to_warp, by:[0,1]) | map {
         // [ moving, channel, moving_subpath, fixed, fixed_subpath, inv_transform, warped_spots_output, spots_file]
