@@ -169,7 +169,6 @@ workflow {
         spot_extraction_acq_names,
         final_params.stitching_output,
         stitching_results
-
     )
 
     def spot_extraction_output_dirs = get_step_output_dirs(
@@ -272,7 +271,6 @@ workflow {
 
     def extended_registration_results = registration_results | map {
         // extract the channel from the registration results
-        def moving_subpath = it[3]
         def moving_subpath_components = it[3].tokenize()
         // [
         //   <fixed>, <fixed_subpath>,
@@ -317,6 +315,10 @@ workflow {
         }
     }
 
+    // if spots were extracted as part of the current pipeline 
+    // they should be available once spot_extraction_results complete
+    // otherwise they should have been done already and 
+    // they are provided by expected_spot_extraction_results
     def spots_to_warp = spot_extraction_results \
     | concat(expected_spot_extraction_results) \
     | unique \
@@ -327,6 +329,7 @@ workflow {
         return r
     }
 
+    // prepare inputs for warping the spots
     def warp_spots_inputs = extended_registration_results.map {
         def fixed_stitched_results = file(it[0])
         def moving_stitched_results = file(it[2])
@@ -366,6 +369,7 @@ workflow {
         r
     }
 
+    // run warp spots
     def warp_spots_results = warp_spots(
         warp_spots_inputs.map { it[0] }, // fixed
         warp_spots_inputs.map { it[1] }, // fixed_subpath
