@@ -452,7 +452,7 @@ workflow {
     def assign_spots_results = assign_spots(
         assign_spots_inputs.map { it[0] },
         assign_spots_inputs.map { it[1] },
-        assign_spots_inputs.map { it[2] }
+        assign_spots_inputs.map { it[2] },
         final_params.assignment_cpus
     )
 
