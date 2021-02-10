@@ -62,9 +62,9 @@ include {
 workflow {
 
     registration(
-        fixed,
-        moving,
-        outdir,
+        Channel.of(fixed),
+        Channel.of(moving),
+        Channel.of(outdir),
         final_params.dapi_channel,
         registration_xy_stride_param(final_params),
         registration_xy_overlap_param(final_params),
