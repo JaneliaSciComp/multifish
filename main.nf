@@ -22,6 +22,7 @@ include {
     registration_xy_overlap_param;
     registration_z_stride_param;
     registration_z_overlap_param;
+    spots_assignment_container_param;
 } from './param_utils'
 
 // app parameters
