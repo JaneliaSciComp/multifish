@@ -382,7 +382,7 @@ workflow {
         warp_spots_inputs.map { it[6] }, // spots file path
     ) // [ warped_spots_file, subpath ]
 
-    def expected_segmentation_results = Channel.fromList(labeled_spots_acq_names) | flatMap {
+    def expected_segmentation_results = Channel.fromList(labeled_spots_acq_names) | map {
         def acq_name = it
         def acq_stitching_output_dir = get_step_output_dir(
             get_acq_output(output_dir_param(final_params), acq_name),
@@ -458,7 +458,6 @@ workflow {
         )
         println "Create assignment output for ${moving_acq} to ${fixed_acq} -> ${assign_spots_output_dir}"
         assign_spots_output_dir.mkdirs()
-        it + [intensities_name, intensities_output_dir]
         def r = [
             it[7], // labels
             it[6], // warped spots
