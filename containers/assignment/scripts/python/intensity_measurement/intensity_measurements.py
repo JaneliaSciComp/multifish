@@ -32,7 +32,7 @@ lb = imread(label_path)
 roi = np.unique(lb)
 
 # get n5 image data
-ch_scale_path = '/{}/{}'.formatt(channel, scale)
+ch_scale_path = '/{}/{}'.format(channel, scale)
 print('Image path:', puncta_path, ch_scale_path)
 im = z5py.File(puncta_path, use_zarr_format=False)
 
