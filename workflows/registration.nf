@@ -19,7 +19,7 @@ include {
     index_channel;
 } from '../utils/utils'
 
-workflow registration_with_normalized {
+workflow registration {
     take:
     fixed_input_dir
     moving_input_dir
