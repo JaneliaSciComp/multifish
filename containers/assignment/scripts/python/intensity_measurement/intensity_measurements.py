@@ -4,7 +4,7 @@
 
 import os
 import sys
-import z5py
+import zarr
 import numpy as np
 import pandas as pd
 from glob import glob
@@ -32,15 +32,14 @@ lb = imread(label_path)
 roi = np.unique(lb)
 
 # get n5 image data
-ch_scale_path = '/{}/{}'.format(channel, scale)
+ch_scale_path = '{}/{}'.format(channel, scale)
 print('Image path:', puncta_path, ch_scale_path)
-im = z5py.File(puncta_path, use_zarr_format=False)
-
-img = im[ch_scale_path][:, :, :]
+im = zarr.open(store=zarr.N5Store(puncta_path), mode='r')
+img = im[ch_scale_path][...]
 
 if channel == bleed_channel:
-    dapi_ch_scale_path = '/{}/{}'.format(dapi_channel, scale) # c2/s2
-    dapi = im[dapi_ch_scale_path][:, :, :]
+    dapi_ch_scale_path = '{}/{}'.format(dapi_channel, scale) # c2/s2
+    dapi = im[dapi_ch_scale_path][...]
     lo = np.percentile(np.ndarray.flatten(dapi), 99.5)
     bg_dapi = np.percentile(np.ndarray.flatten(dapi[dapi != 0]), 1)
     bg_img = np.percentile(np.ndarray.flatten(img[img != 0]), 1)
@@ -50,7 +49,7 @@ if channel == bleed_channel:
                      (dapi - bg_dapi)).astype('float32')
     print('bleed_through:', dapi_factor)
     print('DAPI background:', bg_dapi)
-    print('c3 background:', bg_img)
+    print('bleed_through channel background:', bg_img)
 
 df = pd.DataFrame(data=np.empty([len(roi), 4]), columns=[
                   'roi', 'weighted_centroid', 'weighted_local_centroid', 'mean_intensity'], dtype=object)

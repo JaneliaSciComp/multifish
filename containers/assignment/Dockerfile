@@ -2,7 +2,8 @@ FROM centos:8
 
 ENV DOWNLOAD_CONDA_URL=https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 
-RUN dnf install -y \
+RUN dnf group install -y "Development Tools" && \
+    dnf install -y \
         wget
 
 RUN mkdir /tmp-install && \
