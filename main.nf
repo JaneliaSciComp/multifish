@@ -412,7 +412,7 @@ workflow {
         def intensities_name = "${moving_acq}-to-${fixed_acq}"
         def intensities_output_dir = get_step_output_dir(
             get_acq_output(output_dir_param(final_params), moving_acq),
-            intensities_output
+            "${intensities_output}/${intensities_name}"
         )
         println "Create intensities output for ${moving_acq} to ${fixed_acq} -> ${intensities_output_dir}"
         intensities_output_dir.mkdirs()
