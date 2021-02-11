@@ -36,6 +36,14 @@ workflow {
     outdir = file(final_params.outdir)
     outdir.mkdirs()
 
+    if (!final_params.warped_image) {
+        log.error "Warped spots image must be specified"
+    }
+
+    if (!final_params.warped_spots) {
+        log.error "Directory containing warped points files must be specified"
+    }
+
     warped_spots_files = Channel.fromPath("${final_params.warped_spots}/*.txt")
 
     quantify_spots_inputs = warped_spots_files | map { f -> 
