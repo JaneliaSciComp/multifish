@@ -416,17 +416,26 @@ workflow {
         )
         println "Create intensities output for ${moving_acq} to ${fixed_acq} -> ${intensities_output_dir}"
         intensities_output_dir.mkdirs()
-        it + [intensities_name, intensities_output_dir]
+        def r = [
+            it[9], // labels
+            it[6], // warped spots image
+            intensities_name, // intensity measurements result file prefix (round name)
+            it[7], // channel
+            it[8], // scale
+            intensities_output_dir // result output dir
+        ]
+        println "Intensity measurements input $it -> $r"
+        r
     }
 
     // run intensities measurements
     def quantify_results = quantify_spots(
-        quantify_inputs.map { it[9] }, // labels
-        quantify_inputs.map { it[6] }, // warped spots image
-        quantify_inputs.map { it[10] }, // intensity measurements result file prefix (round name)
-        quantify_inputs.map { it[7] }, // channel
-        quantify_inputs.map { it[8] }, // scale
-        quantify_inputs.map { it[11] }, // result output dir
+        quantify_inputs.map { it[0] }, // labels
+        quantify_inputs.map { it[1] }, // warped spots image
+        quantify_inputs.map { it[2] }, // intensity measurements result file prefix (round name)
+        quantify_inputs.map { it[3] }, // channel
+        quantify_inputs.map { it[4] }, // scale
+        quantify_inputs.map { it[5] }, // result output dir
         final_params.dapi_channel, // dapi_channel
         final_params.bleed_channel, // bleed_channel
         final_params.intensity_cpus, // cpus
