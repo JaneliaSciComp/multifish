@@ -136,7 +136,9 @@ def get_acqs_for_step(Map ps, String step_param, List default_val) {
         step_acq_names = ps[step_param]
     else
         step_acq_names = null
-    return step_acq_names ? step_acq_names.tokenize(',') : default_val
+    return step_acq_names
+        ? step_acq_names.tokenize(',').collect { it.trim() }
+        : default_val
 }
 
 def spot_extraction_xy_stride_param(Map ps) {
