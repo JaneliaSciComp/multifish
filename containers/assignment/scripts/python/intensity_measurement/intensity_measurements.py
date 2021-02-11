@@ -32,8 +32,11 @@ lb = imread(label_path)
 roi = np.unique(lb)
 
 # get n5 image data
+ch_scale_path = '/{}/{}'.formatt(channel, scale)
+print('Image path:', puncta_path, ch_scale_path)
 im = z5py.File(puncta_path, use_zarr_format=False)
-img = im[channel+'/' + scale][:, :, :]
+
+img = im[ch_scale_path][:, :, :]
 
 if channel == bleed_channel:
     dapi_ch_scale_path = '/{}/{}'.format(dapi_channel, scale) # c2/s2
