@@ -52,7 +52,7 @@ workflow {
             final_params.warped_image,
             final_params.prefix,
             ch,
-            final_params.deform_scale,
+            final_params.def_scale,
             outdir
         ]
     } | filter { it[3] != '' } // channel must be present in the warped spots file name
