@@ -9,3 +9,4 @@ dependencies:
   - z5py=2.0.5
   - pandas
   - scikit-image
+  - blosc
