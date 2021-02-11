@@ -5,13 +5,13 @@
 nextflow.enable.dsl=2
 
 // path to the labels image
-params.labels_file = ""
+params.labels = ""
 
 // path to the warped spots files
-params.warped_spots_dir = ""
+params.warped_spots = ""
 
 // path to the folder where you'd like all outputs to be written
-params.assigned_spots_outdir = ""
+params.outdir = ""
 
 include {
     default_mf_params;
@@ -27,15 +27,15 @@ include {
 
 workflow {
 
-    outdir = file(final_params.assigned_spots_outdir)
+    outdir = file(final_params.outdir)
     outdir.mkdirs()
 
-    warped_spots_files = Channel.fromPath("${final_params.warped_spots_dir}/*.txt")
+    warped_spots_files = Channel.fromPath("${final_params.warped_spots}/*.txt")
 
     assigned_spots_inputs = warped_spots_files.map { f -> 
         def fname = f.name.replaceAll(".txt","-assigned")
         [
-            final_params.labels_file,
+            final_params.labels,
             f,
             "${outdir}/fname"
         ]
