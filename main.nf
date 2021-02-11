@@ -129,6 +129,8 @@ registration_output = final_params.registration_output
 
 warp_spots_acq_names = get_acqs_for_step(final_params, 'warp_spots_acq_names', spot_extraction_acq_names)
 
+labeled_spots_acq_names = get_acqs_for_step(final_params, 'labeled_spots_acq_name', segmentation_acq_names)
+
 intensities_output = final_params.intensities_output
 
 assign_spots_output = final_params.assign_spots_output
@@ -380,9 +382,27 @@ workflow {
         warp_spots_inputs.map { it[6] }, // spots file path
     ) // [ warped_spots_file, subpath ]
 
+    def expected_segmentation_results = Channel.fromList(labeled_spots_acq_names) | flatMap {
+        def acq_name = it
+        def acq_stitching_output_dir = get_step_output_dir(
+            get_acq_output(output_dir_param(final_params), acq_name),
+            "${final_params.stitching_output}"
+        )
+        def acq_segmentation_output_dir = get_step_output_dir(
+            get_acq_output(output_dir_param(final_params), acq_name),
+            segmentation_output
+        )
+        [
+            "${acq_stitching_output_dir}/export.n5",
+            "${acq_segmentation_output_dir}/${acq_name}-${final_params.dapi_channel}.tif"
+        ]
+    }
+
+    def labeled_acquisitions = expected_segmentation_results | concat(segmentation_results) | unique
+
     // prepare intensities measurements inputs
     def quantify_inputs = extended_registration_results \
-    | combine(segmentation_results, by:0) \
+    | combine(labeled_acquisitions, by:0) \
     | map {
         // so far we appended the corresponding labels to the registration result
         def fixed_stitched_results = file(it[0])
@@ -426,7 +446,7 @@ workflow {
         // swap  again the fixed input in order 
         // to combine it with segmentation results which are done only for fixed image
         it[1..5] + [ it[0] ]
-    } | combine(segmentation_results, by:0) | map {
+    } | combine(labeled_acquisitions, by:0) | map {
         println "Prepare spot assignment input from $it"
         def fixed_stitched_results = file(it[0])
         def fixed_acq = fixed_stitched_results.parent.parent.name
