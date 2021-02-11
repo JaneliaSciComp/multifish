@@ -152,6 +152,8 @@ workflow registration {
 
     def indexed_output = index_channel(normalized_output_dir)
 
+    // combine the results at affine scale with the ccorresponding tiles
+    // to find the correspondence we use the index in the input and output channels
     def indexed_moving_spots_inputs = aff_scale_affine_results \
     | join(indexed_output, by:1) | map {
         // put the index as the first element in the tuple
@@ -175,11 +177,13 @@ workflow registration {
         spots_spot_number
     ) // [ ransac_output, tile_dir, moving_pkl_path ]
 
+    // merge fixed and moving ransac results using tile_directory as a key
     def per_tile_ransac_inputs = fixed_spots_results_per_tile.join(
         moving_spots_results_per_tile,
         by:1
     )
 
+    // run ransac for each tile
     def tile_ransac_results = ransac_for_tile(
         per_tile_ransac_inputs.map { it[2] }, // fixed spots
         per_tile_ransac_inputs.map { it[4] }, // moving spots
@@ -189,6 +193,7 @@ workflow registration {
         ransac_dist_threshold
     ) // [ tile_dir, tile_transform_matrix  ]
 
+    // interpolate tile ransac results
     def interpolated_results = tile_ransac_results | map {
         def tile_dir = file(it[0])
         return [ "${tile_dir.parent}", it[0]]
@@ -200,6 +205,9 @@ workflow registration {
         [ it ]
     }
 
+    // prepare deform inputs - we combine the tile inputs
+    // with interpolated results to guarantee the deform 
+    // is not started before interpolation step is done
     def deform_inputs = tiles_with_inputs | map {
         def tile_path = file(it[2])
         // [ <tile_parent_dir>, <index>, <tile_input>, <tile_path> ]
@@ -215,6 +223,7 @@ workflow registration {
         return it
     }
 
+    // run the deformation
     def deform_results = deform(
         deform_inputs.map { it[4] }, // tile path
         deform_inputs.map { it[2] }, // fixed image -> tile input
@@ -232,6 +241,9 @@ workflow registration {
         println "Deform result: $it -> $r"
         return r
     } | groupTuple(by: [1,2,3]) | flatMap {
+        // the grouping and the reconstruction of the input
+        // is done to guarantee the completeness of 
+        // the deform  operation for all tiles
         def tile_input = it[1]
         def reg_output = it[2]
         def aff_matrix = it[3]
@@ -240,6 +252,7 @@ workflow registration {
         }
     }
 
+    // run stitching once deformation is done for all tiles
     def stitch_results = stitch(
         deform_results.map { it[0] }, // tile
         xy_overlap,
@@ -278,6 +291,8 @@ workflow registration {
             r
         }
     }
+
+    // run the final transformation and generate the warped image
     final_result = final_transform(
         final_transform_inputs.map { it[0] },
         final_transform_inputs.map { it[1] },
