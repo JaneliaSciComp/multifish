@@ -90,14 +90,6 @@ def get_value_or_default(Map ps, String param, String default_value) {
         default_value
 }
 
-def output_dir_param(Map ps) {
-    def output_dir = ps.output_dir
-    if (!output_dir)
-        ps.data_dir
-    else
-        output_dir
-}
-
 def segmentation_container_param(Map ps) {
     def segmentation_container = ps.segmentation_container
     if (!segmentation_container)

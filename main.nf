@@ -10,7 +10,6 @@ include {
     default_mf_params;
     get_acqs_for_step;
     get_value_or_default;
-    output_dir_param;
     spotextraction_container_param;
     segmentation_container_param;
     registration_container_param;
@@ -73,6 +72,10 @@ include {
 } from './processes/assignment' addParams(spots_assignment_container: spots_assignment_container_param(final_params),
                                           assignment_cpus: final_params.assignment_cpus)
 
+data_dir = final_params.data_dir
+pipeline_output_dir = get_value_or_default(final_params, 'output_dir', data_dir)
+create_output_dir(pipeline_output_dir)
+
 // spark config
 spark_conf = final_params.spark_conf
 spark_work_dir = final_params.spark_work_dir
@@ -84,7 +87,6 @@ driver_memory = final_params.driver_memory
 driver_logconfig = final_params.driver_logconfig
 
 stitching_app = final_params.stitching_app
-data_dir = final_params.data_dir
 resolution = final_params.resolution
 axis_mapping = final_params.axis
 
@@ -141,7 +143,7 @@ workflow {
         stitching_app,
         stitch_acq_names,
         final_params.data_dir,
-        output_dir_param(final_params),
+        pipeline_output_dir,
         final_params.stitching_output,
         channels,
         resolution,
@@ -168,6 +170,7 @@ workflow {
 
     // prepare spot extraction inputs
     def spot_extraction_inputs = get_stitched_inputs_for_step(
+        pipeline_output_dir,
         spot_extraction_acq_names,
         final_params.stitching_output,
         stitching_results
@@ -175,7 +178,7 @@ workflow {
 
     def spot_extraction_output_dirs = get_step_output_dirs(
         spot_extraction_inputs,
-        output_dir_param(final_params),
+        pipeline_output_dir,
         spot_extraction_output
     )
 
@@ -196,6 +199,7 @@ workflow {
 
     // prepare segmentation  inputs
     def segmentation_inputs = get_stitched_inputs_for_step(
+        pipeline_output_dir,
         segmentation_acq_names,
         final_params.stitching_output,
         stitching_results
@@ -203,7 +207,7 @@ workflow {
 
     def segmentation_output_dirs = get_step_output_dirs(
         segmentation_inputs,
-        output_dir_param(final_params),
+        pipeline_output_dir,
         segmentation_output
     )
 
@@ -220,12 +224,14 @@ workflow {
 
     // prepare fixed and  moving inputs for the registration
     def registration_fixed_inputs = get_stitched_inputs_for_step(
+        pipeline_output_dir,
         registration_fixed_acq_names,
         final_params.stitching_output,
         stitching_results
     )
 
     def registration_moving_inputs = get_stitched_inputs_for_step(
+        pipeline_output_dir,
         registration_moving_acq_names,
         final_params.stitching_output,
         stitching_results
@@ -236,7 +242,7 @@ workflow {
         def fixed_acq = it[0]
         def moving_acq = it[2]
         def registration_output_dir = get_step_output_dir(
-            get_acq_output(output_dir_param(final_params), moving_acq),
+            get_acq_output(pipeline_output_dir, moving_acq),
             "${registration_output}/${moving_acq}-to-${fixed_acq}"
         )
         log.info "Create registration output for ${moving_acq} to ${fixed_acq} -> ${registration_output_dir}"
@@ -290,11 +296,11 @@ workflow {
     def expected_spot_extraction_results = Channel.fromList(warp_spots_acq_names) | flatMap {
         def acq_name = it
         def acq_stitching_output_dir = get_step_output_dir(
-            get_acq_output(output_dir_param(final_params), acq_name),
+            get_acq_output(pipeline_output_dir, acq_name),
             "${final_params.stitching_output}"
         )
         def acq_spot_extraction_output_dir = get_step_output_dir(
-            get_acq_output(output_dir_param(final_params), acq_name),
+            get_acq_output(pipeline_output_dir, acq_name),
             spot_extraction_output
         )
         log.info "Collect ${acq_spot_extraction_output_dir}/merged_points_*.txt"
@@ -338,7 +344,7 @@ workflow {
         def fixed_acq = fixed_stitched_results.parent.parent.name
         def moving_acq = moving_stitched_results.parent.parent.name
         def warped_spots_output_dir = get_step_output_dir(
-            get_acq_output(output_dir_param(final_params), moving_acq),
+            get_acq_output(pipeline_output_dir, moving_acq),
             "${spot_extraction_output}/${moving_acq}-to-${fixed_acq}"
         )
         log.info "Create warped spots output for ${moving_acq} to ${fixed_acq} -> ${warped_spots_output_dir}"
@@ -386,11 +392,11 @@ workflow {
     def expected_segmentation_results = Channel.fromList(labeled_spots_acq_names) | map {
         def acq_name = it
         def acq_stitching_output_dir = get_step_output_dir(
-            get_acq_output(output_dir_param(final_params), acq_name),
+            get_acq_output(pipeline_output_dir, acq_name),
             "${final_params.stitching_output}"
         )
         def acq_segmentation_output_dir = get_step_output_dir(
-            get_acq_output(output_dir_param(final_params), acq_name),
+            get_acq_output(pipeline_output_dir, acq_name),
             segmentation_output
         )
         [
@@ -412,7 +418,7 @@ workflow {
         def moving_acq = moving_stitched_results.parent.parent.name
         def intensities_name = "${moving_acq}-to-${fixed_acq}"
         def intensities_output_dir = get_step_output_dir(
-            get_acq_output(output_dir_param(final_params), moving_acq),
+            get_acq_output(pipeline_output_dir, moving_acq),
             "${intensities_output}/${intensities_name}"
         )
         log.info "Create intensities output for ${moving_acq} to ${fixed_acq} -> ${intensities_output_dir}"
@@ -463,7 +469,7 @@ workflow {
         def moving_stitched_results = file(it[2])
         def moving_acq = moving_stitched_results.parent.parent.name
         def assign_spots_output_dir = get_step_output_dir(
-            get_acq_output(output_dir_param(final_params), moving_acq),
+            get_acq_output(pipeline_output_dir, moving_acq),
             "${assign_spots_output}/${moving_acq}-to-${fixed_acq}"
         )
         log.info "Create assignment output for ${moving_acq} to ${fixed_acq} -> ${assign_spots_output_dir}"
@@ -491,6 +497,11 @@ workflow {
     assign_spots_results | view
 }
 
+def create_output_dir(output_dirname) {
+    def output_dir = file(output_dirname)
+    output_dir.mkdirs()
+}
+
 def get_acq_output(output, acq_name) {
     new File(output, acq_name)
 }
@@ -501,12 +512,12 @@ def get_step_output_dir(output_dir, step_output) {
         : new File(output_dir, step_output)
 }
 
-def get_stitched_inputs_for_step(step_acq_names, stitching_output, stitching_results) {
+def get_stitched_inputs_for_step(output_dir, step_acq_names, stitching_output, stitching_results) {
     def expected_stitched_results = Channel.fromList(step_acq_names) | map {
         [ 
             it,
             get_step_output_dir(
-                get_acq_output(output_dir_param(final_params), it),
+                get_acq_output(output_dir, it),
                 stitching_output
             )
         ]
