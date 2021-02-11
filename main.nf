@@ -458,10 +458,13 @@ workflow {
         )
         println "Create assignment output for ${moving_acq} to ${fixed_acq} -> ${assign_spots_output_dir}"
         assign_spots_output_dir.mkdirs()
+        def warped_spots_file = file(it[5])
+        def warped_spots_filename_comps = warped_spots_file.name.tokenize('_');
+        def ch = warped_spots_filename_comps[2]
         def r = [
             it[6], // labels
-            it[5], // warped spots
-            assign_spots_output_dir
+            warped_spots_file, // warped spots
+            "${assign_spots_output_dir}/assigned_spots_${ch}"
         ]
         println "Assign spots input: $r"
         return r
