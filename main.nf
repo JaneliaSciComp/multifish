@@ -305,7 +305,7 @@ workflow {
         )
         log.info "Collect ${acq_spot_extraction_output_dir}/merged_points_*.txt"
         def spots_files = []
-        if (acq_spot_extraction_output_dir.exists) {
+        if (acq_spot_extraction_output_dir.exists()) {
             // only collect merged points if the dir exists
             acq_spot_extraction_output_dir.eachFileMatch(~/merged_points_.*.txt/) { f ->
                 log.info "Found spots file: $f"
