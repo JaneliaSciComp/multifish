@@ -232,14 +232,14 @@ workflow {
     )
 
     def registration_inputs = registration_fixed_inputs.combine(registration_moving_inputs) | map {
-        println "Create registration input for $it"
+        log.info "Create registration input for $it"
         def fixed_acq = it[0]
         def moving_acq = it[2]
         def registration_output_dir = get_step_output_dir(
             get_acq_output(output_dir_param(final_params), moving_acq),
             "${registration_output}/${moving_acq}-to-${fixed_acq}"
         )
-        println "Create registration output for ${moving_acq} to ${fixed_acq} -> ${registration_output_dir}"
+        log.info "Create registration output for ${moving_acq} to ${fixed_acq} -> ${registration_output_dir}"
         registration_output_dir.mkdirs()
         [
             fixed_acq,
@@ -282,7 +282,7 @@ workflow {
         //   <warped_channel>, <warped_scale>
         // ]
         def r = it + [ moving_subpath_components[0], moving_subpath_components[1] ]
-        println "Extended registration result: $r"
+        log.info "Extended registration result: $r"
         return r
     }
 
@@ -297,10 +297,10 @@ workflow {
             get_acq_output(output_dir_param(final_params), acq_name),
             spot_extraction_output
         )
-        println "Collect ${acq_spot_extraction_output_dir}/merged_points_*.txt"
+        log.info "Collect ${acq_spot_extraction_output_dir}/merged_points_*.txt"
         def spots_files = []
         acq_spot_extraction_output_dir.eachFileMatch(~/merged_points_.*.txt/) { f ->
-            println "Found spots file: $f"
+            log.info "Found spots file: $f"
             spots_files << f
         }
         // map spot files to tuple of parameters
@@ -327,7 +327,7 @@ workflow {
     | map {
         // input, channel, spots_file
         def r = [ it[0], it[1], it[3] ]
-        println "Extracted spots to warp: $r"
+        log.info "Extracted spots to warp: $r"
         return r
     }
 
@@ -341,7 +341,7 @@ workflow {
             get_acq_output(output_dir_param(final_params), moving_acq),
             "${spot_extraction_output}/${moving_acq}-to-${fixed_acq}"
         )
-        println "Create warped spots output for ${moving_acq} to ${fixed_acq} -> ${warped_spots_output_dir}"
+        log.info "Create warped spots output for ${moving_acq} to ${fixed_acq} -> ${warped_spots_output_dir}"
         warped_spots_output_dir.mkdirs()
         def r = [
             it[2], // moving
@@ -352,7 +352,7 @@ workflow {
             it[5], // inv transform
             warped_spots_output_dir
         ]
-        println "Registration result to be combined with extracted spots result: $it -> $r"
+        log.info "Registration result to be combined with extracted spots result: $it -> $r"
         return r
     } | combine(spots_to_warp, by:[0,1]) | map {
         // combined registration result by input and channel:
@@ -368,7 +368,7 @@ workflow {
             "${it[6]}/${warped_spots_fname}", // warped spots file
             "${spots_file}" // spots file (as string)
         ]
-        println "Prepare  warp spots input  $it -> $r"
+        log.info "Prepare  warp spots input  $it -> $r"
         r
     }
 
@@ -415,7 +415,7 @@ workflow {
             get_acq_output(output_dir_param(final_params), moving_acq),
             "${intensities_output}/${intensities_name}"
         )
-        println "Create intensities output for ${moving_acq} to ${fixed_acq} -> ${intensities_output_dir}"
+        log.info "Create intensities output for ${moving_acq} to ${fixed_acq} -> ${intensities_output_dir}"
         intensities_output_dir.mkdirs()
         def r = [
             it[9], // labels
@@ -425,7 +425,7 @@ workflow {
             it[8], // scale
             intensities_output_dir // result output dir
         ]
-        println "Intensity measurements input $it -> $r"
+        log.info "Intensity measurements input $it -> $r"
         r
     }
 
@@ -457,7 +457,7 @@ workflow {
         // to combine it with segmentation results which are done only for fixed image
         it[1..5] + [ it[0] ]
     } | combine(labeled_acquisitions, by:0) | map {
-        println "Prepare spot assignment input from $it"
+        log.info "Prepare spot assignment input from $it"
         def fixed_stitched_results = file(it[0])
         def fixed_acq = fixed_stitched_results.parent.parent.name
         def moving_stitched_results = file(it[2])
@@ -466,7 +466,7 @@ workflow {
             get_acq_output(output_dir_param(final_params), moving_acq),
             "${assign_spots_output}/${moving_acq}-to-${fixed_acq}"
         )
-        println "Create assignment output for ${moving_acq} to ${fixed_acq} -> ${assign_spots_output_dir}"
+        log.info "Create assignment output for ${moving_acq} to ${fixed_acq} -> ${assign_spots_output_dir}"
         assign_spots_output_dir.mkdirs()
         def warped_spots_file = file(it[5])
         def warped_spots_filename_comps = warped_spots_file.name.tokenize('_');
@@ -476,7 +476,7 @@ workflow {
             warped_spots_file, // warped spots
             "${assign_spots_output_dir}/assigned_spots_${ch}"
         ]
-        println "Assign spots input: $r"
+        log.info "Assign spots input: $r"
         return r
     }
 
@@ -522,7 +522,7 @@ def get_step_output_dirs(stitched_acqs, output_dir, step_output_name) {
             get_acq_output(output_dir, acq_name),
             step_output_name
         )
-        println "Create ${step_output_name} output for ${acq_name} -> ${step_output_dir}"
+        log.info "Create ${step_output_name} output for ${acq_name} -> ${step_output_dir}"
         step_output_dir.mkdirs()
         return step_output_dir
     }

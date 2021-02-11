@@ -72,13 +72,13 @@ workflow stitch_multiple_acquisitions {
             acq_stitching_dir = it[1]
             acq_spark_work_dir = "${spark_work_dir}/${acq_name}"
             acq_input = [ acq_name, acq_stitching_dir, acq_spark_work_dir ]
-            println "Create acq input ${acq_input} from ${it} and ${spark_work_dir}"
+            log.info "Create acq input ${acq_input} from ${it} and ${spark_work_dir}"
             return acq_input
         }
         .multiMap { it ->
-            println "Put acq name '${it[0]}' into acq_names channel"
-            println "Put stitching dir '${it[1]}' into stitching_dirs channel"
-            println "Put spark work dir '${it[2]}' into spark_work_dirs channel"
+            log.info "Put acq name '${it[0]}' into acq_names channel"
+            log.info "Put stitching dir '${it[1]}' into stitching_dirs channel"
+            log.info "Put spark work dir '${it[2]}' into spark_work_dirs channel"
             acq_names: it[0]
             stitching_dirs: it[1]
             spark_work_dirs: it[2]
@@ -147,9 +147,9 @@ workflow stitch_acquisition {
     def indexed_stitching_dirs = index_channel(stitching_dirs)
     def indexed_spark_work_dirs = index_channel(spark_work_dirs)
 
-    indexed_acq_names.subscribe { println "Indexed acq: $it" }
-    indexed_stitching_dirs.subscribe { println "Indexed stitching dir: $it" }
-    indexed_spark_work_dirs.subscribe { println "Indexed spark working dir: $it" }
+    indexed_acq_names.subscribe { log.info "Indexed acq: $it" }
+    indexed_stitching_dirs.subscribe { log.info "Indexed stitching dir: $it" }
+    indexed_spark_work_dirs.subscribe { log.info "Indexed spark working dir: $it" }
 
     // start a spark cluster
     def spark_cluster_res = spark_cluster(
@@ -160,13 +160,13 @@ workflow stitch_acquisition {
         terminate_stitching_name
     )
     // print spark cluster result
-    spark_cluster_res.subscribe {  println "Spark cluster result: $it"  }
+    spark_cluster_res.subscribe {  log.info "Spark cluster result: $it"  }
 
     def indexed_spark_uris = spark_cluster_res
         .join(indexed_spark_work_dirs, by:1)
         .map {
             def indexed_uri = [ it[2], it[1] ]
-            println "Create indexed spark URI from $it -> ${indexed_uri}"
+            log.info "Create indexed spark URI from $it -> ${indexed_uri}"
             return indexed_uri
         }
 
@@ -357,7 +357,7 @@ workflow stitch_acquisition {
     ) | join(indexed_spark_work_dirs, by:1) | map { 
         [ it[2], it[0] ]
     } | join(indexed_acq_data) | map {
-        println "Completed stitching for ${it}"
+        log.info "Completed stitching for ${it}"
         // acq_name, acq_stitching_dir
         [ it[2], it[4] ]
     }
@@ -374,10 +374,10 @@ def prepare_app_args(app_name,
     return previous_result_dirs | join(indexed_working_dirs, by: 1) | map {
         // reverse the order in the tuple because the join key is the working dir
         def r = [ it[2], it[0] ]
-        println "Indexed result from: $it -> $r"
+        log.info "Indexed result from: $it -> $r"
         return r
     } | join(indexed_acq_data) | map {
-        println "Create retile app inputs from ${it}"
+        log.info "Create retile app inputs from ${it}"
         def idx = it[0]
         def acq_name = it[2]
         def spark_uri = it[3]
@@ -385,7 +385,7 @@ def prepare_app_args(app_name,
         def spark_work_dir = it[1] // spark work dir comes from previous result
         def app_args = app_args_closure.call(acq_name, stitching_dir)
         def app_inputs = [ spark_uri, app_args, spark_work_dir ]
-        println "${app_name} app input ${idx}: ${app_inputs}"
+        log.info "${app_name} app input ${idx}: ${app_inputs}"
         return app_inputs
     }
 
