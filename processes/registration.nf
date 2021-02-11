@@ -35,7 +35,7 @@ process ransac {
     val(threshold)
 
     output:
-    tuple val(output_path), val(output_dir)
+    tuple val(output_dir), val(output_path)
 
     script:
     output_path = "${output_dir}/${output_filename}"

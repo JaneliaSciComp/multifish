@@ -19,7 +19,7 @@ include {
     index_channel;
 } from '../utils/utils'
 
-workflow registration {
+workflow registration_with_normalized {
     take:
     fixed_input_dir
     moving_input_dir
@@ -40,18 +40,26 @@ workflow registration {
     warped_channels
 
     main:
+    // make sure the inputs are all strings
+    def normalized_fixed_input_dir = fixed_input_dir.map { "$it" }
+    def normalized_moving_input_dir = moving_input_dir.map { "$it" }
+    def normalized_output_dir = output_dir.map { "$it" }
+
     // prepare tile coordinates
     def tile_cut_res = cut_tiles(
-        fixed_input_dir,
+        normalized_fixed_input_dir,
         "/${reg_ch}/${deformation_scale}",
-        output_dir.map { "${it}/tiles" },
+        normalized_output_dir.map { "${it}/tiles" },
         xy_stride,
         xy_overlap,
         z_stride,
         z_overlap
-    )
+    ) // fixed, tiles_list
 
-    def tiles_with_inputs = index_channel(tile_cut_res[0]) | join(index_channel(tile_cut_res[1])) | flatMap {
+    // expand and index tiles
+    def tiles_with_inputs = index_channel(tile_cut_res[0]) \
+    | join(index_channel(tile_cut_res[1])) \
+    | flatMap {
         def index = it[0]
         def tile_input = it[1]
         it[2].tokenize(' ').collect {
@@ -61,23 +69,23 @@ workflow registration {
 
     // get fixed coarse spots
     def fixed_coarse_spots_results = fixed_coarse_spots(
-        fixed_input_dir,
+        normalized_fixed_input_dir,
         "/${reg_ch}/${affine_scale}",
-        output_dir.map { "${it}/aff" },
+        normalized_output_dir.map { "${it}/aff" },
         'fixed_spots.pkl',
         spots_cc_radius,
         spots_spot_number
-    )
+    ) // [fixed, affdir, fixedpkl]
 
     // get moving coarse spots
     def moving_coarse_spots_results = moving_coarse_spots(
-        moving_input_dir,
+        normalized_moving_input_dir,
         "/${reg_ch}/${affine_scale}",
-        output_dir.map { "${it}/aff" },
+        normalized_output_dir.map { "${it}/aff" },
         'moving_spots.pkl',
         spots_cc_radius,
         spots_spot_number
-    )
+    ) // [moving, affdir, movingpkl]
 
     def coarse_ransac_inputs = fixed_coarse_spots_results.join(
         moving_coarse_spots_results,
@@ -92,8 +100,6 @@ workflow registration {
         'ransac_affine.mat', \
         ransac_cc_cutoff,
         ransac_dist_threshold
-    ) | map {
-        [ it[1], it[0] ] // [aff_output_dir, result_file]
     } | join(coarse_ransac_inputs) // [ aff_output_dir, ransac_affine_tx_matrix, fixed_input, fixed_spots, moving_input, moving_spots]
 
     // compute ransac_affine at affine scale
@@ -125,6 +131,8 @@ workflow registration {
         '', // no points path
         params.def_scale_transform_cpus
     ) | map {
+        // expect ransac_affine output to be <outputdir>/aff/ransac_affine
+        // so 2 parents up will give us the output dir
         def ransac_affine_output = file(it[0])
         // [ ransac_affine_output, output_dir, scale_path]
         def r = [ it[0], "${ransac_affine_output.parent.parent}", it[1] ]
@@ -142,7 +150,7 @@ workflow registration {
         spots_spot_number
     ) // [ fixed, tile_dir, fixed_pkl_path ]
 
-    def indexed_output = index_channel(output_dir)
+    def indexed_output = index_channel(normalized_output_dir)
 
     def indexed_moving_spots_inputs = aff_scale_affine_results \
     | join(indexed_output, by:1) | map {
@@ -179,11 +187,11 @@ workflow registration {
         'ransac_affine.mat',
         ransac_cc_cutoff,
         ransac_dist_threshold
-    ) // [ tile_transform_matrix, tile_dir ]
+    ) // [ tile_dir, tile_transform_matrix  ]
 
     def interpolated_results = tile_ransac_results | map {
-        def tile_dir = file(it[1])
-        return [ "${tile_dir.parent}", it[1]]
+        def tile_dir = file(it[0])
+        return [ "${tile_dir.parent}", it[0]]
     } | groupTuple | map {
         println "Interpolate ${it[0]}"
         it[0]
@@ -249,7 +257,7 @@ workflow registration {
     // and combine the results with the warped_channels
     def final_transform_inputs = stitch_results \
     | groupTuple(by:[1,2,3,4,5]) \
-    | combine(moving_input_dir) \
+    | combine(normalized_moving_input_dir) \
     | flatMap { stitch_res ->
         def reference = stitch_res[1]
         def to_warp = stitch_res[6]
@@ -288,34 +296,4 @@ workflow registration {
 
     emit:
     final_result
-}
-
-def index_coarse_results(name, coarse_inputs, coarse_results) {
-    def indexed_name = index_channel(name)
-    def indexed_coarse_inputs = index_channel(coarse_inputs)
-
-    coarse_results | map { 
-        [ it[1], it[0] ] // swap input path with coarse result path
-    } \
-    | join(indexed_coarse_inputs, by:1) \
-    | map {
-        [
-            it[2], // index
-            it[0], // input path
-            it[1] // coarse result
-        ]
-    } \
-    | join (indexed_name) \
-    | map {
-        def coarse_res_file = file(it[2])
-        // get the acquisition output knowing that coarse results are generated in a 'aff' subdir
-        def output_dir = coarse_res_file.parent.parent
-        [
-            it[0], // index
-            it[3], // name
-            it[1], // input path
-            it[2], // coarse result
-            output_dir
-        ]
-    }
 }
