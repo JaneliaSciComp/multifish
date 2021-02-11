@@ -37,7 +37,7 @@ workflow {
         [
             final_params.labels,
             f,
-            "${outdir}/fname"
+            "${outdir}/${fname}"
         ]
     }
 
