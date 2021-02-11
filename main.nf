@@ -355,6 +355,7 @@ workflow {
         println "Registration result to be combined with extracted spots result: $it -> $r"
         return r
     } | combine(spots_to_warp, by:[0,1]) | map {
+        // combined registration result by input and channel:
         // [ moving, channel, moving_subpath, fixed, fixed_subpath, inv_transform, warped_spots_output, spots_file]
         def spots_file =  file(it[7])
         def warped_spots_fname = spots_file.name.replace('.txt', '_warped.txt')
