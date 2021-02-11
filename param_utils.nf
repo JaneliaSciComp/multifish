@@ -39,7 +39,7 @@ def default_mf_params() {
         spot_extraction_dapi_correction_channels: 'c3',
         default_airlocalize_params: default_airlocalize_params,
         per_channel_air_localize_params: ",,,",
-        spot_extraction_cpus: 1,
+        spot_extraction_cpus: 3,
 
         // segmentatioon params
         segmentation_model_dir: '',
