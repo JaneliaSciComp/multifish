@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-
 import os
 import sys
 import zarr
@@ -56,8 +55,6 @@ df = pd.DataFrame(data=np.empty([len(roi), 4]), columns=[
 lb_stat = regionprops(lb, intensity_image=img)
 for i in range(0, len(roi)-1):
     df.loc[i, 'roi'] = lb_stat[i].label
-    df.loc[i, 'weighted_centroid'] = lb_stat[i].weighted_centroid
-    df.loc[i, 'weighted_local_centroid'] = lb_stat[i].weighted_local_centroid
     df.loc[i, 'mean_intensity'] = lb_stat[i].mean_intensity
 
 df.to_csv(outdir+'/{}_{}_intensity.csv'.format(r, channel), index=False)
