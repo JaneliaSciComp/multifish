@@ -459,8 +459,8 @@ workflow {
         println "Create assignment output for ${moving_acq} to ${fixed_acq} -> ${assign_spots_output_dir}"
         assign_spots_output_dir.mkdirs()
         def r = [
-            it[7], // labels
-            it[6], // warped spots
+            it[6], // labels
+            it[5], // warped spots
             assign_spots_output_dir
         ]
         println "Assign spots input: $r"
