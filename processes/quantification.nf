@@ -14,7 +14,7 @@ process quantify_spots {
     val(cpus)
 
     output:
-    tuple val(spots_path), val(output_path)
+    tuple val(labels_path), val(registered_image_path), val(ch), val(output_path)
 
     script:
     args_list = [
