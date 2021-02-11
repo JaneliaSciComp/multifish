@@ -97,10 +97,10 @@ workflow registration {
         coarse_ransac_inputs.map { it[2] }, // fixed spots
         coarse_ransac_inputs.map { it[4] }, // moving spots
         coarse_ransac_inputs.map { it[0] }, // output dir
-        'ransac_affine.mat', \
+        'ransac_affine.mat',
         ransac_cc_cutoff,
         ransac_dist_threshold
-    } | join(coarse_ransac_inputs) // [ aff_output_dir, ransac_affine_tx_matrix, fixed_input, fixed_spots, moving_input, moving_spots]
+    ) | join(coarse_ransac_inputs) // [ aff_output_dir, ransac_affine_tx_matrix, fixed_input, fixed_spots, moving_input, moving_spots]
 
     // compute ransac_affine at affine scale
     def aff_scale_affine_results = apply_transform_at_aff_scale(
