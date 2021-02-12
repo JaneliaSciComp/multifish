@@ -95,7 +95,7 @@ acq_names_param = get_acqs_for_step(final_params, 'acq_names', [])
 stitch_acq_names = get_acqs_for_step(final_params, 'stitch_acq_names', acq_names_param)
 channels = final_params.channels?.split(',')
 block_size = final_params.block_size
-registration_channel_for_stitching = final_params.registration_channel_for_stitching
+stitching_ref = final_params.stitching_ref
 stitching_mode = final_params.stitching_mode
 stitching_padding = final_params.stitching_padding
 blur_sigma = final_params.blur_sigma
@@ -117,9 +117,9 @@ per_channel_air_localize_params = [
     return a 
 }
 
-reference_acq_name = final_params.reference_acq_name
-// if segmentation is not desired do not set segmentation_acq_name or reference_acq_name in the command line
-segmentation_acq_name = get_value_or_default(final_params, 'segmentation_acq_name', reference_acq_name)
+ref_acq = final_params.ref_acq
+// if segmentation is not desired do not set segmentation_acq_name or ref_acq in the command line
+segmentation_acq_name = get_value_or_default(final_params, 'segmentation_acq_name', ref_acq)
 segmentation_acq_names = segmentation_acq_name ? [ segmentation_acq_name ] : []
 segmentation_output = final_params.segmentation_output
 
@@ -149,7 +149,7 @@ workflow {
         resolution,
         axis_mapping,
         block_size,
-        registration_channel_for_stitching,
+        stitching_ref,
         stitching_mode,
         stitching_padding,
         blur_sigma,

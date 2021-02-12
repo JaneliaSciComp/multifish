@@ -14,6 +14,6 @@ moving_rounds="LHA3_R5_subset"
         --data_dir /nrs/multifish/Pipeline/Examples/subset \
         --output_dir /nrs/scicompsoft/goinac/multifish/ex1 \
         --segmentation_model_dir "/nrs/scicompsoft/goinac/multifish/models/starfinity-model" \
-        --reference_acq_name ${fixed_round} \
+        --ref_acq ${fixed_round} \
         --stitch_acq_names ${rounds} \
         --registration_moving_acq_names ${moving_rounds}

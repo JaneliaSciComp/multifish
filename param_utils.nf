@@ -20,13 +20,13 @@ def default_mf_params() {
         axis: '-x,y,z',
         channels: 'c0,c1,c2,c3',
         block_size: '128,128,64',
-        registration_channel_for_stitching: '2',
+        stitching_ref: '2',
         stitching_mode: 'incremental',
         stitching_padding: '0,0,0',
         blur_sigma: '2',
 
         dapi_channel: 'c2', // DAPI channel used to drive both the segmentation and the registration
-        reference_acq_name: '', // this is the default parameter for the fixed round and 
+        ref_acq: '', // this is the default parameter for the fixed round and 
                                 // should be used only when all steps that require a fixed round must be done
 
         // spot extraction params

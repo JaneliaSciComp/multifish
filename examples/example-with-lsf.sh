@@ -11,6 +11,6 @@
         --data_dir /nrs/scicompsoft/goinac/multifish/ex1 \
         --stitching_output stitching \
         --segmentation_model_dir "$PWD/models/starfinity-model" \
-        --reference_acq_name LHA3_R3 \
+        --ref_acq LHA3_R3 \
         --acq_names "LHA3_R3"
 
