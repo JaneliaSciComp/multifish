@@ -137,6 +137,15 @@ intensities_output = final_params.intensities_output
 
 assign_spots_output = final_params.assign_spots_output
 
+log.info """\
+    EASI-FISH ANALYSIS PIPELINE
+    ===================================
+    workDir         : $workDir
+    data_dir        : ${params.data_dir}
+    output_dir      : ${params.output_dir}
+    """
+    .stripIndent()
+
 workflow {
     // stitching
     def stitching_results = stitch_multiple_acquisitions(
@@ -238,14 +247,14 @@ workflow {
     )
 
     def registration_inputs = registration_fixed_inputs.combine(registration_moving_inputs) | map {
-        log.info "Create registration input for $it"
+        log.debug "Create registration input for $it"
         def fixed_acq = it[0]
         def moving_acq = it[2]
         def registration_output_dir = get_step_output_dir(
             get_acq_output(pipeline_output_dir, moving_acq),
             "${registration_output}/${moving_acq}-to-${fixed_acq}"
         )
-        log.info "Create registration output for ${moving_acq} to ${fixed_acq} -> ${registration_output_dir}"
+        log.debug "Create registration output for ${moving_acq} to ${fixed_acq} -> ${registration_output_dir}"
         registration_output_dir.mkdirs()
         [
             fixed_acq,
@@ -288,7 +297,7 @@ workflow {
         //   <warped_channel>, <warped_scale>
         // ]
         def r = it + [ moving_subpath_components[0], moving_subpath_components[1] ]
-        log.info "Extended registration result: $r"
+        log.debug "Extended registration result: $r"
         return r
     }
 
@@ -303,12 +312,12 @@ workflow {
             get_acq_output(pipeline_output_dir, acq_name),
             spot_extraction_output
         )
-        log.info "Collect ${acq_spot_extraction_output_dir}/merged_points_*.txt"
+        log.debug "Collect ${acq_spot_extraction_output_dir}/merged_points_*.txt"
         def spots_files = []
         if (acq_spot_extraction_output_dir.exists()) {
             // only collect merged points if the dir exists
             acq_spot_extraction_output_dir.eachFileMatch(~/merged_points_.*.txt/) { f ->
-                log.info "Found spots file: $f"
+                log.debug "Found spots file: $f"
                 spots_files << f
             }
         }
@@ -336,7 +345,7 @@ workflow {
     | map {
         // input, channel, spots_file
         def r = [ it[0], it[1], it[3] ]
-        log.info "Extracted spots to warp: $r"
+        log.debug "Extracted spots to warp: $r"
         return r
     }
 
@@ -350,7 +359,7 @@ workflow {
             get_acq_output(pipeline_output_dir, moving_acq),
             "${spot_extraction_output}/${moving_acq}-to-${fixed_acq}"
         )
-        log.info "Create warped spots output for ${moving_acq} to ${fixed_acq} -> ${warped_spots_output_dir}"
+        log.debug "Create warped spots output for ${moving_acq} to ${fixed_acq} -> ${warped_spots_output_dir}"
         warped_spots_output_dir.mkdirs()
         def r = [
             it[2], // moving
@@ -361,7 +370,7 @@ workflow {
             it[5], // inv transform
             warped_spots_output_dir
         ]
-        log.info "Registration result to be combined with extracted spots result: $it -> $r"
+        log.debug "Registration result to be combined with extracted spots result: $it -> $r"
         return r
     } | combine(spots_to_warp, by:[0,1]) | map {
         // combined registration result by input and channel:
@@ -377,7 +386,7 @@ workflow {
             "${it[6]}/${warped_spots_fname}", // warped spots file
             "${spots_file}" // spots file (as string)
         ]
-        log.info "Prepare  warp spots input  $it -> $r"
+        log.debug "Prepare  warp spots input  $it -> $r"
         r
     }
 
@@ -424,7 +433,7 @@ workflow {
             get_acq_output(pipeline_output_dir, moving_acq),
             "${intensities_output}/${intensities_name}"
         )
-        log.info "Create intensities output for ${moving_acq} to ${fixed_acq} -> ${intensities_output_dir}"
+        log.debug "Create intensities output for ${moving_acq} to ${fixed_acq} -> ${intensities_output_dir}"
         intensities_output_dir.mkdirs()
         def r = [
             it[9], // labels
@@ -434,7 +443,7 @@ workflow {
             it[8], // scale
             intensities_output_dir // result output dir
         ]
-        log.info "Intensity measurements input $it -> $r"
+        log.debug "Intensity measurements input $it -> $r"
         r
     }
 
@@ -466,7 +475,7 @@ workflow {
         // to combine it with segmentation results which are done only for fixed image
         it[1..5] + [ it[0] ]
     } | combine(labeled_acquisitions, by:0) | map {
-        log.info "Prepare spot assignment input from $it"
+        log.debug "Prepare spot assignment input from $it"
         def fixed_stitched_results = file(it[0])
         def fixed_acq = fixed_stitched_results.parent.parent.name
         def moving_stitched_results = file(it[2])
@@ -475,7 +484,7 @@ workflow {
             get_acq_output(pipeline_output_dir, moving_acq),
             "${assign_spots_output}/${moving_acq}-to-${fixed_acq}"
         )
-        log.info "Create assignment output for ${moving_acq} to ${fixed_acq} -> ${assign_spots_output_dir}"
+        log.debug "Create assignment output for ${moving_acq} to ${fixed_acq} -> ${assign_spots_output_dir}"
         assign_spots_output_dir.mkdirs()
         def warped_spots_file = file(it[5])
         def warped_spots_filename_comps = warped_spots_file.name.tokenize('_');
@@ -485,7 +494,7 @@ workflow {
             warped_spots_file, // warped spots
             "${assign_spots_output_dir}/assigned_spots_${ch}"
         ]
-        log.info "Assign spots input: $r"
+        log.debug "Assign spots input: $r"
         return r
     }
 
@@ -536,7 +545,7 @@ def get_step_output_dirs(stitched_acqs, output_dir, step_output_name) {
             get_acq_output(output_dir, acq_name),
             step_output_name
         )
-        log.info "Create ${step_output_name} output for ${acq_name} -> ${step_output_dir}"
+        log.debug "Create ${step_output_name} output for ${acq_name} -> ${step_output_dir}"
         step_output_dir.mkdirs()
         return step_output_dir
     }
