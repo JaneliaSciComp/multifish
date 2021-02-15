@@ -63,10 +63,10 @@ The purpose of this pipeline is to analyze imagery collected using EASI-FISH (Ex
 |------------|---------|---------------------------------------------------------------------------------------|
 | --spot_extraction_output | spots | Output directory for spot extraction (relative to --output_dir) |
 | --scale_4_spot_extraction | s0 | |
-| --spot_extraction_xy_stride | | |
-| --spot_extraction_xy_overlap | | |
-| --spot_extraction_z_stride | | |
-| --spot_extraction_z_overlap | | |
+| --spot_extraction_xy_stride | 2048 | The number of voxels along x/y for registration tiling, must be power of 2 |
+| --spot_extraction_xy_overlap | 5% of xy_stride | Tile overlap on x/y axes |
+| --spot_extraction_z_stride | 1024 | The number of voxels along z for registration tiling, must be power of 2 |
+| --spot_extraction_z_overlap | 5% of z_stride | Tile overlap on z axis |
 | &#x2011;&#x2011;spot_extraction_dapi_correction_channels | | |
 | --default_airlocalize_params | /app/airlocalize/params/air_localize_default_params.txt | |
 | --per_channel_air_localize_params | ,,, | |
