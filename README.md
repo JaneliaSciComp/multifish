@@ -16,9 +16,11 @@ Before running the pipeline for the first time, pull in and build the sub module
 
     ./setup.sh
   
-Launch the pipeline by invoking the main script:
+Launch the demo using the EASI-FISH example data:
 
-    ./main.nf [arguments]
+    ./examples/demo.sh <data dir>
+
+The `data dir` is the path where you want to store the data and analysis results. 
 
 ## Description
 
@@ -134,7 +136,7 @@ When running registration directly, using main-registration.nf, these additional
 | --assign_spots_output | assignments | Output directory for spot assignments (relative to --output_dir) |
 | --assignment_cpus | 1 | Number of CPU cores to use for spot assignment
 
-## Execution
+## Pipeline Execution
 
 Nextflow supports many different execution engines for portability across platforms and schedulers. We have tested the pipeline using local execution and using the cluster at Janelia Research Campus (running IBM Platform LSF). 
 
@@ -142,17 +144,13 @@ To run this pipeline on a cluster, all input and output paths must be mounted an
 
 ### Run the pipeline locally
 
-To run locally, you can use the standard profile:
+To run the pipeline locally, you can use the standard profile:
 
     ./main.nf [arguments]
 
 This is equivalent to specifying the localsingularity profile:
 
     ./main.nf -profile localsingularity [arguments]
-
-You can also run using a Docker daemon, which is useful for executing on non-Linux platforms:
-
-    ./main.nf -profile localdocker [arguments]
 
 ### Run the pipeline on IBM Platform LSF 
 
