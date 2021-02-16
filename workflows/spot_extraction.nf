@@ -60,7 +60,7 @@ workflow spot_extraction {
             "_${ch}.txt",
             dapi_correction
         ]
-        log.info "Create airlocalize args: ${airlocalize_args}"
+        log.debug "Create airlocalize args: ${airlocalize_args}"
         return airlocalize_args
     }
 
@@ -100,7 +100,7 @@ workflow spot_extraction {
             z_overlap,
             tiles_dir.parent
         ]
-        log.info "Merge ${tiles} using ${merge_points_args}"
+        log.debug "Merge ${tiles} using ${merge_points_args}"
         return merge_points_args
     }
 

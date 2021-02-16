@@ -20,13 +20,13 @@ def default_mf_params() {
         axis: '-x,y,z',
         channels: 'c0,c1,c2,c3',
         block_size: '128,128,64',
-        registration_channel_for_stitching: '2',
+        stitching_ref: '2',
         stitching_mode: 'incremental',
         stitching_padding: '0,0,0',
         blur_sigma: '2',
 
         dapi_channel: 'c2', // DAPI channel used to drive both the segmentation and the registration
-        reference_acq_name: '', // this is the default parameter for the fixed round and 
+        ref_acq: '', // this is the default parameter for the fixed round and 
                                 // should be used only when all steps that require a fixed round must be done
 
         // spot extraction params
@@ -145,7 +145,6 @@ def spot_extraction_xy_stride_param(Map ps) {
 def spot_extraction_xy_overlap_param(Map ps) {
     def spot_extraction_xy_overlap = ps.spot_extraction_xy_overlap
     if (!spot_extraction_xy_overlap) {
-        // consider 20% of xy stride
         spot_extraction_xy_overlap = (int) (0.05 * spot_extraction_xy_stride_param(ps))
         return spot_extraction_xy_overlap < 50 ?  50 : spot_extraction_xy_overlap
     } else {
@@ -165,7 +164,6 @@ def spot_extraction_z_stride_param(Map ps) {
 def spot_extraction_z_overlap_param(Map ps) {
     def spot_extraction_z_overlap = ps.spot_extraction_z_overlap
     if (!spot_extraction_z_overlap) {
-        // consider 20% of z stride
         spot_extraction_z_overlap = (int) (0.05 * spot_extraction_z_stride_param(ps))
         return spot_extraction_z_overlap < 50 ?  50 : spot_extraction_z_overlap
     } else {

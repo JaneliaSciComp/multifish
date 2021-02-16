@@ -116,7 +116,7 @@ workflow registration {
         def ransac_affine_output = file(it[0])
         // [ ransac_affine_output, output_dir, scale_path]
         def r = [ it[0], "${ransac_affine_output.parent.parent}", it[1] ]
-        log.info "Affine results at affine scale: $r"
+        log.debug "Affine results at affine scale: $r"
         return r
     }
 
@@ -136,7 +136,7 @@ workflow registration {
         def ransac_affine_output = file(it[0])
         // [ ransac_affine_output, output_dir, scale_path]
         def r = [ it[0], "${ransac_affine_output.parent.parent}", it[1] ]
-        log.info "Affine results at deform scale: $r"
+        log.debug "Affine results at deform scale: $r"
         return r
     }
     
@@ -159,11 +159,11 @@ workflow registration {
         // put the index as the first element in the tuple
         // [ index, output_dir, ransac_affine_output, scale_path ]
         def ar = [ it[it.size-1] ] + it[0..it.size-2]
-        log.info "Affine result to combine with tiles: $ar"
+        log.debug "Affine result to combine with tiles: $ar"
         ar
     } | combine(tiles_with_inputs, by:0) | map {
         // [ index, output_dir, ransac_affine, scale_path, fixed_input, tile_dir ]
-        log.info "Moving spots input: $it"
+        log.debug "Moving spots input: $it"
         it
     }
 
@@ -198,10 +198,10 @@ workflow registration {
         def tile_dir = file(it[0])
         return [ "${tile_dir.parent}", it[0]]
     } | groupTuple | map {
-        log.info "Interpolate ${it[0]}"
+        log.debug "Interpolate ${it[0]}"
         it[0]
     } | interpolate_affines | map {
-        log.info "Interpolated result: $it"
+        log.debug "Interpolated result: $it"
         [ it ]
     }
 
@@ -216,10 +216,10 @@ workflow registration {
         def tile_parent_dir = file(it[0])
         // [ <index>, <tile_input>, <tile_parent_dir>, <tile_path>, <ransac_output> ]
         def r = [ "${tile_parent_dir.parent}/aff/ransac_affine", it[1], it[2], it[0], it[3] ]
-        log.info "Extended interpolated result: $r"
+        log.debug "Extended interpolated result: $r"
         return r
     } | combine(def_scale_affine_results, by:0) | map {
-        log.info "Deform input: $it"
+        log.debug "Deform input: $it"
         return it
     }
 
@@ -238,7 +238,7 @@ workflow registration {
         def reg_output = "${tile_dir.parent.parent}"
         def aff_matrix = "${reg_output}/aff/ransac_affine.mat"
         def r = [ it[0], it[1],  reg_output, aff_matrix]
-        log.info "Deform result: $it -> $r"
+        log.debug "Deform result: $it -> $r"
         return r
     } | groupTuple(by: [1,2,3]) | flatMap {
         // the grouping and the reconstruction of the input
@@ -287,7 +287,7 @@ workflow registration {
                 warp_dir,
                 params.final_transform_cpus
             ]
-            log.info "Create warp input: $r"
+            log.debug "Create warp input: $r"
             r
         }
     }
@@ -305,7 +305,7 @@ workflow registration {
         // include invtransform path in the result
         def txm_path = file(it[4])
         def r = it[0..4] + [ "${txm_path.parent}/invtransform" ] + [ it[5] ]
-        log.info "Registration result: $r"
+        log.debug "Registration result: $r"
         r
     } // [ <fixed>, <fixed_subpath>, <moving>, <moving_subpath>, <direct_transform>, <inv_transform>, <warped_path> ]
 
