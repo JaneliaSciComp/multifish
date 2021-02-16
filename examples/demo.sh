@@ -1,18 +1,20 @@
 #!/bin/bash
 DIR=$(cd "$(dirname "$0")"; pwd)
 
-FILES_TXT="$DIR/demo_files_small.txt"
 verify_md5=true
+files_txt="demo_files_small.txt"
 fixed_round="LHA3_R3_small"
 moving_rounds="LHA3_R5_small"
 
 if [[ "$#" -lt 1 ]]; then
     echo "Usage: $0 <data dir>"
-    echo "  This is a small demonstration of the EASI-FISH analysis pipeline on a cutout of the LHA3 data set. "
-    echo "  The data dir will be created, data will be downloaded there based on $FILE_TXT, and the analysis will run."
+    echo ""
+    echo "This is a small demonstration of the EASI-FISH analysis pipeline on a cutout of the LHA3 data set. "
+    echo "The data dir will be created, data will be downloaded there based on $files_txt, and the "
+    echo "full end-to-end pipeline will run on these data, producing output in the specified data dir."
+    echo ""
     exit 1
 fi
-
 
 datadir=$(realpath $1)
 shift # eat the first argument so that $@ works later
@@ -34,7 +36,7 @@ while read -r file md5 url ; do
             exit 1
         fi
     fi
-done < "$FILES_TXT"
+done < "$DIR/$files_txt"
 
 # TODO: download segmentation model?
 segmentation_modeldir="/nrs/scicompsoft/goinac/multifish/models/starfinity-model"
@@ -52,10 +54,11 @@ mkdir -p $outputdir
         --driver_memory 15g \
         --spark_work_dir "$datadir/spark" \
         --stitching_app "$PWD/external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar" \
+        --block_size "128,128,32" \
+        --retile_z_size "32" \
         --data_dir "$inputdir" \
         --output_dir "$outputdir" \
         --segmentation_model_dir "$segmentation_modeldir" \
         --ref_acq "${fixed_round}" \
         --stitch_acq_names "$fixed_round,$moving_rounds" \
-        --registration_moving_acq_names "${moving_rounds}" \
-        $@
+        --registration_moving_acq_names "${moving_rounds}" $@
