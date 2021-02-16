@@ -8,8 +8,8 @@ include {
 
 include {
     default_mf_params;
-    get_acqs_for_step;
     get_value_or_default;
+    get_list_or_default;
     spotextraction_container_param;
     segmentation_container_param;
     registration_container_param;
@@ -90,9 +90,20 @@ stitching_app = final_params.stitching_app
 resolution = final_params.resolution
 axis_mapping = final_params.axis
 
-// if stitching is not desired do not set 'stitch_acq_names' or acq_names in the command line parameters
-acq_names_param = get_acqs_for_step(final_params, 'acq_names', [])
-stitch_acq_names = get_acqs_for_step(final_params, 'stitch_acq_names', acq_names_param)
+steps_to_skip = get_list_or_default(final_params, 'skip', [])
+
+// if stitching is not desired include 'stitching' in the 'skip' parameter
+// or if stitching is needed for a different set 
+// than 'acq_names' parameter set 'stitch_acq_names' parameter
+acq_names = get_list_or_default(final_params, 'acq_names', [])
+ref_acq = final_params.ref_acq
+
+if (steps_to_skip.contains('stitching')) {
+    stitch_acq_names = []
+} else {
+    stitch_acq_names = get_list_or_default(final_params, 'stitch_acq_names', acq_names_param)
+}
+
 channels = final_params.channels?.split(',')
 block_size = final_params.block_size
 stitching_ref = final_params.stitching_ref
@@ -100,9 +111,12 @@ stitching_mode = final_params.stitching_mode
 stitching_padding = final_params.stitching_padding
 blur_sigma = final_params.blur_sigma
 
-// if spot extraction is not desired do not set spot_extraction_acq_names or acq_names in the command line parameters
-spot_extraction_acq_names = get_acqs_for_step(final_params, 'spot_extraction_acq_names', stitch_acq_names)
-spot_extraction_output = final_params.spot_extraction_output
+// if spot extraction is not desired include 'spot_extraction' in the 'skip' parameter 
+if (steps_to_skip.contains('spot_extraction')) {
+    spot_extraction_acq_names = []
+} else {
+    spot_extraction_acq_names = get_list_or_default(final_params, 'spot_extraction_acq_names', acq_names_param)
+}
 spot_extraction_dapi_correction_channels = final_params.spot_extraction_dapi_correction_channels?.split(',')
 per_channel_air_localize_params = [
     channels,
@@ -117,24 +131,64 @@ per_channel_air_localize_params = [
     return a 
 }
 
-ref_acq = final_params.ref_acq
 // if segmentation is not desired do not set segmentation_acq_name or ref_acq in the command line
-segmentation_acq_name = get_value_or_default(final_params, 'segmentation_acq_name', ref_acq)
-segmentation_acq_names = segmentation_acq_name ? [ segmentation_acq_name ] : []
+if (steps_to_skip.contains('segmentation')) {
+    segmentation_acq_names = []
+} else {
+    def segmentation_acq_name = get_value_or_default(final_params, 'segmentation_acq_name', ref_acq)
+    segmentation_acq_names = segmentation_acq_name ? [ segmentation_acq_name ] : []
+}
 segmentation_output = final_params.segmentation_output
 
-registration_fixed_acq_names = get_acqs_for_step(final_params, 'registration_fixed_acq_names', segmentation_acq_names)
-registration_fixed_output = final_params.registration_fixed_output
+if (steps_to_skip.contains('registration')) {
+    registration_fixed_acq_names = []
+    registration_moving_acq_names = []
+} else {
+    def registration_fixed_acq_name = get_value_or_default(final_params, 'registration_fixed_acq_name', ref_acq)
+    if (!registration_fixed_acq_name) {
+        log.error "No fixed image was specified for the registration"
+        System.exit(1)
+    }
+    registration_fixed_acq_names = [ registration_fixed_acq_name ]
+    registration_moving_acq_names = get_list_or_default(final_params, 'registration_moving_acq_names', acq_names-registration_fixed_acq_names)
+}
 
-registration_moving_acq_names = get_acqs_for_step(final_params, 'registration_moving_acq_names', spot_extraction_acq_names)
-registration_output = final_params.registration_output
+if (steps_to_skip.contains('registration')) {
+    warp_spots_acq_names = []
+} else {
+    def registration_fixed_acq_name = get_value_or_default(final_params, 'registration_fixed_acq_name', ref_acq)
+    if (!registration_fixed_acq_name) {
+        log.error "No fixed image was specified for the warping spots"
+        System.exit(1)
+    }
+    warp_spots_acq_names = get_list_or_default(final_params, 'warp_spots_acq_names', acq_names-[registration_fixed_acq_name])
+}
 
-warp_spots_acq_names = get_acqs_for_step(final_params, 'warp_spots_acq_names', spot_extraction_acq_names)
+def labeled_spots_acq_name = get_value_or_default(final_params, 'labeled_spots_acq_name', ref_acq)
+labeled_spots_acq_names = labeled_spots_acq_name ? [labeled_spots_acq_name ] : []
 
-labeled_spots_acq_names = get_acqs_for_step(final_params, 'labeled_spots_acq_name', segmentation_acq_names)
+if (steps_to_skip.contains('intensities')) {
+    quantify_acq_names = []
+} else {
+    if (!labeled_spots_acq_names) {
+        log.error "No labeled image was specified for measuring intensities"
+        System.exit(1)
+    }
+    quantify_acq_names = get_list_or_default(final_params, 'quantify_acq_names', acq_names-labeled_spots_acq_names)
 
+}
 intensities_output = final_params.intensities_output
 
+if (steps_to_skip.contains('assign_spots')) {
+    assign_spots_acq_names = []
+} else {
+    if (!labeled_spots_acq_names) {
+        log.error "No labeled image was specified for assigning spots"
+        System.exit(1)
+    }
+    assign_spots_acq_names = get_list_or_default(final_params, 'assign_spots_acq_names', acq_names-labeled_spots_acq_names)
+
+}
 assign_spots_output = final_params.assign_spots_output
 
 log.info """\
@@ -188,7 +242,7 @@ workflow {
     def spot_extraction_output_dirs = get_step_output_dirs(
         spot_extraction_inputs,
         pipeline_output_dir,
-        spot_extraction_output
+        final_params.spot_extraction_output
     )
 
     // run spot extraction
@@ -252,7 +306,7 @@ workflow {
         def moving_acq = it[2]
         def registration_output_dir = get_step_output_dir(
             get_acq_output(pipeline_output_dir, moving_acq),
-            "${registration_output}/${moving_acq}-to-${fixed_acq}"
+            "${final_params.registration_output}/${moving_acq}-to-${fixed_acq}"
         )
         log.debug "Create registration output for ${moving_acq} to ${fixed_acq} -> ${registration_output_dir}"
         registration_output_dir.mkdirs()
@@ -310,7 +364,7 @@ workflow {
         )
         def acq_spot_extraction_output_dir = get_step_output_dir(
             get_acq_output(pipeline_output_dir, acq_name),
-            spot_extraction_output
+            final_params.spot_extraction_output
         )
         log.debug "Collect ${acq_spot_extraction_output_dir}/merged_points_*.txt"
         def spots_files = []
@@ -357,7 +411,7 @@ workflow {
         def moving_acq = moving_stitched_results.parent.parent.name
         def warped_spots_output_dir = get_step_output_dir(
             get_acq_output(pipeline_output_dir, moving_acq),
-            "${spot_extraction_output}/${moving_acq}-to-${fixed_acq}"
+            "${final_params.spot_extraction_output}/${moving_acq}-to-${fixed_acq}"
         )
         log.debug "Create warped spots output for ${moving_acq} to ${fixed_acq} -> ${warped_spots_output_dir}"
         warped_spots_output_dir.mkdirs()
@@ -420,7 +474,39 @@ workflow {
     def labeled_acquisitions = expected_segmentation_results | concat(segmentation_results) | unique
 
     // prepare intensities measurements inputs
+    def expected_registrations_for_intensities = Channel.fromList(labeled_spots_acq_names) \
+    | combine(quantify_acq_names) \
+    | combine(channels)
+    | map {
+        def fixed_acq = it[0]
+        def moving_acq = it[1]
+        def fixed_dir = get_step_output_dir(
+            get_acq_output(pipeline_output_dir, fixed_acq),
+            "${final_params.stitching_output}"
+        )
+        def moving_dir = get_step_output_dir(
+            get_acq_output(pipeline_output_dir, moving_acq),
+            "${final_params.stitching_output}"
+        )
+        def registration_dir = get_step_output_dir(
+            get_acq_output(pipeline_output_dir, moving_acq),
+            "${final_params.registration_output}/${moving_acq}-to-${fixed_acq}"
+        )
+        [
+            "${fixed_dir}/export.n5", // fixed stitched image
+            "/${it[2]}/${final_params.def_scale}", // channel/deform scale
+            "${moving_dir}/export.n5", // moving stitched image
+            "/${it[2]}/${final_params.def_scale}", // channel/deform scale
+            "${registration_dir}/transform", // transform path
+            "${registration_dir}/invtransform", // inv transform path
+            "${registration_dir}/warped", // warped path
+            it[2],
+            final_params.def_scale
+        ]
+    }
+
     def quantify_inputs = extended_registration_results \
+    | concat(expected_registrations_for_intensities) | unique \
     | combine(labeled_acquisitions, by:0) \
     | map {
         // so far we appended the corresponding labels to the registration result
@@ -461,6 +547,38 @@ workflow {
     )
 
     // prepare inputs for assign spots
+    def expected_warped_spots_for_assign = Channel.fromList(labeled_spots_acq_names) \
+    | combine(assign_spots_acq_names) \
+    | combine(channels)
+    | map {
+        def fixed_acq = it[0]
+        def moving_acq = it[1]
+        def fixed_dir = get_step_output_dir(
+            get_acq_output(pipeline_output_dir, fixed_acq),
+            "${final_params.stitching_output}"
+        )
+        def moving_dir = get_step_output_dir(
+            get_acq_output(pipeline_output_dir, moving_acq),
+            "${final_params.stitching_output}"
+        )
+        def registration_dir = get_step_output_dir(
+            get_acq_output(pipeline_output_dir, moving_acq),
+            "${final_params.registration_output}/${moving_acq}-to-${fixed_acq}"
+        )
+        def warped_spots_dir = get_step_output_dir(
+            get_acq_output(pipeline_output_dir, moving_acq),
+            "${final_params.spot_extraction_output}/${moving_acq}-to-${fixed_acq}"
+        )
+        [
+            "${fixed_dir}/export.n5", // fixed stitched image
+            "/${it[2]}/${final_params.def_scale}", // channel/deform scale
+            "${moving_dir}/export.n5", // moving stitched image
+            "/${it[2]}/${final_params.def_scale}", // channel/deform scale
+            "${registration_dir}/invtransform", // transform path
+            "${warped_spots_dir}/merged_points_${it[2]}_warped.txt"
+        ]
+    }
+
     def assign_spots_inputs = warp_spots_inputs | map {
         [
             it[5], // warped spots output
@@ -474,7 +592,9 @@ workflow {
         // swap  again the fixed input in order 
         // to combine it with segmentation results which are done only for fixed image
         it[1..5] + [ it[0] ]
-    } | combine(labeled_acquisitions, by:0) | map {
+    } \
+    | concat(expected_warped_spots_for_assign) | unique \
+    | combine(labeled_acquisitions, by:0) | map {
         log.debug "Prepare spot assignment input from $it"
         def fixed_stitched_results = file(it[0])
         def fixed_acq = fixed_stitched_results.parent.parent.name

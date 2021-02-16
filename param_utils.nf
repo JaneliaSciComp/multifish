@@ -12,6 +12,7 @@ def default_mf_params() {
         acq_names: '', // this is the default parameter for all acquisitions that must be processed
                        // should only be used when all steps must be performed for all acquisions
         output_dir: '',
+        skip: '', // do not skip anything by default
 
         // stitching params
         stitching_app: 'external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar',
@@ -90,6 +91,18 @@ def get_value_or_default(Map ps, String param, String default_value) {
         default_value
 }
 
+def get_list_or_default(Map ps, String param, List default_list) {
+    def value
+    if (ps[param])
+        value = ps[param]
+    else
+        value = null
+    return value
+        ? value.tokenize(',').collect { it.trim() }
+        : default_list
+}
+
+
 def segmentation_container_param(Map ps) {
     def segmentation_container = ps.segmentation_container
     if (!segmentation_container)
@@ -120,17 +133,6 @@ def spots_assignment_container_param(Map ps) {
         "${ps.mfrepo}/spot_assignment:1.0"
     else
         spots_assignment_container
-}
-
-def get_acqs_for_step(Map ps, String step_param, List default_val) {
-    def step_acq_names
-    if (ps[step_param])
-        step_acq_names = ps[step_param]
-    else
-        step_acq_names = null
-    return step_acq_names
-        ? step_acq_names.tokenize(',').collect { it.trim() }
-        : default_val
 }
 
 def spot_extraction_xy_stride_param(Map ps) {
