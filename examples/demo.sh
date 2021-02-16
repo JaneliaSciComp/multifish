@@ -69,4 +69,4 @@ mkdir -p $outputdir
         --segmentation_model_dir "$segmentation_modeldir" \
         --ref_acq "$fixed_round" \
         --stitch_acq_names "$fixed_round,$moving_rounds" \
-        --registration_moving_acq_names "$moving_rounds" $@
+        --registration_moving_acq_names "$moving_rounds" "$@"
