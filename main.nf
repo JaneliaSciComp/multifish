@@ -296,6 +296,7 @@ workflow {
         final_params.stitching_output,
         stitching_results
     )
+    registration_fixed_inputs.subscribe { println "Fixed registration input: $it" }
 
     def registration_moving_inputs = get_stitched_inputs_for_step(
         pipeline_output_dir,
@@ -303,6 +304,7 @@ workflow {
         final_params.stitching_output,
         stitching_results
     )
+    registration_moving_inputs.subscribe { println "Moving registration input: $it" }
 
     def registration_inputs = registration_fixed_inputs.combine(registration_moving_inputs) | map {
         log.debug "Create registration input for $it"
