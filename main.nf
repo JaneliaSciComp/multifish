@@ -26,7 +26,6 @@ include {
 
 // app parameters
 params.output_dir = params.data_dir
-params.acq_names = ''
 
 final_params = default_spark_params() + default_mf_params() + params
 
@@ -101,7 +100,7 @@ ref_acq = final_params.ref_acq
 if (steps_to_skip.contains('stitching')) {
     stitch_acq_names = []
 } else {
-    stitch_acq_names = get_list_or_default(final_params, 'stitch_acq_names', acq_names_param)
+    stitch_acq_names = get_list_or_default(final_params, 'stitch_acq_names', acq_names)
 }
 
 channels = final_params.channels?.split(',')
@@ -115,7 +114,7 @@ blur_sigma = final_params.blur_sigma
 if (steps_to_skip.contains('spot_extraction')) {
     spot_extraction_acq_names = []
 } else {
-    spot_extraction_acq_names = get_list_or_default(final_params, 'spot_extraction_acq_names', acq_names_param)
+    spot_extraction_acq_names = get_list_or_default(final_params, 'spot_extraction_acq_names', acq_names)
 }
 spot_extraction_dapi_correction_channels = final_params.spot_extraction_dapi_correction_channels?.split(',')
 per_channel_air_localize_params = [
