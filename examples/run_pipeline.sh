@@ -37,7 +37,6 @@ $DIR/../main.nf \
         --stitching_app "$PWD/external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar" \
         --data_dir /nrs/multifish/Pipeline/Examples/subset \
         --output_dir /nrs/scicompsoft/goinac/multifish/ex1 \
-        --stitch_acq_names "LHA3_R3_subset,LHA3_R5_subset" \
-        --reference_acq_name "LHA3_R3_subset" \
-        --segmentation_model_dir "/nrs/scicompsoft/goinac/multifish/models/starfinity-model" \
-        --registration_moving_acq_names "LHA3_R5_subset"
+        --acq_names "LHA3_R3_subset,LHA3_R5_subset" \
+        --ref_acq "LHA3_R3_subset" \
+        --segmentation_model_dir "/nrs/scicompsoft/goinac/multifish/models/starfinity-model"
