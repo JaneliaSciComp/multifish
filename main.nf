@@ -102,6 +102,7 @@ if (steps_to_skip.contains('stitching')) {
 } else {
     stitch_acq_names = get_list_or_default(final_params, 'stitch_acq_names', acq_names)
 }
+log.info "Images to stitch: ${stitch_acq_names}"
 
 channels = final_params.channels?.split(',')
 block_size = final_params.block_size
@@ -116,6 +117,7 @@ if (steps_to_skip.contains('spot_extraction')) {
 } else {
     spot_extraction_acq_names = get_list_or_default(final_params, 'spot_extraction_acq_names', acq_names)
 }
+log.info "Images for spot extraction: ${spot_extraction_acq_names}"
 spot_extraction_dapi_correction_channels = final_params.spot_extraction_dapi_correction_channels?.split(',')
 per_channel_air_localize_params = [
     channels,
@@ -137,6 +139,7 @@ if (steps_to_skip.contains('segmentation')) {
     def segmentation_acq_name = get_value_or_default(final_params, 'segmentation_acq_name', ref_acq)
     segmentation_acq_names = segmentation_acq_name ? [ segmentation_acq_name ] : []
 }
+log.info "Images for segmentation: ${segmentation_acq_names}"
 segmentation_output = final_params.segmentation_output
 
 if (steps_to_skip.contains('registration')) {
@@ -151,6 +154,7 @@ if (steps_to_skip.contains('registration')) {
     registration_fixed_acq_names = [ registration_fixed_acq_name ]
     registration_moving_acq_names = get_list_or_default(final_params, 'registration_moving_acq_names', acq_names-registration_fixed_acq_names)
 }
+log.info "Images to register: ${registration_moving_acq_names} against ${registration_fixed_acq_names}"
 
 if (steps_to_skip.contains('warp_spots')) {
     warp_spots_acq_names = []
@@ -162,6 +166,7 @@ if (steps_to_skip.contains('warp_spots')) {
     }
     warp_spots_acq_names = get_list_or_default(final_params, 'warp_spots_acq_names', acq_names-[registration_fixed_acq_name])
 }
+log.info "Images for warping spots: ${warp_spots_acq_names}"
 
 def labeled_spots_acq_name = get_value_or_default(final_params, 'labeled_spots_acq_name', ref_acq)
 labeled_spots_acq_names = labeled_spots_acq_name ? [labeled_spots_acq_name ] : []
@@ -174,8 +179,8 @@ if (steps_to_skip.contains('intensities')) {
         System.exit(1)
     }
     quantify_acq_names = get_list_or_default(final_params, 'quantify_acq_names', acq_names-labeled_spots_acq_names)
-
 }
+log.info "Images for intensities measurement: ${quantify_acq_names}"
 intensities_output = final_params.intensities_output
 
 if (steps_to_skip.contains('assign_spots')) {
@@ -186,8 +191,8 @@ if (steps_to_skip.contains('assign_spots')) {
         System.exit(1)
     }
     assign_spots_acq_names = get_list_or_default(final_params, 'assign_spots_acq_names', acq_names-labeled_spots_acq_names)
-
 }
+log.info "Images for assign spots: ${assign_spots_acq_names}"
 assign_spots_output = final_params.assign_spots_output
 
 log.info """\
@@ -653,7 +658,10 @@ def get_stitched_inputs_for_step(output_dir, step_acq_names, stitching_output, s
             )
         ]
     }
-    stitching_results | concat(expected_stitched_results) | unique
+    stitching_results \
+    | filter {
+        step_acq_names.contains(it[0])
+    } | concat(expected_stitched_results) | unique
 }
 
 def get_step_output_dirs(stitched_acqs, output_dir, step_output_name) {
