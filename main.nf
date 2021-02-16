@@ -321,7 +321,7 @@ workflow {
             it[3], // stitching dir for moving acq
             "${registration_output_dir}" // pass it as string to be consistent, otherwise if types differ channel joins will not work properly
         ]
-        log.debug "Registration parameters: $it -> $r"
+        log.debug "Registration inputs: $it -> $r"
         r
     }
 
