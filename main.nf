@@ -153,7 +153,7 @@ if (steps_to_skip.contains('registration')) {
     registration_moving_acq_names = get_list_or_default(final_params, 'registration_moving_acq_names', acq_names-registration_fixed_acq_names)
 }
 
-if (steps_to_skip.contains('registration')) {
+if (steps_to_skip.contains('warp_spots')) {
     warp_spots_acq_names = []
 } else {
     def registration_fixed_acq_name = get_value_or_default(final_params, 'registration_fixed_acq_name', ref_acq)
