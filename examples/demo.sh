@@ -64,6 +64,10 @@ mkdir -p $outputdir
         --stitching_app "$stitching_app" \
         --block_size "128,128,32" \
         --retile_z_size "32" \
+        --registration_z_stride "16" \
+        --registration_z_overlap "8" \
+        --spot_extraction_z_stride "16" \
+        --spot_extraction_z_overlap "8" \
         --data_dir "$inputdir" \
         --output_dir "$outputdir" \
         --segmentation_model_dir "$segmentation_modeldir" \
