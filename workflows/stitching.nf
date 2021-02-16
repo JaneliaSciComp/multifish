@@ -93,7 +93,7 @@ workflow stitch_multiple {
         resolution,
         axis_mapping,
         block_size,
-        retile_z_size
+        retile_z_size,
         registration_channel,
         stitching_mode,
         stitching_padding,
