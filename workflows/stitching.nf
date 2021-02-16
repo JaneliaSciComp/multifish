@@ -388,5 +388,37 @@ def prepare_app_args(app_name,
         log.debug "${app_name} app input ${idx}: ${app_inputs}"
         return app_inputs
     }
+}
 
+workflow mock_stitch_acquisition {
+    take:
+    stitching_app
+    acq_names
+    stitching_dirs
+    channels
+    resolution
+    axis_mapping
+    block_size
+    registration_channel
+    stitching_mode
+    stitching_padding
+    blur_sigma
+    spark_conf
+    spark_work_dirs
+    spark_workers
+    spark_worker_cores
+    spark_gbmem_per_core
+    spark_driver_cores
+    spark_driver_memory
+    spark_driver_logconfig
+
+    main:
+    def indexed_acq_names = index_channel(acq_names)
+    def indexed_stitching_dirs = index_channel(stitching_dirs)
+    done = indexed_acq_names.join(indexed_stitching_dirs) | map {
+        [ it[1], it[2] ]
+    }
+
+    emit:
+    done
 }
