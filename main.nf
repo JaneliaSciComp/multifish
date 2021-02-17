@@ -25,8 +25,6 @@ include {
 } from './param_utils'
 
 // app parameters
-params.output_dir = params.data_dir
-
 final_params = default_spark_params() + default_mf_params() + params
 
 include {
