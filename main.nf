@@ -30,7 +30,7 @@ params.output_dir = params.data_dir
 final_params = default_spark_params() + default_mf_params() + params
 
 include {
-    stitch_multiple_acquisitions;
+    stitch_multiple;
 } from './workflows/stitching' addParams(lsf_opts: final_params.lsf_opts, 
                                          crepo: final_params.crepo,
                                          spark_version: final_params.spark_version)
@@ -106,6 +106,7 @@ log.info "Images to stitch: ${stitch_acq_names}"
 
 channels = final_params.channels?.split(',')
 block_size = final_params.block_size
+retile_z_size = final_params.retile_z_size
 stitching_ref = final_params.stitching_ref
 stitching_mode = final_params.stitching_mode
 stitching_padding = final_params.stitching_padding
@@ -206,7 +207,7 @@ log.info """\
 
 workflow {
     // stitching
-    def stitching_results = stitch_multiple_acquisitions(
+    def stitching_results = stitch_multiple(
         stitching_app,
         stitch_acq_names,
         final_params.data_dir,
@@ -216,6 +217,7 @@ workflow {
         resolution,
         axis_mapping,
         block_size,
+        retile_z_size,
         stitching_ref,
         stitching_mode,
         stitching_padding,

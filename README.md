@@ -47,9 +47,10 @@ The purpose of this pipeline is to analyze imagery collected using EASI-FISH (Ex
 |------------|---------|---------------------------------------------------------------------------------------|
 | --stitching_output | stitching | Output directory for stitching (relative to --output_dir) |
 | --resolution | 0.23,0.23,0.42 | |
-| --axis | -x,y,z | |
-| --channels | c0,c1,c2,c3 | |
-| --block_size | 128,128,64 | |
+| --axis | -x,y,z | Axis mapping for objective to pixel coordinates conversion when parsing CZI metadata. Minus sign flips the axis. |
+| --channels | c0,c1,c2,c3 | List of channels to stitch |
+| --block_size | 128,128,64 | Block size to use when converting CZI to n5 before stitching |
+| --retile_z_size | 64 | Block size (in Z dimension) when retiling after stitching. This must be smaller than the number of Z slices in the data. |
 | --stitching_ref | 2 | Index of the channel used for stitching |
 | --stitching_mode | incremental | |
 | &#x2011;&#x2011;stitching_padding | 0,0,0 | |
