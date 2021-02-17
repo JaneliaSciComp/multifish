@@ -34,7 +34,7 @@ include {
  *
  * @return tuple of <acq_name, acq_stitching_dir>
  */
-workflow stitch_multiple_acquisitions {
+workflow stitch_multiple {
     take:
     stitching_app
     acquisitions
@@ -45,6 +45,7 @@ workflow stitch_multiple_acquisitions {
     resolution
     axis_mapping
     block_size
+    retile_z_size
     registration_channel
     stitching_mode
     stitching_padding
@@ -84,7 +85,7 @@ workflow stitch_multiple_acquisitions {
             spark_work_dirs: it[2]
         }
 
-    def stitching_results = stitch_acquisition(
+    def stitching_results = stitch(
         stitching_app,
         acq_inputs.acq_names,
         acq_inputs.stitching_dirs,
@@ -92,6 +93,7 @@ workflow stitch_multiple_acquisitions {
         resolution,
         axis_mapping,
         block_size,
+        retile_z_size,
         registration_channel,
         stitching_mode,
         stitching_padding,
@@ -115,7 +117,7 @@ workflow stitch_multiple_acquisitions {
  *
  * @return tuple of <acq_name, acq_stitching_dir>
  */
-workflow stitch_acquisition {
+workflow stitch {
     take:
     stitching_app
     acq_names
@@ -124,6 +126,7 @@ workflow stitch_acquisition {
     resolution
     axis_mapping
     block_size
+    retile_z_size
     registration_channel
     stitching_mode
     stitching_padding
@@ -271,7 +274,8 @@ workflow stitch_acquisition {
         indexed_spark_work_dirs,
         indexed_acq_data,
         { acq_name, stitching_dir ->
-            entries_inputs_args(stitching_dir, channels, '-i', '-n5', '.json')
+            def retile_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5', '.json')
+            return "${retile_args} --size ${retile_z_size}"
         }
     )
     def retile_done = run_retile(
