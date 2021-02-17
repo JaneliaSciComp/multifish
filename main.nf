@@ -231,6 +231,7 @@ workflow {
         driver_memory,
         driver_logconfig
     )
+    stitching_results.subscribe { log.debug "Stitching results: $it" }
 
     // in order to allow users to skip stitching - if that is already done
     // we build a channel of expected stitched results which we 
@@ -406,7 +407,7 @@ workflow {
     // they are provided by expected_spot_extraction_results
     def spots_to_warp = spot_extraction_results \
     | concat(expected_spot_extraction_results) \
-    | distinct {
+    | unique {
         it[0..2].collect { "$it" }
     }
     | map {
@@ -486,7 +487,7 @@ workflow {
 
     def labeled_acquisitions = expected_segmentation_results \
     | concat(segmentation_results) \
-    | distinct {
+    | unique {
         "${it[0]}"
     }
 
@@ -523,7 +524,7 @@ workflow {
     }
 
     def quantify_inputs = extended_registration_results \
-    | concat(expected_registrations_for_intensities) | distinct { 
+    | concat(expected_registrations_for_intensities) | unique { 
         it[0..3].collect { "$it" }
     } \
     | combine(labeled_acquisitions, by:0) \
@@ -612,7 +613,7 @@ workflow {
         // to combine it with segmentation results which are done only for fixed image
         it[1..5] + [ it[0] ]
     } \
-    | concat(expected_warped_spots_for_assign) | distinct {
+    | concat(expected_warped_spots_for_assign) | unique {
         it.collect { "$it" }
     } \
     | combine(labeled_acquisitions, by:0) | map {
@@ -678,8 +679,8 @@ def get_stitched_inputs_for_step(output_dir, step_acq_names, stitching_output, s
     stitching_results \
     | filter {
         step_acq_names.contains(it[0])
-    } | concat(expected_stitched_results) | distinct {
-        [ it[0], "${it[1]}" ]
+    } | concat(expected_stitched_results) | unique {
+        it.collect { "$it" }
     }
 }
 
