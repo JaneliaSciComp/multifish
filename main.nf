@@ -165,6 +165,7 @@ if (steps_to_skip.contains('warp_spots')) {
         log.error "No fixed image was specified for the warping spots"
         System.exit(1)
     }
+    registration_fixed_acq_names = [ registration_fixed_acq_name ]
     warp_spots_acq_names = get_list_or_default(final_params, 'warp_spots_acq_names', acq_names-[registration_fixed_acq_name])
 }
 log.info "Images for warping spots: ${warp_spots_acq_names}"
@@ -418,7 +419,42 @@ workflow {
     }
 
     // prepare inputs for warping the spots
-    def warp_spots_inputs = extended_registration_results.map {
+    def expected_registration_for_warping_spots = Channel.fromList(registration_fixed_acq_names) \
+    | combine(warp_spots_acq_names) \
+    | combine(channels) \
+    | map {
+        def fixed_acq = it[0]
+        def moving_acq = it[1]
+        def ch = it[2]
+        def fixed_dir = get_step_output_dir(
+            get_acq_output(pipeline_output_dir, fixed_acq),
+            "${final_params.stitching_output}"
+        )
+        def moving_dir = get_step_output_dir(
+            get_acq_output(pipeline_output_dir, moving_acq),
+            "${final_params.stitching_output}"
+        )
+        def registration_dir = get_step_output_dir(
+            get_acq_output(pipeline_output_dir, moving_acq),
+            "${final_params.registration_output}/${moving_acq}-to-${fixed_acq}"
+        )
+        [
+            "${fixed_dir}/export.n5", // fixed stitched image
+            "/${ch}/${final_params.def_scale}", // channel/deform scale
+            "${moving_dir}/export.n5", // moving stitched image
+            "/${ch}/${final_params.def_scale}", // channel/deform scale
+            "${registration_dir}/transform", // transform path
+            "${registration_dir}/invtransform", // inv transform path
+            "${registration_dir}/warped", // warped path
+            ch,
+            final_params.def_scale
+        ]
+    }
+
+    def warp_spots_inputs = expected_registration_for_warping_spots \
+    | concat(extended_registration_results) | unique {
+        it[0..3].collect { "$it" }
+    } | map {
         def fixed_stitched_results = file(it[0])
         def moving_stitched_results = file(it[2])
         def fixed_acq = fixed_stitched_results.parent.parent.name
@@ -498,6 +534,7 @@ workflow {
     | map {
         def fixed_acq = it[0]
         def moving_acq = it[1]
+        def ch = it[2]
         def fixed_dir = get_step_output_dir(
             get_acq_output(pipeline_output_dir, fixed_acq),
             "${final_params.stitching_output}"
@@ -512,13 +549,13 @@ workflow {
         )
         [
             "${fixed_dir}/export.n5", // fixed stitched image
-            "/${it[2]}/${final_params.def_scale}", // channel/deform scale
+            "/${ch}/${final_params.def_scale}", // channel/deform scale
             "${moving_dir}/export.n5", // moving stitched image
-            "/${it[2]}/${final_params.def_scale}", // channel/deform scale
+            "/${ch}/${final_params.def_scale}", // channel/deform scale
             "${registration_dir}/transform", // transform path
             "${registration_dir}/invtransform", // inv transform path
             "${registration_dir}/warped", // warped path
-            it[2],
+            ch,
             final_params.def_scale
         ]
     }
