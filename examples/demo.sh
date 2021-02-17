@@ -59,7 +59,8 @@ mkdir -p $outputdir
         --runtime_opts "--nv -B $BASEDIR -B $datadir" \
         --workers 4 \
         --worker_cores 4 \
-        --driver_memory 15g \
+        --gb_per_core 3 \
+        --driver_memory 4g \
         --spark_work_dir "$datadir/spark" \
         --stitching_app "$stitching_app" \
         --block_size "128,128,32" \
