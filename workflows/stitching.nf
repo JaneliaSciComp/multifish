@@ -381,7 +381,7 @@ def prepare_app_args(app_name,
         log.debug "Indexed result from: $it -> $r"
         return r
     } | join(indexed_acq_data) | map {
-        log.debug "Create retile app inputs from ${it}"
+        log.debug "Create ${app_name} inputs from ${it}"
         def idx = it[0]
         def acq_name = it[2]
         def spark_uri = it[3]
