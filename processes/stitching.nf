@@ -22,5 +22,4 @@ process prepare_stitching_data {
     ln -s "${mvl}" "${mvl_link}" || true
     ln -s "${czi}" "${czi_link}" || true
     """
-
 }
