@@ -38,7 +38,7 @@ workflow spot_extraction {
     def tiles_with_inputs = index_channel(tile_cut_res[0]) \
     | join(index_channel(tile_cut_res[1])) \
     | flatMap {
-        def index = itt[0]
+        def index = it[0]
         def tile_input = it[1]
         it[2].tokenize(' ').collect {
             [ index, tile_input, it ]
