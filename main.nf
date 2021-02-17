@@ -244,6 +244,7 @@ workflow {
         final_params.stitching_output,
         stitching_results
     )
+    spot_extraction_inputs.subscribe { log.debug "Spot extraction input: $it" }
 
     def spot_extraction_output_dirs = get_step_output_dirs(
         spot_extraction_inputs,
@@ -678,7 +679,7 @@ def get_stitched_inputs_for_step(output_dir, step_acq_names, stitching_output, s
     | filter {
         step_acq_names.contains(it[0])
     } | concat(expected_stitched_results) | distinct {
-        [ it[0], "${it[0]}" ]
+        [ it[0], "${it[1]}" ]
     }
 }
 
