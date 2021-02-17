@@ -296,7 +296,7 @@ workflow {
         final_params.stitching_output,
         stitching_results
     )
-    registration_fixed_inputs.subscribe { println "Fixed registration input: $it" }
+    registration_fixed_inputs.subscribe { log.debug "Fixed registration input: $it" }
 
     def registration_moving_inputs = get_stitched_inputs_for_step(
         pipeline_output_dir,
@@ -304,7 +304,7 @@ workflow {
         final_params.stitching_output,
         stitching_results
     )
-    registration_moving_inputs.subscribe { println "Moving registration input: $it" }
+    registration_moving_inputs.subscribe { log.debug "Moving registration input: $it" }
 
     def registration_inputs = registration_fixed_inputs.combine(registration_moving_inputs) | map {
         log.debug "Create registration input for $it"
@@ -403,7 +403,9 @@ workflow {
     // they are provided by expected_spot_extraction_results
     def spots_to_warp = spot_extraction_results \
     | concat(expected_spot_extraction_results) \
-    | unique \
+    | distinct {
+        it[0..2].collect { "$it" }
+    }
     | map {
         // input, channel, spots_file
         def r = [ it[0], it[1], it[3] ]
@@ -479,7 +481,11 @@ workflow {
         ]
     }
 
-    def labeled_acquisitions = expected_segmentation_results | concat(segmentation_results) | unique
+    def labeled_acquisitions = expected_segmentation_results \
+    | concat(segmentation_results) \
+    | distinct {
+        "${it[0]}"
+    }
 
     // prepare intensities measurements inputs
     def expected_registrations_for_intensities = Channel.fromList(labeled_spots_acq_names) \
@@ -514,7 +520,9 @@ workflow {
     }
 
     def quantify_inputs = extended_registration_results \
-    | concat(expected_registrations_for_intensities) | unique \
+    | concat(expected_registrations_for_intensities) | distinct { 
+        it[0..3].collect { "$it" }
+    } \
     | combine(labeled_acquisitions, by:0) \
     | map {
         // so far we appended the corresponding labels to the registration result
@@ -601,7 +609,9 @@ workflow {
         // to combine it with segmentation results which are done only for fixed image
         it[1..5] + [ it[0] ]
     } \
-    | concat(expected_warped_spots_for_assign) | unique \
+    | concat(expected_warped_spots_for_assign) | distinct {
+        it.collect { "$it" }
+    } \
     | combine(labeled_acquisitions, by:0) | map {
         log.debug "Prepare spot assignment input from $it"
         def fixed_stitched_results = file(it[0])
@@ -665,7 +675,9 @@ def get_stitched_inputs_for_step(output_dir, step_acq_names, stitching_output, s
     stitching_results \
     | filter {
         step_acq_names.contains(it[0])
-    } | concat(expected_stitched_results) | unique
+    } | concat(expected_stitched_results) | distinct {
+        [ it[0], "${it[0]}" ]
+    }
 }
 
 def get_step_output_dirs(stitched_acqs, output_dir, step_output_name) {
