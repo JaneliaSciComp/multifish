@@ -160,6 +160,7 @@ workflow stitch {
         spark_work_dirs,
         spark_workers,
         spark_worker_cores,
+        spark_worker_cores * spark_gbmem_per_core,
         terminate_stitching_name
     )
     // print spark cluster result

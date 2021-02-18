@@ -1,6 +1,22 @@
-# Multifish Pipeline
+# EASI-FISH Nextflow Pipeline
+
+The purpose of this pipeline is to analyze imagery collected using [EASI-FISH](https://github.com/multiFISH/EASI-FISH) (Expansion-Assisted Iterative Fluorescence *In Situ* Hybridization). It includes automated image stitching, distributed multi-round image registration, cell segmentation, and distributed spot detection. 
+
+This pipeline is containerized and portable across the various platforms supported by [Nextflow](https://www.nextflow.io). So far it has been tested on a standalone workstation and the Janelia cluster (IBM Platform LSF). 
+
+The pipeline includes the following modules:
+* **stitching** - Spark-based distributed stitching pipeline
+* **registration** - Bigstream distributed registration pipeline
+* **segmentation** - Cell segmentation using Starfinity 
+* **spot_extraction** - Spot detection using hAirlocalize
+* **warp_spots** - Warp detected spots to registration
+* **intensities** - Intensity measurement
+* **assign_spots** - Mapping of spot counts to segmented cells
 
 ![Pipeline Diagram](docs/pipeline_diagram.png)
+
+Further documentation about the individual pipeline steps is available in the [EASI-FISH](https://github.com/multiFISH/EASI-FISH) repo.
+
 
 ## Prerequisites
 
@@ -12,19 +28,16 @@ Clone this repo with the following command:
 
     git clone git@github.com:JaneliaSciComp/multifish.git
 
-Before running the pipeline for the first time, pull in and build the sub modules and test data using the setup script:
+Before running the pipeline for the first time, pull in and build the submodules and the demo data set using the setup script:
 
     ./setup.sh
   
 Launch the demo using the EASI-FISH example data:
 
-    ./examples/demo.sh <data dir>
+    ./examples/demo.sh <data dir> [arguments]
 
-The `data dir` is the path where you want to store the data and analysis results. 
+The `data dir` is the path where you want to store the data and analysis results. You can also add additional arguments to the end in order to, for example, skip steps previously completed, or add Nextflow Tower monitoring. See below for additional details about the argument usage.
 
-## Description
-
-The purpose of this pipeline is to analyze imagery collected using EASI-FISH (Expansion-Assisted Iterative Fluorescence *In Situ* Hybridization). 
 
 ## Parameters
 
@@ -33,18 +46,21 @@ The purpose of this pipeline is to analyze imagery collected using EASI-FISH (Ex
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
 | --data_dir | | Path to the directory containing the input CZI/MVL acquisition files | 
-| &#x2011;&#x2011;acq_names | | Names of acquisition rounds to process. These should match the names of the CZI/MVL files found in the data_dir. |  
+| --output_dir | | Path to the directory containing pipeline outputs |
+| &#x2011;&#x2011;segmentation_model_dir | | Path to the directory containing the machine learning model for segmentation |
+| --acq_names | | Names of acquisition rounds to process. These should match the names of the CZI/MVL files found in the data_dir. |  
 | --ref_acq | | Name of the acquisition round to use as the fixed reference |
-| --output_dir | | Root output directory | 
+| --skip | | Comma-delimited list of steps to skip, e.g. "stitching,registration" (Valid values: stitching, spot_extraction, segmentation, registration, warp_spots, intensities, assign_spots) |
 | --workdir | ./work | Nextflow working directory where all intermediate files are saved |
 | --mfrepo | janeliascicomp (on DockerHub) | Docker Registry and Repository to use for containers | 
-| -profile | localsingularity | Configuration profile to use (localsingularity/localdocker/lsf) |
+| -profile | localsingularity | Configuration profile to use (Valid values: localsingularity, lsf) |
 | -with-tower | | [Nextflow Tower](https://tower.nf) URL for monitoring |
 
 ### Stitching Parameters
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
+| --stitching_app | external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar' | Path to the JAR file containing the stitching application. This is built by the `setup.sh` script run in *Quick Start* above. |
 | --stitching_output | stitching | Output directory for stitching (relative to --output_dir) |
 | --resolution | 0.23,0.23,0.42 | |
 | --axis | -x,y,z | Axis mapping for objective to pixel coordinates conversion when parsing CZI metadata. Minus sign flips the axis. |
@@ -55,15 +71,16 @@ The purpose of this pipeline is to analyze imagery collected using EASI-FISH (Ex
 | --stitching_mode | incremental | |
 | &#x2011;&#x2011;stitching_padding | 0,0,0 | |
 | --blur_sigma | 2 | |
-| --workers | 4 | Number of Spark workers |
-| --worker_cores | 4 | Number of cores for each Spark worker |
+| --workers | 4 | Number of Spark workers to use for stitching one acquisition |
+| --worker_cores | 4 | Number of cores allocated to each Spark worker |
+| --gb_per_core | 15 | Size of memory (in GB) that is allocated for each core of a Spark worker. The total memory usage for stitching one acquisition will be workers * worker_cores * gb_per_core. | 
 | --driver_memory | 15g | Amount of memory to allocate for the Spark driver |
-| --stitching_app | external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar' | |
 
 ### Spot Extraction Parameters
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
+| --spotextraction_container | \<mfrepo\>/spotextraction:1.0 | Docker container to use for running spot extraction |
 | --spot_extraction_output | spots | Output directory for spot extraction (relative to --output_dir) |
 | --scale_4_spot_extraction | s0 | |
 | --spot_extraction_xy_stride | 2048 | The number of voxels along x/y for registration tiling, must be power of 2 |
@@ -71,7 +88,7 @@ The purpose of this pipeline is to analyze imagery collected using EASI-FISH (Ex
 | --spot_extraction_z_stride | 1024 | The number of voxels along z for registration tiling, must be power of 2 |
 | --spot_extraction_z_overlap | 5% of z_stride | Tile overlap on z axis |
 | &#x2011;&#x2011;spot_extraction_dapi_correction_channels | | |
-| --default_airlocalize_params | /app/airlocalize/params/air_localize_default_params.txt | |
+| --default_airlocalize_params | /app/airlocalize/params/air_localize_default_params.txt | Path to hAirLocalize parameter file. By default, this points to default parameters inside the container. |
 | --per_channel_air_localize_params | ,,, | |
 | --spot_extraction_cpus | 1 | |
 
@@ -79,6 +96,7 @@ The purpose of this pipeline is to analyze imagery collected using EASI-FISH (Ex
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
+| --segmentation_container | \<mfrepo\>/segmentation:1.0 | Docker container to use for running segmentation |
 | --dapi_channel | c2 | DAPI channel used to drive both the segmentation and the registration | 
 | &#x2011;&#x2011;segmentation_model_dir | | |
 | --segmentation_output | segmentation | |
@@ -90,6 +108,7 @@ The purpose of this pipeline is to analyze imagery collected using EASI-FISH (Ex
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
+| --registration_container | \<mfrepo\>/registration:1.0 | Docker container to use for running registration and warp_spots |
 | --dapi_channel | c2 | DAPI channel used to drive both the segmentation and the registration | 
 | --aff_scale | s3 | The scale level for affine alignments |
 | --def_scale | s2 | The scale level for deformable alignments |
@@ -108,24 +127,18 @@ The purpose of this pipeline is to analyze imagery collected using EASI-FISH (Ex
 | --stitch_registered_cpus | 2 | Number of CPU cores for re-stitching registered tiles  |
 | --final_transform_cpus | 12 | Number of CPU cores for final registered transform |
 
-When running registration directly, using main-registration.nf, these additional parameters specify the input/output imagery:
+### Spot Warping Parameters
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| --moving | | Path to the moving n5 image that should be registered.|
-| --fixed | | Path to the fixed n5 image that the moving image should be registered to. |
-| --outdir | | Path to a non-existing n5 image where the registered image should be saved. |
-
-### Warp Spots Parameters
-
-| Argument   | Default | Description                                                                           |
-|------------|---------|---------------------------------------------------------------------------------------|
+| --registration_container | \<mfrepo\>/registration:1.0 | Docker container to use for running registration and warp_spots |
 | --warp_spots_cpus | 2 | Number of CPU cores to use for warp spots | 
 
 ### Intensity Measurement Parameters
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
+| --spots_assignment_container | \<mfrepo\>/spot_assignment:1.0 | Docker container to use for running intensities and spot_assignment |
 | --intensities_output | intensities | Output directory for intensities (relative to --output_dir) | 
 | --bleed_channel | c3 | | 
 | --intensity_cpus | 1 | Number of CPU cores to use for intensity measurement | 
@@ -134,6 +147,7 @@ When running registration directly, using main-registration.nf, these additional
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
+| --spots_assignment_container | \<mfrepo\>/spot_assignment:1.0 | Docker container to use for running intensities and spot_assignment |
 | --assign_spots_output | assignments | Output directory for spot assignments (relative to --output_dir) |
 | --assignment_cpus | 1 | Number of CPU cores to use for spot assignment
 
@@ -160,6 +174,22 @@ This example also sets the project flag to demonstrate how to set LSF options.
     ./main.nf -profile lsf --lsf_opts "-P multifish" [arguments]
 
 Complete examples are available in the [examples](examples) directory.
+
+## Troubleshooting
+
+### Temporary Files
+
+The pipeline downloads Docker containers and converts them into Singularity Image Format prior to execution. This requires about 10 GB of tmp space. In addition, other parts of the pipeline also use the temp directory while running, for example for MATLAB's MCR_CACHE_ROOT.
+
+If the filesystem containing your /tmp directory does not have sufficient space for downloading and extracting the Docker containers, you will need to point both `TMPDIR` and `SINGULARITY_TMPDIR` to an alternate location, e.g.
+
+    export TMPDIR=/opt/tmp
+    export SINGULARITY_TMPDIR=$TMPDIR
+
+If you do this, make sure to mount this directory into the containers using the `-B` option:
+
+    --runtime_opts "-B $TMPDIR"
+
 
 ## Development
 
