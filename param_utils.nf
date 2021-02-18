@@ -124,7 +124,7 @@ def spotextraction_container_param(Map ps) {
 def registration_container_param(Map ps) {
     def registration_container = ps.registration_container
     if (!registration_container)
-        "${ps.mfrepo}/registration:1.0"
+        "${ps.mfrepo}/registration:1.1"
     else
         registration_container
 }

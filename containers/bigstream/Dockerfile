@@ -7,7 +7,7 @@ ARG GIT_TAG=master
 
 # Checkout and build the code
 WORKDIR /tmp/app
-RUN git clone --branch $GIT_TAG --depth 1 https://github.com/GFleishman/bigstream.git . \
+RUN git clone --branch $GIT_TAG --depth 1 https://github.com/JaneliaSciComp/bigstream.git . \
     && /usr/local/bin/buildinfo.sh
 
 # Create final image
