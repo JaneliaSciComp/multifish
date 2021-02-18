@@ -50,8 +50,9 @@ if channel == bleed_channel:
     print('DAPI background:', bg_dapi)
     print('bleed_through channel background:', bg_img)
 
-df = pd.DataFrame(data=np.empty([len(roi), 4]), columns=[
-                  'roi', 'weighted_centroid', 'weighted_local_centroid', 'mean_intensity'], dtype=object)
+df = pd.DataFrame(data=np.empty([len(roi)-1, 4]),
+                  columns=['roi', 'weighted_centroid', 'weighted_local_centroid', 'mean_intensity'],
+                  dtype=object)
 lb_stat = regionprops(lb, intensity_image=img)
 for i in range(0, len(roi)-1):
     df.loc[i, 'roi'] = lb_stat[i].label

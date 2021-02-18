@@ -13,7 +13,7 @@ if __name__ == '__main__':
     out_dir = sys.argv[3]
 
 lb = imread(lb_dir)
-fx = sorted(glob(spot_dir+"*.txt"))
+fx = sorted(glob(spot_dir+"/*.txt"))
 
 lb_id = np.unique(lb[lb != 0])
 z, y, x = lb.shape
@@ -24,7 +24,7 @@ count = pd.DataFrame(np.empty([len(lb_id), 0]), index=lb_id)
 for f in fx:
     r = os.path.basename(f).split('/')[-1]
     r = r.split('.')[0]
-    spot = np.loadtxt(f)
+    spot = np.loadtxt(f, delimiter=',')
     n = len(spot)
     spot[:, :3] = spot[:, :3]/s
     spot = np.round(spot).astype('int')
