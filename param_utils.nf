@@ -43,7 +43,7 @@ def default_mf_params() {
         default_airlocalize_params: default_airlocalize_params,
         per_channel_air_localize_params: ",,,",
         spot_extraction_cpus: 2,
-        spot_extraction_memory: "20 GB",
+        spot_extraction_memory: 20,
 
         // segmentatioon params
         segmentation_model_dir: '',
@@ -140,7 +140,7 @@ def spots_assignment_container_param(Map ps) {
 def spot_extraction_xy_stride_param(Map ps) {
     def spot_extraction_xy_stride = ps.spot_extraction_xy_stride
     if (!spot_extraction_xy_stride) {
-        return 2048
+        return 1024
     } else {
         return spot_extraction_xy_stride
     }
@@ -159,7 +159,7 @@ def spot_extraction_xy_overlap_param(Map ps) {
 def spot_extraction_z_stride_param(Map ps) {
     def spot_extraction_z_stride = ps.spot_extraction_z_stride
     if (!spot_extraction_z_stride) {
-        return 1024
+        return 512
     } else {
         return spot_extraction_z_stride
     }
