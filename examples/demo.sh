@@ -2,12 +2,15 @@
 #
 # This script downloads all the necessary data and runs the end-to-end pipeline on a demo data set.
 # 
+# It is tuned for a 40 core machine, with 128 GB of RAM. 
+#
+# Set TMPDIR in your environment before calling this script.
+#
 
 DIR=$(cd "$(dirname "$0")"; pwd)
 BASEDIR=$(realpath $DIR/..)
 
 # The temporary directory needs to have 10 GB to store large Docker images
-export TMPDIR=/opt/tmp
 export SINGULARITY_TMPDIR=$TMPDIR
 
 verify_md5=true
