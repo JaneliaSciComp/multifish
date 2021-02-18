@@ -172,7 +172,7 @@ log.info "Images for warping spots: ${warp_spots_acq_names}"
 def labeled_spots_acq_name = get_value_or_default(final_params, 'labeled_spots_acq_name', ref_acq)
 labeled_spots_acq_names = labeled_spots_acq_name ? [labeled_spots_acq_name ] : []
 
-if (steps_to_skip.contains('intensities')) {
+if (steps_to_skip.contains('measure_intensities')) {
     measure_acq_names = []
 } else {
     if (!labeled_spots_acq_names) {
@@ -415,7 +415,7 @@ workflow {
         def r = [ it[0], it[1], it[3] ]
         log.debug "Extracted spots to warp: $r"
         return r
-    }
+    } // [ n5_image_path, channel, spots_filepath]
 
     // prepare inputs for warping the spots
     def expected_registration_for_warping_spots = Channel.fromList(registration_fixed_acq_names) \
@@ -487,7 +487,7 @@ workflow {
             it[2], // moving subpath
             it[5], // transform subpath
             "${it[6]}/${warped_spots_fname}", // warped spots file
-            "${spots_file}" // spots file (as string)
+            "${spots_file}" // spots file path (as string)
         ]
         log.debug "Prepare  warp spots input  $it -> $r"
         r
@@ -590,13 +590,13 @@ workflow {
     }
 
     // run intensities measurements
-    def intenisities_results = measure_intensities(
-        intenisities_inputs.map { it[0] }, // labels
-        intenisities_inputs.map { it[1] }, // warped spots image
-        intenisities_inputs.map { it[2] }, // intensity measurements result file prefix (round name)
-        intenisities_inputs.map { it[3] }, // channel
-        intenisities_inputs.map { it[4] }, // scale
-        intenisities_inputs.map { it[5] }, // result output dir
+    def intensities_results = measure_intensities(
+        intensities_inputs.map { it[0] }, // labels
+        intensities_inputs.map { it[1] }, // warped spots image
+        intensities_inputs.map { it[2] }, // intensity measurements result file prefix (round name)
+        intensities_inputs.map { it[3] }, // channel
+        intensities_inputs.map { it[4] }, // scale
+        intensities_inputs.map { it[5] }, // result output dir
         final_params.dapi_channel, // dapi_channel
         final_params.bleed_channel, // bleed_channel
         final_params.intensity_cpus, // cpus
