@@ -26,7 +26,7 @@ The only software requirements for running this pipeline are [Nextflow](https://
 
 Clone this repo with the following command:
 
-    git clone git@github.com:JaneliaSciComp/multifish.git
+    https://github.com/JaneliaSciComp/multifish.git
 
 Before running the pipeline for the first time, pull in and build the submodules using the setup script:
 
@@ -83,6 +83,7 @@ You can also add additional arguments to the end in order to, for example, skip 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
 | --spotextraction_container | \<mfrepo\>/spotextraction:1.0 | Docker container to use for running spot extraction |
+| --dapi_channel | c2 | DAPI channel | 
 | --spot_extraction_output | spots | Output directory for spot extraction (relative to --output_dir) |
 | --scale_4_spot_extraction | s0 | |
 | --spot_extraction_xy_stride | 1024 | The number of voxels along x/y for registration tiling, must be power of 2. Increasing this requires increasing the memory allocation. |
@@ -100,7 +101,7 @@ You can also add additional arguments to the end in order to, for example, skip 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
 | --segmentation_container | \<mfrepo\>/segmentation:1.0 | Docker container to use for running segmentation |
-| --dapi_channel | c2 | DAPI channel used to drive both the segmentation and the registration | 
+| --dapi_channel | c2 | DAPI channel | 
 | &#x2011;&#x2011;segmentation_model_dir | | |
 | --segmentation_output | segmentation | |
 | --scale_4_segmentation | s2 | |
@@ -112,7 +113,7 @@ You can also add additional arguments to the end in order to, for example, skip 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
 | --registration_container | \<mfrepo\>/registration:1.0 | Docker container to use for running registration and warp_spots |
-| --dapi_channel | c2 | DAPI channel used to drive both the segmentation and the registration | 
+| --dapi_channel | c2 | DAPI channel | 
 | --aff_scale | s3 | The scale level for affine alignments |
 | --def_scale | s2 | The scale level for deformable alignments |
 | --spots_cc_radius | 8 | |
@@ -142,6 +143,7 @@ You can also add additional arguments to the end in order to, for example, skip 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
 | --spots_assignment_container | \<mfrepo\>/spot_assignment:1.0 | Docker container to use for running intensities and spot_assignment |
+| --dapi_channel | c2 | DAPI channel | 
 | --intensities_output | intensities | Output directory for intensities (relative to --output_dir) | 
 | --bleed_channel | c3 | | 
 | --intensity_cpus | 1 | Number of CPU cores to use for intensity measurement | 
