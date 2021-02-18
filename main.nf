@@ -194,7 +194,6 @@ if (steps_to_skip.contains('assign_spots')) {
     assign_spots_acq_names = get_list_or_default(final_params, 'assign_spots_acq_names', acq_names-labeled_spots_acq_names)
 }
 log.info "Images for assign spots: ${assign_spots_acq_names}"
-assign_spots_output = final_params.assign_spots_output
 
 log.info """\
     EASI-FISH ANALYSIS PIPELINE
@@ -267,6 +266,7 @@ workflow {
         bleedthrough_correction_channels,
         per_channel_air_localize_params
     )
+    spot_extraction_results.subscribe { log.debug "Spot extraction results: $it" }
 
     // prepare segmentation  inputs
     def segmentation_inputs = get_stitched_inputs_for_step(
@@ -292,6 +292,7 @@ workflow {
         final_params.segmentation_model_dir,
         final_params.predict_cpus
     )  // [ input_image_path, output_labels_tiff ]
+    segmentation_results.subscribe { log.debug "Segmentation results: $it" }
 
     // prepare fixed and  moving inputs for the registration
     def registration_fixed_inputs = get_stitched_inputs_for_step(
@@ -660,21 +661,20 @@ workflow {
         def moving_acq = moving_stitched_results.parent.parent.name
         def assign_spots_output_dir = get_step_output_dir(
             get_acq_output(pipeline_output_dir, moving_acq),
-            "${assign_spots_output}/${moving_acq}-to-${fixed_acq}"
+            "${final_params.assign_spots_output}/${moving_acq}-to-${fixed_acq}"
         )
         log.debug "Create assignment output for ${moving_acq} to ${fixed_acq} -> ${assign_spots_output_dir}"
         assign_spots_output_dir.mkdirs()
         def warped_spots_file = file(it[5])
-        def warped_spots_filename_comps = warped_spots_file.name.tokenize('_');
-        def ch = warped_spots_filename_comps[2]
+        def warped_spots_dir = warped_spots_file.parent
         def r = [
             it[6], // labels
-            warped_spots_file, // warped spots
-            "${assign_spots_output_dir}/assigned_spots_${ch}"
+            warped_spots_dir, // warped spots dir
+            assign_spots_output_dir
         ]
         log.debug "Assign spots input: $r"
         return r
-    }
+    } | unique { "$it" }
 
     // run assign spots
     def assign_spots_results = assign_spots(

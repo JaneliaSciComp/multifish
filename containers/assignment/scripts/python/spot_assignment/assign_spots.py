@@ -37,4 +37,4 @@ for f in fx:
         if idx > 0:
             df.loc[idx, 'count'] = df.loc[idx, 'count']+1
     count.loc[:, r] = df.to_numpy()
-count.to_csv(out_dir+'count.csv')
+count.to_csv(out_dir+'/count.csv')
