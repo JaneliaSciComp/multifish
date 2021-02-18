@@ -23,7 +23,6 @@ def default_mf_params() {
         channels: 'c0,c1,c2,c3',
         block_size: '128,128,64',
         retile_z_size: '64',
-        stitching_ref: '2',
         stitching_mode: 'incremental',
         stitching_padding: '0,0,0',
         blur_sigma: '2',
@@ -39,7 +38,7 @@ def default_mf_params() {
         spot_extraction_xy_overlap: 0, // use the default defined by spot_extraction_xy_overlap_param
         spot_extraction_z_stride: 0, // use the default defined by spot_extraction_z_stride_param
         spot_extraction_z_overlap: 0, // use the default defined by spot_extraction_z_overlap_param
-        bleedthrough_correction_channel: 'c3',
+        bleed_channel: 'c3',
         default_airlocalize_params: default_airlocalize_params,
         per_channel_air_localize_params: ",,,",
         spot_extraction_cpus: 2,
@@ -78,7 +77,6 @@ def default_mf_params() {
 
         // intensity measurement parameters
         intensities_output: 'intensities',
-        bleed_channel: 'c3',
         intensity_cpus: 1,
 
         // spot assignment parameters
@@ -135,6 +133,23 @@ def spots_assignment_container_param(Map ps) {
         "${ps.mfrepo}/spot_assignment:1.0.0"
     else
         spots_assignment_container
+}
+
+/**
+ * Get the stitching ref channel or if not specified use dapi_channel.
+ * Also extracts only the numeric part from the channel since that's
+ * how the stitching pipeline expects it.
+ */
+def stitching_ref_param(Map ps) {
+    def stitching_ref = ps.stitching_ref
+        ? ps.stitching_ref
+        : ps.dapi_channel
+    def ch_num_lookup = (stitching_ref =~ /(\d+)/)
+    if (ch_num_lookup.find()) {
+        ch_num_lookup[0][1]
+    } else {
+        ''
+    }
 }
 
 def spot_extraction_xy_stride_param(Map ps) {

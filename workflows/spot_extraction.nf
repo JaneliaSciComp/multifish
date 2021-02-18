@@ -20,7 +20,7 @@ workflow spot_extraction {
     z_stride
     z_overlap
     dapi_channel
-    dapi_correction_channels
+    bleedthrough_channels
     per_channel_air_localize_params
 
     main:
@@ -50,7 +50,7 @@ workflow spot_extraction {
         def tile_input = it[1]
         def tile_dir = it[2]
         def ch = it[3]
-        def dapi_correction = dapi_correction_channels.contains(ch)
+        def dapi_correction = bleedthrough_channels.contains(ch)
                 ? "/${dapi_channel}/${scale}"
                 : ''
         // return a tuple with all required arguments for airlocalize

@@ -13,6 +13,7 @@ include {
     spotextraction_container_param;
     segmentation_container_param;
     registration_container_param;
+    stitching_ref_param;
     spot_extraction_xy_stride_param;
     spot_extraction_xy_overlap_param;
     spot_extraction_z_stride_param;
@@ -106,7 +107,7 @@ log.info "Images to stitch: ${stitch_acq_names}"
 channels = final_params.channels?.split(',')
 block_size = final_params.block_size
 retile_z_size = final_params.retile_z_size
-stitching_ref = final_params.stitching_ref
+stitching_ref = stitching_ref_param(final_params)
 stitching_mode = final_params.stitching_mode
 stitching_padding = final_params.stitching_padding
 blur_sigma = final_params.blur_sigma
@@ -118,7 +119,7 @@ if (steps_to_skip.contains('spot_extraction')) {
     spot_extraction_acq_names = get_list_or_default(final_params, 'spot_extraction_acq_names', acq_names)
 }
 log.info "Images for spot extraction: ${spot_extraction_acq_names}"
-bleedthrough_correction_channels = final_params.bleedthrough_correction_channel?.split(',')
+bleedthrough_channels = final_params.bleed_channel?.split(',')
 spot_channels = channels - [final_params.dapi_channel]
 per_channel_air_localize_params = [
     channels,
@@ -218,7 +219,7 @@ workflow {
         axis_mapping,
         block_size,
         retile_z_size,
-        stitching_ref,
+        stitching_ref, // stitching_ref or dapi_channel
         stitching_mode,
         stitching_padding,
         blur_sigma,
@@ -230,7 +231,7 @@ workflow {
         driver_cores,
         driver_memory,
         driver_logconfig
-    )
+    ) // [ acq, stitching_dir ]
     stitching_results.subscribe { log.debug "Stitching results: $it" }
 
     // in order to allow users to skip stitching - if that is already done
@@ -264,9 +265,9 @@ workflow {
         spot_extraction_z_stride_param(final_params),
         spot_extraction_z_overlap_param(final_params),
         final_params.dapi_channel,
-        bleedthrough_correction_channels,
+        bleedthrough_channels, // bleed_channel
         per_channel_air_localize_params
-    )
+    ) // [ input_image, ch, scale, spots_file ]
     spot_extraction_results.subscribe { log.debug "Spot extraction results: $it" }
 
     // prepare segmentation  inputs
