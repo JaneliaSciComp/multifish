@@ -22,7 +22,7 @@ All containers used by the pipeline have been made available on Docker Hub. You 
 #### Spot extraction container
 Container used for spot detection/extraction.
 
-    cd containers/airlocalize
+    cd containers/spot_extraction
     docker build -t multifish/spot_extraction:latest  .
     docker push multifish/spot_extraction:latest
 
@@ -36,13 +36,13 @@ Container used for cell segmentation.
 #### Registration container
 Container used for registration and spot warping.
 
-    cd containers/bigstream
+    cd containers/registration
     docker build --build-arg GIT_TAG=prototype -t multifish/registration:latest .
     docker push multifish/registration:latest
 
 #### Spot assignment container
 Container used for intensity measurement and spot assignment.
 
-    cd containers/assignment
+    cd containers/spot_assignment
     docker build -t multifish/spot_assignment:latest .
     docker push multifish/spot_assignment:latest
