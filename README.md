@@ -85,14 +85,15 @@ You can also add additional arguments to the end in order to, for example, skip 
 | --spotextraction_container | \<mfrepo\>/spotextraction:1.0 | Docker container to use for running spot extraction |
 | --spot_extraction_output | spots | Output directory for spot extraction (relative to --output_dir) |
 | --scale_4_spot_extraction | s0 | |
-| --spot_extraction_xy_stride | 2048 | The number of voxels along x/y for registration tiling, must be power of 2 |
+| --spot_extraction_xy_stride | 1024 | The number of voxels along x/y for registration tiling, must be power of 2. Increasing this requires increasing the memory allocation. |
 | --spot_extraction_xy_overlap | 5% of xy_stride | Tile overlap on x/y axes |
-| --spot_extraction_z_stride | 1024 | The number of voxels along z for registration tiling, must be power of 2 |
+| --spot_extraction_z_stride | 512 | The number of voxels along z for registration tiling, must be power of 2. Increasing this requires increasing the memory allocation. |
 | --spot_extraction_z_overlap | 5% of z_stride | Tile overlap on z axis |
 | &#x2011;&#x2011;spot_extraction_dapi_correction_channels | | |
 | --default_airlocalize_params | /app/airlocalize/params/air_localize_default_params.txt | Path to hAirLocalize parameter file. By default, this points to default parameters inside the container. |
 | --per_channel_air_localize_params | ,,, | |
-| --spot_extraction_cpus | 1 | |
+| --spot_extraction_cpus | 2 | Number of CPU cores to allocate for each hAirlocalize job |
+| --spot_extraction_memory | 30 | Amount of RAM (in GB) to allocate to each hAirlocalize job. Needs to be increased when increasing strides. |
 
 ### Segmentation Parameters
 

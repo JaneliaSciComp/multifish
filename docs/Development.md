@@ -17,32 +17,32 @@ Commit as normal, then back at the root update the submodule commit pointer and 
 
 ### Building containers
 
-All containers used by the pipeline have been made available on Docker Hub. You can rebuild these to make customizations or to replace the algorithms used. To build the containers and push to a Docker registry (the Janelia internal registry is used in the examples):
-
-#### Registration container
-Container used for registration and spot warping.
-
-    cd containers/bigstream
-    docker build --build-arg GIT_TAG=prototype -t registry.int.janelia.org/janeliascicomp/registration:latest .
-    docker push registry.int.janelia.org/janeliascicomp/registration:latest
-
-#### Segmentation container
-Container used for cell segmentation.
-
-    cd containers/segmentation
-    docker build -t registry.int.janelia.org/janeliascicomp/segmentation:latest .
-    docker push registry.int.janelia.org/janeliascicomp/segmentation:latest
+All containers used by the pipeline have been made available on Docker Hub. You can rebuild these to make customizations or to replace the algorithms used. To build the containers and push to Docker Hub you can use [maru](https://github.com/JaneliaSciComp/maru), or:
 
 #### Spot extraction container
 Container used for spot detection/extraction.
 
     cd containers/airlocalize
-    docker build -t registry.int.janelia.org/janeliascicomp/spotextraction:latest  .
-    docker push registry.int.janelia.org/janeliascicomp/spotextraction:latest
+    docker build -t multifish/spot_extraction:latest  .
+    docker push multifish/spot_extraction:latest
+
+#### Segmentation container
+Container used for cell segmentation.
+
+    cd containers/segmentation
+    docker build -t multifish/segmentation:latest .
+    docker push multifish/segmentation:latest
+
+#### Registration container
+Container used for registration and spot warping.
+
+    cd containers/bigstream
+    docker build --build-arg GIT_TAG=prototype -t multifish/registration:latest .
+    docker push multifish/registration:latest
 
 #### Spot assignment container
 Container used for intensity measurement and spot assignment.
 
     cd containers/assignment
-    docker build -t registry.int.janelia.org/janeliascicomp/spot_assignment:latest .
-    docker push registry.int.janelia.org/janeliascicomp/spot_assignment:latest
+    docker build -t multifish/spot_assignment:latest .
+    docker push multifish/spot_assignment:latest
