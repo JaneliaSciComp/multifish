@@ -17,36 +17,32 @@ Commit as normal, then back at the root update the submodule commit pointer and 
 
 ### Building containers
 
-All containers used by the pipeline have been made available on Docker Hub. You can rebuild these to make customizations or to replace the algorithms used. To build the containers and push to a Docker registry:
+All containers used by the pipeline have been made available on Docker Hub. You can rebuild these to make customizations or to replace the algorithms used. To build the containers and push to a Docker registry (the Janelia internal registry is used in the examples):
 
-#### Airlocalize container
-```
-cd containers/airlocalize
-docker build -t registry.int.janelia.org/janeliascicomp/spotextraction:1.0  .
-docker push registry.int.janelia.org/janeliascicomp/spotextraction:1.0
-```
+#### Registration container
+Container used for registration and spot warping.
 
-#### Spot assignment container
-```
-cd containers/assignment
-docker build -t registry.int.janelia.org/janeliascicomp/spot_assignment:1.0 .
-docker push registry.int.janelia.org/janeliascicomp/spot_assignment:1.0
-```
-
-#### Bigstream container
-```
-cd containers/bigstream
-docker build --build-arg GIT_TAG=prototype -t registry.int.janelia.org/janeliascicomp/registration:1.0 .
-docker push registry.int.janelia.org/janeliascicomp/registration:1.0
-```
+    cd containers/bigstream
+    docker build --build-arg GIT_TAG=prototype -t registry.int.janelia.org/janeliascicomp/registration:latest .
+    docker push registry.int.janelia.org/janeliascicomp/registration:latest
 
 #### Segmentation container
-```
-cd containers/segmentation
-docker build -t registry.int.janelia.org/janeliascicomp/segmentation:1.0 .
-docker push registry.int.janelia.org/janeliascicomp/segmentation:1.0
-```
+Container used for cell segmentation.
+
+    cd containers/segmentation
+    docker build -t registry.int.janelia.org/janeliascicomp/segmentation:latest .
+    docker push registry.int.janelia.org/janeliascicomp/segmentation:latest
 
 #### Spot extraction container
+Container used for spot detection/extraction.
 
-TBD
+    cd containers/airlocalize
+    docker build -t registry.int.janelia.org/janeliascicomp/spotextraction:latest  .
+    docker push registry.int.janelia.org/janeliascicomp/spotextraction:latest
+
+#### Spot assignment container
+Container used for intensity measurement and spot assignment.
+
+    cd containers/assignment
+    docker build -t registry.int.janelia.org/janeliascicomp/spot_assignment:latest .
+    docker push registry.int.janelia.org/janeliascicomp/spot_assignment:latest

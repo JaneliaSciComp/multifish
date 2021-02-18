@@ -2,13 +2,13 @@
 
 The purpose of this pipeline is to analyze imagery collected using [EASI-FISH](https://github.com/multiFISH/EASI-FISH) (Expansion-Assisted Iterative Fluorescence *In Situ* Hybridization). It includes automated image stitching, distributed multi-round image registration, cell segmentation, and distributed spot detection. 
 
-This pipeline is containerized and portable across the various platforms supported by [Nextflow](https://www.nextflow.io). So far it has been tested on a standalone workstation and the Janelia cluster (IBM Platform LSF). 
+This pipeline is containerized and portable across the various platforms supported by [Nextflow](https://www.nextflow.io). So far it has been tested on a standalone workstation and the Janelia compute cluster (IBM Platform LSF). If you run it successfully on any other platform, please let us know so that we can update this documentation.
 
 The pipeline includes the following modules:
 * **stitching** - Spark-based distributed stitching pipeline
-* **registration** - Bigstream distributed registration pipeline
-* **segmentation** - Cell segmentation using Starfinity 
 * **spot_extraction** - Spot detection using hAirlocalize
+* **segmentation** - Cell segmentation using Starfinity 
+* **registration** - Bigstream distributed registration pipeline
 * **warp_spots** - Warp detected spots to registration
 * **intensities** - Intensity measurement
 * **assign_spots** - Mapping of spot counts to segmented cells
@@ -28,7 +28,7 @@ Clone this repo with the following command:
 
     git clone git@github.com:JaneliaSciComp/multifish.git
 
-Before running the pipeline for the first time, pull in and build the submodules and the demo data set using the setup script:
+Before running the pipeline for the first time, pull in and build the submodules using the setup script:
 
     ./setup.sh
   
@@ -36,7 +36,9 @@ Launch the demo using the EASI-FISH example data:
 
     ./examples/demo.sh <data dir> [arguments]
 
-The `data dir` is the path where you want to store the data and analysis results. You can also add additional arguments to the end in order to, for example, skip steps previously completed, or add Nextflow Tower monitoring. See below for additional details about the argument usage.
+The `data dir` is the path where you want to store the data and analysis results. 
+
+You can also add additional arguments to the end in order to, for example, skip steps previously completed, or add Nextflow Tower monitoring. See below for additional details about the argument usage.
 
 
 ## Parameters
@@ -60,7 +62,7 @@ The `data dir` is the path where you want to store the data and analysis results
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| --stitching_app | external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar' | Path to the JAR file containing the stitching application. This is built by the `setup.sh` script run in *Quick Start* above. |
+| --stitching_app | external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar | Path to the JAR file containing the stitching application. This is built by the `setup.sh` script run in *Quick Start* above. |
 | --stitching_output | stitching | Output directory for stitching (relative to --output_dir) |
 | --resolution | 0.23,0.23,0.42 | |
 | --axis | -x,y,z | Axis mapping for objective to pixel coordinates conversion when parsing CZI metadata. Minus sign flips the axis. |
