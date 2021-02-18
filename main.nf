@@ -638,6 +638,24 @@ workflow {
         ]
     }
 
+    def assign_spots_inputs_for_fixed = spot_extraction_results \
+    | join(warp_spots_inputs) | map {
+        def fixed_stitched_results = file(it[0])
+        def fixed_acq = fixed_stitched_results.parent.parent.name
+        def spots_file = file(it[3])
+        def assign_spots_output_dir = get_step_output_dir(
+            get_acq_output(pipeline_output_dir, fixed_acq),
+            final_params.assign_spots_output
+        )
+        [ spots_file.parent, assign_spots_output_dir] // [ spots_dir, assigned_dir ]
+    } | combine(labeled_acquisitions) | map {
+        def r = [
+            it[2], it[0], it[1]
+        ]
+        log.debug "Assign spots input for fixed image: $r"
+        return r
+    }
+
     def assign_spots_inputs = warp_spots_inputs | map {
         [
             it[5], // warped spots output
@@ -676,7 +694,7 @@ workflow {
         ]
         log.debug "Assign spots input: $r"
         return r
-    } | unique { "$it" }
+    } | concat(assign_spots_inputs_for_fixed) | unique { "$it" }
 
     // run assign spots
     def assign_spots_results = assign_spots(
