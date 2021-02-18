@@ -1,12 +1,19 @@
 #!/bin/bash
+#
+# This script downloads all the necessary data and runs the end-to-end pipeline on a demo data set.
+# 
 
 DIR=$(cd "$(dirname "$0")"; pwd)
 BASEDIR=$(realpath $DIR/..)
 
+# The temporary directory needs to have 10 GB to store large Docker images
+export TMPDIR=/opt/tmp
+export SINGULARITY_TMPDIR=$TMPDIR
+
 verify_md5=true
-files_txt="demo_files_small.txt"
-fixed_round="LHA3_R3_small"
-moving_rounds="LHA3_R5_small"
+files_txt="demo_files_medium.txt"
+fixed_round="LHA3_R3_medium"
+moving_rounds="LHA3_R5_medium"
 
 if [[ "$#" -lt 1 ]]; then
     echo "Usage: $0 <data dir>"
@@ -55,23 +62,34 @@ fi
 outputdir=$datadir/outputs
 mkdir -p $outputdir
 
+#
+# Memory Considerations
+# =====================
+#
+# The value of workers*worker_cores*gb_per_core determines the total Spark memory for each acquisition registration. 
+# For the demo, two of these need to fit in main memory. The settings below work for a 40 core machine with 128 GB RAM.
+#
+# Reducing the gb_per_core to 2 reduces total memory consumption from 128GB to 100GB but doubles processing time 
+# from 12 min to 23 min.
+#
+#
+# Data Set Considerations
+# =======================
+#
+# The demo data set is sampled from a larger data set by subsetting in Z. Since the number of slices is less than 64, 
+# we need to reduce all of the Z strides and block sizes below to accomodate it. 
+#
+
 ./main.nf \
-        --runtime_opts "--nv -B $BASEDIR -B $datadir" \
-        --workers 4 \
-        --worker_cores 4 \
+        --runtime_opts "--nv -B $BASEDIR -B $datadir -B $TMPDIR" \
+        --workers 1 \
+        --worker_cores 16 \
         --gb_per_core 3 \
-        --driver_memory 4g \
+        --driver_memory 2g \
         --spark_work_dir "$datadir/spark" \
         --stitching_app "$stitching_app" \
-        --block_size "128,128,32" \
-        --retile_z_size "32" \
-        --registration_z_stride "16" \
-        --registration_z_overlap "8" \
-        --spot_extraction_z_stride "16" \
-        --spot_extraction_z_overlap "8" \
         --data_dir "$inputdir" \
         --output_dir "$outputdir" \
         --segmentation_model_dir "$segmentation_modeldir" \
         --ref_acq "$fixed_round" \
-        --stitch_acq_names "$fixed_round,$moving_rounds" \
-        --registration_moving_acq_names "$moving_rounds" "$@"
+        --acq_names "$fixed_round,$moving_rounds" "$@"
