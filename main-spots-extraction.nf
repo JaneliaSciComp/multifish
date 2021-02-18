@@ -21,7 +21,8 @@ include {
     spot_extraction;
 } from './workflows/spot_extraction' addParams(lsf_opts: final_params.lsf_opts,
                                                spotextraction_container: spotextraction_container_param(final_params),
-                                               spot_extraction_cpus: final_params.spot_extraction_cpus)
+                                               spot_extraction_cpus: final_params.spot_extraction_cpus,
+                                               spot_extraction_memory: final_params.spot_extraction_memory)
 
 channels = final_params.channels?.split(',')
 spot_extraction_dapi_correction_channels = final_params.spot_extraction_dapi_correction_channels?.split(',')

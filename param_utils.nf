@@ -42,7 +42,8 @@ def default_mf_params() {
         bleedthrough_correction_channel: 'c3',
         default_airlocalize_params: default_airlocalize_params,
         per_channel_air_localize_params: ",,,",
-        spot_extraction_cpus: 4,
+        spot_extraction_cpus: 2,
+        spot_extraction_memory: "20 GB",
 
         // segmentatioon params
         segmentation_model_dir: '',
