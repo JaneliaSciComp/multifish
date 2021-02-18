@@ -1,0 +1,6 @@
+maru_version: 0.1.1
+name: spot_extraction
+version: 1.0.0
+remotes:
+- registry.int.janelia.org/multifish
+- multifish
