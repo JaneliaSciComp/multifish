@@ -39,7 +39,7 @@ def default_mf_params() {
         spot_extraction_xy_overlap: 0, // use the default defined by spot_extraction_xy_overlap_param
         spot_extraction_z_stride: 0, // use the default defined by spot_extraction_z_stride_param
         spot_extraction_z_overlap: 0, // use the default defined by spot_extraction_z_overlap_param
-        spot_extraction_dapi_correction_channels: 'c3',
+        bleedthrough_correction_channel: 'c3',
         default_airlocalize_params: default_airlocalize_params,
         per_channel_air_localize_params: ",,,",
         spot_extraction_cpus: 4,

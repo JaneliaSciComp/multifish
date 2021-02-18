@@ -60,14 +60,14 @@ include {
                                           warp_spots_cpus: final_params.warp_spots_cpus)
 
 include {
-    quantify_spots;
-} from './processes/quantification' addParams(spots_assignment_container: spots_assignment_container_param(final_params),
-                                              intensity_cpus: final_params.intensity_cpus)
+    measure_intensities;
+} from './processes/spot_intensities' addParams(spots_assignment_container: spots_assignment_container_param(final_params),
+                                                intensity_cpus: final_params.intensity_cpus)
 
 include {
     assign_spots;
-} from './processes/assignment' addParams(spots_assignment_container: spots_assignment_container_param(final_params),
-                                          assignment_cpus: final_params.assignment_cpus)
+} from './processes/spot_assignment' addParams(spots_assignment_container: spots_assignment_container_param(final_params),
+                                               assignment_cpus: final_params.assignment_cpus)
 
 data_dir = final_params.data_dir
 pipeline_output_dir = get_value_or_default(final_params, 'output_dir', data_dir)
@@ -117,7 +117,8 @@ if (steps_to_skip.contains('spot_extraction')) {
     spot_extraction_acq_names = get_list_or_default(final_params, 'spot_extraction_acq_names', acq_names)
 }
 log.info "Images for spot extraction: ${spot_extraction_acq_names}"
-spot_extraction_dapi_correction_channels = final_params.spot_extraction_dapi_correction_channels?.split(',')
+bleedthrough_correction_channels = final_params.bleedthrough_correction_channel?.split(',')
+spot_channels = channels - [final_params.dapi_channel]
 per_channel_air_localize_params = [
     channels,
     final_params.per_channel_air_localize_params?.split(',', -1)
@@ -172,15 +173,15 @@ def labeled_spots_acq_name = get_value_or_default(final_params, 'labeled_spots_a
 labeled_spots_acq_names = labeled_spots_acq_name ? [labeled_spots_acq_name ] : []
 
 if (steps_to_skip.contains('intensities')) {
-    quantify_acq_names = []
+    measure_acq_names = []
 } else {
     if (!labeled_spots_acq_names) {
         log.error "No labeled image was specified for measuring intensities"
         System.exit(1)
     }
-    quantify_acq_names = get_list_or_default(final_params, 'quantify_acq_names', acq_names-labeled_spots_acq_names)
+    measure_acq_names = get_list_or_default(final_params, 'measure_acq_names', acq_names-labeled_spots_acq_names)
 }
-log.info "Images for intensities measurement: ${quantify_acq_names}"
+log.info "Images for intensities measurement: ${measure_acq_names}"
 intensities_output = final_params.intensities_output
 
 if (steps_to_skip.contains('assign_spots')) {
@@ -256,14 +257,14 @@ workflow {
     def spot_extraction_results = spot_extraction(
         spot_extraction_inputs.map { "${it[1]}/export.n5" },
         spot_extraction_output_dirs,
-        channels,
+        spot_channels,
         final_params.scale_4_spot_extraction,
         spot_extraction_xy_stride_param(final_params),
         spot_extraction_xy_overlap_param(final_params),
         spot_extraction_z_stride_param(final_params),
         spot_extraction_z_overlap_param(final_params),
         final_params.dapi_channel,
-        spot_extraction_dapi_correction_channels,
+        bleedthrough_correction_channels,
         per_channel_air_localize_params
     )
 
@@ -419,7 +420,7 @@ workflow {
     // prepare inputs for warping the spots
     def expected_registration_for_warping_spots = Channel.fromList(registration_fixed_acq_names) \
     | combine(warp_spots_acq_names) \
-    | combine(channels) \
+    | combine(spot_channels) \
     | map {
         def fixed_acq = it[0]
         def moving_acq = it[1]
@@ -527,8 +528,8 @@ workflow {
 
     // prepare intensities measurements inputs
     def expected_registrations_for_intensities = Channel.fromList(labeled_spots_acq_names) \
-    | combine(quantify_acq_names) \
-    | combine(channels)
+    | combine(measure_acq_names) \
+    | combine(spot_channels)
     | map {
         def fixed_acq = it[0]
         def moving_acq = it[1]
@@ -558,7 +559,7 @@ workflow {
         ]
     }
 
-    def quantify_inputs = extended_registration_results \
+    def intensities_inputs = extended_registration_results \
     | concat(expected_registrations_for_intensities) | unique { 
         it[0..3].collect { "$it" }
     } \
@@ -589,13 +590,13 @@ workflow {
     }
 
     // run intensities measurements
-    def quantify_results = quantify_spots(
-        quantify_inputs.map { it[0] }, // labels
-        quantify_inputs.map { it[1] }, // warped spots image
-        quantify_inputs.map { it[2] }, // intensity measurements result file prefix (round name)
-        quantify_inputs.map { it[3] }, // channel
-        quantify_inputs.map { it[4] }, // scale
-        quantify_inputs.map { it[5] }, // result output dir
+    def intenisities_results = measure_intensities(
+        intenisities_inputs.map { it[0] }, // labels
+        intenisities_inputs.map { it[1] }, // warped spots image
+        intenisities_inputs.map { it[2] }, // intensity measurements result file prefix (round name)
+        intenisities_inputs.map { it[3] }, // channel
+        intenisities_inputs.map { it[4] }, // scale
+        intenisities_inputs.map { it[5] }, // result output dir
         final_params.dapi_channel, // dapi_channel
         final_params.bleed_channel, // bleed_channel
         final_params.intensity_cpus, // cpus
@@ -604,7 +605,7 @@ workflow {
     // prepare inputs for assign spots
     def expected_warped_spots_for_assign = Channel.fromList(labeled_spots_acq_names) \
     | combine(assign_spots_acq_names) \
-    | combine(channels)
+    | combine(spot_channels)
     | map {
         def fixed_acq = it[0]
         def moving_acq = it[1]

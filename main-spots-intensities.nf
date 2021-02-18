@@ -27,9 +27,9 @@ include {
 final_params = default_mf_params() + params
 
 include {
-    quantify_spots;
-} from './processes/quantification' addParams(spots_assignment_container: spots_assignment_container_param(final_params),
-                                              intensity_cpus: final_params.intensity_cpus)
+    measure_intensities;
+} from './processes/spot_intensities' addParams(spots_assignment_container: spots_assignment_container_param(final_params),
+                                                intensity_cpus: final_params.intensity_cpus)
 
 workflow {
 
@@ -46,7 +46,7 @@ workflow {
 
     warped_spots_files = Channel.fromPath("${final_params.warped_spots}/*.txt")
 
-    quantify_spots_inputs = warped_spots_files | map { f -> 
+    intensities_spots_inputs = warped_spots_files | map { f ->
         def fname = f.name.replaceAll('.txt', '')
         def ch_lookup = (fname =~ /[-_](c\d+)[-_]/)
         def ch
@@ -65,13 +65,13 @@ workflow {
         ]
     } | filter { it[3] != '' } // channel must be present in the warped spots file name
 
-    quantify_spots(
-        quantify_spots_inputs.map { it[0] }, // labels
-        quantify_spots_inputs.map { it[1] }, // warped image
-        quantify_spots_inputs.map { it[2] }, // prefix (round name)
-        quantify_spots_inputs.map { it[3] }, // channel
-        quantify_spots_inputs.map { it[4] }, // scale
-        quantify_spots_inputs.map { it[5] }, // output dir
+    measure_intensities(
+        intensities_spots_inputs.map { it[0] }, // labels
+        intensities_spots_inputs.map { it[1] }, // warped image
+        intensities_spots_inputs.map { it[2] }, // prefix (round name)
+        intensities_spots_inputs.map { it[3] }, // channel
+        intensities_spots_inputs.map { it[4] }, // scale
+        intensities_spots_inputs.map { it[5] }, // output dir
         final_params.dapi_channel, // dapi_channel
         final_params.bleed_channel, // bleed_channel
         final_params.intensity_cpus, // cpus
