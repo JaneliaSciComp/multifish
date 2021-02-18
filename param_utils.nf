@@ -1,5 +1,5 @@
 def default_mf_params() {
-    def multifish_container_repo = 'registry.int.janelia.org/janeliascicomp'
+    def multifish_container_repo = 'multifish'
     def default_airlocalize_params = '/app/airlocalize/params/air_localize_default_params.txt'
 
     [
@@ -105,27 +105,26 @@ def get_list_or_default(Map ps, String param, List default_list) {
         : default_list
 }
 
+def spotextraction_container_param(Map ps) {
+    def spotextraction_container = ps.spotextraction_container
+    if (!spotextraction_container)
+        "${ps.mfrepo}/spot_extraction:1.0.0"
+    else
+        spotextraction_container
+}
 
 def segmentation_container_param(Map ps) {
     def segmentation_container = ps.segmentation_container
     if (!segmentation_container)
-        "${ps.mfrepo}/segmentation:1.0"
+        "${ps.mfrepo}/segmentation:1.0.0"
     else
         segmentation_container
-}
-
-def spotextraction_container_param(Map ps) {
-    def spotextraction_container = ps.spotextraction_container
-    if (!spotextraction_container)
-        "${ps.mfrepo}/spotextraction:1.0"
-    else
-        spotextraction_container
 }
 
 def registration_container_param(Map ps) {
     def registration_container = ps.registration_container
     if (!registration_container)
-        "${ps.mfrepo}/registration:1.1"
+        "${ps.mfrepo}/registration:1.1.0"
     else
         registration_container
 }
@@ -133,7 +132,7 @@ def registration_container_param(Map ps) {
 def spots_assignment_container_param(Map ps) {
     def spots_assignment_container = ps.spots_assignment_container
     if (!spots_assignment_container)
-        "${ps.mfrepo}/spot_assignment:1.0"
+        "${ps.mfrepo}/spot_assignment:1.0.0"
     else
         spots_assignment_container
 }
