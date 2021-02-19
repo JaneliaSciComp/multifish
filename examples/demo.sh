@@ -11,6 +11,7 @@ DIR=$(cd "$(dirname "$0")"; pwd)
 BASEDIR=$(realpath $DIR/..)
 
 # The temporary directory needs to have 10 GB to store large Docker images
+export TMPDIR="${TMPDIR:-/tmp}"
 export SINGULARITY_TMPDIR=$TMPDIR
 
 verify_md5=false
