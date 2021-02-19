@@ -33,7 +33,7 @@ datadir=$(realpath $1)
 shift # eat the first argument so that $@ works later
 
 inputdir=$datadir/inputs
-$BASEDIR/data-sets/download_dataset.sh "$BASEDIR/data-sets/demo_files_medium.txt" "$inputdir" "false"
+$BASEDIR/data-sets/download_dataset.sh "$BASEDIR/data-sets/$files_txt" "$inputdir" "false"
 
 outputdir=$datadir/outputs
 mkdir -p $outputdir
