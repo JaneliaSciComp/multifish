@@ -15,7 +15,7 @@ export TMPDIR="${TMPDIR:-/tmp}"
 export SINGULARITY_TMPDIR=$TMPDIR
 
 verify_md5=false
-files_txt="demo_files_medium.txt"
+files_txt="demo_medium.txt"
 fixed_round="LHA3_R3_medium"
 moving_rounds="LHA3_R5_medium"
 
