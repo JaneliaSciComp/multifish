@@ -1,4 +1,0 @@
-LHA3_R3_small.mvl   f414ecfca41d30ef79218e8b55b9460a    https://ndownloader.figshare.com/files/26474960?private_link=67c3b489297d8ec9fe6e
-LHA3_R3_small.czi   74ce902a255574d434692f753dfc6d3b    https://ndownloader.figshare.com/files/26475332?private_link=67c3b489297d8ec9fe6e
-LHA3_R5_small.mvl   216aae8c6c992a891d72dfdfb89a020a    https://ndownloader.figshare.com/files/26476811?private_link=834a118dfddb9366efee
-LHA3_R5_small.czi   5e1dcbe48775924856c93565ff9c2941    https://ndownloader.figshare.com/files/26476904?private_link=834a118dfddb9366efee
