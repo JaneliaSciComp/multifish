@@ -84,7 +84,7 @@ You can also add additional arguments to the end in order to, for example, skip 
 |------------|---------|---------------------------------------------------------------------------------------|
 | --spotextraction_container | \<mfrepo\>/spotextraction:1.0.0 | Docker container to use for running spot extraction |
 | --spot_extraction_output | spots | Output directory for spot extraction (relative to --output_dir) |
-| --dapi_channel | c2 | DAPI channel | 
+| --dapi_channel | c2 | DAPI channel |
 | --bleed_channel | c3 | Channel (other than DAPI) used to correct bloodthrough on DAPI channel |
 | --scale_4_spot_extraction | s0 | Scale of imagery to use for spot extraction |
 | --spot_extraction_xy_stride | 1024 | The number of voxels along x/y for registration tiling, must be power of 2. Increasing this requires increasing the memory allocation. |
@@ -102,10 +102,9 @@ You can also add additional arguments to the end in order to, for example, skip 
 |------------|---------|---------------------------------------------------------------------------------------|
 | --segmentation_container | \<mfrepo\>/segmentation:1.0.0 | Docker container to use for running segmentation |
 | --dapi_channel | c2 | DAPI channel | 
-| &#x2011;&#x2011;segmentation_model_dir | | |
+| &#x2011;&#x2011;segmentation_model_dir | | Starfinity for segmentation |
 | --segmentation_output | segmentation | |
 | --scale_4_segmentation | s2 | |
-| --segmentation_model_dir | | |
 | --predict_cpus | 3 | |
 
 ### Registration Parameters
