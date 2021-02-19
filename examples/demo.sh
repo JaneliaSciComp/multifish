@@ -33,23 +33,7 @@ datadir=$(realpath $1)
 shift # eat the first argument so that $@ works later
 
 inputdir=$datadir/inputs
-mkdir -p $inputdir
-
-while read -r file md5 url ; do
-    filepath=$inputdir/$file
-    if [ ! -e $filepath ]; then
-        echo "Downloading: $file"
-        curl -L $url -o $filepath
-    fi
-    if [ "$verify_md5" = true ]; then 
-        if md5sum --status -c <<< "$md5 $filepath"; then
-            echo "File checksum verified: $file"
-        else
-            echo "Checksum failed for $file"
-            exit 1
-        fi
-    fi
-done < "$DIR/$files_txt"
+$DIR/download_dataset.sh "$DIR/demo_files_medium.txt" "$inputdir" "false"
 
 segmentation_modeldir="$inputdir/model/starfinity"
 if [ ! -e $segmentation_modeldir ]; then
