@@ -287,7 +287,7 @@ workflow registration {
                 warp_dir,
                 params.final_transform_cpus
             ]
-            log.debug "Create warp input: $r"
+            log.debug "Create warp input for channel $warped_ch: $r"
             r
         }
     }
