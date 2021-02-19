@@ -49,7 +49,7 @@ def default_mf_params() {
 
         // segmentation params
         segmentation_output: 'segmentation',
-        segmentation_model_dir: '',
+        segmentation_model_dir: "${projectDir}/external-modules/segmentation/model/starfinity",
         segmentation_scale: 's2',
         segmentation_cpus: 3, // it needs at least 3 cpus for Janelia cluster config because of memory requirements
 

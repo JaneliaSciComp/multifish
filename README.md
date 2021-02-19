@@ -58,7 +58,6 @@ The following parameters are required to run the full pipeline. See the [paramet
 |------------|---------------------------------------------------------------------------------------|
 | --data_dir | Path to the directory containing the input CZI/MVL acquisition files | 
 | --output_dir | Path to the directory containing pipeline outputs |
-| &#x2011;&#x2011;segmentation_model_dir | Path to the directory containing the machine learning model for segmentation |
 | --acq_names | Names of acquisition rounds to process. These should match the names of the CZI/MVL files found in the data_dir |  
 | --ref_acq | Name of the acquisition round to use as the fixed reference |
 

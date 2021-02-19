@@ -33,14 +33,7 @@ datadir=$(realpath $1)
 shift # eat the first argument so that $@ works later
 
 inputdir=$datadir/inputs
-$DIR/download_dataset.sh "$BASEDIR/data-sets/demo_files_medium.txt" "$inputdir"
-
-segmentation_modeldir="$inputdir/model/starfinity"
-if [ ! -e $segmentation_modeldir ]; then
-    echo "Extracting Starfinity model..."
-    unzip -o $inputdir/model.zip -d $inputdir/    
-fi
-echo "Using Starfinity model: $segmentation_modeldir"
+$BASEDIR/data-sets/download_dataset.sh "$BASEDIR/data-sets/demo_files_medium.txt" "$inputdir" "false"
 
 outputdir=$datadir/outputs
 mkdir -p $outputdir
@@ -58,13 +51,12 @@ mkdir -p $outputdir
 
 ./main.nf \
         --runtime_opts "--nv -B $BASEDIR -B $datadir -B $TMPDIR" \
-        --workers 1 \
+        --workers 4 \
         --worker_cores 16 \
-        --gb_per_core 3 \
+        --gb_per_core 15 \
         --driver_memory 2g \
         --spark_work_dir "$datadir/spark" \
         --data_dir "$inputdir" \
         --output_dir "$outputdir" \
-        --segmentation_model_dir "$segmentation_modeldir" \
         --ref_acq "$fixed_round" \
         --acq_names "$fixed_round,$moving_rounds" "$@"

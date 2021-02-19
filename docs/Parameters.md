@@ -8,6 +8,7 @@ The pipeline supports many types of parameters for customization to your compute
 |------------|---------|---------------------------------------------------------------------------------------|
 | --data_dir | | Path to the directory containing the input CZI/MVL acquisition files | 
 | --output_dir | | Path to the directory containing pipeline outputs |
+| --spark_work_dir | | Path to directory containing Spark working files and logs during stitching |
 | &#x2011;&#x2011;segmentation_model_dir | | Path to the directory containing the machine learning model for segmentation |
 | --acq_names | | Names of acquisition rounds to process. These should match the names of the CZI/MVL files found in the data_dir. |  
 | --ref_acq | | Name of the acquisition round to use as the fixed reference |
@@ -62,7 +63,7 @@ The pipeline supports many types of parameters for customization to your compute
 |------------|---------|---------------------------------------------------------------------------------------|
 | --segmentation_container | \<mfrepo\>/segmentation:1.0.0 | Docker container to use for running segmentation |
 | --segmentation_output | segmentation | Output directory for segmentation (relative to --output_dir) |
-| &#x2011;&#x2011;segmentation_model_dir | | Starfinity for segmentation |
+| &#x2011;&#x2011;segmentation_model_dir | ./external-modules/segmentation/model/starfinity | Starfinity model for segmentation |
 | --dapi_channel | c2 | DAPI channel | 
 | --segmentation_scale | s2 | Imagery scale to use for segmentation |
 | --segmentation_cpus | 3 | Number of CPU cores to allocate for segmentation |
