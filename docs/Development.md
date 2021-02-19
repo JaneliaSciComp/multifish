@@ -1,6 +1,7 @@
 # Development
 
 ### Working with the submodules
+
 To update the external modules, you need to pull from Git with a special flag:
 
     git pull --recurse-submodules

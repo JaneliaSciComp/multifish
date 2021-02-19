@@ -13,7 +13,7 @@ BASEDIR=$(realpath $DIR/..)
 # The temporary directory needs to have 10 GB to store large Docker images
 export SINGULARITY_TMPDIR=$TMPDIR
 
-verify_md5=true
+verify_md5=false
 files_txt="demo_files_medium.txt"
 fixed_round="LHA3_R3_medium"
 moving_rounds="LHA3_R5_medium"
@@ -74,13 +74,6 @@ mkdir -p $outputdir
 #
 # Reducing the gb_per_core to 2 reduces total memory consumption from 128GB to 100GB but doubles processing time 
 # from 12 min to 23 min.
-#
-#
-# Data Set Considerations
-# =======================
-#
-# The demo data set is sampled from a larger data set by subsetting in Z. Since the number of slices is less than 64, 
-# we need to reduce all of the Z strides and block sizes below to accomodate it. 
 #
 
 ./main.nf \

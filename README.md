@@ -82,17 +82,17 @@ You can also add additional arguments to the end in order to, for example, skip 
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| --spotextraction_container | \<mfrepo\>/spotextraction:1.0 | Docker container to use for running spot extraction |
-| --dapi_channel | c2 | DAPI channel | 
+| --spotextraction_container | \<mfrepo\>/spotextraction:1.0.0 | Docker container to use for running spot extraction |
 | --spot_extraction_output | spots | Output directory for spot extraction (relative to --output_dir) |
-| --scale_4_spot_extraction | s0 | |
+| --dapi_channel | c2 | DAPI channel | 
+| --bleed_channel | c3 | Channel (other than DAPI) used to correct bloodthrough on DAPI channel |
+| --scale_4_spot_extraction | s0 | Scale of imagery to use for spot extraction |
 | --spot_extraction_xy_stride | 1024 | The number of voxels along x/y for registration tiling, must be power of 2. Increasing this requires increasing the memory allocation. |
 | --spot_extraction_xy_overlap | 5% of xy_stride | Tile overlap on x/y axes |
 | --spot_extraction_z_stride | 512 | The number of voxels along z for registration tiling, must be power of 2. Increasing this requires increasing the memory allocation. |
 | --spot_extraction_z_overlap | 5% of z_stride | Tile overlap on z axis |
-| &#x2011;&#x2011;bleed_channel | c3 | |
 | --default_airlocalize_params | /app/airlocalize/params/air_localize_default_params.txt | Path to hAirLocalize parameter file. By default, this points to default parameters inside the container. |
-| --per_channel_air_localize_params | ,,, | |
+| &#x2011;&#x2011;per_channel_air_localize_params | ,,, | |
 | --spot_extraction_cpus | 2 | Number of CPU cores to allocate for each hAirlocalize job |
 | --spot_extraction_memory | 30 | Amount of RAM (in GB) to allocate to each hAirlocalize job. Needs to be increased when increasing strides. |
 
@@ -100,7 +100,7 @@ You can also add additional arguments to the end in order to, for example, skip 
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| --segmentation_container | \<mfrepo\>/segmentation:1.0 | Docker container to use for running segmentation |
+| --segmentation_container | \<mfrepo\>/segmentation:1.0.0 | Docker container to use for running segmentation |
 | --dapi_channel | c2 | DAPI channel | 
 | &#x2011;&#x2011;segmentation_model_dir | | |
 | --segmentation_output | segmentation | |
@@ -112,7 +112,7 @@ You can also add additional arguments to the end in order to, for example, skip 
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| --registration_container | \<mfrepo\>/registration:1.0 | Docker container to use for running registration and warp_spots |
+| --registration_container | \<mfrepo\>/registration:1.1.0 | Docker container to use for running registration and warp_spots |
 | --dapi_channel | c2 | DAPI channel | 
 | --aff_scale | s3 | The scale level for affine alignments |
 | --def_scale | s2 | The scale level for deformable alignments |
@@ -135,14 +135,14 @@ You can also add additional arguments to the end in order to, for example, skip 
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| --registration_container | \<mfrepo\>/registration:1.0 | Docker container to use for running registration and warp_spots |
+| --registration_container | \<mfrepo\>/registration:1.0.0 | Docker container to use for running registration and warp_spots |
 | --warp_spots_cpus | 2 | Number of CPU cores to use for warp spots | 
 
 ### Intensity Measurement Parameters
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| --spots_assignment_container | \<mfrepo\>/spot_assignment:1.0 | Docker container to use for running intensities and spot_assignment |
+| --spots_assignment_container | \<mfrepo\>/spot_assignment:1.0.0 | Docker container to use for running intensities and spot_assignment |
 | --dapi_channel | c2 | DAPI channel | 
 | --intensities_output | intensities | Output directory for intensities (relative to --output_dir) | 
 | --bleed_channel | c3 | | 
@@ -152,9 +152,9 @@ You can also add additional arguments to the end in order to, for example, skip 
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| --spots_assignment_container | \<mfrepo\>/spot_assignment:1.0 | Docker container to use for running intensities and spot_assignment |
+| --spots_assignment_container | \<mfrepo\>/spot_assignment:1.0.0 | Docker container to use for running intensities and spot_assignment |
 | --assign_spots_output | assignments | Output directory for spot assignments (relative to --output_dir) |
-| --assignment_cpus | 1 | Number of CPU cores to use for spot assignment
+| --assignment_cpus | 1 | Number of CPU cores to use for spot assignment |
 
 ## Pipeline Execution
 
@@ -182,19 +182,7 @@ Complete examples are available in the [examples](examples) directory.
 
 ## Troubleshooting
 
-### Temporary Files
-
-The pipeline downloads Docker containers and converts them into Singularity Image Format prior to execution. This requires about 10 GB of tmp space. In addition, other parts of the pipeline also use the temp directory while running, for example for MATLAB's MCR_CACHE_ROOT.
-
-If the filesystem containing your /tmp directory does not have sufficient space for downloading and extracting the Docker containers, you will need to point both `TMPDIR` and `SINGULARITY_TMPDIR` to an alternate location, e.g.
-
-    export TMPDIR=/opt/tmp
-    export SINGULARITY_TMPDIR=$TMPDIR
-
-If you do this, make sure to mount this directory into the containers using the `-B` option:
-
-    --runtime_opts "-B $TMPDIR"
-
+If you run into any problems with running the pipeline, please first check out the [troubleshooting documentation](docs/Troubleshooting.md). If you find any bugs, you can [create a new issue](https://github.com/JaneliaSciComp/multifish/issues/new) in the bug tracker.
 
 ## Development
 
