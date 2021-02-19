@@ -652,7 +652,7 @@ workflow {
         def r = [
             it[2], it[0], it[1]
         ]
-        log.debug "Assign spots input for fixed image: $r"
+        log.debug "Assign spots input for fixed image: $it -> $r"
         return r
     }
 

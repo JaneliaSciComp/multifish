@@ -22,6 +22,7 @@ s = [8, 8, 2]
 count = pd.DataFrame(np.empty([len(lb_id), 0]), index=lb_id)
 
 for f in fx:
+    print("Load:", f)
     r = os.path.basename(f).split('/')[-1]
     r = r.split('.')[0]
     spot = np.loadtxt(f, delimiter=',')
