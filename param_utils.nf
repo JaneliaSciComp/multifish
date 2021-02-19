@@ -16,7 +16,10 @@ def default_mf_params() {
         skip: '', // do not skip anything by default
 
         // stitching params
-        stitching_app: 'external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar',
+        spark_container_repo: multifish_container_repo,
+        spark_container_name: 'stitching',
+        spark_container_version: '1.0.0',
+        stitching_app: '/app/app.jar',
         stitching_output: 'stitching',
         resolution: '0.23,0.23,0.42',
         axis: '-x,y,z',
@@ -45,8 +48,8 @@ def default_mf_params() {
         spot_extraction_memory: 20,
 
         // segmentation params
-        segmentation_model_dir: '',
         segmentation_output: 'segmentation',
+        segmentation_model_dir: '',
         segmentation_scale: 's2',
         segmentation_cpus: 3, // it needs at least 3 cpus for Janelia cluster config because of memory requirements
 

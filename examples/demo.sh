@@ -42,11 +42,6 @@ if [ ! -e $segmentation_modeldir ]; then
 fi
 echo "Using Starfinity model: $segmentation_modeldir"
 
-stitching_app=`ls -t $BASEDIR/external-modules/stitching-spark/target/stitching-spark-*-SNAPSHOT.jar | head -1`
-if [ ! -e $stitching_app ]; then 
-    echo "Stitching app jar not found. Please run setup.sh to build it first."
-fi
-
 outputdir=$datadir/outputs
 mkdir -p $outputdir
 
@@ -68,7 +63,6 @@ mkdir -p $outputdir
         --gb_per_core 3 \
         --driver_memory 2g \
         --spark_work_dir "$datadir/spark" \
-        --stitching_app "$stitching_app" \
         --data_dir "$inputdir" \
         --output_dir "$outputdir" \
         --segmentation_model_dir "$segmentation_modeldir" \
