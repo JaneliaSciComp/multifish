@@ -114,7 +114,7 @@ if (steps_to_skip.contains('stitching')) {
 } else {
     stitch_acq_names = get_list_or_default(final_params, 'stitch_acq_names', acq_names)
 }
-log.info "Images to stitch: ${stitch_acq_names}"
+log.debug "Images to stitch: ${stitch_acq_names}"
 
 channels = final_params.channels?.split(',')
 stitching_block_size = final_params.stitching_block_size
@@ -130,7 +130,7 @@ if (steps_to_skip.contains('spot_extraction')) {
 } else {
     spot_extraction_acq_names = get_list_or_default(final_params, 'spot_extraction_acq_names', acq_names)
 }
-log.info "Images for spot extraction: ${spot_extraction_acq_names}"
+log.debug "Images for spot extraction: ${spot_extraction_acq_names}"
 bleedthrough_channels = final_params.bleed_channel?.split(',')
 spot_channels = channels - [final_params.dapi_channel]
 per_channel_air_localize_params = [
@@ -153,7 +153,7 @@ if (steps_to_skip.contains('segmentation')) {
     def segmentation_acq_name = get_value_or_default(final_params, 'segmentation_acq_name', ref_acq)
     segmentation_acq_names = segmentation_acq_name ? [ segmentation_acq_name ] : []
 }
-log.info "Images for segmentation: ${segmentation_acq_names}"
+log.debug "Images for segmentation: ${segmentation_acq_names}"
 segmentation_output = final_params.segmentation_output
 
 if (steps_to_skip.contains('registration')) {
@@ -168,7 +168,7 @@ if (steps_to_skip.contains('registration')) {
     registration_fixed_acq_names = [ registration_fixed_acq_name ]
     registration_moving_acq_names = get_list_or_default(final_params, 'registration_moving_acq_names', acq_names-registration_fixed_acq_names)
 }
-log.info "Images to register: ${registration_moving_acq_names} against ${registration_fixed_acq_names}"
+log.debug "Images to register: ${registration_moving_acq_names} against ${registration_fixed_acq_names}"
 
 if (steps_to_skip.contains('warp_spots')) {
     warp_spots_acq_names = []
@@ -181,7 +181,7 @@ if (steps_to_skip.contains('warp_spots')) {
     registration_fixed_acq_names = [ registration_fixed_acq_name ]
     warp_spots_acq_names = get_list_or_default(final_params, 'warp_spots_acq_names', acq_names-[registration_fixed_acq_name])
 }
-log.info "Images for warping spots: ${warp_spots_acq_names}"
+log.debug "Images for warping spots: ${warp_spots_acq_names}"
 
 def labeled_spots_acq_name = get_value_or_default(final_params, 'labeled_spots_acq_name', ref_acq)
 labeled_spots_acq_names = labeled_spots_acq_name ? [labeled_spots_acq_name ] : []
@@ -195,7 +195,7 @@ if (steps_to_skip.contains('measure_intensities')) {
     }
     measure_acq_names = get_list_or_default(final_params, 'measure_acq_names', acq_names-labeled_spots_acq_names)
 }
-log.info "Images for intensities measurement: ${measure_acq_names}"
+log.debug "Images for intensities measurement: ${measure_acq_names}"
 measure_intensities_output = final_params.measure_intensities_output
 
 if (steps_to_skip.contains('assign_spots')) {
@@ -207,7 +207,7 @@ if (steps_to_skip.contains('assign_spots')) {
     }
     assign_spots_acq_names = get_list_or_default(final_params, 'assign_spots_acq_names', acq_names-labeled_spots_acq_names)
 }
-log.info "Images for assign spots: ${assign_spots_acq_names}"
+log.debug "Images for assign spots: ${assign_spots_acq_names}"
 
 workflow {
     // stitching
