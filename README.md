@@ -69,7 +69,7 @@ You can also add additional arguments to the end in order to, for example, skip 
 | --channels | c0,c1,c2,c3 | List of channels to stitch |
 | --block_size | 128,128,64 | Block size to use when converting CZI to n5 before stitching |
 | --retile_z_size | 64 | Block size (in Z dimension) when retiling after stitching. This must be smaller than the number of Z slices in the data. |
-| --stitching_ref | 2 | Index of the channel used for stitching |
+| --stitching_ref | 2 | Index of the channel used for stitching; if this is not defined it defaults to dapi_channel |
 | --stitching_mode | incremental | |
 | &#x2011;&#x2011;stitching_padding | 0,0,0 | |
 | --blur_sigma | 2 | |
@@ -90,7 +90,7 @@ You can also add additional arguments to the end in order to, for example, skip 
 | --spot_extraction_xy_overlap | 5% of xy_stride | Tile overlap on x/y axes |
 | --spot_extraction_z_stride | 512 | The number of voxels along z for registration tiling, must be power of 2. Increasing this requires increasing the memory allocation. |
 | --spot_extraction_z_overlap | 5% of z_stride | Tile overlap on z axis |
-| &#x2011;&#x2011;spot_extraction_dapi_correction_channels | | |
+| &#x2011;&#x2011;bleed_channel | c3 | |
 | --default_airlocalize_params | /app/airlocalize/params/air_localize_default_params.txt | Path to hAirLocalize parameter file. By default, this points to default parameters inside the container. |
 | --per_channel_air_localize_params | ,,, | |
 | --spot_extraction_cpus | 2 | Number of CPU cores to allocate for each hAirlocalize job |
