@@ -21,11 +21,11 @@ def default_mf_params() {
         resolution: '0.23,0.23,0.42',
         axis: '-x,y,z',
         channels: 'c0,c1,c2,c3',
-        block_size: '128,128,64',
+        stitching_block_size: '128,128,64',
         retile_z_size: '64',
         stitching_mode: 'incremental',
         stitching_padding: '0,0,0',
-        blur_sigma: '2',
+        stitching_blur_sigma: '2',
 
         dapi_channel: 'c2', // DAPI channel used to drive both the segmentation and the registration
         ref_acq: '', // this is the default parameter for the fixed round and 
@@ -33,7 +33,7 @@ def default_mf_params() {
 
         // spot extraction params
         spot_extraction_output: 'spots',
-        scale_4_spot_extraction: 's0',
+        spot_extraction_scale: 's0',
         spot_extraction_xy_stride: 0, // use the default defined by spot_extraction_xy_stride_param
         spot_extraction_xy_overlap: 0, // use the default defined by spot_extraction_xy_overlap_param
         spot_extraction_z_stride: 0, // use the default defined by spot_extraction_z_stride_param
@@ -44,11 +44,11 @@ def default_mf_params() {
         spot_extraction_cpus: 2,
         spot_extraction_memory: 20,
 
-        // segmentatioon params
+        // segmentation params
         segmentation_model_dir: '',
         segmentation_output: 'segmentation',
-        scale_4_segmentation: 's2',
-        predict_cpus: 3, // it needs at least 3 cpus for Janelia cluster config because of memory requirements
+        segmentation_scale: 's2',
+        segmentation_cpus: 3, // it needs at least 3 cpus for Janelia cluster config because of memory requirements
 
         // registration params
         registration_fixed_output: 'fixed',
@@ -69,19 +69,19 @@ def default_mf_params() {
         deform_auto_mask: '0',
         aff_scale_transform_cpus: 1, // cores for affine scale transforms
         def_scale_transform_cpus: 8, // cores for deformable scale transforms
-        stitch_registered_cpus: 2,
-        final_transform_cpus: 12,
+        registration_stitch_cpus: 2,
+        registration_transform_cpus: 12,
 
         // warp spots parameters
         warp_spots_cpus: 2,
 
         // intensity measurement parameters
-        intensities_output: 'intensities',
-        intensity_cpus: 1,
+        measure_intensities_output: 'intensities',
+        measure_intensities_cpus: 1,
 
         // spot assignment parameters
         assign_spots_output: 'assignments',
-        assignment_cpus: 1,
+        assign_spots_cpus: 1,
     ]
 }
 

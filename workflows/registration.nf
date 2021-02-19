@@ -263,7 +263,7 @@ workflow registration {
         deform_results.map { "${it[2]}/transform" }, // transform directory
         deform_results.map { "${it[2]}/invtransform" }, // inverse transform directory
         "/${deformation_scale}",
-        params.stitch_registered_cpus
+        params.registration_stitch_cpus
     )
 
     // for final transformation wait until all tiles are stitched
@@ -285,7 +285,7 @@ workflow registration {
                 "/${warped_ch}/${deformation_scale}",
                 transform_dir, // this is the transform dir as a file type
                 warp_dir,
-                params.final_transform_cpus
+                params.registration_transform_cpus
             ]
             log.debug "Create warp input for channel $warped_ch: $r"
             r

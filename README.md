@@ -2,6 +2,39 @@
 
 The purpose of this pipeline is to analyze imagery collected using [EASI-FISH](https://github.com/multiFISH/EASI-FISH) (Expansion-Assisted Iterative Fluorescence *In Situ* Hybridization). It includes automated image stitching, distributed multi-round image registration, cell segmentation, and distributed spot detection. 
 
+## Quick Start
+
+The only software requirements for running this pipeline are [Nextflow](https://www.nextflow.io) (version 20.10.0 or greater) and [Singularity](https://sylabs.io) (version 3.5 or greater). If you are running in an HPC cluster, ask your system administrator to install Singularity on all the cluster nodes.
+
+To [install Nextflow](https://www.nextflow.io/docs/latest/getstarted.html):
+
+    curl -s https://get.nextflow.io | bash 
+
+To [install Singularity](https://sylabs.io/guides/3.7/admin-guide/installation.html) on CentOS Linux:
+
+    sudo yum install singularity
+
+Clone the multifish repository with the following command:
+
+    git clone https://github.com/JaneliaSciComp/multifish.git
+
+Before running the pipeline for the first time, pull in and build the submodules using the setup script:
+
+    ./setup.sh
+  
+Launch the demo using the EASI-FISH example data:
+
+    ./examples/demo.sh <data dir> [arguments]
+
+The `data dir` is the path where you want to store the data and analysis results. 
+
+This script will also download the standard segmentation machine learning model, used for cell segmentation.
+
+You can add additional arguments to the end in order to, for example, skip steps previously completed, or add Nextflow Tower monitoring. See below for additional details about the argument usage.
+
+
+## Pipeline Overview
+
 This pipeline is containerized and portable across the various platforms supported by [Nextflow](https://www.nextflow.io). So far it has been tested on a standalone workstation and the Janelia compute cluster (IBM Platform LSF). If you run it successfully on any other platform, please let us know so that we can update this documentation.
 
 The pipeline includes the following modules:
@@ -15,145 +48,20 @@ The pipeline includes the following modules:
 
 ![Pipeline Diagram](docs/pipeline_diagram.png)
 
-Further documentation about the individual pipeline steps is available in the [EASI-FISH](https://github.com/multiFISH/EASI-FISH) repo.
-
-
-## Prerequisites
-
-The only software requirements for running this pipeline are [Nextflow](https://www.nextflow.io) and [Singularity](https://sylabs.io). If you are running in an HPC cluster, [Singularity](https://sylabs.io) must be installed on all the cluster nodes. 
-
-## Quick Start
-
-Clone this repo with the following command:
-
-    https://github.com/JaneliaSciComp/multifish.git
-
-Before running the pipeline for the first time, pull in and build the submodules using the setup script:
-
-    ./setup.sh
-  
-Launch the demo using the EASI-FISH example data:
-
-    ./examples/demo.sh <data dir> [arguments]
-
-The `data dir` is the path where you want to store the data and analysis results. 
-
-You can also add additional arguments to the end in order to, for example, skip steps previously completed, or add Nextflow Tower monitoring. See below for additional details about the argument usage.
-
-
 ## Parameters
 
-### Global Parameters
+The following parameters are required to run the full pipeline. See the [parameter documentation](docs/Parameters.md) for a complete list of all possible options.
 
-| Argument   | Default | Description                                                                           |
-|------------|---------|---------------------------------------------------------------------------------------|
-| --data_dir | | Path to the directory containing the input CZI/MVL acquisition files | 
-| --output_dir | | Path to the directory containing pipeline outputs |
-| &#x2011;&#x2011;segmentation_model_dir | | Path to the directory containing the machine learning model for segmentation |
-| --acq_names | | Names of acquisition rounds to process. These should match the names of the CZI/MVL files found in the data_dir. |  
-| --ref_acq | | Name of the acquisition round to use as the fixed reference |
-| --skip | | Comma-delimited list of steps to skip, e.g. "stitching,registration" (Valid values: stitching, spot_extraction, segmentation, registration, warp_spots, intensities, assign_spots) |
-| --workdir | ./work | Nextflow working directory where all intermediate files are saved |
-| --mfrepo | janeliascicomp (on DockerHub) | Docker Registry and Repository to use for containers | 
-| -profile | localsingularity | Configuration profile to use (Valid values: localsingularity, lsf) |
-| -with-tower | | [Nextflow Tower](https://tower.nf) URL for monitoring |
+### Required Parameters
 
-### Stitching Parameters
+| Argument   | Description                                                                           |
+|------------|---------------------------------------------------------------------------------------|
+| --data_dir | Path to the directory containing the input CZI/MVL acquisition files | 
+| --output_dir | Path to the directory containing pipeline outputs |
+| &#x2011;&#x2011;segmentation_model_dir | Path to the directory containing the machine learning model for segmentation |
+| --acq_names | Names of acquisition rounds to process. These should match the names of the CZI/MVL files found in the data_dir |  
+| --ref_acq | Name of the acquisition round to use as the fixed reference |
 
-| Argument   | Default | Description                                                                           |
-|------------|---------|---------------------------------------------------------------------------------------|
-| --stitching_app | external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar | Path to the JAR file containing the stitching application. This is built by the `setup.sh` script run in *Quick Start* above. |
-| --stitching_output | stitching | Output directory for stitching (relative to --output_dir) |
-| --resolution | 0.23,0.23,0.42 | |
-| --axis | -x,y,z | Axis mapping for objective to pixel coordinates conversion when parsing CZI metadata. Minus sign flips the axis. |
-| --channels | c0,c1,c2,c3 | List of channels to stitch |
-| --block_size | 128,128,64 | Block size to use when converting CZI to n5 before stitching |
-| --retile_z_size | 64 | Block size (in Z dimension) when retiling after stitching. This must be smaller than the number of Z slices in the data. |
-| --stitching_ref | 2 | Index of the channel used for stitching; if this is not defined it defaults to dapi_channel |
-| --stitching_mode | incremental | |
-| &#x2011;&#x2011;stitching_padding | 0,0,0 | |
-| --blur_sigma | 2 | |
-| --workers | 4 | Number of Spark workers to use for stitching one acquisition |
-| --worker_cores | 4 | Number of cores allocated to each Spark worker |
-| --gb_per_core | 15 | Size of memory (in GB) that is allocated for each core of a Spark worker. The total memory usage for stitching one acquisition will be workers * worker_cores * gb_per_core. | 
-| --driver_memory | 15g | Amount of memory to allocate for the Spark driver |
-
-### Spot Extraction Parameters
-
-| Argument   | Default | Description                                                                           |
-|------------|---------|---------------------------------------------------------------------------------------|
-| --spot_extraction_container | \<mfrepo\>/spotextraction:1.0.0 | Docker container to use for running spot extraction |
-| --spot_extraction_output | spots | Output directory for spot extraction (relative to --output_dir) |
-| --dapi_channel | c2 | DAPI channel |
-| --bleed_channel | c3 | Channel (other than DAPI) used to correct bloodthrough on DAPI channel |
-| --scale_4_spot_extraction | s0 | Scale of imagery to use for spot extraction |
-| --spot_extraction_xy_stride | 1024 | The number of voxels along x/y for registration tiling, must be power of 2. Increasing this requires increasing the memory allocation. |
-| --spot_extraction_xy_overlap | 5% of xy_stride | Tile overlap on x/y axes |
-| --spot_extraction_z_stride | 512 | The number of voxels along z for registration tiling, must be power of 2. Increasing this requires increasing the memory allocation. |
-| --spot_extraction_z_overlap | 5% of z_stride | Tile overlap on z axis |
-| --default_airlocalize_params | /app/airlocalize/params/air_localize_default_params.txt | Path to hAirLocalize parameter file. By default, this points to default parameters inside the container. |
-| &#x2011;&#x2011;per_channel_air_localize_params | ,,, | |
-| --spot_extraction_cpus | 2 | Number of CPU cores to allocate for each hAirlocalize job |
-| --spot_extraction_memory | 30 | Amount of RAM (in GB) to allocate to each hAirlocalize job. Needs to be increased when increasing strides. |
-
-### Segmentation Parameters
-
-| Argument   | Default | Description                                                                           |
-|------------|---------|---------------------------------------------------------------------------------------|
-| --segmentation_container | \<mfrepo\>/segmentation:1.0.0 | Docker container to use for running segmentation |
-| --dapi_channel | c2 | DAPI channel | 
-| &#x2011;&#x2011;segmentation_model_dir | | Starfinity for segmentation |
-| --segmentation_output | segmentation | |
-| --scale_4_segmentation | s2 | |
-| --predict_cpus | 3 | |
-
-### Registration Parameters
-
-| Argument   | Default | Description                                                                           |
-|------------|---------|---------------------------------------------------------------------------------------|
-| --registration_container | \<mfrepo\>/registration:1.1.0 | Docker container to use for running registration and warp_spots |
-| --dapi_channel | c2 | DAPI channel | 
-| --aff_scale | s3 | The scale level for affine alignments |
-| --def_scale | s2 | The scale level for deformable alignments |
-| --spots_cc_radius | 8 | |
-| --spots_spot_number | 2000 | |
-| --ransac_cc_cutoff | 0.9 | |
-| --ransac_dist_threshold | 2.5 | |
-| --deform_iterations | 500x200x25x1 | |
-| --deform_auto_mask | 0 | |
-| --registration_xy_stride | 256 | The number of voxels along x/y for registration tiling, must be power of 2 |
-| --registration_xy_overlap | xy_stride/8 | Tile overlap on x/y axes |
-| --registration_z_stride | 256 | The number of voxels along z for registration tiling, must be power of 2 | 
-| --registration_z_overlap | z_stride/8 | Tile overlap on z axis |
-| --aff_scale_transform_cpus | 1 | Number of CPU cores for affine scale registration |
-| &#x2011;&#x2011;def_scale_transform_cpus | 8 | Number of CPU cores for deformable scale registration  |
-| --stitch_registered_cpus | 2 | Number of CPU cores for re-stitching registered tiles  |
-| --final_transform_cpus | 12 | Number of CPU cores for final registered transform |
-
-### Spot Warping Parameters
-
-| Argument   | Default | Description                                                                           |
-|------------|---------|---------------------------------------------------------------------------------------|
-| --registration_container | \<mfrepo\>/registration:1.0.0 | Docker container to use for running registration and warp_spots |
-| --warp_spots_cpus | 2 | Number of CPU cores to use for warp spots | 
-
-### Intensity Measurement Parameters
-
-| Argument   | Default | Description                                                                           |
-|------------|---------|---------------------------------------------------------------------------------------|
-| --spots_assignment_container | \<mfrepo\>/spot_assignment:1.0.0 | Docker container to use for running intensities and spot_assignment |
-| --dapi_channel | c2 | DAPI channel | 
-| --intensities_output | intensities | Output directory for intensities (relative to --output_dir) | 
-| --bleed_channel | c3 | | 
-| --intensity_cpus | 1 | Number of CPU cores to use for intensity measurement | 
-
-### Spot Assignment Parameters
-
-| Argument   | Default | Description                                                                           |
-|------------|---------|---------------------------------------------------------------------------------------|
-| --spots_assignment_container | \<mfrepo\>/spot_assignment:1.0.0 | Docker container to use for running intensities and spot_assignment |
-| --assign_spots_output | assignments | Output directory for spot assignments (relative to --output_dir) |
-| --assignment_cpus | 1 | Number of CPU cores to use for spot assignment |
 
 ## Pipeline Execution
 
@@ -178,6 +86,15 @@ This example also sets the project flag to demonstrate how to set LSF options.
     ./main.nf -profile lsf --lsf_opts "-P multifish" [arguments]
 
 Complete examples are available in the [examples](examples) directory.
+
+## User Manual
+
+Further detailed documentation is available here:
+
+* [Pipeline Parameters](docs/Parameters.md) 
+* [File Organization](docs/FileOrganization.md)
+* [Troubleshooting](docs/Troubleshooting.md)
+* [Development](docs/Development.md)
 
 ## Troubleshooting
 

@@ -56,8 +56,8 @@ include {
                                             registration_container: registration_container_param(final_params),
                                             aff_scale_transform_cpus: final_params.aff_scale_transform_cpus,
                                             def_scale_transform_cpus: final_params.def_scale_transform_cpus,
-                                            stitch_registered_cpus: final_params.stitch_registered_cpus,
-                                            final_transform_cpus: final_params.final_transform_cpus)
+                                            registration_stitch_cpus: final_params.registration_stitch_cpus,
+                                            registration_transform_cpus: final_params.registration_transform_cpus)
 
 channels = final_params.channels?.split(',')
 

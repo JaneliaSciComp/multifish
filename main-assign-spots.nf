@@ -23,7 +23,7 @@ final_params = default_mf_params() + params
 include {
     assign_spots;
 } from './processes/spot_assignment' addParams(spots_assignment_container: spots_assignment_container_param(final_params),
-                                               assignment_cpus: final_params.assignment_cpus)
+                                               assign_spots_cpus: final_params.assign_spots_cpus)
 
 workflow {
 
@@ -45,7 +45,7 @@ workflow {
         assigned_spots_inputs.map { it[0] },
         assigned_spots_inputs.map { it[1] },
         assigned_spots_inputs.map { it[2] },
-        final_params.assignment_cpus
+        final_params.assign_spots_cpus
     )
 
 }

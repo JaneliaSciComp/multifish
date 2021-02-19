@@ -53,7 +53,7 @@ workflow {
         final_params.stitchdir,
         outdir,
         channels,
-        final_params.scale_4_spot_extraction,
+        final_params.spot_extraction_scale,
         spot_extraction_xy_stride_param(final_params),
         spot_extraction_xy_overlap_param(final_params),
         spot_extraction_z_stride_param(final_params),

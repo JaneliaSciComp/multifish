@@ -34,7 +34,7 @@ include {
  *
  * @return tuple of <acq_name, acq_stitching_dir>
  */
-workflow stitch_multiple {
+workflow stitching {
     take:
     stitching_app
     acquisitions
@@ -44,12 +44,12 @@ workflow stitch_multiple {
     channels
     resolution
     axis_mapping
-    block_size
+    stitching_block_size
     retile_z_size
     registration_channel
     stitching_mode
     stitching_padding
-    blur_sigma
+    stitching_blur_sigma
     spark_conf
     spark_work_dir
     spark_workers
@@ -92,12 +92,12 @@ workflow stitch_multiple {
         channels,
         resolution,
         axis_mapping,
-        block_size,
+        stitching_block_size,
         retile_z_size,
         registration_channel,
         stitching_mode,
         stitching_padding,
-        blur_sigma,
+        stitching_blur_sigma,
         spark_conf,
         acq_inputs.spark_work_dirs,
         spark_workers,
@@ -125,12 +125,12 @@ workflow stitch {
     channels
     resolution
     axis_mapping
-    block_size
+    stitching_block_size
     retile_z_size
     registration_channel
     stitching_mode
     stitching_padding
-    blur_sigma
+    stitching_blur_sigma
     spark_conf
     spark_work_dirs
     spark_workers
@@ -218,7 +218,7 @@ workflow stitch {
         indexed_acq_data,
         { acq_name, stitching_dir ->
             def tiles_json = entries_inputs_args(stitching_dir, [ 'tiles' ], '-i', '', '.json')
-            return "${tiles_json} --blockSize '${block_size}'"
+            return "${tiles_json} --blockSize '${stitching_block_size}'"
         }
     )
     def czi_to_n5_done = run_czi2n5(
@@ -305,7 +305,7 @@ workflow stitch {
         indexed_acq_data,
         { acq_name, stitching_dir ->
             retiled_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5-retiled', '.json')
-            return "--stitch -r ${registration_channel} ${retiled_n5_channels_args} --mode '${stitching_mode}' --padding '${stitching_padding}' --blurSigma ${blur_sigma}"
+            return "--stitch -r ${registration_channel} ${retiled_n5_channels_args} --mode '${stitching_mode}' --padding '${stitching_padding}' --blurSigma ${stitching_blur_sigma}"
         }
     )
     def stitching_done = run_stitching(

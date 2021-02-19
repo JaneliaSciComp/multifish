@@ -29,7 +29,7 @@ final_params = default_mf_params() + params
 include {
     measure_intensities;
 } from './processes/spot_intensities' addParams(spots_assignment_container: spots_assignment_container_param(final_params),
-                                                intensity_cpus: final_params.intensity_cpus)
+                                                measure_intensities_cpus: final_params.measure_intensities_cpus)
 
 workflow {
 
@@ -74,7 +74,7 @@ workflow {
         intensities_spots_inputs.map { it[5] }, // output dir
         final_params.dapi_channel, // dapi_channel
         final_params.bleed_channel, // bleed_channel
-        final_params.intensity_cpus, // cpus
+        final_params.measure_intensities_cpus, // cpus
     )
 
 }

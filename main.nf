@@ -29,7 +29,7 @@ include {
 final_params = default_spark_params() + default_mf_params() + params
 
 include {
-    stitch_multiple;
+    stitching;
 } from './workflows/stitching' addParams(lsf_opts: final_params.lsf_opts, 
                                          crepo: final_params.crepo,
                                          spark_version: final_params.spark_version)
@@ -52,8 +52,8 @@ include {
                                             registration_container: registration_container_param(final_params),
                                             aff_scale_transform_cpus: final_params.aff_scale_transform_cpus,
                                             def_scale_transform_cpus: final_params.def_scale_transform_cpus,
-                                            stitch_registered_cpus: final_params.stitch_registered_cpus,
-                                            final_transform_cpus: final_params.final_transform_cpus)
+                                            registration_stitch_cpus: final_params.registration_stitch_cpus,
+                                            registration_transform_cpus: final_params.registration_transform_cpus)
 
 include {
     warp_spots;
@@ -64,12 +64,12 @@ include {
 include {
     measure_intensities;
 } from './processes/spot_intensities' addParams(spots_assignment_container: spots_assignment_container_param(final_params),
-                                                intensity_cpus: final_params.intensity_cpus)
+                                                measure_intensities_cpus: final_params.measure_intensities_cpus)
 
 include {
     assign_spots;
 } from './processes/spot_assignment' addParams(spots_assignment_container: spots_assignment_container_param(final_params),
-                                               assignment_cpus: final_params.assignment_cpus)
+                                               assign_spots_cpus: final_params.assign_spots_cpus)
 
 data_dir = final_params.data_dir
 pipeline_output_dir = get_value_or_default(final_params, 'output_dir', data_dir)
@@ -117,12 +117,12 @@ if (steps_to_skip.contains('stitching')) {
 log.info "Images to stitch: ${stitch_acq_names}"
 
 channels = final_params.channels?.split(',')
-block_size = final_params.block_size
+stitching_block_size = final_params.stitching_block_size
 retile_z_size = final_params.retile_z_size
 stitching_ref = stitching_ref_param(final_params)
 stitching_mode = final_params.stitching_mode
 stitching_padding = final_params.stitching_padding
-blur_sigma = final_params.blur_sigma
+stitching_blur_sigma = final_params.stitching_blur_sigma
 
 // if spot extraction is not desired include 'spot_extraction' in the 'skip' parameter 
 if (steps_to_skip.contains('spot_extraction')) {
@@ -196,7 +196,7 @@ if (steps_to_skip.contains('measure_intensities')) {
     measure_acq_names = get_list_or_default(final_params, 'measure_acq_names', acq_names-labeled_spots_acq_names)
 }
 log.info "Images for intensities measurement: ${measure_acq_names}"
-intensities_output = final_params.intensities_output
+measure_intensities_output = final_params.measure_intensities_output
 
 if (steps_to_skip.contains('assign_spots')) {
     assign_spots_acq_names = []
@@ -211,7 +211,7 @@ log.info "Images for assign spots: ${assign_spots_acq_names}"
 
 workflow {
     // stitching
-    def stitching_results = stitch_multiple(
+    def stitching_results = stitching(
         stitching_app,
         stitch_acq_names,
         final_params.data_dir,
@@ -220,12 +220,12 @@ workflow {
         channels,
         resolution,
         axis_mapping,
-        block_size,
+        stitching_block_size,
         retile_z_size,
         stitching_ref, // stitching_ref or dapi_channel
         stitching_mode,
         stitching_padding,
-        blur_sigma,
+        stitching_blur_sigma,
         spark_conf,
         spark_work_dir,
         spark_workers,
@@ -262,7 +262,7 @@ workflow {
         spot_extraction_inputs.map { "${it[1]}/export.n5" },
         spot_extraction_output_dirs,
         spot_channels,
-        final_params.scale_4_spot_extraction,
+        final_params.spot_extraction_scale,
         spot_extraction_xy_stride_param(final_params),
         spot_extraction_xy_overlap_param(final_params),
         spot_extraction_z_stride_param(final_params),
@@ -293,9 +293,9 @@ workflow {
         segmentation_inputs.map { "${it[0]}" },
         segmentation_output_dirs,
         final_params.dapi_channel,
-        final_params.scale_4_segmentation,
+        final_params.segmentation_scale,
         final_params.segmentation_model_dir,
-        final_params.predict_cpus
+        final_params.segmentation_cpus
     )  // [ input_image_path, output_labels_tiff ]
     segmentation_results.subscribe { log.debug "Segmentation results: $it" }
 
@@ -401,7 +401,7 @@ workflow {
             [
                 "${acq_stitching_output_dir}/export.n5",
                 spots_channel,
-                final_params.scale_4_spot_extraction,
+                final_params.spot_extraction_scale,
                 spots_filepath
             ]
         }
@@ -577,19 +577,19 @@ workflow {
         def moving_stitched_results = file(it[2])
         def moving_acq = moving_stitched_results.parent.parent.name
         def intensities_name = "${moving_acq}-to-${fixed_acq}"
-        def intensities_output_dir = get_step_output_dir(
+        def measure_intensities_output_dir = get_step_output_dir(
             get_acq_output(pipeline_output_dir, moving_acq),
-            "${intensities_output}/${intensities_name}"
+            "${measure_intensities_output}/${intensities_name}"
         )
-        log.debug "Create intensities output for ${moving_acq} to ${fixed_acq} -> ${intensities_output_dir}"
-        intensities_output_dir.mkdirs()
+        log.debug "Create intensities output for ${moving_acq} to ${fixed_acq} -> ${measure_intensities_output_dir}"
+        measure_intensities_output_dir.mkdirs()
         def r = [
             it[9], // labels
             it[6], // warped spots image
             intensities_name, // intensity measurements result file prefix (round name)
             it[7], // channel
             it[8], // scale
-            intensities_output_dir // result output dir
+            measure_intensities_output_dir // result output dir
         ]
         log.debug "Intensity measurements input $it -> $r"
         r
@@ -605,7 +605,7 @@ workflow {
         intensities_inputs.map { it[5] }, // result output dir
         final_params.dapi_channel, // dapi_channel
         final_params.bleed_channel, // bleed_channel
-        final_params.intensity_cpus, // cpus
+        final_params.measure_intensities_cpus, // cpus
     )
 
     // prepare inputs for assign spots
@@ -704,7 +704,7 @@ workflow {
         assign_spots_inputs.map { it[0] },
         assign_spots_inputs.map { it[1] },
         assign_spots_inputs.map { it[2] },
-        final_params.assignment_cpus
+        final_params.assign_spots_cpus
     )
 
     assign_spots_results | view
