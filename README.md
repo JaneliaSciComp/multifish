@@ -18,11 +18,11 @@ Clone the multifish repository with the following command:
 
     git clone https://github.com/JaneliaSciComp/multifish.git
 
-Before running the pipeline for the first time, pull in and build the submodules using the setup script:
+Before running the pipeline for the first time, run setup to pull in external dependencies:
 
     ./setup.sh
   
-Launch the demo using the EASI-FISH example data:
+Now you can launch the demo using the EASI-FISH example data:
 
     ./examples/demo.sh <data dir> [arguments]
 

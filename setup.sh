@@ -1,10 +1,10 @@
 #!/bin/bash
+set -e 
 
-DIR=$(cd "$(dirname "$0")"; pwd)
-BASEDIR=$(realpath $DIR/..)
+BASEDIR=$(cd "$(dirname "$0")"; pwd)
 
 # Download Nextflow Spark module
-curl -skL https://github.com/JaneliaSciComp/nextflow-spark/archive/1.1.0.tar.gz | tar -xz --strip-components=1 -C $DIR/external-modules/spark
+curl -skL https://github.com/JaneliaSciComp/nextflow-spark/archive/1.1.0.tar.gz | tar -xz --strip-components=1 -C $BASEDIR/external-modules/spark
 
 # Download Starfinity model
 segmentation_dir=$BASEDIR/external-modules/segmentation
@@ -13,5 +13,7 @@ if [ ! -e $segmentation_modeldir ]; then
     echo "Extracting Starfinity model..."
     mkdir -p segmentation_dir
     $BASEDIR/data-sets/download_dataset.sh "$BASEDIR/data-sets/segmentation.txt" "$segmentation_dir"
-    unzip -o $inputdir/model.zip -d $inputdir/    
+    unzip -o $segmentation_dir/model.zip -d $segmentation_dir/    
 fi
+
+echo "Setup complete"
