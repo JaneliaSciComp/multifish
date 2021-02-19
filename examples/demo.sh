@@ -33,7 +33,7 @@ datadir=$(realpath $1)
 shift # eat the first argument so that $@ works later
 
 inputdir=$datadir/inputs
-$DIR/download_dataset.sh "$DIR/demo_files_medium.txt" "$inputdir" "false"
+$DIR/download_dataset.sh "$BASEDIR/data-sets/demo_files_medium.txt" "$inputdir"
 
 segmentation_modeldir="$inputdir/model/starfinity"
 if [ ! -e $segmentation_modeldir ]; then
