@@ -18,13 +18,20 @@ Commit as normal, then back at the root update the submodule commit pointer and 
 
 ### Building containers
 
-All containers used by the pipeline have been made available on Docker Hub. You can rebuild these to make customizations or to replace the algorithms used. To build the containers and push to Docker Hub you can use [maru](https://github.com/JaneliaSciComp/maru), or:
+All containers used by the pipeline have been made available on Docker Hub. You can rebuild these to make customizations or to replace the algorithms used. To build the containers and push to Docker Hub you can use [maru](https://github.com/JaneliaSciComp/maru), or manually:
+
+#### Stitching container
+Container used for Spark-based stitching.
+
+    cd containers/stitching
+    docker build -t multifish/stitching:latest .
+    docker push multifish/stitching:latest
 
 #### Spot extraction container
 Container used for spot detection/extraction.
 
     cd containers/spot_extraction
-    docker build -t multifish/spot_extraction:latest  .
+    docker build -t multifish/spot_extraction:latest .
     docker push multifish/spot_extraction:latest
 
 #### Segmentation container
