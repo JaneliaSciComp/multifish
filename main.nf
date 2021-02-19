@@ -97,6 +97,18 @@ steps_to_skip = get_list_or_default(final_params, 'skip', [])
 acq_names = get_list_or_default(final_params, 'acq_names', [])
 ref_acq = final_params.ref_acq
 
+log.info """\
+    EASI-FISH ANALYSIS PIPELINE
+    ===================================
+    workDir         : $workDir
+    data_dir        : ${data_dir}
+    output_dir      : ${pipeline_output_dir}
+    acq_names       : ${acq_names}
+    ref_acq         : ${ref_acq}
+    steps_to_skip   : ${steps_to_skip}
+    """
+    .stripIndent()
+
 if (steps_to_skip.contains('stitching')) {
     stitch_acq_names = []
 } else {
@@ -196,15 +208,6 @@ if (steps_to_skip.contains('assign_spots')) {
     assign_spots_acq_names = get_list_or_default(final_params, 'assign_spots_acq_names', acq_names-labeled_spots_acq_names)
 }
 log.info "Images for assign spots: ${assign_spots_acq_names}"
-
-log.info """\
-    EASI-FISH ANALYSIS PIPELINE
-    ===================================
-    workDir         : $workDir
-    data_dir        : ${params.data_dir}
-    output_dir      : ${params.output_dir}
-    """
-    .stripIndent()
 
 workflow {
     // stitching
