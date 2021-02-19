@@ -4,7 +4,7 @@ def default_mf_params() {
 
     [
         mfrepo: multifish_container_repo,
-        spotextraction_container: '',
+        spot_extraction_container: '',
         segmentation_container: '',
         registration_container: '',
         spots_assignment_container: '',
@@ -103,12 +103,12 @@ def get_list_or_default(Map ps, String param, List default_list) {
         : default_list
 }
 
-def spotextraction_container_param(Map ps) {
-    def spotextraction_container = ps.spotextraction_container
-    if (!spotextraction_container)
+def spot_extraction_container_param(Map ps) {
+    def spot_extraction_container = ps.spot_extraction_container
+    if (!spot_extraction_container)
         "${ps.mfrepo}/spot_extraction:1.0.0"
     else
-        spotextraction_container
+        spot_extraction_container
 }
 
 def segmentation_container_param(Map ps) {

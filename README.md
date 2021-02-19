@@ -82,7 +82,7 @@ You can also add additional arguments to the end in order to, for example, skip 
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| --spotextraction_container | \<mfrepo\>/spotextraction:1.0.0 | Docker container to use for running spot extraction |
+| --spot_extraction_container | \<mfrepo\>/spotextraction:1.0.0 | Docker container to use for running spot extraction |
 | --spot_extraction_output | spots | Output directory for spot extraction (relative to --output_dir) |
 | --dapi_channel | c2 | DAPI channel |
 | --bleed_channel | c3 | Channel (other than DAPI) used to correct bloodthrough on DAPI channel |

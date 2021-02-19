@@ -3,7 +3,7 @@ include {
     airlocalize;
     merge_points;
 } from '../processes/spot_extraction' addParams(lsf_opts: params.lsf_opts, 
-                                                spotextraction_container: params.spotextraction_container)
+                                                spot_extraction_container: params.spot_extraction_container)
 
 include {
     index_channel;

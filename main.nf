@@ -10,7 +10,7 @@ include {
     default_mf_params;
     get_value_or_default;
     get_list_or_default;
-    spotextraction_container_param;
+    spot_extraction_container_param;
     segmentation_container_param;
     registration_container_param;
     stitching_ref_param;
@@ -37,7 +37,7 @@ include {
 include {
     spot_extraction;
 } from './workflows/spot_extraction' addParams(lsf_opts: final_params.lsf_opts,
-                                               spotextraction_container: spotextraction_container_param(final_params),
+                                               spot_extraction_container: spot_extraction_container_param(final_params),
                                                spot_extraction_cpus: final_params.spot_extraction_cpus,
                                                spot_extraction_memory: final_params.spot_extraction_memory)
 

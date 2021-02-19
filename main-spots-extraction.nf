@@ -12,7 +12,8 @@ params.outdir = ""
 
 include {
     default_mf_params;
-    spotextraction_container_param;
+    spot_extraction_container_param;
+    spot_extraction_xy_stride_param;
 } from './param_utils'
 
 final_params = default_mf_params() + params
@@ -20,7 +21,7 @@ final_params = default_mf_params() + params
 include {
     spot_extraction;
 } from './workflows/spot_extraction' addParams(lsf_opts: final_params.lsf_opts,
-                                               spotextraction_container: spotextraction_container_param(final_params),
+                                               spot_extraction_container: spot_extraction_container_param(final_params),
                                                spot_extraction_cpus: final_params.spot_extraction_cpus,
                                                spot_extraction_memory: final_params.spot_extraction_memory)
 
