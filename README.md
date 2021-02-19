@@ -85,7 +85,7 @@ This example also sets the project flag to demonstrate how to set LSF options.
 
     ./main.nf -profile lsf --lsf_opts "-P multifish" [arguments]
 
-Complete examples are available in the [examples](examples) directory.
+Usage examples are available in the [examples](examples) directory.
 
 ## User Manual
 
@@ -96,10 +96,6 @@ Further detailed documentation is available here:
 * [Troubleshooting](docs/Troubleshooting.md)
 * [Development](docs/Development.md)
 
-## Troubleshooting
+## Open Source License
 
-If you run into any problems with running the pipeline, please first check out the [troubleshooting documentation](docs/Troubleshooting.md). If you find any bugs, you can [create a new issue](https://github.com/JaneliaSciComp/multifish/issues/new) in the bug tracker.
-
-## Development
-
-If you are a software developer wishing to contribute bug fixes or features, please refer to the [Development docs](docs/Development.md).
+This software is made available under [Janelia's Open Source Software](https://www.janelia.org/open-science/software-licensing) policy which uses the BSD 3-Clause License. 
