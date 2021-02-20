@@ -17,8 +17,7 @@ fx = sorted(glob(spot_dir+"/*.txt"))
 
 lb_id = np.unique(lb[lb != 0])
 z, y, x = lb.shape
-# s=[0.92,0.92,0.84] ## voxel size in segmentation image
-s = [8, 8, 2]
+s=[0.92,0.92,0.84] ## voxel size in segmentation image
 count = pd.DataFrame(np.empty([len(lb_id), 0]), index=lb_id)
 
 for f in fx:
