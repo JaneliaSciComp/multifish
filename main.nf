@@ -457,8 +457,8 @@ workflow {
         ]
     }
 
-    def warp_spots_inputs = expected_registration_for_warping_spots \
-    | concat(extended_registration_results) | unique {
+    def warp_spots_inputs = extended_registration_results \
+    | concat(expected_registration_for_warping_spots) | unique {
         it[0..3].collect { "$it" }
     } | map {
         def fixed_stitched_results = file(it[0])
@@ -527,8 +527,8 @@ workflow {
         ]
     }
 
-    def labeled_acquisitions = expected_segmentation_results \
-    | concat(segmentation_results) \
+    def labeled_acquisitions = segmentation_results \
+    | concat(expected_segmentation_results) \
     | unique {
         "${it[0]}"
     }
