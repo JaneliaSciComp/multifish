@@ -583,7 +583,7 @@ workflow {
             it[0], // fixed stitched image
             fixed_acq, // intensity measurements result file prefix (round name)
             it[1], // channel
-            it[2] // scale
+            it[2], // scale
             measure_intensities_output_dir // result output dir
         ]
         log.debug "Measure intensities inputs for fixed image: $it -> $r"
