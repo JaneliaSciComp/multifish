@@ -616,7 +616,7 @@ workflow {
             it[8], // scale
             measure_intensities_output_dir // result output dir
         ]
-        log.debug "Intensity measurements input for moving image $it -> $r"
+        log.debug "Measure intensities inputs for moving image $it -> $r"
         r
     } | concat(intensities_inputs_for_fixed) | unique {
         [ "${it[0]}", "${it[1]}", "${it[3]}", "${it[4]}" ]
