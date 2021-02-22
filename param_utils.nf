@@ -133,7 +133,7 @@ def registration_container_param(Map ps) {
 def spots_assignment_container_param(Map ps) {
     def spots_assignment_container = ps.spots_assignment_container
     if (!spots_assignment_container)
-        "${ps.mfrepo}/spot_assignment:1.0.0"
+        "${ps.mfrepo}/spot_assignment:1.1.0"
     else
         spots_assignment_container
 }
