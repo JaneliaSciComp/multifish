@@ -34,7 +34,6 @@ $DIR/../main.nf \
         --workers 4 \
         --worker_cores 4 \
         --spark_work_dir "$PWD/local" \
-        --stitching_app "$PWD/external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar" \
         --data_dir /nrs/multifish/Pipeline/Examples/subset \
         --output_dir /nrs/scicompsoft/goinac/multifish/ex1 \
         --acq_names "LHA3_R3_subset,LHA3_R5_subset" \
