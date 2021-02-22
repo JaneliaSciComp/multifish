@@ -601,7 +601,7 @@ workflow {
     } | map { it[0..8] }
 
     def intensities_inputs = extended_registration_results \
-    | concat(expected_intensities_for_moving.filter {} ) | unique { 
+    | concat(expected_intensities_for_moving) | unique {
         it[0..3].collect { "$it" }
     } \
     | combine(labeled_acquisitions, by:0) \
@@ -708,7 +708,7 @@ workflow {
         [ spots_file.parent, assign_spots_output_dir] // [ spots_dir, assigned_dir ]
     } | combine(labeled_acquisitions) | map {
         def r = [
-            it[2], it[0], it[1]
+            it[3], it[0], it[1]
         ]
         log.debug "Assign spots input for fixed image: $it -> $r"
         return r
