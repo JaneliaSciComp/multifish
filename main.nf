@@ -679,7 +679,7 @@ workflow {
                 fixed_acq,
                 moving_acq
             ]
-        } else
+        } else {
             def spots_dir = get_step_output_dir(
                 get_acq_output(pipeline_output_dir, moving_acq),
                 final_params.spot_extraction_output
@@ -694,6 +694,7 @@ workflow {
                 fixed_acq,
                 moving_acq
             ]
+        }
     }
 
     def assign_spots_inputs_for_fixed = expected_assign_spots \
