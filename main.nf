@@ -443,7 +443,7 @@ workflow {
             get_acq_output(pipeline_output_dir, moving_acq),
             "${final_params.registration_output}/${moving_acq}-to-${fixed_acq}"
         )
-        [
+        def r = [
             "${fixed_dir}/export.n5", // fixed stitched image
             "/${ch}/${final_params.def_scale}", // channel/deform scale
             "${moving_dir}/export.n5", // moving stitched image
@@ -454,6 +454,7 @@ workflow {
             ch,
             final_params.def_scale
         ]
+        log.debug "Expected registration for warping spots: $r"
     }
 
     def warp_spots_inputs = extended_registration_results \
@@ -565,11 +566,10 @@ workflow {
         ]
     }
 
-    def intensities_inputs_for_fixed = spot_extraction_results \
-    | join(warp_spots_inputs) | map {
-        [ it[0], it[1], it[3] ] // [ fixed_image, ch, spots_file ]
+    def intensities_inputs_for_fixed = expected_registrations_for_intensities | map {
+        [ it[0], it[7], it[8] ] // [ fixed_image, ch, deformation_scale ]
     } | combine(labeled_acquisitions) | map {
-        // [fixed, ch, spots_file, labels_input, labels_tiff ]
+        // [fixed, ch, def_scale, labels_input, labels_tiff ]
         def fixed_stitched_results = file(it[0])
         def fixed_acq = fixed_stitched_results.parent.parent.name
         def measure_intensities_output_dir = get_step_output_dir(
@@ -583,7 +583,7 @@ workflow {
             it[0], // fixed stitched image
             fixed_acq, // intensity measurements result file prefix (round name)
             it[1], // channel
-            final_params.def_scale, // scale
+            it[2] // scale
             measure_intensities_output_dir // result output dir
         ]
         log.debug "Measure intensities inputs for fixed image: $it -> $r"
