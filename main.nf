@@ -197,7 +197,6 @@ if (steps_to_skip.contains('measure_intensities')) {
     measure_acq_names = get_list_or_default(final_params, 'measure_acq_names', acq_names-labeled_spots_acq_names)
 }
 log.debug "Images for intensities measurement: ${measure_acq_names}"
-measure_intensities_output = final_params.measure_intensities_output
 
 if (steps_to_skip.contains('assign_spots')) {
     assign_spots_acq_names = []
@@ -566,6 +565,31 @@ workflow {
         ]
     }
 
+    def intensities_inputs_for_fixed = spot_extraction_results \
+    | join(warp_spots_inputs) | map {
+        [ it[0], it[1], it[3] ] // [ fixed_image, ch, spots_file ]
+    } | combine(labeled_acquisitions) | map {
+        // [fixed, ch, spots_file, labels_tiff ]
+        def fixed_stitched_results = file(it[0])
+        def fixed_acq = fixed_stitched_results.parent.parent.name
+        def measure_intensities_output_dir = get_step_output_dir(
+            get_acq_output(pipeline_output_dir, fixed_acq),
+            final_params.measure_intensities_output
+        )
+        log.debug "Create intensities output for ${fixed_acq} -> ${measure_intensities_output_dir}"
+        measure_intensities_output_dir.mkdirs()
+        def r = [
+            it[3], // labels
+            it[0], // fixed stitched image
+            fixed_acq, // intensity measurements result file prefix (round name)
+            it[1], // channel
+            final_params.def_scale, // scale
+            measure_intensities_output_dir // result output dir
+        ]
+        log.debug "Measure intensities inputs for fixed image: $it -> $r"
+        return r;
+    }
+
     def intensities_inputs = extended_registration_results \
     | concat(expected_registrations_for_intensities) | unique { 
         it[0..3].collect { "$it" }
@@ -580,7 +604,7 @@ workflow {
         def intensities_name = "${moving_acq}-to-${fixed_acq}"
         def measure_intensities_output_dir = get_step_output_dir(
             get_acq_output(pipeline_output_dir, moving_acq),
-            "${measure_intensities_output}/${intensities_name}"
+            "${final_params.measure_intensities_output}/${intensities_name}"
         )
         log.debug "Create intensities output for ${moving_acq} to ${fixed_acq} -> ${measure_intensities_output_dir}"
         measure_intensities_output_dir.mkdirs()
@@ -592,8 +616,10 @@ workflow {
             it[8], // scale
             measure_intensities_output_dir // result output dir
         ]
-        log.debug "Intensity measurements input $it -> $r"
+        log.debug "Intensity measurements input for moving image $it -> $r"
         r
+    } | concat(intensities_inputs_for_fixed) | unique {
+        [ "${it[0]}", "${it[1]}", "${it[3]}", "${it[4]}" ]
     }
 
     // run intensities measurements
@@ -696,7 +722,7 @@ workflow {
             warped_spots_dir, // warped spots dir
             assign_spots_output_dir
         ]
-        log.debug "Assign spots input: $r"
+        log.debug "Assign spots input: $it -> $r"
         return r
     } | concat(assign_spots_inputs_for_fixed) | unique { "$it" }
 
