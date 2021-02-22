@@ -194,7 +194,7 @@ if (steps_to_skip.contains('measure_intensities')) {
         log.error "No labeled image was specified for measuring intensities"
         System.exit(1)
     }
-    measure_acq_names = get_list_or_default(final_params, 'measure_acq_names', acq_names-labeled_spots_acq_names)
+    measure_acq_names = get_list_or_default(final_params, 'measure_acq_names', acq_names)
 }
 log.debug "Images for intensities measurement: ${measure_acq_names}"
 
@@ -205,7 +205,7 @@ if (steps_to_skip.contains('assign_spots')) {
         log.error "No labeled image was specified for assigning spots"
         System.exit(1)
     }
-    assign_spots_acq_names = get_list_or_default(final_params, 'assign_spots_acq_names', acq_names-labeled_spots_acq_names)
+    assign_spots_acq_names = get_list_or_default(final_params, 'assign_spots_acq_names', acq_names)
 }
 log.debug "Images for assign spots: ${assign_spots_acq_names}"
 
@@ -562,11 +562,16 @@ workflow {
             "${registration_dir}/invtransform", // inv transform path
             "${registration_dir}/warped", // warped path
             ch,
-            final_params.def_scale
+            final_params.def_scale,
+            fixed_acq,
+            moving_acq
         ]
     }
 
-    def intensities_inputs_for_fixed = expected_registrations_for_intensities | map {
+    def intensities_inputs_for_fixed = expected_registrations_for_intensities \
+    | filter {
+        it[9] == it[10] // filter the expected registration that have the same fixed and moving sourcec
+    } | map {
         [ it[0], it[7], it[8] ] // [ fixed_image, ch, deformation_scale ]
     } | combine(labeled_acquisitions) | map {
         // [fixed, ch, def_scale, labels_input, labels_tiff ]
@@ -590,8 +595,13 @@ workflow {
         return r;
     }
 
+    def expected_intensities_for_moving = expected_registrations_for_intensities \
+    | filter {
+        it[9] != it[10]
+    } | map { it[0..8] }
+
     def intensities_inputs = extended_registration_results \
-    | concat(expected_registrations_for_intensities) | unique { 
+    | concat(expected_intensities_for_moving.filter {} ) | unique { 
         it[0..3].collect { "$it" }
     } \
     | combine(labeled_acquisitions, by:0) \
@@ -636,7 +646,7 @@ workflow {
     )
 
     // prepare inputs for assign spots
-    def expected_warped_spots_for_assign = Channel.fromList(labeled_spots_acq_names) \
+    def expected_assign_spots = Channel.fromList(labeled_spots_acq_names) \
     | combine(assign_spots_acq_names) \
     | combine(spot_channels)
     | map {
@@ -654,25 +664,42 @@ workflow {
             get_acq_output(pipeline_output_dir, moving_acq),
             "${final_params.registration_output}/${moving_acq}-to-${fixed_acq}"
         )
-        def warped_spots_dir = get_step_output_dir(
-            get_acq_output(pipeline_output_dir, moving_acq),
-            "${final_params.spot_extraction_output}/${moving_acq}-to-${fixed_acq}"
-        )
-        [
-            "${fixed_dir}/export.n5", // fixed stitched image
-            "/${it[2]}/${final_params.def_scale}", // channel/deform scale
-            "${moving_dir}/export.n5", // moving stitched image
-            "/${it[2]}/${final_params.def_scale}", // channel/deform scale
-            "${registration_dir}/invtransform", // transform path
-            "${warped_spots_dir}/merged_points_${it[2]}_warped.txt"
-        ]
+        if (fixed_acq != moving_acq) {
+            def warped_spots_dir = get_step_output_dir(
+                get_acq_output(pipeline_output_dir, moving_acq),
+                "${final_params.spot_extraction_output}/${moving_acq}-to-${fixed_acq}"
+            )
+            [
+                "${fixed_dir}/export.n5", // fixed stitched image
+                "/${it[2]}/${final_params.def_scale}", // channel/deform scale
+                "${moving_dir}/export.n5", // moving stitched image
+                "/${it[2]}/${final_params.def_scale}", // channel/deform scale
+                "${registration_dir}/invtransform", // transform path
+                "${warped_spots_dir}/merged_points_${it[2]}_warped.txt",
+                fixed_acq,
+                moving_acq
+            ]
+        } else
+            def spots_dir = get_step_output_dir(
+                get_acq_output(pipeline_output_dir, moving_acq),
+                final_params.spot_extraction_output
+            )
+            [
+                "${fixed_dir}/export.n5", // fixed stitched image
+                "/${it[2]}/${final_params.def_scale}", // channel/deform scale
+                "${moving_dir}/export.n5", // moving stitched image
+                "/${it[2]}/${final_params.def_scale}", // channel/deform scale
+                '', // no transform path
+                "${spots_dir}/merged_points_${it[2]}.txt",
+                fixed_acq,
+                moving_acq
+            ]
     }
 
-    def assign_spots_inputs_for_fixed = spots_to_warp \
-    | join(warp_spots_inputs) | map {
-        def fixed_stitched_results = file(it[0])
-        def fixed_acq = fixed_stitched_results.parent.parent.name
-        def spots_file = file(it[2])
+    def assign_spots_inputs_for_fixed = expected_assign_spots \
+    | filter { it[6] == it[7] } | map {
+        def fixed_acq = it[6]
+        def spots_file = file(it[5])
         def assign_spots_output_dir = get_step_output_dir(
             get_acq_output(pipeline_output_dir, fixed_acq),
             final_params.assign_spots_output
@@ -685,6 +712,9 @@ workflow {
         log.debug "Assign spots input for fixed image: $it -> $r"
         return r
     } // [ label, spots_dir, assigned_dir ]
+
+    def expected_assign_spots_for_moving = expected_assign_spots \
+    | filter { it[6] != it[7] } | map { it[0..5] }
 
     def assign_spots_inputs = warp_spots_inputs | map {
         [
@@ -700,7 +730,7 @@ workflow {
         // to combine it with segmentation results which are done only for fixed image
         it[1..5] + [ it[0] ]
     } \
-    | concat(expected_warped_spots_for_assign) | unique {
+    | concat(expected_assign_spots_for_moving) | unique {
         it.collect { "$it" }
     } \
     | combine(labeled_acquisitions, by:0) | map {
@@ -722,7 +752,7 @@ workflow {
             warped_spots_dir, // warped spots dir
             assign_spots_output_dir
         ]
-        log.debug "Assign spots input: $it -> $r"
+        log.debug "Assign spots input for warped spots: $it -> $r"
         return r
     } | concat(assign_spots_inputs_for_fixed) | unique { "$it" }
 

@@ -26,15 +26,18 @@ for f in fx:
     r = r.split('.')[0]
     spot = np.loadtxt(f, delimiter=',')
     n = len(spot)
-    spot[:, :3] = spot[:, :3]/s
-    spot = np.round(spot).astype('int')
+    rounded_spot = np.round(spot[:, :3]/s).astype('int')
     df = pd.DataFrame(np.zeros([len(lb_id), 1]),
                       index=lb_id, columns=['count'])
 
     for i in range(0, n):
-        Coord = np.minimum(spot[i, :3], [x, y, z])
-        idx = lb[Coord[2]-1, Coord[1]-1, Coord[0]-1]
-        if idx > 0:
-            df.loc[idx, 'count'] = df.loc[idx, 'count']+1
+        if np.any(np.isnan(spot[i,:3])):
+            print('NaN found in {} line# {}'.format(f, i+1))
+        else:
+            # if all non-rounded coord are valid values (none is NaN)
+            Coord = np.minimum(rounded_spot[i], [x, y, z])
+            idx = lb[Coord[2]-1, Coord[1]-1, Coord[0]-1]
+            if idx > 0 and idx <= len(lb_id):
+                df.loc[idx, 'count'] = df.loc[idx, 'count']+1
     count.loc[:, r] = df.to_numpy()
 count.to_csv(out_dir+'/count.csv')
