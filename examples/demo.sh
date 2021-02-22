@@ -50,7 +50,7 @@ mkdir -p $outputdir
 #
 
 ./main.nf \
-        --runtime_opts "--nv -B $BASEDIR -B $datadir -B $TMPDIR" \
+        --runtime_opts "--nv -B $BASEDIR -B $datadir -B $TMPDIR --env USER=$USER" \
         --workers 4 \
         --worker_cores 16 \
         --gb_per_core 15 \
