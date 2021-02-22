@@ -569,7 +569,7 @@ workflow {
     | join(warp_spots_inputs) | map {
         [ it[0], it[1], it[3] ] // [ fixed_image, ch, spots_file ]
     } | combine(labeled_acquisitions) | map {
-        // [fixed, ch, spots_file, labels_tiff ]
+        // [fixed, ch, spots_file, labels_input, labels_tiff ]
         def fixed_stitched_results = file(it[0])
         def fixed_acq = fixed_stitched_results.parent.parent.name
         def measure_intensities_output_dir = get_step_output_dir(
@@ -579,7 +579,7 @@ workflow {
         log.debug "Create intensities output for ${fixed_acq} -> ${measure_intensities_output_dir}"
         measure_intensities_output_dir.mkdirs()
         def r = [
-            it[3], // labels
+            it[4], // labels
             it[0], // fixed stitched image
             fixed_acq, // intensity measurements result file prefix (round name)
             it[1], // channel
