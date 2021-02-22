@@ -705,6 +705,8 @@ workflow {
             get_acq_output(pipeline_output_dir, fixed_acq),
             final_params.assign_spots_output
         )
+        log.debug "Create assign spots output for ${fixed_acq} -> ${assign_spots_output_dir}"
+        assign_spots_output_dir.mkdirs()
         [ spots_file.parent, assign_spots_output_dir] // [ spots_dir, assigned_dir ]
     } | combine(labeled_acquisitions) | map {
         def r = [
