@@ -531,7 +531,7 @@ workflow {
     | concat(expected_segmentation_results) \
     | unique {
         "${it[0]}"
-    }
+    } // [ stitched_n5_immage, labels_tiff_image]
 
     // prepare intensities measurements inputs
     def expected_registrations_for_intensities = Channel.fromList(labeled_spots_acq_names) \
