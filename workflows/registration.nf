@@ -291,6 +291,7 @@ workflow registration {
             r
         }
     }
+    final_transform_inputs.subscribe { println "Final warp input: $it" }
 
     // run the final transformation and generate the warped image
     final_result = final_transform(

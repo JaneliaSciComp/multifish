@@ -75,6 +75,7 @@ process apply_transform {
     ]
     args = args_list.join(' ')
     """
+    echo "Apply transform"
     # Must remove the output directory, or we get a zarr.errors.ContainsArrayError if it already exists
     rm -rf ${output_path}${ref_image_subpath} || true
     /app/scripts/waitforpaths.sh ${ref_image_path}${ref_image_subpath} ${mov_image_path}${mov_image_subpath} ${txm_path}
@@ -223,10 +224,12 @@ process final_transform {
 
     script:
     """
+    echo "Final transform"
     # Must remove the output directory, or we get a zarr.errors.ContainsArrayError if it already exists
     rm -rf ${output_path}${ref_image_subpath} || true
     /app/scripts/waitforpaths.sh ${ref_image_path}${ref_image_subpath} ${mov_image_path}${mov_image_subpath}
     /entrypoint.sh apply_transform_n5 $ref_image_path $ref_image_subpath $mov_image_path $mov_image_subpath $txm_path $output_path
+    echo "Finished final transform for ${output_path}${ref_image_subpath}"
     """
 }
 
