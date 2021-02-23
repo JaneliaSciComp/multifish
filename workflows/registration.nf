@@ -302,8 +302,8 @@ workflow registration {
         final_transform_inputs.map { it[4] },
         final_transform_inputs.map { it[5] },
         final_transform_inputs.map { it[6] }
-    )
-    | groupTuple(by: [0,2,4,5])
+    ) \
+    | groupTuple(by: [0,2,4,5]) \
     | flatMap { final_tx_res ->
         def ref_image_subpath = final_tx_res[1]
         def mov_image_subpath = final_tx_res[3]
