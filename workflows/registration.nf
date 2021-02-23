@@ -302,12 +302,29 @@ workflow registration {
         final_transform_inputs.map { it[4] },
         final_transform_inputs.map { it[5] },
         final_transform_inputs.map { it[6] }
-    ) | map {
-        // include invtransform path in the result
-        def txm_path = file(it[4])
-        def r = it[0..4] + [ "${txm_path.parent}/invtransform" ] + [ it[5] ]
-        log.debug "Registration result: $r"
-        r
+    )
+    | groupTuple(by: [0,2,4,5])
+    | flatMap { final_tx_res ->
+        def ref_image_subpath = final_tx_res[1]
+        def mov_image_subpath = final_tx_res[3]
+        // also include invtransform path in the result
+        def txm_path = file(final_tx_res[4])
+        def inv_transform = "${txm_path.parent}/invtransform"
+        [ ref_image_subpath, mov_image_subpath ]
+            .transpose()
+            .collect { subpaths ->
+                def r = [
+                    final_tx_res[0], // fixed
+                    subpaths[0], // fixed_subpath
+                    final_tx_res[2], // moving
+                    subpaths[1], // moving subpath
+                    final_tx_res[4], // dir transform
+                    inv_transform, // inv transform
+                    final_tx_res[5] // output
+                ]
+                log.debug "Registration result: $r"
+                r
+            }
     } // [ <fixed>, <fixed_subpath>, <moving>, <moving_subpath>, <direct_transform>, <inv_transform>, <warped_path> ]
 
     emit:
