@@ -34,10 +34,13 @@ for f in fx:
         if np.any(np.isnan(spot[i,:3])):
             print('NaN found in {} line# {}'.format(f, i+1))
         else:
-            # if all non-rounded coord are valid values (none is NaN)
-            Coord = np.minimum(rounded_spot[i], [x, y, z])
-            idx = lb[Coord[2]-1, Coord[1]-1, Coord[0]-1]
-            if idx > 0 and idx <= len(lb_id):
-                df.loc[idx, 'count'] = df.loc[idx, 'count']+1
+            try:
+                # if all non-rounded coord are valid values (none is NaN)
+                Coord = np.minimum(rounded_spot[i], [x, y, z])
+                idx = lb[Coord[2]-1, Coord[1]-1, Coord[0]-1]
+                if idx > 0 and idx <= len(lb_id):
+                    df.loc[idx, 'count'] = df.loc[idx, 'count']+1
+            except Exception as e:
+                 print('Unexpected error in {} line# {}: {}'.format(f, i+1, e))
     count.loc[:, r] = df.to_numpy()
 count.to_csv(out_dir+'/count.csv')
