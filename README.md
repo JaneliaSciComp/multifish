@@ -10,6 +10,10 @@ To [install Nextflow](https://www.nextflow.io/docs/latest/getstarted.html):
 
     curl -s https://get.nextflow.io | bash 
 
+Alternatively, you can install it as a conda package:
+
+    conda create --name multifish -c bioconda nextflow
+
 To [install Singularity](https://sylabs.io/guides/3.7/admin-guide/installation.html) on CentOS Linux:
 
     sudo yum install singularity
@@ -30,8 +34,7 @@ The `data dir` is the path where you want to store the data and analysis results
 
 This script will also download the standard segmentation machine learning model, used for cell segmentation.
 
-You can add additional arguments to the end in order to, for example, skip steps previously completed, or add Nextflow Tower monitoring. See below for additional details about the argument usage.
-
+You can add additional arguments to the end in order to, for example, skip steps previously completed, or add monitoring with [Nextflow Tower](https://tower.nf). See below for additional details about the argument usage.
 
 ## Pipeline Overview
 
@@ -48,11 +51,9 @@ The pipeline includes the following modules:
 
 ![Pipeline Diagram](docs/pipeline_diagram.png)
 
-## Parameters
+## Required Parameters
 
 The following parameters are required to run the full pipeline. See the [parameter documentation](docs/Parameters.md) for a complete list of all possible options.
-
-### Required Parameters
 
 | Argument   | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
@@ -60,7 +61,6 @@ The following parameters are required to run the full pipeline. See the [paramet
 | --output_dir | Path to the directory containing pipeline outputs |
 | --acq_names | Names of acquisition rounds to process. These should match the names of the CZI/MVL files found in the data_dir |  
 | --ref_acq | Name of the acquisition round to use as the fixed reference |
-
 
 ## Pipeline Execution
 
