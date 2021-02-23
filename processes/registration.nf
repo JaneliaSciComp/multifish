@@ -194,7 +194,7 @@ process stitch {
 
     script:
     transform_output = "${transform_dir}${output_subpath}"
-    invtransform_output = "${transform_dir}${output_subpath}"
+    invtransform_output = "${invtransform_dir}${output_subpath}"
     """
     /app/scripts/waitforpaths.sh $tile ${image_path}${image_subpath} $ransac_affine_mat
     /entrypoint.sh stitch_and_write $tile $xy_overlap $z_overlap $image_path $image_subpath $ransac_affine_mat $transform_dir $invtransform_dir $output_subpath

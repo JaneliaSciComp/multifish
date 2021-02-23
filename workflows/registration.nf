@@ -276,6 +276,7 @@ workflow registration {
     | groupTuple(by: [1,2,3,4,5]) \
     | combine(normalized_moving_input_dir) \
     | flatMap { stitch_res ->
+        log.debug "Combined stitched result: ${stitch_res}"
         def reference = stitch_res[1]
         def to_warp = stitch_res[6]
         def transform_dir = file(stitch_res[2])
