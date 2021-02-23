@@ -269,7 +269,11 @@ workflow registration {
     // for final transformation wait until all tiles are stitched
     // and combine the results with the warped_channels
     def final_transform_inputs = stitch_results \
-    | groupTuple(by:[1,2,3,4,5]) \
+    | map {
+        log.debug "Stitch result: $it"
+        it
+    }
+    | groupTuple(by: [1,2,3,4,5]) \
     | combine(normalized_moving_input_dir) \
     | flatMap { stitch_res ->
         def reference = stitch_res[1]
@@ -294,7 +298,7 @@ workflow registration {
     final_transform_inputs.subscribe { println "Final warp input: $it" }
 
     // run the final transformation and generate the warped image
-    final_result = final_transform(
+    def final_transform_res = final_transform(
         final_transform_inputs.map { it[0] },
         final_transform_inputs.map { it[1] },
         final_transform_inputs.map { it[2] },
@@ -302,31 +306,32 @@ workflow registration {
         final_transform_inputs.map { it[4] },
         final_transform_inputs.map { it[5] },
         final_transform_inputs.map { it[6] }
-    ) \
+    )
+    final_transform_res.subscribe { println "Final warp result: $it" }
+
+    registration_res = final_transform_res \
     | groupTuple(by: [0,2,4,5]) \
     | flatMap { final_tx_res ->
-        def ref_image_subpath = final_tx_res[1]
-        def mov_image_subpath = final_tx_res[3]
+        def ref_subpath = final_tx_res[1]
+        def mov_subpath = final_tx_res[3]
         // also include invtransform path in the result
         def txm_path = file(final_tx_res[4])
         def inv_transform = "${txm_path.parent}/invtransform"
-        [ ref_image_subpath, mov_image_subpath ]
-            .transpose()
-            .collect { subpaths ->
-                def r = [
-                    final_tx_res[0], // fixed
-                    subpaths[0], // fixed_subpath
-                    final_tx_res[2], // moving
-                    subpaths[1], // moving subpath
-                    final_tx_res[4], // dir transform
-                    inv_transform, // inv transform
-                    final_tx_res[5] // output
-                ]
-                log.debug "Registration result: $r"
-                r
-            }
+        [ ref_subpath, mov_subpath ].transpose().collect { subpaths ->
+            def r = [
+                final_tx_res[0], // fixed
+                subpaths[0], // fixed_subpath
+                final_tx_res[2], // moving
+                subpaths[1], // moving subpath
+                final_tx_res[4], // dir transform
+                inv_transform, // inv transform
+                final_tx_res[5] // output
+            ]
+            log.debug "Registration result: $r"
+            r
+        }
     } // [ <fixed>, <fixed_subpath>, <moving>, <moving_subpath>, <direct_transform>, <inv_transform>, <warped_path> ]
 
     emit:
-    final_result
+    registration_res
 }
