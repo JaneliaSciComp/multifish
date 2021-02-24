@@ -177,7 +177,7 @@ workflow stitch {
         }
 
     // create a channel of tuples:  [index, spark_uri, acq, stitching_dir, spark_work_dir]
-    def indexed_acq_data = indexed_acq_names \
+    def indexed_acq_data = indexed_acq_names
         | join(indexed_spark_uris)
         | join(indexed_stitching_dirs)
         | join(indexed_spark_work_dirs)
