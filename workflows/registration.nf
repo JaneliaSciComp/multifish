@@ -268,12 +268,10 @@ workflow registration {
 
     // for final transformation wait until all tiles are stitched
     // and combine the results with the warped_channels
-    def final_transform_inputs = stitch_results \
-    | map {
+    def final_transform_inputs = stitch_results | map {
         log.debug "Stitch result: $it"
         it
-    }
-    | groupTuple(by: [1,2,3,4,5]) \
+    } | groupTuple(by: [1,2,3,4,5]) \
     | combine(normalized_moving_input_dir) \
     | flatMap { stitch_res ->
         log.debug "Combined stitched result: ${stitch_res}"
