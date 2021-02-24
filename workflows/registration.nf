@@ -296,7 +296,7 @@ workflow registration {
             r
         }
     }
-    final_transform_inputs.subscribe { println "Final warp input: $it" }
+    final_transform_inputs.subscribe { log.debug "Final warp input: $it" }
 
     // run the final transformation and generate the warped image
     def final_transform_res = final_transform(
@@ -308,7 +308,7 @@ workflow registration {
         final_transform_inputs.map { it[5] },
         final_transform_inputs.map { it[6] }
     )
-    final_transform_res.subscribe { println "Final warp result: $it" }
+    final_transform_res.subscribe { log.debug "Final warp result: $it" }
 
     registration_res = final_transform_res
     | groupTuple(by: [0,2,4,5])
