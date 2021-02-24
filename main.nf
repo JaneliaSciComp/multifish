@@ -98,7 +98,7 @@ steps_to_skip = get_list_or_default(final_params, 'skip', [])
 acq_names = get_list_or_default(final_params, 'acq_names', [])
 ref_acq = final_params.ref_acq
 
-log.info """\
+log.info """
     EASI-FISH ANALYSIS PIPELINE
     ===================================
     workDir         : $workDir
@@ -411,8 +411,8 @@ workflow {
     // they should be available once spot_extraction_results complete
     // otherwise they should have been done already and 
     // they are provided by expected_spot_extraction_results
-    def spots_to_warp = spot_extraction_results \
-    | concat(expected_spot_extraction_results) \
+    def spots_to_warp = spot_extraction_results
+    | concat(expected_spot_extraction_results)
     | unique {
         it[0..2].collect { "$it" }
     }
@@ -424,9 +424,9 @@ workflow {
     } // [ n5_image_path, channel, spots_filepath]
 
     // prepare inputs for warping the spots
-    def expected_registration_for_warping_spots = Channel.fromList(registration_fixed_acq_names) \
-    | combine(warp_spots_acq_names) \
-    | combine(spot_channels) \
+    def expected_registration_for_warping_spots = Channel.fromList(registration_fixed_acq_names)
+    | combine(warp_spots_acq_names)
+    | combine(spot_channels)
     | map {
         def fixed_acq = it[0]
         def moving_acq = it[1]
@@ -457,10 +457,12 @@ workflow {
         log.debug "Expected registration for warping spots: $r"
     }
 
-    def warp_spots_inputs = extended_registration_results \
-    | concat(expected_registration_for_warping_spots) | unique {
+    def warp_spots_inputs = extended_registration_results
+    | concat(expected_registration_for_warping_spots)
+    | unique {
         it[0..3].collect { "$it" }
-    } | map {
+    }
+    | map {
         def fixed_stitched_results = file(it[0])
         def moving_stitched_results = file(it[2])
         def fixed_acq = fixed_stitched_results.parent.parent.name
@@ -527,15 +529,15 @@ workflow {
         ]
     }
 
-    def labeled_acquisitions = segmentation_results \
-    | concat(expected_segmentation_results) \
+    def labeled_acquisitions = segmentation_results
+    | concat(expected_segmentation_results)
     | unique {
         "${it[0]}"
     } // [ stitched_n5_immage, labels_tiff_image]
 
     // prepare intensities measurements inputs
-    def expected_registrations_for_intensities = Channel.fromList(labeled_spots_acq_names) \
-    | combine(measure_acq_names) \
+    def expected_registrations_for_intensities = Channel.fromList(labeled_spots_acq_names)
+    | combine(measure_acq_names)
     | combine(spot_channels)
     | map {
         def fixed_acq = it[0]
@@ -568,7 +570,7 @@ workflow {
         ]
     }
 
-    def intensities_inputs_for_fixed = expected_registrations_for_intensities \
+    def intensities_inputs_for_fixed = expected_registrations_for_intensities
     | filter {
         it[9] == it[10] // filter the expected registration that have the same fixed and moving sourcec
     } | map {
@@ -595,16 +597,16 @@ workflow {
         return r;
     }
 
-    def expected_intensities_for_moving = expected_registrations_for_intensities \
+    def expected_intensities_for_moving = expected_registrations_for_intensities
     | filter {
         it[9] != it[10]
     } | map { it[0..8] }
 
-    def intensities_inputs = extended_registration_results \
+    def intensities_inputs = extended_registration_results
     | concat(expected_intensities_for_moving) | unique {
         it[0..3].collect { "$it" }
-    } \
-    | combine(labeled_acquisitions, by:0) \
+    }
+    | combine(labeled_acquisitions, by:0)
     | map {
         // so far we appended the corresponding labels to the registration result
         def fixed_stitched_results = file(it[0])
@@ -646,8 +648,8 @@ workflow {
     )
 
     // prepare inputs for assign spots
-    def expected_assign_spots = Channel.fromList(labeled_spots_acq_names) \
-    | combine(assign_spots_acq_names) \
+    def expected_assign_spots = Channel.fromList(labeled_spots_acq_names)
+    | combine(assign_spots_acq_names)
     | combine(spot_channels)
     | map {
         def fixed_acq = it[0]
@@ -697,7 +699,7 @@ workflow {
         }
     }
 
-    def assign_spots_inputs_for_fixed = expected_assign_spots \
+    def assign_spots_inputs_for_fixed = expected_assign_spots
     | filter { it[6] == it[7] } | map {
         def fixed_acq = it[6]
         def spots_file = file(it[5])
@@ -716,7 +718,7 @@ workflow {
         return r
     } // [ label, spots_dir, assigned_dir ]
 
-    def expected_assign_spots_for_moving = expected_assign_spots \
+    def expected_assign_spots_for_moving = expected_assign_spots
     | filter { it[6] != it[7] } | map { it[0..5] }
 
     def assign_spots_inputs = warp_spots_inputs | map {
@@ -732,10 +734,10 @@ workflow {
         // swap  again the fixed input in order 
         // to combine it with segmentation results which are done only for fixed image
         it[1..5] + [ it[0] ]
-    } \
+    }
     | concat(expected_assign_spots_for_moving) | unique {
         it.collect { "$it" }
-    } \
+    }
     | combine(labeled_acquisitions, by:0) | map {
         log.debug "Prepare spot assignment input from $it"
         def fixed_stitched_results = file(it[0])
@@ -795,7 +797,7 @@ def get_stitched_inputs_for_step(output_dir, step_acq_names, stitching_output, s
             )
         ]
     }
-    stitching_results \
+    stitching_results
     | filter {
         step_acq_names.contains(it[0])
     } | concat(expected_stitched_results) | unique {

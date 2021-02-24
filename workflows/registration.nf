@@ -57,8 +57,8 @@ workflow registration {
     ) // fixed, tiles_list
 
     // expand and index tiles
-    def tiles_with_inputs = index_channel(tile_cut_res[0]) \
-    | join(index_channel(tile_cut_res[1])) \
+    def tiles_with_inputs = index_channel(tile_cut_res[0])
+    | join(index_channel(tile_cut_res[1]))
     | flatMap {
         def index = it[0]
         def tile_input = it[1]
@@ -154,7 +154,7 @@ workflow registration {
 
     // combine the results at affine scale with the ccorresponding tiles
     // to find the correspondence we use the index in the input and output channels
-    def indexed_moving_spots_inputs = aff_scale_affine_results \
+    def indexed_moving_spots_inputs = aff_scale_affine_results
     | join(indexed_output, by:1) | map {
         // put the index as the first element in the tuple
         // [ index, output_dir, ransac_affine_output, scale_path ]
@@ -268,11 +268,13 @@ workflow registration {
 
     // for final transformation wait until all tiles are stitched
     // and combine the results with the warped_channels
-    def final_transform_inputs = stitch_results | map {
+    def final_transform_inputs = stitch_results
+    | map {
         log.debug "Stitch result: $it"
         it
-    } | groupTuple(by: [1,2,3,4,5]) \
-    | combine(normalized_moving_input_dir) \
+    }
+    | groupTuple(by: [1,2,3,4,5])
+    | combine(normalized_moving_input_dir)
     | flatMap { stitch_res ->
         log.debug "Combined stitched result: ${stitch_res}"
         def reference = stitch_res[1]
