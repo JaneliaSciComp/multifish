@@ -117,7 +117,7 @@ if (steps_to_skip.contains('stitching')) {
 }
 log.debug "Images to stitch: ${stitch_acq_names}"
 
-channels = get_list_or_default(final_params, 'channels', ['c0', 'c1', 'c2', 'c3'])
+channels = final_params.channels?.split(',')
 stitching_block_size = final_params.stitching_block_size
 retile_z_size = final_params.retile_z_size
 stitching_ref = stitching_ref_param(final_params)
@@ -331,10 +331,9 @@ workflow {
             it[1], // stitching dir for fixed acq
             moving_acq,
             it[3], // stitching dir for moving acq
-            "${registration_output_dir}", // pass it as string to be consistent, otherwise if types differ channel joins will not work properly
-            channels
+            "${registration_output_dir}" // pass it as string to be consistent, otherwise if types differ channel joins will not work properly
         ]
-        log.debug "Registration inputs: $it -> $r"
+        log.debug "Registration inputs for channels ${channels}: $it -> $r"
         r
     }
 
@@ -356,7 +355,7 @@ workflow {
         final_params.ransac_dist_threshold,
         final_params.deform_iterations,
         final_params.deform_auto_mask,
-        registration_inputs.map { it[5] } // channels
+        channels
     )
 
     def extended_registration_results = registration_results | map {

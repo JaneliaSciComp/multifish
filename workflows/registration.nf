@@ -308,8 +308,8 @@ workflow registration {
     )
     final_transform_res.subscribe { println "Final warp result: $it" }
 
-    registration_res = final_transform_res \
-    | groupTuple(by: [0,2,4,5]) \
+    registration_res = final_transform_res
+    | groupTuple(by: [0,2,4,5])
     | flatMap { final_tx_res ->
         def ref_subpath = final_tx_res[1]
         def mov_subpath = final_tx_res[3]
