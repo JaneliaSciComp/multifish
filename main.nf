@@ -598,12 +598,15 @@ workflow {
     }
 
     def expected_intensities_for_moving = expected_registrations_for_intensities
-    | filter {
-        it[9] != it[10]
-    } | map { it[0..8] }
+    | filter { it[9] != it[10] }
+    | map { it[0..8] }
 
     def intensities_inputs = extended_registration_results
-    | concat(expected_intensities_for_moving) | unique {
+    | filter {
+        it[7] != final_params.dapi_channel
+    }
+    | concat(expected_intensities_for_moving)
+    | unique {
         it[0..3].collect { "$it" }
     }
     | combine(labeled_acquisitions, by:0)
