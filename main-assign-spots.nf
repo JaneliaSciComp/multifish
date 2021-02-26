@@ -32,12 +32,15 @@ workflow {
 
     warped_spots_files = Channel.fromPath("${final_params.warped_spots}/*.txt")
 
-    assigned_spots_inputs = warped_spots_files.map { f -> 
+    assigned_spots_inputs = warped_spots_files.map { f ->
         def fname = f.name.replaceAll(".txt","-assigned")
+        def assign_spots_output_dir = new File("${outdir}", fname)
+        log.debug "Create assignment output -> ${assign_spots_output_dir}"
+        assign_spots_output_dir.mkdirs()
         [
             final_params.labels,
             f,
-            "${outdir}/${fname}"
+            assign_spots_output_dir
         ]
     }
 
