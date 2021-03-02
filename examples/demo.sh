@@ -41,19 +41,18 @@ mkdir -p $outputdir
 #
 # Memory Considerations
 # =====================
-#
+# 
 # The value of workers*worker_cores*gb_per_core determines the total Spark memory for each acquisition registration. 
 # For the demo, two of these need to fit in main memory. The settings below work for a 40 core machine with 128 GB RAM.
 #
-# Reducing the gb_per_core to 2 reduces total memory consumption from 128GB to 100GB but doubles processing time 
-# from 12 min to 23 min.
+# Reducing the gb_per_core to 2 reduces total memory consumption but doubles processing time.
 #
 
 ./main.nf \
         --runtime_opts "--nv -B $BASEDIR -B $datadir -B $TMPDIR --env USER=$USER" \
-        --workers 4 \
+        --workers 2 \
         --worker_cores 16 \
-        --gb_per_core 15 \
+        --gb_per_core 3 \
         --driver_memory 2g \
         --spark_work_dir "$datadir/spark" \
         --data_dir "$inputdir" \
