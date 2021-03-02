@@ -30,11 +30,9 @@ Now you can launch the demo using the EASI-FISH example data:
 
     ./examples/demo.sh <data dir> [arguments]
 
-The `data dir` is the path where you want to store the data and analysis results. 
+The `data dir` is the path where you want to store the data and analysis results. You can add additional arguments to the end in order to, for example, skip steps previously completed, or add monitoring with [Nextflow Tower](https://tower.nf). See below for additional details about the argument usage.
 
-This script will also download the standard segmentation machine learning model, used for cell segmentation.
-
-You can add additional arguments to the end in order to, for example, skip steps previously completed, or add monitoring with [Nextflow Tower](https://tower.nf). See below for additional details about the argument usage.
+The script will download a demo data set and run the full analysis pipeline. It is tuned for a 40 core machine with 128 GB of RAM. If your compute resources are different, you may need to edit the script to change the parameters to suit your environment. 
 
 ## Pipeline Overview
 
@@ -57,10 +55,10 @@ The following parameters are required to run the full pipeline. See the [paramet
 
 | Argument   | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
-| --data_dir | Path to the directory containing the input CZI/MVL acquisition files | 
-| --output_dir | Path to the directory containing pipeline outputs |
-| --acq_names | Names of acquisition rounds to process. These should match the names of the CZI/MVL files found in the data_dir |  
-| --ref_acq | Name of the acquisition round to use as the fixed reference |
+| --data_dir | Path to the directory containing the input CZI/MVL acquisition files. | 
+| --output_dir | Path to the directory containing pipeline outputs. |
+| --acq_names | Names of acquisition rounds to process. These should match the names of the CZI/MVL files found in the data_dir. |  
+| --ref_acq | Name of the acquisition round to use as the fixed reference. |
 
 ## Pipeline Execution
 

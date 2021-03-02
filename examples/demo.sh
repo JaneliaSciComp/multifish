@@ -50,10 +50,10 @@ mkdir -p $outputdir
 
 ./main.nf \
         --runtime_opts "--nv -B $BASEDIR -B $datadir -B $TMPDIR --env USER=$USER" \
-        --workers 2 \
-        --worker_cores 16 \
-        --gb_per_core 3 \
-        --driver_memory 2g \
+        --workers "2" \
+        --worker_cores "16" \
+        --gb_per_core "3" \
+        --driver_memory "2g" \
         --spark_work_dir "$datadir/spark" \
         --data_dir "$inputdir" \
         --output_dir "$outputdir" \
