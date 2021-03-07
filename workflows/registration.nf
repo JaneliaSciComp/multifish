@@ -17,7 +17,7 @@ include {
 
 include {
     index_channel;
-} from '../utils/utils'
+} from './utils'
 
 workflow registration {
     take:

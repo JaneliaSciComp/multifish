@@ -28,7 +28,7 @@ include {
 
 include {
     index_channel;
-} from '../utils/utils'
+} from './utils'
 
 /**
  * prepares the work and output directories and invoke stitching 

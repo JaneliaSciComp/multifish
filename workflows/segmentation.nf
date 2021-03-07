@@ -1,6 +1,6 @@
 include {
     index_channel;
-} from '../utils/utils'
+} from './utils'
 
 include {
     predict;
