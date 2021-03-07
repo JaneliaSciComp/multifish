@@ -25,14 +25,34 @@ Clone the multifish repository with the following command:
 Before running the pipeline for the first time, run setup to pull in external dependencies:
 
     ./setup.sh
-  
-Now you can launch the demo using the EASI-FISH example data:
+
+You can now launch the pipeline using:
+
+    ./main.nf [arguments]
+
+## Demo Data Sets
+
+To get running quickly, there are demo scripts available which download EASI-FISH example data and run the full pipeline. You can analyze the smallest data set like this:
 
     ./examples/demo_small.sh <data dir> [arguments]
 
 The `data dir` is the path where you want to store the data and analysis results. You can add additional arguments to skip steps previously completed or add monitoring with [Nextflow Tower](https://tower.nf). See below for additional details about the argument usage.
 
 The script will download a small [demo data set](https://doi.org/10.25378/janelia.c.5276708.v1) and run the full analysis pipeline. It is tuned for a 40 core machine with 128 GB of RAM. If your compute resources are different, you may need to edit the script to change the parameters to suit your environment. 
+
+After the pipeline runs, you can expect to find 82 GB in the data dir:
+```
+23G     /opt/demo_small/inputs
+58G     /opt/demo_small/outputs
+525M    /opt/demo_small/spark
+```
+
+There is also a `demo_medium.sh` with larger data that requires 209 GB in total:
+```
+65G     /opt/demo_medium/inputs
+145G    /opt/demo_medium/outputs
+665M    /opt/demo_medium/spark
+```
 
 ## Pipeline Overview
 
