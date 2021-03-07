@@ -18,7 +18,7 @@ Commit as normal, then back at the root update the submodule commit pointer and 
 
 ### Building containers
 
-All containers used by the pipeline have been made available on Docker Hub. You can rebuild these to make customizations or to replace the algorithms used. To build the containers and push to Docker Hub you can use [maru](https://github.com/JaneliaSciComp/maru), or manually:
+All containers used by the pipeline have been made available on Docker Hub. You can rebuild these to make customizations or to replace the algorithms used. To build the containers and push to Docker Hub you can install [maru](https://github.com/JaneliaSciComp/maru) and run `maru build`, or invoke Docker manually:
 
 #### Stitching container
 Container used for Spark-based stitching.
