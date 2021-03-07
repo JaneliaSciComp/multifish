@@ -4,7 +4,10 @@
 # 
 # It is tuned for a 40 core machine, with 128 GB of RAM. 
 #
-# Set TMPDIR in your environment before calling this script.
+# If your /tmp directory is on a filesystem with less than 10 GB of space, you can set the TMPDIR variable
+# in your environment before calling this script, for example, to use your /opt for all file access:
+#
+#   TMPDIR=/opt/tmp ./examples/demo.sh /opt/demo
 #
 
 DIR=$(cd "$(dirname "$0")"; pwd)
@@ -14,15 +17,16 @@ BASEDIR=$(realpath $DIR/..)
 export TMPDIR="${TMPDIR:-/tmp}"
 export SINGULARITY_TMPDIR=$TMPDIR
 
-verify_md5=false
-files_txt="demo_medium.txt"
-fixed_round="LHA3_R3_medium"
-moving_rounds="LHA3_R5_medium"
+verify_md5=true
+data_size="small"
+files_txt="demo_${data_size}.txt"
+fixed_round="LHA3_R3_${data_size}"
+moving_rounds="LHA3_R5_${data_size}"
 
 if [[ "$#" -lt 1 ]]; then
     echo "Usage: $0 <data dir>"
     echo ""
-    echo "This is a small demonstration of the EASI-FISH analysis pipeline on a cutout of the LHA3 data set. "
+    echo "This is a demonstration of the EASI-FISH analysis pipeline on a cutout of the LHA3 data set. "
     echo "The data dir will be created, data will be downloaded there based on $files_txt, and the "
     echo "full end-to-end pipeline will run on these data, producing output in the specified data dir."
     echo ""
@@ -54,6 +58,11 @@ mkdir -p $outputdir
         --worker_cores "16" \
         --gb_per_core "3" \
         --driver_memory "2g" \
+        --channels "c0,c1" \
+        --stitching_ref "1" \
+        --dapi_channel "c1" \
+        --spot_extraction_xy_stride "512" \
+        --spot_extraction_z_stride "256" \
         --spark_work_dir "$datadir/spark" \
         --data_dir "$inputdir" \
         --output_dir "$outputdir" \

@@ -32,7 +32,7 @@ Now you can launch the demo using the EASI-FISH example data:
 
 The `data dir` is the path where you want to store the data and analysis results. You can add additional arguments to the end in order to, for example, skip steps previously completed, or add monitoring with [Nextflow Tower](https://tower.nf). See below for additional details about the argument usage.
 
-The script will download a demo data set and run the full analysis pipeline. It is tuned for a 40 core machine with 128 GB of RAM. If your compute resources are different, you may need to edit the script to change the parameters to suit your environment. 
+The script will download a small [demo data set](https://doi.org/10.25378/janelia.c.5276708.v1) and run the full analysis pipeline. It is tuned for a 40 core machine with 128 GB of RAM. If your compute resources are different, you may need to edit the script to change the parameters to suit your environment. 
 
 ## Pipeline Overview
 
@@ -96,3 +96,10 @@ Further detailed documentation is available here:
 ## Open Source License
 
 This software is made available under [Janelia's Open Source Software](https://www.janelia.org/open-science/software-licensing) policy which uses the BSD 3-Clause License. 
+
+## DOI References
+
+* Segmentation model: https://doi.org/10.25378/janelia.13624268
+* Dataset collection: https://doi.org/10.25378/janelia.c.5276708.v1  
+* LHA3_R3: https://doi.org/10.25378/janelia.13622819
+* LHA3_R5: https://doi.org/10.25378/janelia.13622828
