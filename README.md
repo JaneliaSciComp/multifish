@@ -28,9 +28,9 @@ Before running the pipeline for the first time, run setup to pull in external de
   
 Now you can launch the demo using the EASI-FISH example data:
 
-    ./examples/demo.sh <data dir> [arguments]
+    ./examples/demo_small.sh <data dir> [arguments]
 
-The `data dir` is the path where you want to store the data and analysis results. You can add additional arguments to the end in order to, for example, skip steps previously completed, or add monitoring with [Nextflow Tower](https://tower.nf). See below for additional details about the argument usage.
+The `data dir` is the path where you want to store the data and analysis results. You can add additional arguments to skip steps previously completed or add monitoring with [Nextflow Tower](https://tower.nf). See below for additional details about the argument usage.
 
 The script will download a small [demo data set](https://doi.org/10.25378/janelia.c.5276708.v1) and run the full analysis pipeline. It is tuned for a 40 core machine with 128 GB of RAM. If your compute resources are different, you may need to edit the script to change the parameters to suit your environment. 
 
