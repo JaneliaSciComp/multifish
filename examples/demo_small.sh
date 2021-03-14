@@ -15,7 +15,12 @@ BASEDIR=$(realpath $DIR/..)
 
 # The temporary directory needs to have 10 GB to store large Docker images
 export TMPDIR="${TMPDIR:-/tmp}"
-export SINGULARITY_TMPDIR=$TMPDIR
+export SINGULARITY_TMPDIR="${SINGULARITY_TMPDIR:-$TMPDIR/singularity_tmp}"
+export SINGULARITY_CACHEDIR="${SINGULARITY_CACHEDIR:-$TMPDIR/singularity_cache}"
+export SPARK_LOCAL_DIR="${SPARK_LOCAL_DIR:-$TMPDIR/spark_local}"
+mkdir -p $SINGULARITY_TMPDIR
+mkdir -p $SINGULARITY_CACHEDIR
+mkdir -p $SPARK_LOCAL_DIR
 
 verify_md5=true
 data_size="small"
@@ -64,6 +69,7 @@ mkdir -p $outputdir
         --spot_extraction_xy_stride "512" \
         --spot_extraction_z_stride "256" \
         --spark_work_dir "$datadir/spark" \
+        --spark_local_dir "$SPARK_LOCAL_DIR" \
         --data_dir "$inputdir" \
         --output_dir "$outputdir" \
         --ref_acq "$fixed_round" \

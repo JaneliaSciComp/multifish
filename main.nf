@@ -33,7 +33,8 @@ include {
 } from './workflows/stitching' addParams(lsf_opts: final_params.lsf_opts, 
                                          spark_container_repo: final_params.spark_container_repo,
                                          spark_container_name: final_params.spark_container_name,
-                                         spark_container_version: final_params.spark_container_version)
+                                         spark_container_version: final_params.spark_container_version,
+                                         spark_local_dir: final_params.spark_local_dir)
 
 include {
     spot_extraction;

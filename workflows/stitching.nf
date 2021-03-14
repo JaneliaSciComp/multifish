@@ -9,14 +9,16 @@ include {
 } from '../external-modules/spark/lib/workflows' addParams(lsf_opts: params.lsf_opts, 
                                                            spark_container_repo: params.spark_container_repo,
                                                            spark_container_name: params.spark_container_name,
-                                                           spark_container_version: params.spark_container_version)
+                                                           spark_container_version: params.spark_container_version,
+                                                           spark_local_dir: params.spark_local_dir)
 
 include {
     terminate_spark as terminate_stitching;
 } from '../external-modules/spark/lib/processes' addParams(lsf_opts: params.lsf_opts, 
                                                            spark_container_repo: params.spark_container_repo,
                                                            spark_container_name: params.spark_container_name,
-                                                           spark_container_version: params.spark_container_version)
+                                                           spark_container_version: params.spark_container_version,
+                                                           spark_local_dir: params.spark_local_dir)
 
 include {
     prepare_stitching_data;
