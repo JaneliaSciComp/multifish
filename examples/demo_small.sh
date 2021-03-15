@@ -69,6 +69,8 @@ mkdir -p $outputdir
         --dapi_channel "c1" \
         --spot_extraction_xy_stride "512" \
         --spot_extraction_z_stride "256" \
+        --spot_extraction_cpus "1" \
+        --spot_extraction_memory "8" \
         --spark_work_dir "$datadir/spark" \
         --data_dir "$inputdir" \
         --output_dir "$outputdir" \
