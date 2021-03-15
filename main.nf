@@ -100,14 +100,25 @@ acq_names = get_list_or_default(final_params, 'acq_names', [])
 ref_acq = final_params.ref_acq
 
 log.info """
+    ===================================
     EASI-FISH ANALYSIS PIPELINE
     ===================================
+    
+    Pipeline parameters
+    -------------------
     workDir         : $workDir
     data_dir        : ${data_dir}
     output_dir      : ${pipeline_output_dir}
     acq_names       : ${acq_names}
     ref_acq         : ${ref_acq}
     steps_to_skip   : ${steps_to_skip}
+    
+    Environment
+    -----------
+    TMPDIR               : ${TMPDIR}
+    SINGULARITY_TMPDIR   : ${SINGULARITY_TMPDIR}
+    SINGULARITY_CACHEDIR : ${SINGULARITY_CACHEDIR}
+    SPARK_LOCAL_DIR      : ${SPARK_LOCAL_DIR}
     """
     .stripIndent()
 
