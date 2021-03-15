@@ -18,7 +18,7 @@ https://docs.aws.amazon.com/quickstarts/latest/vmlaunch/step-1-launch-instance.h
 
 ## Mount EBS drive
 
-Refer to the [https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-using-volumes.html](EC2 User Guide on EBS) to create and mount an EBS drive large enough for your data set.
+Refer to the [EC2 User Guide on EBS](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-using-volumes.html]) to create and mount an EBS drive large enough for your data set.
 
 After creating the EBS drive, mounting will look something like this:
 
@@ -52,4 +52,4 @@ Log into https://tower.nf and follow instructions for setting up TOKEN variable 
 
 ## Shutdown Instance
 
-Remember to shutdown your EC2 instance after the pipeline is complete.
+Remember to shutdown your EC2 instance after the pipeline is complete, to avoid incurring extra charges.
