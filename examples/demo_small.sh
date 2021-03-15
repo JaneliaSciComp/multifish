@@ -15,9 +15,10 @@ BASEDIR=$(realpath $DIR/..)
 
 # The temporary directory needs to have 10 GB to store large Docker images
 export TMPDIR="${TMPDIR:-/tmp}"
-export SINGULARITY_TMPDIR="${SINGULARITY_TMPDIR:-$TMPDIR/singularity_tmp}"
-export SINGULARITY_CACHEDIR="${SINGULARITY_CACHEDIR:-$TMPDIR/singularity_cache}"
-export SPARK_LOCAL_DIR="${SPARK_LOCAL_DIR:-$TMPDIR/spark_local}"
+export SINGULARITY_TMPDIR="${SINGULARITY_TMPDIR:-$TMPDIR}"
+export SINGULARITY_CACHEDIR="${SINGULARITY_CACHEDIR:-$TMPDIR/singularity}"
+export SPARK_LOCAL_DIR="${SPARK_LOCAL_DIR:-$TMPDIR}"
+mkdir -p $TMPDIR
 mkdir -p $SINGULARITY_TMPDIR
 mkdir -p $SINGULARITY_CACHEDIR
 mkdir -p $SPARK_LOCAL_DIR
@@ -59,7 +60,7 @@ mkdir -p $outputdir
 
 ./main.nf \
         --runtime_opts "--nv -B $BASEDIR -B $datadir -B $TMPDIR --env USER=$USER" \
-        --workers "2" \
+        --workers "1" \
         --worker_cores "16" \
         --gb_per_core "3" \
         --driver_memory "2g" \
@@ -69,7 +70,6 @@ mkdir -p $outputdir
         --spot_extraction_xy_stride "512" \
         --spot_extraction_z_stride "256" \
         --spark_work_dir "$datadir/spark" \
-        --spark_local_dir "$SPARK_LOCAL_DIR" \
         --data_dir "$inputdir" \
         --output_dir "$outputdir" \
         --ref_acq "$fixed_round" \
