@@ -4,7 +4,7 @@ $DIR/../main.nf \
         -dump-channels \
         -with-tower "http://nextflow.int.janelia.org/api" \
         --runtime_opts "--nv -B /nrs/scicompsoft/goinac -B /nrs/multifish" \
-        --lsf_opts "-P multifish" \
+        --lsf_opts "-P project" \
         --workers "4" \
         --worker_cores "4" \
         --spark_work_dir "$PWD/local" \
@@ -13,4 +13,4 @@ $DIR/../main.nf \
         --acq_names "LHA3_R3_subset,LHA3_R5_subset" \
         --ref_acq "LHA3_R3_subset" \
         --segmentation_model_dir "/nrs/scicompsoft/goinac/multifish/models/starfinity-model" "$@"
-        
+
