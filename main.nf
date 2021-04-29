@@ -29,21 +29,19 @@ include {
 // app parameters
 final_params = default_spark_params() + default_mf_params() + params
 
+stitching_params = final_params + [
+    stitching_container: stitching_container_param(final_params),
+]
 include {
     stitching;
-} from './workflows/stitching' addParams(lsf_opts: final_params.lsf_opts,
-                                         spark_container_repo: final_params.spark_container_repo,
-                                         spark_container_name: final_params.spark_container_name,
-                                         spark_container_version: final_params.spark_container_version,
-                                         stitching_container: stitching_container_param(final_params),
-                                         spark_local_dir: final_params.spark_local_dir)
+} from './workflows/stitching' addParams(stitching_params)
 
+spot_extraction_params = final_params + [
+    spot_extraction_container: spot_extraction_container_param(final_params),
+]
 include {
     spot_extraction;
-} from './workflows/spot_extraction' addParams(lsf_opts: final_params.lsf_opts,
-                                               spot_extraction_container: spot_extraction_container_param(final_params),
-                                               spot_extraction_cpus: final_params.spot_extraction_cpus,
-                                               spot_extraction_memory: final_params.spot_extraction_memory)
+} from './workflows/spot_extraction' addParams(spot_extraction_params)
 
 include {
     segmentation;

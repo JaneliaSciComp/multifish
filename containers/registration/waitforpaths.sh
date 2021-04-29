@@ -17,6 +17,7 @@ for f in ${filelist}; do
         sleep $SLEEP_SECS
         if (( $SECONDS < $MAX_WAIT_SECS )); then
             echo "Waiting for $f"
+            SECONDS=$(( $SECONDS + $SLEEP_SECS ))
         else
             echo "Timed out after $SECONDS seconds while waiting for $f"
             exit 1

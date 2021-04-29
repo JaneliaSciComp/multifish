@@ -3,6 +3,7 @@ process predict {
 
     container = params.segmentation_container
     cpus { cpus }
+    accelerator 1
 
     input:
     val(image_path)
