@@ -1,0 +1,165 @@
+service: easi-multifish
+
+plugins:
+  - serverless-pseudo-parameters
+
+custom:
+  project: Multifish
+  version: 1.0
+  ec2MultifishCPUImageId: ami-05c9ea5f2fbc6648d
+  ec2MultifishGPUImageId: ami-0d4ac82d3ab02afc8
+  subnetId: subnet-5e11c814
+  securityGroupId: sg-963ee8df
+  sshKeyPairName: ec2_batch
+
+provider:
+  name: aws
+  region: ${opt:region, "us-east-1"}
+  stage: ${opt:stage, "dev"}
+  tags:
+    PROJECT: ${self:custom.project}
+    VERSION: ${self:custom.version}
+    DEVELOPER: ${env:USER}
+  stackTags:
+    PROJECT: ${self:custom.project}
+    VERSION: ${self:custom.version}
+    DEVELOPER: ${env:USER}
+    STAGE: ${self:provider.stage}
+
+package:
+  exclude:
+    - node_modules/**
+
+resources:
+
+  Resources:
+
+    SmallCPUMultifishOnDemandEnv:
+      Type: AWS::Batch::ComputeEnvironment
+      Properties:
+        Type: MANAGED
+        State: ENABLED
+        ServiceRole: !Ref BatchServiceRole
+        ComputeEnvironmentName: "#{AWS::StackName}-multifish-ondemand-small-cpu-compute-env"
+        ComputeResources:
+          Type: EC2
+          MinvCpus: 0
+          DesiredvCpus: 0
+          MaxvCpus: 8
+          InstanceTypes:
+            - optimal
+          ImageId: ${self:custom.ec2MultifishCPUImageId}
+          Subnets:
+            - ${self:custom.subnetId}
+          SecurityGroupIds:
+            - ${self:custom.securityGroupId}
+          Ec2KeyPair: ${self:custom.sshKeyPairName}
+          InstanceRole: ecsInstanceRole
+          Tags: ${self:provider.stackTags}
+
+    CPUMultifishOnDemandEnv:
+      Type: AWS::Batch::ComputeEnvironment
+      Properties:
+        Type: MANAGED
+        State: ENABLED
+        ServiceRole: !Ref BatchServiceRole
+        ComputeEnvironmentName: "#{AWS::StackName}-multifish-ondemand-cpu-compute-env"
+        ComputeResources:
+          Type: EC2
+          MinvCpus: 0
+          DesiredvCpus: 0
+          MaxvCpus: 64
+          InstanceTypes:
+            - optimal
+          ImageId: ${self:custom.ec2MultifishCPUImageId}
+          Subnets:
+            - ${self:custom.subnetId}
+          SecurityGroupIds:
+            - ${self:custom.securityGroupId}
+          Ec2KeyPair: ${self:custom.sshKeyPairName}
+          InstanceRole: ecsInstanceRole
+          Tags: ${self:provider.stackTags}
+
+    GPUMultifishOnDemandEnv:
+      Type: AWS::Batch::ComputeEnvironment
+      Properties:
+        Type: MANAGED
+        State: ENABLED
+        ServiceRole: !Ref BatchServiceRole
+        ComputeEnvironmentName: "#{AWS::StackName}-multifish-ondemand-gpu-compute-env"
+        ComputeResources:
+          Type: EC2
+          MinvCpus: 0
+          DesiredvCpus: 0
+          MaxvCpus: 64
+          InstanceTypes:
+            - g2
+          ImageId: ${self:custom.ec2MultifishGPUImageId}
+          Subnets:
+            - ${self:custom.subnetId}
+          SecurityGroupIds:
+            - ${self:custom.securityGroupId}
+          Ec2KeyPair: ${self:custom.sshKeyPairName}
+          InstanceRole: ecsInstanceRole
+          Tags: ${self:provider.stackTags}
+
+    SmallCPUOnlyMultifishJobQueue:
+      Type: AWS::Batch::JobQueue
+      Properties:
+        ComputeEnvironmentOrder:
+          - Order: 0
+            ComputeEnvironment: !Ref SmallCPUMultifishOnDemandEnv
+        State: ENABLED
+        Priority: 100
+        JobQueueName: "${self:service}-${self:provider.stage}-multifish-small-cpu-job-queue"
+
+    CPUOnlyMultifishJobQueue:
+      Type: AWS::Batch::JobQueue
+      Properties:
+        ComputeEnvironmentOrder:
+          - Order: 0
+            ComputeEnvironment: !Ref CPUMultifishOnDemandEnv
+        State: ENABLED
+        Priority: 100
+        JobQueueName: "${self:service}-${self:provider.stage}-multifish-cpu-job-queue"
+
+    GPUMultifishJobQueue:
+      Type: AWS::Batch::JobQueue
+      Properties:
+        ComputeEnvironmentOrder:
+          - Order: 0
+            ComputeEnvironment: !Ref GPUMultifishOnDemandEnv
+        State: ENABLED
+        Priority: 100
+        JobQueueName: "${self:service}-${self:provider.stage}-multifish-gpu-job-queue"
+
+    BatchServiceRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - "batch.amazonaws.com"
+              Action:
+                - "sts:AssumeRole"
+        ManagedPolicyArns:
+          - "arn:aws:iam::aws:policy/service-role/AWSBatchServiceRole"
+          - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+
+    ECSTaskRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - "ecs-tasks.amazonaws.com"
+              Action:
+                - "sts:AssumeRole"
+        ManagedPolicyArns:
+          - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+          - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+        RoleName: "${self:service}-${self:provider.stage}-ECSTaskRole"

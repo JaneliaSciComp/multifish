@@ -4,6 +4,7 @@ def default_mf_params() {
 
     [
         mfrepo: multifish_container_repo,
+        stitching_container: '',
         spot_extraction_container: '',
         segmentation_container: '',
         registration_container: '',
@@ -19,7 +20,6 @@ def default_mf_params() {
         spark_container_repo: multifish_container_repo,
         spark_container_name: 'stitching',
         spark_container_version: '1.0.0',
-        spark_local_dir: "$SPARK_LOCAL_DIR" ? "$SPARK_LOCAL_DIR" : "/tmp",
         stitching_app: '/app/app.jar',
         stitching_output: 'stitching',
         resolution: '0.23,0.23,0.42',
@@ -105,6 +105,14 @@ def get_list_or_default(Map ps, String param, List default_list) {
     return value
         ? value.tokenize(',').collect { it.trim() }
         : default_list
+}
+
+def stitching_container_param(Map ps) {
+    def stitching_container = ps.stitching_container
+    if (!stitching_container)
+        "${ps.mfrepo}/stitching:1.0.0"
+    else
+        stitching_container
 }
 
 def spot_extraction_container_param(Map ps) {

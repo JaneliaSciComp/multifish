@@ -6,19 +6,11 @@ include {
     run_spark_app_on_existing_cluster as run_retile;
     run_spark_app_on_existing_cluster as run_stitching;
     run_spark_app_on_existing_cluster as run_fuse;
-} from '../external-modules/spark/lib/workflows' addParams(lsf_opts: params.lsf_opts, 
-                                                           spark_container_repo: params.spark_container_repo,
-                                                           spark_container_name: params.spark_container_name,
-                                                           spark_container_version: params.spark_container_version,
-                                                           spark_local_dir: params.spark_local_dir)
+} from '../external-modules/spark/lib/workflows'
 
 include {
     terminate_spark as terminate_stitching;
-} from '../external-modules/spark/lib/processes' addParams(lsf_opts: params.lsf_opts, 
-                                                           spark_container_repo: params.spark_container_repo,
-                                                           spark_container_name: params.spark_container_name,
-                                                           spark_container_version: params.spark_container_version,
-                                                           spark_local_dir: params.spark_local_dir)
+} from '../external-modules/spark/lib/processes'
 
 include {
     prepare_stitching_data;

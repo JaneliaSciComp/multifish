@@ -10,6 +10,7 @@ include {
     default_mf_params;
     get_value_or_default;
     get_list_or_default;
+    stitching_container_param;
     spot_extraction_container_param;
     segmentation_container_param;
     registration_container_param;
@@ -30,10 +31,11 @@ final_params = default_spark_params() + default_mf_params() + params
 
 include {
     stitching;
-} from './workflows/stitching' addParams(lsf_opts: final_params.lsf_opts, 
+} from './workflows/stitching' addParams(lsf_opts: final_params.lsf_opts,
                                          spark_container_repo: final_params.spark_container_repo,
                                          spark_container_name: final_params.spark_container_name,
                                          spark_container_version: final_params.spark_container_version,
+                                         stitching_container: stitching_container_param(final_params),
                                          spark_local_dir: final_params.spark_local_dir)
 
 include {
@@ -112,13 +114,6 @@ log.info """
     acq_names       : ${acq_names}
     ref_acq         : ${ref_acq}
     steps_to_skip   : ${steps_to_skip}
-    
-    Environment
-    -----------
-    TMPDIR               : ${TMPDIR}
-    SINGULARITY_TMPDIR   : ${SINGULARITY_TMPDIR}
-    SINGULARITY_CACHEDIR : ${SINGULARITY_CACHEDIR}
-    SPARK_LOCAL_DIR      : ${SPARK_LOCAL_DIR}
     """
     .stripIndent()
 

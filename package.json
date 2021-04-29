@@ -1,0 +1,12 @@
+{
+  "name": "easi-multifish",
+  "description": "Computation environment for running multifish",
+  "version": "0.1.0",
+  "scripts": {
+    "sls": "sls"
+  },
+  "devDependencies": {
+    "serverless": "^2.38.0",
+    "serverless-pseudo-parameters": "^2.5.0"
+  }
+}
