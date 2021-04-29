@@ -1,5 +1,6 @@
 process cut_tiles {
     container = params.registration_container
+    label 'small'
 
     input:
     val(image_path)

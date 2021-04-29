@@ -1,5 +1,6 @@
 process cut_tiles {
     container = params.spot_extraction_container
+    label 'small'
 
     input:
     val(image_path)
