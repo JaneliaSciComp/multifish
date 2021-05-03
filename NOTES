@@ -15,7 +15,6 @@ sudo yum install -y cuda-toolkit-10-2
 #sudo yum -y install nvidia-driver-latest-dkms cuda
 #sudo yum -y install cuda-drivers
 
-#sudo mkfs -t ext4 /dev/sda
 
 # install aws-cli using miniconda
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
@@ -23,21 +22,20 @@ bash Miniconda3-latest-Linux-x86_64.sh -b -f -p $HOME/miniconda
 $HOME/miniconda/bin/conda install -c conda-forge -y awscli
 rm Miniconda3-latest-Linux-x86_64.sh
 
-
+sudo mkfs -t ext4 /dev/sdb
 sudo mkdir /scratch
+sudo chmod 777 /scratch
 sudo echo -e '/dev/sdb\t/scratch\tauto\tdefaults\t0\t0' | sudo tee -a /etc/fstab
+
+sudo mkdir -p /s3/multifish
+sudo chmod 777 /s3/multifish
+sudo echo -e 's3fs#janelia-nextflow-demo:/multifish\t/s3/multifish\tfuse\t_netdev,allow_other,umask=0000,iam_role=auto\t0\t0' | sudo tee -a /etc/fstab
 sudo mount –a
 
-sudo mkdir -p /scratch/multifish
-sudo chmod 777 /scratch/multifish
-sudo echo -e 's3fs#janelia-nextflow-demo:/multifish\t/scratch/multifish\tfuse\t_netdev,allow_other,umask=0000,iam_role=auto\t0\t0' | sudo tee -a /etc/fstab
-sudo mount –a
 
-s3fs#janelia-nextflow-demo:/multifish	/scratch/multifish	fuse	_netdev,allow_other,umask=0000,iam_role=auto	0	0
+s3fs janelia-nextflow-demo:/multifish /s3/multifish -o nosscache -o iam_role=auto -o umask=0000
 
-s3fs janelia-nextflow-demo:/multifish /scratch/multifish -o nosscache -o iam_role=auto -o umask=0000
-
-sudo stop ecs
+sudo systemctl stop ecs
 sudo rm -rf /var/lib/ecs/data/ecs_agent_data.json
 
 
