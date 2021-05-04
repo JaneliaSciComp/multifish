@@ -2,6 +2,7 @@ sudo yum update -y
 sudo amazon-linux-extras install -y epel
 
 sudo yum install -y yum-utils pciutils wget fuse s3fs-fuse bzip2
+sudo yum  install nfs-utils
 sudo yum group install -y "Development Tools"
 
 sudo yum install -y kernel-devel-`uname -r`
@@ -22,14 +23,12 @@ bash Miniconda3-latest-Linux-x86_64.sh -b -f -p $HOME/miniconda
 $HOME/miniconda/bin/conda install -c conda-forge -y awscli
 rm Miniconda3-latest-Linux-x86_64.sh
 
-sudo mkfs -t ext4 /dev/sdb
-sudo mkdir /scratch
-sudo chmod 777 /scratch
-sudo echo -e '/dev/sdb\t/scratch\tauto\tdefaults\t0\t0' | sudo tee -a /etc/fstab
+sudo mkdir /efs-multifish
+sudo echo -e 'fs-509941e4:/\t/efs-multifish\tefs\trw,_netdev\t0\t0' | sudo tee -a /etc/fstab
 
-sudo mkdir -p /s3/multifish
-sudo chmod 777 /s3/multifish
-sudo echo -e 's3fs#janelia-nextflow-demo:/multifish\t/s3/multifish\tfuse\t_netdev,allow_other,umask=0000,iam_role=auto\t0\t0' | sudo tee -a /etc/fstab
+sudo mkdir /s3-multifish
+sudo echo -e 's3fs#janelia-nextflow-demo:/multifish\t/s3-multifish\tfuse\trw,_netdev,use_path_request_style,allow_other,umask=0000,iam_role=auto,kernel_cache,max_background=1000,max_stat_cache_size=100000,multipart_size=52,parallel_count=30,dbglevel=warn\t0\t0' | sudo tee -a /etc/fstab
+
 sudo mount –a
 
 

@@ -6,7 +6,7 @@ plugins:
 custom:
   project: Multifish
   version: 1.0
-  ec2MultifishCPUImageId: ami-05c9ea5f2fbc6648d
+  ec2MultifishCPUImageId: ami-0f7fc83be58ce0d87
   ec2MultifishGPUImageId: ami-0d4ac82d3ab02afc8
   subnetId: subnet-5e11c814
   securityGroupId: sg-963ee8df
@@ -45,7 +45,7 @@ resources:
           Type: EC2
           MinvCpus: 0
           DesiredvCpus: 0
-          MaxvCpus: 8
+          MaxvCpus: 16
           InstanceTypes:
             - optimal
           ImageId: ${self:custom.ec2MultifishCPUImageId}
