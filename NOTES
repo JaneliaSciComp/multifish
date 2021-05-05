@@ -31,10 +31,7 @@ sudo echo -e 's3fs#janelia-nextflow-demo:/multifish\t/s3-multifish\tfuse\trw,_ne
 
 sudo mount –a
 
-
-s3fs janelia-nextflow-demo:/multifish /s3/multifish -o nosscache -o iam_role=auto -o umask=0000
-
 sudo systemctl stop ecs
-sudo rm -rf /var/lib/ecs/data/ecs_agent_data.json
+sudo rm -rf /var/lib/ecs/data/agent.db
 
 
