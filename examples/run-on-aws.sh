@@ -5,7 +5,6 @@ DIR=$(cd "$(dirname "$0")"; pwd)
 nextflow run $DIR/../main.nf \
     -profile awsbatch \
     -w s3://janelia-nextflow-demo/multifish/work \
-    --skip "stitching,registration,segmentation,spot_extraction" \
     --workers 1 \
     --worker_cores 16 \
     --wait_for_spark_timeout_seconds 3600 \
