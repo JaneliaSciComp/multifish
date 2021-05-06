@@ -78,9 +78,7 @@ workflow spot_extraction {
         airlocalize_inputs.map { it[4] },
         airlocalize_inputs.map { it[5] },
         airlocalize_inputs.map { it[6] },
-        airlocalize_inputs.map { it[7] },
-        params.spot_extraction_cpus,
-        params.spot_extraction_memory
+        airlocalize_inputs.map { it[7] }
     ) | map {
         def tile_dir = new File(it[1])
         [

@@ -111,7 +111,8 @@ workflow registration {
         coarse_ransac_results.map { it[1] }, // transform matrix
         coarse_ransac_results.map { "${it[0]}/ransac_affine" },
         '', // no points path
-        params.aff_scale_transform_cpus
+        params.aff_scale_transform_cpus,
+        params.aff_scale_transform_memory
     ) | map {
         def ransac_affine_output = file(it[0])
         // [ ransac_affine_output, output_dir, scale_path]
@@ -129,7 +130,8 @@ workflow registration {
         coarse_ransac_results.map { it[1] }, // transform matrix
         coarse_ransac_results.map { "${it[0]}/ransac_affine" },
         '', // no points path
-        params.def_scale_transform_cpus
+        params.def_scale_transform_cpus,
+        params.def_scale_transform_memory
     ) | map {
         // expect ransac_affine output to be <outputdir>/aff/ransac_affine
         // so 2 parents up will give us the output dir
@@ -262,8 +264,7 @@ workflow registration {
         deform_results.map { it[3] }, // coarse ransac transformation matrix -> ransac_affine.mat
         deform_results.map { "${it[2]}/transform" }, // transform directory
         deform_results.map { "${it[2]}/invtransform" }, // inverse transform directory
-        "/${deformation_scale}",
-        params.registration_stitch_cpus
+        "/${deformation_scale}"
     )
 
     // for final transformation wait until all tiles are stitched
@@ -290,7 +291,6 @@ workflow registration {
                 "/${warped_ch}/${deformation_scale}",
                 transform_dir, // this is the transform dir as a file type
                 warp_dir,
-                params.registration_transform_cpus
             ]
             log.debug "Create warp input for channel $warped_ch: $r"
             r
@@ -305,8 +305,7 @@ workflow registration {
         final_transform_inputs.map { it[2] },
         final_transform_inputs.map { it[3] },
         final_transform_inputs.map { it[4] },
-        final_transform_inputs.map { it[5] },
-        final_transform_inputs.map { it[6] }
+        final_transform_inputs.map { it[5] }
     )
     final_transform_res.subscribe { log.debug "Final warp result: $it" }
 

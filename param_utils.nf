@@ -72,13 +72,29 @@ def default_mf_params() {
         // deformation parameters
         deform_iterations: '500x200x25x1',
         deform_auto_mask: '0',
+        // compute resources
+        ransac_cpus: 1,
+        ransac_memory: '1 G',
+        spots_cpus: 1,
+        spots_memory: '1 G',
+        interpolate_cpus: 1,
+        interpolate_memory: '1 G',
+        coarse_spots_cpus: 1,
+        coarse_spots_memory: '2 G',
         aff_scale_transform_cpus: 1, // cores for affine scale transforms
+        aff_scale_transform_memory: '15 G',
         def_scale_transform_cpus: 8, // cores for deformable scale transforms
+        def_scale_transform_memory: '80 G',
+        deform_cpus: 1,
+        deform_memory: '10 G',
         registration_stitch_cpus: 2,
+        registration_stitch_memory: '20 G',
         registration_transform_cpus: 12,
+        registration_transform_memory: '80 G',
 
         // warp spots parameters
         warp_spots_cpus: 2,
+        warp_spots_memory: '30 G',
 
         // intensity measurement parameters
         measure_intensities_output: 'intensities',

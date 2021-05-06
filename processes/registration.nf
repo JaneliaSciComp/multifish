@@ -1,6 +1,7 @@
 process cut_tiles {
-    container = params.registration_container
     label 'small'
+
+    container { params.registration_container }
 
     input:
     val(image_path)
@@ -26,7 +27,9 @@ process cut_tiles {
 }
 
 process ransac {
-    container = params.registration_container
+    container { params.registration_container }
+    cpus { params.ransac_cpus }
+    memory { params.ransac_memory }
 
     input:
     val(fixed_spots_file) // fixed spots pkl
@@ -52,6 +55,7 @@ process ransac {
 process apply_transform {
     container { params.registration_container }
     cpus { cpus }
+    memory { memory }
 
     input:
     val(ref_image_path)
@@ -62,6 +66,7 @@ process apply_transform {
     val(output_path)
     val(points_path)
     val(cpus)
+    val(memory)
 
     output:
     tuple val(output_path), val(ref_image_subpath)
@@ -88,7 +93,8 @@ process apply_transform {
 
 process coarse_spots {
     container { params.registration_container }
-    cpus 1
+    cpus { params.coarse_spots_cpus }
+    memory { params.coarse_spots_memory }
 
     input:
     val(image_path)
@@ -112,7 +118,9 @@ process coarse_spots {
 }
 
 process spots {
-    container = params.registration_container
+    container { params.registration_container }
+    cpus { params.spots_cpus }
+    memory { params.spots_memory }
 
     input:
     val(image_path)
@@ -134,7 +142,9 @@ process spots {
 }
 
 process interpolate_affines {
-    container = params.registration_container
+    container { params.registration_container }
+    cpus { params.interpolate_cpus }
+    memory { params.interpolate_memory }
 
     input:
     val(tiles_dir)
@@ -152,7 +162,9 @@ process interpolate_affines {
 
 
 process deform {
-    container = params.registration_container
+    container { params.registration_container }
+    cpus { params.deform_cpus }
+    memory { params.deform_memory }
 
     input:
     val(tile)
@@ -176,8 +188,9 @@ process deform {
 }
 
 process stitch {
-    container = params.registration_container
-    cpus { cpus }
+    container { params.registration_container }
+    cpus { params.registration_stitch_cpus }
+    memory { params.registration_stitch_memory }
 
     input:
     val(tile)
@@ -189,7 +202,6 @@ process stitch {
     val(transform_dir)
     val(invtransform_dir)
     val(output_subpath)
-    val(cpus)
 
     output:
     tuple val(tile),
@@ -210,8 +222,9 @@ process stitch {
 }
 
 process final_transform {
-    container = params.registration_container
-    cpus { cpus }
+    container { params.registration_container }
+    cpus { params.registration_transform_cpus }
+    memory { params.registration_transform_memory }
 
     input:
     val(ref_image_path)
@@ -220,7 +233,6 @@ process final_transform {
     val(mov_image_subpath)
     val(txm_path)
     val(output_path)
-    val(cpus)
 
     output:
     tuple val(ref_image_path),
