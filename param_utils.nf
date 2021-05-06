@@ -45,8 +45,8 @@ def default_mf_params() {
         bleed_channel: 'c3',
         default_airlocalize_params: default_airlocalize_params,
         per_channel_air_localize_params: ",,,",
-        spot_extraction_cpus: 2,
-        spot_extraction_memory: 20,
+        spot_extraction_cpus: 1,
+        spot_extraction_memory: 1,
 
         // segmentation params
         segmentation_output: 'segmentation',

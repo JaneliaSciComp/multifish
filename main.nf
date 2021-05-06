@@ -74,7 +74,6 @@ include {
 
 data_dir = final_params.data_dir
 pipeline_output_dir = get_value_or_default(final_params, 'output_dir', data_dir)
-create_output_dir(pipeline_output_dir)
 
 // spark config
 spark_conf = final_params.spark_conf
@@ -327,8 +326,7 @@ workflow {
             get_acq_output(pipeline_output_dir, moving_acq),
             "${final_params.registration_output}/${moving_acq}-to-${fixed_acq}"
         )
-        log.debug "Create registration output for ${moving_acq} to ${fixed_acq} -> ${registration_output_dir}"
-        registration_output_dir.mkdirs()
+        log.debug "Registration output for ${moving_acq} to ${fixed_acq} -> ${registration_output_dir}"
         def r = [
             fixed_acq,
             it[1], // stitching dir for fixed acq
@@ -474,8 +472,7 @@ workflow {
             get_acq_output(pipeline_output_dir, moving_acq),
             "${final_params.spot_extraction_output}/${moving_acq}-to-${fixed_acq}"
         )
-        log.debug "Create warped spots output for ${moving_acq} to ${fixed_acq} -> ${warped_spots_output_dir}"
-        warped_spots_output_dir.mkdirs()
+        log.debug "Warped spots output for ${moving_acq} to ${fixed_acq} -> ${warped_spots_output_dir}"
         def r = [
             it[2], // moving
             it[7], // channel
@@ -586,8 +583,7 @@ workflow {
             get_acq_output(pipeline_output_dir, fixed_acq),
             final_params.measure_intensities_output
         )
-        log.debug "Create intensities output for ${fixed_acq} -> ${measure_intensities_output_dir}"
-        measure_intensities_output_dir.mkdirs()
+        log.debug "Intensities output for ${fixed_acq} -> ${measure_intensities_output_dir}"
         def r = [
             it[4], // labels
             it[0], // fixed stitched image
@@ -624,8 +620,7 @@ workflow {
             get_acq_output(pipeline_output_dir, moving_acq),
             "${final_params.measure_intensities_output}/${intensities_name}"
         )
-        log.debug "Create intensities output for ${moving_acq} to ${fixed_acq} -> ${measure_intensities_output_dir}"
-        measure_intensities_output_dir.mkdirs()
+        log.debug "Measure intensities output for ${moving_acq} to ${fixed_acq} -> ${measure_intensities_output_dir}"
         def r = [
             it[9], // labels
             it[6], // warped spots image
@@ -713,8 +708,7 @@ workflow {
             get_acq_output(pipeline_output_dir, fixed_acq),
             final_params.assign_spots_output
         )
-        log.debug "Create assign spots output for ${fixed_acq} -> ${assign_spots_output_dir}"
-        assign_spots_output_dir.mkdirs()
+        log.debug "Assign spots output for ${fixed_acq} -> ${assign_spots_output_dir}"
         [ spots_file.parent, assign_spots_output_dir] // [ spots_dir, assigned_dir ]
     } | combine(labeled_acquisitions) | map {
         def r = [
@@ -754,8 +748,7 @@ workflow {
             get_acq_output(pipeline_output_dir, moving_acq),
             "${final_params.assign_spots_output}/${moving_acq}-to-${fixed_acq}"
         )
-        log.debug "Create assignment output for ${moving_acq} to ${fixed_acq} -> ${assign_spots_output_dir}"
-        assign_spots_output_dir.mkdirs()
+        log.debug "Spots assignment output for ${moving_acq} to ${fixed_acq} -> ${assign_spots_output_dir}"
         def warped_spots_file = file(it[5])
         def warped_spots_dir = warped_spots_file.parent
         def r = [
@@ -776,11 +769,6 @@ workflow {
     )
 
     assign_spots_results | view
-}
-
-def create_output_dir(output_dirname) {
-    def output_dir = file(output_dirname)
-    output_dir.mkdirs()
 }
 
 def get_acq_output(output, acq_name) {
@@ -820,7 +808,6 @@ def get_step_output_dirs(stitched_acqs, output_dir, step_output_name) {
             step_output_name
         )
         log.debug "Create ${step_output_name} output for ${acq_name} -> ${step_output_dir}"
-        step_output_dir.mkdirs()
         return step_output_dir
     }
 
