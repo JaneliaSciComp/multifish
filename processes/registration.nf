@@ -72,7 +72,8 @@ process apply_transform {
     tuple val(output_path), val(ref_image_subpath)
 
     script:
-    args_list = [
+    def output_parent_dir = file(output_path).parent
+    def args_list = [
         ref_image_path,
         ref_image_subpath,
         mov_image_path,
@@ -81,12 +82,13 @@ process apply_transform {
         output_path,
         points_path
     ]
-    args = args_list.join(' ')
+    def args = args_list.join(' ')
     """
     echo "Apply transform"
+    umask 0002
+    mkdir -p ${output_parent_dir}
     # Must remove the output directory, or we get a zarr.errors.ContainsArrayError if it already exists
     rm -rf ${output_path}${ref_image_subpath} || true
-    mkdir -p ${output_path}
     /app/scripts/waitforpaths.sh ${ref_image_path}${ref_image_subpath} ${mov_image_path}${mov_image_subpath} ${txm_path}
     /entrypoint.sh apply_transform_n5 ${args}
     """

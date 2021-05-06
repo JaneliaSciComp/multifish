@@ -17,7 +17,7 @@ process measure_intensities {
     tuple val(labels_path), val(registered_image_path), val(ch), val(output_path)
 
     script:
-    args_list = [
+    def args_list = [
         labels_path,
         registered_image_path,
         output_path,
@@ -28,8 +28,10 @@ process measure_intensities {
         bleed_channel
 
     ]
-    args = args_list.join(' ')
+    def args = args_list.join(' ')
     """
+    umask 0002
+    mkdir -p ${output_path}
     echo "python /app/intensity_measurement/scripts/intensity_measurements.py ${args}"
     python /app/intensity_measurement/scripts/intensity_measurements.py ${args}
     """

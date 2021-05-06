@@ -732,7 +732,8 @@ workflow {
     def expected_assign_spots_for_moving = expected_assign_spots
     | filter { it[6] != it[7] } | map { it[0..5] }
 
-    def assign_spots_inputs = warp_spots_inputs | map {
+    def assign_spots_inputs = warp_spots_inputs
+    | map {
         [
             it[5], // warped spots output
             it[0], // fixed
@@ -741,7 +742,9 @@ workflow {
             it[3], // moving_subpath
             it[4] // transform path
         ]
-    } | combine(warp_spots_results, by:0) | map {
+    }
+    | combine(warp_spots_results, by:0)
+    | map {
         // swap  again the fixed input in order 
         // to combine it with segmentation results which are done only for fixed image
         it[1..5] + [ it[0] ]
