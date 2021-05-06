@@ -1,9 +1,10 @@
 process predict {
     label 'withGPU'
 
-    container = params.segmentation_container
-    cpus { cpus }
+    container { params.segmentation_container }
+    cpus { params.segmentation_cpus }
     accelerator 1
+    memory { params.segmentation_memory }
 
     input:
     val(image_path)
@@ -11,12 +12,12 @@ process predict {
     val(scale)
     val(model_path)
     val(output_path)
-    val(cpus)
 
     output:
     tuple val(image_path), val(output_path)
 
     script:
+    def output_file = file(output_path)
     args_list = [
         '-i', image_path,
         '-m', model_path,
@@ -26,6 +27,7 @@ process predict {
     ]
     args = args_list.join(' ')
     """
+    mkdir -p ${output_file.parent}
     echo "python /app/segmentation/scripts/starfinity_prediction.py ${args}"
     python /app/segmentation/scripts/starfinity_prediction.py ${args}
     """

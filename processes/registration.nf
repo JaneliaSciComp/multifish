@@ -17,6 +17,7 @@ process cut_tiles {
 
     script:
     """
+    umask 0002
     mkdir -p ${tiles_dir}
     /app/scripts/waitforpaths.sh ${image_path}${image_subpath}
     /entrypoint.sh cut_tiles $image_path $image_subpath $tiles_dir $xy_stride $xy_overlap $z_stride $z_overlap
@@ -41,6 +42,7 @@ process ransac {
     script:
     output_path = "${output_dir}/${output_filename}"
     """
+    umask 0002
     mkdir -p ${output_dir}
     /app/scripts/waitforpaths.sh ${fixed_spots_file} ${moving_spots_file}
     /entrypoint.sh ransac ${fixed_spots_file} ${moving_spots_file} ${output_path} $cutoff $threshold
@@ -48,7 +50,7 @@ process ransac {
 }
 
 process apply_transform {
-    container = params.registration_container
+    container { params.registration_container }
     cpus { cpus }
 
     input:
@@ -85,7 +87,8 @@ process apply_transform {
 }
 
 process coarse_spots {
-    container = params.registration_container
+    container { params.registration_container }
+    cpus 1
 
     input:
     val(image_path)
@@ -101,6 +104,7 @@ process coarse_spots {
     script:
     output_path = "${output_dir}/${output_filename}"
     """
+    umask 0002
     mkdir -p ${output_dir}
     /app/scripts/waitforpaths.sh ${image_path}${image_subpath}
     /entrypoint.sh spots coarse ${image_path} ${image_subpath} ${output_path} ${radius} ${spotNum}
@@ -141,6 +145,7 @@ process interpolate_affines {
     script:
     interpolated_dir = tiles_dir
     """
+    umask 0002
     /entrypoint.sh interpolate_affines ${interpolated_dir}
     """
 }
@@ -164,6 +169,7 @@ process deform {
     script:
     deform_output = "$tile/warp.nrrd"
     """
+    umask 0002
     /app/scripts/waitforpaths.sh ${image_path}${image_subpath} ${ransac_affine}${ransac_affine_subpath}
     /entrypoint.sh deform $image_path $image_subpath $ransac_affine $ransac_affine_subpath $tile/coords.txt $deform_output $tile/ransac_affine.mat $tile/final_lcc.nrrd $tile/invwarp.nrrd $deform_iterations $deform_auto_mask
     """
@@ -197,6 +203,7 @@ process stitch {
     transform_output = "${transform_dir}${output_subpath}"
     invtransform_output = "${invtransform_dir}${output_subpath}"
     """
+    umask 0002
     /app/scripts/waitforpaths.sh $tile ${image_path}${image_subpath} $ransac_affine_mat
     /entrypoint.sh stitch_and_write $tile $xy_overlap $z_overlap $image_path $image_subpath $ransac_affine_mat $transform_dir $invtransform_dir $output_subpath
     """
@@ -228,6 +235,7 @@ process final_transform {
     echo "Final transform"
     # Must remove the output directory, or we get a zarr.errors.ContainsArrayError if it already exists
     rm -rf ${output_path}${ref_image_subpath} || true
+    umask 0002
     /app/scripts/waitforpaths.sh ${ref_image_path}${ref_image_subpath} ${mov_image_path}${mov_image_subpath}
     /entrypoint.sh apply_transform_n5 $ref_image_path $ref_image_subpath $mov_image_path $mov_image_subpath $txm_path $output_path
     echo "Finished final transform for ${output_path}${ref_image_subpath}"

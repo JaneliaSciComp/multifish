@@ -53,6 +53,7 @@ def default_mf_params() {
         segmentation_model_dir: "${projectDir}/external-modules/segmentation/model/starfinity",
         segmentation_scale: 's2',
         segmentation_cpus: 3, // it needs at least 3 cpus for Janelia cluster config because of memory requirements
+        segmentation_memory: '45 G',
 
         // registration params
         registration_fixed_output: 'fixed',
@@ -134,7 +135,7 @@ def segmentation_container_param(Map ps) {
 def registration_container_param(Map ps) {
     def registration_container = ps.registration_container
     if (!registration_container)
-        "${ps.mfrepo}/registration:1.1.0"
+        "${ps.mfrepo}/registration:1.2.0"
     else
         registration_container
 }

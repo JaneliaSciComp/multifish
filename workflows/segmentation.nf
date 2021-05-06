@@ -15,7 +15,6 @@ workflow segmentation {
     dapi_channel
     scale
     model_dir
-    segmentation_cpus
 
     main:
     def indexed_acqs = index_channel(acqs)
@@ -29,8 +28,7 @@ workflow segmentation {
         dapi_channel,
         scale,
         model_dir,
-        output_files,
-        segmentation_cpus
+        output_files
     )
 
     emit:

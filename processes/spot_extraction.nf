@@ -28,6 +28,7 @@ process cut_tiles {
     ]
     args = args_list.join(' ')
     """
+    umask 0002
     mkdir -p ${tiles_dir}
     echo "python /app/airlocalize/scripts/cut_tiles.py ${args}"
     python /app/airlocalize/scripts/cut_tiles.py ${args}
@@ -69,6 +70,7 @@ process airlocalize {
     }
     args = args_list.join(' ')
     """
+    umask 0002
     echo "/app/airlocalize/airlocalize.sh ${args}"
     /app/airlocalize/airlocalize.sh ${args}
     """
@@ -102,6 +104,7 @@ process merge_points {
     ]
     args = args_list.join(' ')
     """
+    umask 0002
     mkdir -p ${output_path}
     echo "python /app/airlocalize/scripts/merge_points.py ${args}"
     python /app/airlocalize/scripts/merge_points.py ${args}

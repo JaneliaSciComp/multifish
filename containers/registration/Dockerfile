@@ -35,4 +35,3 @@ RUN echo "#!/bin/bash" >> /entrypoint.sh \
     && echo "conda activate myenv" >> /entrypoint.sh \
     && echo 'python /app/bigstream/${SCRIPT_NAME}.py "$@"' >> /entrypoint.sh \
     && chmod +x /entrypoint.sh
-ENTRYPOINT [ "/entrypoint.sh" ]

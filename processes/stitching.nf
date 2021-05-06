@@ -21,6 +21,7 @@ process prepare_stitching_data {
     czi = "${input_dir}/${acq_name}.czi"
     czi_link = "${stitching_dir}/${acq_name}.czi"
     """
+    umask 0002
     mkdir -p "${stitching_dir}"
     ln -s "${mvl}" "${mvl_link}" || true
     ln -s "${czi}" "${czi_link}" || true

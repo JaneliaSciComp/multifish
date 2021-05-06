@@ -7,7 +7,7 @@ custom:
   project: Multifish
   version: 1.0
   ec2MultifishCPUImageId: ami-02c61ee82a659dfe0
-  ec2MultifishGPUImageId: ami-04044b59adbd973ae
+  ec2MultifishGPUImageId: ami-013eb316eb8306a68
   subnetId: subnet-5e11c814
   securityGroupId: sg-963ee8df
   sshKeyPairName: ec2_batch
@@ -93,7 +93,8 @@ resources:
           DesiredvCpus: 0
           MaxvCpus: 64
           InstanceTypes:
-            - g2
+            - g3
+            - g4dn.12xlarge
           ImageId: ${self:custom.ec2MultifishGPUImageId}
           Subnets:
             - ${self:custom.subnetId}

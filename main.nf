@@ -43,35 +43,34 @@ include {
     spot_extraction;
 } from './workflows/spot_extraction' addParams(spot_extraction_params)
 
+segmentation_params = final_params + [
+    segmentation_container: segmentation_container_param(final_params)
+]
 include {
     segmentation;
-} from './workflows/segmentation' addParams(lsf_opts: final_params.lsf_opts,
-                                            segmentation_container: segmentation_container_param(final_params))
+} from './workflows/segmentation' addParams(segmentation_params)
 
+registration_params = final_params + [
+    registration_container: registration_container_param(final_params),
+]
 include {
     registration;
-} from './workflows/registration' addParams(lsf_opts: final_params.lsf_opts,
-                                            registration_container: registration_container_param(final_params),
-                                            aff_scale_transform_cpus: final_params.aff_scale_transform_cpus,
-                                            def_scale_transform_cpus: final_params.def_scale_transform_cpus,
-                                            registration_stitch_cpus: final_params.registration_stitch_cpus,
-                                            registration_transform_cpus: final_params.registration_transform_cpus)
+} from './workflows/registration' addParams(registration_params)
 
 include {
     warp_spots;
-} from './workflows/warp_spots' addParams(lsf_opts: final_params.lsf_opts,
-                                          registration_container: registration_container_param(final_params),
-                                          warp_spots_cpus: final_params.warp_spots_cpus)
+} from './workflows/warp_spots' addParams(registration_params)
 
+spot_assignment_params = final_params + [
+    spots_assignment_container: spots_assignment_container_param(final_params),
+]
 include {
     measure_intensities;
-} from './processes/spot_intensities' addParams(spots_assignment_container: spots_assignment_container_param(final_params),
-                                                measure_intensities_cpus: final_params.measure_intensities_cpus)
+} from './processes/spot_intensities' addParams(spot_assignment_params)
 
 include {
     assign_spots;
-} from './processes/spot_assignment' addParams(spots_assignment_container: spots_assignment_container_param(final_params),
-                                               assign_spots_cpus: final_params.assign_spots_cpus)
+} from './processes/spot_assignment' addParams(spot_assignment_params)
 
 data_dir = final_params.data_dir
 pipeline_output_dir = get_value_or_default(final_params, 'output_dir', data_dir)
@@ -299,8 +298,7 @@ workflow {
         segmentation_output_dirs,
         final_params.dapi_channel,
         final_params.segmentation_scale,
-        final_params.segmentation_model_dir,
-        final_params.segmentation_cpus
+        final_params.segmentation_model_dir
     )  // [ input_image_path, output_labels_tiff ]
     segmentation_results.subscribe { log.debug "Segmentation results: $it" }
 
