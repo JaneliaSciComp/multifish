@@ -57,15 +57,14 @@ workflow registration {
     ) // fixed, tiles_list
 
     // expand and index tiles
-    def tiles_with_inputs = index_channel(tile_cut_res[0])
-    | join(index_channel(tile_cut_res[1]))
+    def tiles_with_inputs = tile_cut_res
     | flatMap {
-        def index = it[0]
-        def tile_input = it[1]
-        it[2].tokenize(' ').collect {
-            [ index, tile_input, it ]
+        def (tile_input, tiles) = it
+        tiles.tokenize(' ').collect { tile_dirnamme ->
+            def tile_dir = file(tile_dirname)
+            [ "${tile_dir.parent.parent}", tile_input, tile_dirname ]
         }
-    }
+    } // [ output_dir, tile_input, tile_dir ]
 
     // get fixed coarse spots
     def fixed_coarse_spots_results = fixed_coarse_spots(
@@ -113,13 +112,9 @@ workflow registration {
         '', // no points path
         params.aff_scale_transform_cpus,
         params.aff_scale_transform_memory
-    ) | map {
-        def ransac_affine_output = file(it[0])
-        // [ ransac_affine_output, output_dir, scale_path]
-        def r = [ it[0], "${ransac_affine_output.parent.parent}", it[1] ]
-        log.debug "Affine results at affine scale: $r"
-        return r
-    }
+    ) // [ ransac_affine_output, scale_path ]
+
+    aff_scale_affine_results.subscribe { log.debug "Affine results at affine scale: $it" }
 
     // compute ransac_affine at deformation scale
     def def_scale_affine_results = apply_transform_at_def_scale(
@@ -132,16 +127,10 @@ workflow registration {
         '', // no points path
         params.def_scale_transform_cpus,
         params.def_scale_transform_memory
-    ) | map {
-        // expect ransac_affine output to be <outputdir>/aff/ransac_affine
-        // so 2 parents up will give us the output dir
-        def ransac_affine_output = file(it[0])
-        // [ ransac_affine_output, output_dir, scale_path]
-        def r = [ it[0], "${ransac_affine_output.parent.parent}", it[1] ]
-        log.debug "Affine results at deform scale: $r"
-        return r
-    }
-    
+    ) // [ ransac_affine_output, scale_path ] - expect ransac_affine output to be <outputdir>/aff/ransac_affine
+
+    def_scale_affine_results.subscribe { log.debug "Affine results at deform scale: $it" }
+
     // get fixed spots per tile
     def fixed_spots_results_per_tile = fixed_spots(
         tiles_with_inputs.map { it[1] }, //  image input for the tile
@@ -152,28 +141,24 @@ workflow registration {
         spots_spot_number
     ) // [ fixed, tile_dir, fixed_pkl_path ]
 
-    def indexed_output = index_channel(normalized_output_dir)
-
     // combine the results at affine scale with the ccorresponding tiles
     // to find the correspondence we use the index in the input and output channels
-    def indexed_moving_spots_inputs = aff_scale_affine_results
-    | join(indexed_output, by:1) | map {
-        // put the index as the first element in the tuple
-        // [ index, output_dir, ransac_affine_output, scale_path ]
-        def ar = [ it[it.size-1] ] + it[0..it.size-2]
+    def moving_spots_inputs = aff_scale_affine_results
+    | map {
+        def (ransac_affine_output, ransac_affine_scale) = it
+        def ar = [ "${file(ransac_affine_output).parent.parent}", ransac_affine_output, ransac_affine_scale ]
         log.debug "Affine result to combine with tiles: $ar"
         ar
-    } | combine(tiles_with_inputs, by:0) | map {
-        // [ index, output_dir, ransac_affine, scale_path, fixed_input, tile_dir ]
-        log.debug "Moving spots input: $it"
-        it
     }
+    | combine(tiles_with_inputs, by:0) // // [ output_dir, ransac_affine, scale_path, fixed_input, tile_dir ]
+
+    moving_spots_inputs.subscribe { log.debug "Moving spots input: $it" }
 
     // get moving spots per tile taking as input the output of the coarse affined at affine scale
     def moving_spots_results_per_tile = moving_spots(
-        indexed_moving_spots_inputs.map { it[2] }, // input is the ransac_affine
+        moving_spots_inputs.map { it[1] }, // input is the ransac_affine
         "/${reg_ch}/${affine_scale}",
-        indexed_moving_spots_inputs.map { it[it.size-1] }, // tile dir
+        moving_spots_inputs.map { it[it.size-1] }, // tile dir
         'moving_spots.pkl',
         spots_cc_radius,
         spots_spot_number
@@ -196,45 +181,57 @@ workflow registration {
     ) // [ tile_dir, tile_transform_matrix  ]
 
     // interpolate tile ransac results
-    def interpolated_results = tile_ransac_results | map {
+    def interpolated_results = tile_ransac_results
+    | map {
         def tile_dir = file(it[0])
-        return [ "${tile_dir.parent}", it[0]]
-    } | groupTuple | map {
+        return [ "${tile_dir.parent}", it[0]] // [ tiles_dir, tile_transform_matrix ]
+    }
+    | groupTuple // wait for ransac to complete for all
+    | map {
         log.debug "Interpolate ${it[0]}"
         it[0]
-    } | interpolate_affines | map {
+    }
+    | interpolate_affines
+    | map {
         log.debug "Interpolated result: $it"
         [ it ]
-    }
+    } // [ tiles_dir ]
 
     // prepare deform inputs - we combine the tile inputs
     // with interpolated results to guarantee the deform 
     // is not started before interpolation step is done
-    def deform_inputs = tiles_with_inputs | map {
+    def deform_inputs = tiles_with_inputs
+    | map {
         def tile_path = file(it[2])
-        // [ <tile_parent_dir>, <index>, <tile_input>, <tile_path> ]
+        // [ <tile_parent_dir>, <output_dir>, <tile_input>, <tile_path> ]
         [ "${tile_path.parent}", it[0], it[1], it[2] ]
-    } | combine(interpolated_results, by:0) | map {
-        def tile_parent_dir = file(it[0])
-        // [ <index>, <tile_input>, <tile_parent_dir>, <tile_path>, <ransac_output> ]
-        def r = [ "${tile_parent_dir.parent}/aff/ransac_affine", it[1], it[2], it[0], it[3] ]
+    }
+    | combine(interpolated_results, by:0)
+    | map {
+        def (tiles_dir, current_registration_output, tile_fixed_input, tile) = it
+        def r = [
+            "${current_registration_output}/aff/ransac_affine",
+            tile_fixed_input,
+            tile
+        ]
         log.debug "Extended interpolated result: $r"
         return r
-    } | combine(def_scale_affine_results, by:0) | map {
-        log.debug "Deform input: $it"
-        return it
     }
+    | combine(def_scale_affine_results, by:0) // [ ransac_affine, tile_fixed_input, tile, ransac_def_scale ]
+
+    deform_inputs.subscribe { log.debug "Deform input: $it" }
 
     // run the deformation
     def deform_results = deform(
-        deform_inputs.map { it[4] }, // tile path
-        deform_inputs.map { it[2] }, // fixed image -> tile input
+        deform_inputs.map { it[2] }, // tile path
+        deform_inputs.map { it[1] }, // fixed image -> tile input
         "/${reg_ch}/${deformation_scale}",
         deform_inputs.map { it[0] }, // affine moving coarse ransac results at deform scale
         "/${reg_ch}/${deformation_scale}",
         deform_iterations,
         deform_auto_mask
-    ) | map {
+    )
+    | map {
         // [ <tile>, <tile_input>, <deform_output> ]
         def tile_dir = file(it[0])
         def reg_output = "${tile_dir.parent.parent}"
@@ -242,7 +239,9 @@ workflow registration {
         def r = [ it[0], it[1],  reg_output, aff_matrix]
         log.debug "Deform result: $it -> $r"
         return r
-    } | groupTuple(by: [1,2,3]) | flatMap {
+    }
+    | groupTuple(by: [1,2,3]) // wait for all deform to complete
+    | flatMap {
         // the grouping and the reconstruction of the input
         // is done to guarantee the completeness of 
         // the deform  operation for all tiles
@@ -266,15 +265,12 @@ workflow registration {
         deform_results.map { "${it[2]}/invtransform" }, // inverse transform directory
         "/${deformation_scale}"
     )
+    stitch_results.subscribe { log.debug "Stitch result: $it" }
 
     // for final transformation wait until all tiles are stitched
     // and combine the results with the warped_channels
     def final_transform_inputs = stitch_results
-    | map {
-        log.debug "Stitch result: $it"
-        it
-    }
-    | groupTuple(by: [1,2,3,4,5])
+    | groupTuple(by: [1,2,3,4,5]) // wait for all stitches to complete
     | combine(normalized_moving_input_dir)
     | flatMap { stitch_res ->
         log.debug "Combined stitched result: ${stitch_res}"
@@ -309,7 +305,7 @@ workflow registration {
     )
     final_transform_res.subscribe { log.debug "Final warp result: $it" }
 
-    registration_res = final_transform_res
+    def registration_res = final_transform_res
     | groupTuple(by: [0,2,4,5])
     | flatMap { final_tx_res ->
         def ref_subpath = final_tx_res[1]
@@ -333,5 +329,5 @@ workflow registration {
     } // [ <fixed>, <fixed_subpath>, <moving>, <moving_subpath>, <direct_transform>, <inv_transform>, <warped_path> ]
 
     emit:
-    registration_res
+    done = registration_res
 }

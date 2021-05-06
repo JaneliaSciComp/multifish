@@ -35,23 +35,18 @@ workflow spot_extraction {
         z_overlap
     )
 
-    def tiles_with_inputs = index_channel(tile_cut_res[0])
-    | join(index_channel(tile_cut_res[1]))
+    def tiles_with_inputs = tile_cut_res
     | flatMap {
-        def index = it[0]
-        def tile_input = it[1]
-        it[2].tokenize(' ').collect {
-            [ index, tile_input, it ]
+        def (tile_input, tiles) = it
+        tiles.tokenize(' ').collect { tile ->
+            [ tile_input, tile ]
         }
     }
 
     def airlocalize_inputs = tiles_with_inputs
     | combine(channels)
     | map {
-        def index = it[0]
-        def tile_input = it[1]
-        def tile_dir = it[2]
-        def ch = it[3]
+        def (tile_input, tile_dir, ch) = it
         def dapi_correction = bleedthrough_channels.contains(ch)
                 ? "/${dapi_channel}/${scale}"
                 : ''

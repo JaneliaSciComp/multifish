@@ -42,6 +42,7 @@ workflow collect_merge_points {
     done = collect_merged_points_files(
         merged_points_path
     )
+    | filter { it[0] != it[1] }
     | flatMap {
         def ( merged_points_dir, merged_points_files ) = it
         log.debug "Found ${merged_points_files} in ${merged_points_dir}"
