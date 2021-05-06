@@ -59,6 +59,7 @@ include {
 
 include {
     warp_spots;
+    collect_merge_points;
 } from './workflows/warp_spots' addParams(registration_params)
 
 spot_assignment_params = final_params + [
@@ -375,7 +376,20 @@ workflow {
     }
 
     // prepare inputs for warping spots
-    def expected_spot_extraction_results = Channel.fromList(warp_spots_acq_names) | flatMap {
+    def existing_spots_files = Channel.fromList(warp_spots_acq_names)
+    | map {
+        def acq_name = it
+        get_step_output_dir(
+            get_acq_output(pipeline_output_dir, acq_name),
+            final_params.spot_extraction_output
+        )
+    }
+    | collect_merge_points // [ spots_file_dir, spots_file ]
+
+    existing_spots_files.subscribe { log.debug "Collected spots files $it" }
+
+    def expected_spot_extraction_results = Channel.fromList(warp_spots_acq_names)
+    | map {
         def acq_name = it
         def acq_stitching_output_dir = get_step_output_dir(
             get_acq_output(pipeline_output_dir, acq_name),
@@ -385,27 +399,22 @@ workflow {
             get_acq_output(pipeline_output_dir, acq_name),
             final_params.spot_extraction_output
         )
-        log.debug "Collect ${acq_spot_extraction_output_dir}/merged_points_*.txt"
-        def spots_files = []
-        if (acq_spot_extraction_output_dir.exists()) {
-            // only collect merged points if the dir exists
-            acq_spot_extraction_output_dir.eachFileMatch(~/merged_points_.*.txt/) { f ->
-                log.debug "Found spots file: $f"
-                spots_files << f
-            }
-        }
-        // map spot files to tuple of parameters
-        spots_files.collect { spots_filepath ->
-            def spots_file = file(spots_filepath)
-            def spots_filename_comps = spots_file.name.replace('.txt', '').tokenize('_')
-            def spots_channel = spots_filename_comps[2]
-            [
-                "${acq_stitching_output_dir}/export.n5",
-                spots_channel,
-                final_params.spot_extraction_scale,
-                spots_filepath
-            ]
-        }
+        [ acq_spot_extraction_output_dir, acq_stitching_output_dir ]
+    }
+    | combine(existing_spots_files, by: 0) // [ spots_file_dir, stitching_dir, spots_file ]
+    | map {
+        def (acq_spot_extraction_output_dir, acq_stitching_output_dir, spots_filepath) = it
+        def spots_file = file(spots_filepath)
+        def spots_filename_comps = spots_file.name.replace('.txt', '').tokenize('_')
+        def spots_channel = spots_filename_comps[2]
+        def d = [
+            "${acq_stitching_output_dir}/export.n5",
+            spots_channel,
+            final_params.spot_extraction_scale,
+            spots_filepath
+        ]
+        log.debug "Existing spots file: $d"
+        d
     }
 
     // if spots were extracted as part of the current pipeline 
@@ -456,11 +465,13 @@ workflow {
             final_params.def_scale
         ]
         log.debug "Expected registration for warping spots: $r"
+        r
     }
 
     def warp_spots_inputs = extended_registration_results
     | concat(expected_registration_for_warping_spots)
     | unique {
+        log.debug "Registration results used for warping spots: $it"
         it[0..3].collect { "$it" }
     }
     | map {
