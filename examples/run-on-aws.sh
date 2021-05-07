@@ -18,8 +18,8 @@ nextflow run $DIR/../main.nf \
     --spot_extraction_z_stride 256 \
     --spot_extraction_cpus 2 \
     --spot_extraction_memory 8 \
-    --spark_local_dir "//tmp" \
-    --spark_work_dir "/efs-multifish/spark" \
+    --spark_local_dir "/tmp" \
+    --spark_work_dir "/efs-multifish/spark/small" \
     --data_dir "/s3-multifish/small" \
     --output_dir "/efs-multifish/results/small" \
     --acq_names "LHA3_R3_small,LHA3_R5_small" \
