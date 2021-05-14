@@ -110,6 +110,7 @@ Further detailed documentation is available here:
 
 * [Pipeline Parameters](docs/Parameters.md) 
 * [File Organization](docs/FileOrganization.md)
+* [Running on AWS Batch](docs/RunningOnAWSBatch.md)
 * [Running on AWS EC2](docs/RunningOnEC2.md)
 * [Troubleshooting](docs/Troubleshooting.md)
 * [Development](docs/Development.md)

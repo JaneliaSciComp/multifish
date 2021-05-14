@@ -1,8 +1,8 @@
 # Running on AWS EC2
 
-Although Nextflow supports AWS Batch as a target, this pipeline doesn't support that mode of execution due to the fact we currently use a shared file system instead of `publishDir` to copy data for each task. 
+In most cases [running on AWS Batch](docs/RunningOnAWSBatch.md) is a better choice. 
 
-The pipeline can be run manually on a single large EC2 instance as follows.
+Nevertheless, the pipeline can be run manually on a single large EC2 instance as follows. 
 
 ## Prerequisites
 
