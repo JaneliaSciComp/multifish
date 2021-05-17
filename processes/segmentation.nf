@@ -1,9 +1,8 @@
 process predict {
-    label 'withGPU'
+    //label 'withGPU'
 
     container { params.segmentation_container }
     cpus { params.segmentation_cpus }
-    accelerator 1
     memory { params.segmentation_memory }
 
     input:
