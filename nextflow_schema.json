@@ -109,7 +109,6 @@
                 "stitching_ref": {
                     "type": "integer",
                     "fa_icon": "fas fa-asterisk",
-                    "default": 1,
                     "description": "Index of the channel used for stitching",
                     "help_text": "If this is not defined it defaults to `--dapi_channel`"
                 },
@@ -204,7 +203,6 @@
             "required": [
                 "spark_work_dir",
                 "spark_local_dir",
-                "stitching_ref",
                 "resolution",
                 "axis",
                 "stitching_block_size",
