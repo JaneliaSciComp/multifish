@@ -5,7 +5,7 @@
     "description": "EASI-FISH spatial transcriptomics analysis pipeline",
     "type": "object",
     "definitions": {
-        "data_options": {
+        "data": {
             "title": "Input Data",
             "type": "object",
             "fa_icon": "fas fa-database",
@@ -24,58 +24,55 @@
                 "data_dir": {
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",
-                    "default": "/fusion/s3/janelia-nextflow-demo/multifish/small",
                     "description": "Path to the directory containing the input CZI/MVL acquisition files"
                 },
                 "segmentation_model_dir": {
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",
-                    "default": "/fusion/s3/janelia-nextflow-demo/multifish/models/starfinity-model",
+                    "default": "${projectDir}/external-modules/segmentation/model/starfinity",
                     "description": "Path to the directory containing the machine learning model for segmentation"
                 },
                 "acq_names": {
                     "type": "string",
                     "fa_icon": "fas fa-vial",
-                    "default": "LHA3_R3_small,LHA3_R5_small",
                     "description": "Names of acquisition rounds to process. These should match the names of the CZI/MVL files found in the data_dir."
                 },
                 "ref_acq": {
                     "type": "string",
                     "fa_icon": "fas fa-asterisk",
-                    "default": "LHA3_R3_small",
-                    "description": "Name of the acquisition round to use as the fixed reference"
+                    "description": "Name of the acquisition round to use as the fixed reference",
+                    "help_text": "e.g. LHA3_R3_small"
                 },
                 "channels": {
                     "type": "string",
                     "fa_icon": "fas fa-layer-group",
-                    "default": "c0,c1",
+                    "default": "c0,c1,c2,c3",
                     "description": "List of channel names to process"
                 },
                 "dapi_channel": {
                     "type": "string",
                     "fa_icon": "fas fa-asterisk",
-                    "default": "c1",
+                    "default": "c2",
                     "description": "Name of the DAPI channel",
                     "help_text": "The DAPI channel is used as a reference channel for registration, segmentation, and spot extraction."
                 },
                 "bleed_channel": {
                     "type": "string",
                     "fa_icon": "fas fa-asterisk",
-                    "default": "c2",
+                    "default": "c3",
                     "description": "Channel (other than DAPI) used to correct bleedthrough on DAPI channel"
                 }
             }
         },
-        "output_options": {
+        "output": {
             "title": "Output Options",
             "type": "object",
-            "fa_icon": "fas fa-database",
+            "fa_icon": "fas fa-sign-out-alt",
             "description": "Options for the overall pipeline output",
             "help_text": "",
             "properties": {
                 "output_dir": {
                     "type": "string",
-                    "default": "/fsx/results/small",
                     "description": "Path to the directory containing pipeline outputs",
                     "fa_icon": "fas fa-folder-open"
                 }
@@ -84,7 +81,7 @@
                 "output_dir"
             ]
         },
-        "stitching_options": {
+        "stitching": {
             "title": "Stitching",
             "type": "object",
             "description": "Stitching options",
@@ -203,12 +200,31 @@
                     "hidden": true
                 }
             },
-            "fa_icon": "far fa-map"
+            "fa_icon": "far fa-map",
+            "required": [
+                "spark_work_dir",
+                "spark_local_dir",
+                "stitching_ref",
+                "resolution",
+                "axis",
+                "stitching_block_size",
+                "retile_z_size",
+                "stitching_mode",
+                "stitching_padding",
+                "stitching_blur_sigma",
+                "workers",
+                "worker_cores",
+                "gb_per_core",
+                "driver_memory",
+                "wait_for_spark_timeout_seconds",
+                "sleep_between_timeout_checks_seconds",
+                "stitching_app"
+            ]
         },
         "registration": {
             "title": "Registration",
             "type": "object",
-            "description": "",
+            "description": "Options for the registration algorithm (Bigstream)",
             "default": "",
             "properties": {
                 "registration_output": {
@@ -256,7 +272,8 @@
                 },
                 "deform_auto_mask": {
                     "type": "integer",
-                    "fa_icon": "fas fa-mask"
+                    "fa_icon": "fas fa-mask",
+                    "default": "0"
                 },
                 "registration_xy_stride": {
                     "type": "integer",
@@ -268,7 +285,8 @@
                     "type": "integer",
                     "description": "Tile overlap on x/y axes",
                     "help_text": "Defaults to registration_xy_stride/8 when not specified.",
-                    "fa_icon": "fas fa-align-center"
+                    "fa_icon": "fas fa-align-center",
+                    "hidden": true
                 },
                 "registration_z_stride": {
                     "type": "integer",
@@ -279,8 +297,9 @@
                 "registration_z_overlap": {
                     "type": "integer",
                     "description": "Tile overlap on z axes",
-                    "help_text": " Defaults to registration_z_stride/8 when not specified.",
-                    "fa_icon": "fas fa-align-center"
+                    "help_text": "Defaults to registration_z_stride/8 when not specified.",
+                    "fa_icon": "fas fa-align-center",
+                    "hidden": true
                 },
                 "aff_scale_transform_cpus": {
                     "type": "integer",
@@ -306,7 +325,24 @@
                     "default": 12,
                     "fa_icon": "fas fa-microchip"
                 }
-            }
+            },
+            "required": [
+                "aff_scale",
+                "def_scale",
+                "spots_cc_radius",
+                "spots_spot_number",
+                "ransac_cc_cutoff",
+                "ransac_dist_threshold",
+                "deform_iterations",
+                "deform_auto_mask",
+                "registration_xy_stride",
+                "registration_z_stride",
+                "aff_scale_transform_cpus",
+                "def_scale_transform_cpus",
+                "registration_stitch_cpus",
+                "registration_transform_cpus"
+            ],
+            "fa_icon": "fas fa-layer-group"
         },
         "segmentation": {
             "title": "Cell Segmentation",
@@ -333,7 +369,11 @@
                     "default": 3,
                     "description": "Number of CPU cores to allocate for segmentation"
                 }
-            }
+            },
+            "required": [
+                "segmentation_scale",
+                "segmentation_cpus"
+            ]
         },
         "spot_extraction": {
             "title": "Spot Extraction",
@@ -356,26 +396,28 @@
                 "spot_extraction_xy_stride": {
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
-                    "default": 512,
+                    "default": 1024,
                     "description": "The number of voxels along x/y for registration tiling, must be power of 2. Increasing this requires increasing `--spot_extraction_memory`."
                 },
                 "spot_extraction_xy_overlap": {
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
                     "description": "Tile overlap on x/y axes",
-                    "help_text": "Defaults to 5% of spot_extraction_xy_stride"
+                    "help_text": "Defaults to 5% of spot_extraction_xy_stride",
+                    "hidden": true
                 },
                 "spot_extraction_z_stride": {
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
-                    "default": 256,
+                    "default": 512,
                     "description": "The number of voxels along z for registration tiling, must be power of 2. Increasing this requires increasing `--spot_extraction_memory`."
                 },
                 "spot_extraction_z_overlap": {
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
                     "description": "Tile overlap on z axes",
-                    "help_text": "Defaults to 5% of spot_extraction_z_stride"
+                    "help_text": "Defaults to 5% of spot_extraction_z_stride",
+                    "hidden": true
                 },
                 "default_airlocalize_params": {
                     "type": "string",
@@ -387,8 +429,8 @@
                 "per_channel_air_localize_params": {
                     "type": "string",
                     "fa_icon": "far fa-folder",
-                    "default": "/app/airlocalize/params/air_localize_default_params.txt",
-                    "description": "Comma-delimited paths to alternative airlocalize parameter files, one per channel"
+                    "description": "Comma-delimited paths to alternative airlocalize parameter files, one per channel",
+                    "default": ",,,"
                 },
                 "spot_extraction_cpus": {
                     "type": "integer",
@@ -399,15 +441,22 @@
                 "spot_extraction_memory": {
                     "type": "integer",
                     "fa_icon": "fas fa-memory",
-                    "default": 8,
+                    "default": 1,
                     "description": "Amount of RAM (in GB) to allocate to each hAirlocalize job. Needs to be increased when increasing strides."
                 }
-            }
+            },
+            "required": [
+                "spot_extraction_scale",
+                "spot_extraction_xy_stride",
+                "spot_extraction_z_stride",
+                "spot_extraction_cpus",
+                "spot_extraction_memory"
+            ]
         },
         "spot_warping": {
             "title": "Spot Warping",
             "type": "object",
-            "description": "Warps spots according to the registration",
+            "description": "Options for warping detected spots to registration",
             "properties": {
                 "warp_spots_cpus": {
                     "type": "integer",
@@ -416,12 +465,16 @@
                     "description": "Number of CPU cores to use for warp spots",
                     "hidden": true
                 }
-            }
+            },
+            "required": [
+                "warp_spots_cpus"
+            ],
+            "fa_icon": "fas fa-chess-board"
         },
-        "intensity_measurement": {
+        "intensities": {
             "title": "Intensity Measurement",
             "type": "object",
-            "description": "Extracts quantified measurements of spot intensities",
+            "description": "Options for extracting quantified measurements of spot intensities",
             "properties": {
                 "measure_intensities_output": {
                     "type": "string",
@@ -437,12 +490,16 @@
                     "description": "Number of CPU cores to use for intensity measurement ",
                     "hidden": true
                 }
-            }
+            },
+            "required": [
+                "measure_intensities_cpus"
+            ],
+            "fa_icon": "fas fa-ruler-horizontal"
         },
         "spot_assignment": {
             "title": "Spot Assignment",
             "type": "object",
-            "description": "This step assigns spots to segmented cells",
+            "description": "Options for mapping spot counts to segmented cells",
             "properties": {
                 "assign_spots_output": {
                     "type": "string",
@@ -458,7 +515,11 @@
                     "description": "Number of CPU cores to use for spot assignment",
                     "hidden": true
                 }
-            }
+            },
+            "required": [
+                "assign_spots_cpus"
+            ],
+            "fa_icon": "fas fa-random"
         },
         "containers": {
             "title": "Container Options",
@@ -505,7 +566,7 @@
                     "type": "string",
                     "default": "<mfrepo>/segmentation:1.0.0",
                     "description": "Docker container for running segmentation",
-                    "fa_icon": "fab fa-docker",
+                    "fa_icon": "fas fa-box-open",
                     "hidden": true
                 },
                 "spot_extraction_container": {
@@ -523,9 +584,19 @@
                     "hidden": true
                 }
             },
-            "description": "Customize the Docker containers used for each pipeline step"
+            "description": "Customize the Docker containers used for each pipeline step",
+            "required": [
+                "mfrepo",
+                "spark_container_repo",
+                "spark_container_name",
+                "spark_container_version",
+                "registration_container",
+                "segmentation_container",
+                "spot_extraction_container",
+                "spots_assignment_container"
+            ]
         },
-        "other_options": {
+        "other": {
             "title": "Other Options",
             "type": "object",
             "fa_icon": "fas fa-list-ul",
@@ -547,13 +618,13 @@
     },
     "allOf": [
         {
-            "$ref": "#/definitions/data_options"
+            "$ref": "#/definitions/data"
         },
         {
-            "$ref": "#/definitions/output_options"
+            "$ref": "#/definitions/output"
         },
         {
-            "$ref": "#/definitions/stitching_options"
+            "$ref": "#/definitions/stitching"
         },
         {
             "$ref": "#/definitions/registration"
@@ -568,7 +639,7 @@
             "$ref": "#/definitions/spot_warping"
         },
         {
-            "$ref": "#/definitions/intensity_measurement"
+            "$ref": "#/definitions/intensities"
         },
         {
             "$ref": "#/definitions/spot_assignment"
@@ -577,7 +648,7 @@
             "$ref": "#/definitions/containers"
         },
         {
-            "$ref": "#/definitions/other_options"
+            "$ref": "#/definitions/other"
         }
     ]
 }
