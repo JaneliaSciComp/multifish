@@ -29,8 +29,8 @@ Note that the demo scripts set all these directories relative to the TMPDIR by d
 | --ref_acq | | Name of the acquisition round to use as the fixed reference |
 | --skip | | Comma-delimited list of steps to skip, e.g. "stitching,registration" (Valid values: stitching, spot_extraction, segmentation, registration, warp_spots, intensities, assign_spots) |
 | --runtime_opts | | Runtime options for Singularity must include mounts for any directory paths you are using. You can also pass the --nv flag here to make use of NVIDIA GPU resources. For example, `--nv -B /your/data/dir -B /your/output/dir` | 
-| --workdir | ./work | Nextflow working directory where all intermediate files are saved |
 | --mfrepo | janeliascicomp (on DockerHub) | Docker Registry and Repository to use for containers | 
+| -workdir | ./work | Nextflow working directory where all intermediate files are saved |
 | -profile | localsingularity | Configuration profile to use (Valid values: localsingularity, lsf) |
 | -with-tower | | [Nextflow Tower](https://tower.nf) URL for monitoring |
 
