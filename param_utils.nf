@@ -30,6 +30,12 @@ def default_mf_params() {
         stitching_mode: 'incremental',
         stitching_padding: '0,0,0',
         stitching_blur_sigma: '2',
+        workers: 4,
+        worker_cores: 4,
+        gb_per_core: 4,
+        driver_memory: '15g',
+        wait_for_spark_timeout_seconds: 3600,
+        sleep_between_timeout_checks_seconds: 2,
 
         dapi_channel: 'c2', // DAPI channel used to drive both the segmentation and the registration
         ref_acq: '', // this is the default parameter for the fixed round and 
