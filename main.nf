@@ -105,7 +105,7 @@ log.info """
     
     Pipeline parameters
     -------------------
-    workDir         : $workDir
+    workDir         : ${workDir}
     data_dir        : ${data_dir}
     output_dir      : ${pipeline_output_dir}
     acq_names       : ${acq_names}
