@@ -31,11 +31,13 @@ include {
 } from './param_utils'
 
 final_params = default_mf_params() + params
+registration_params = final_params + [
+    registration_container: registration_container_param(final_params),
+]
 
 include {
     warp_spots;
-} from './workflows/warp_spots' addParams(lsf_opts: final_params.lsf_opts,
-                                          registration_container: registration_container_param(params))
+} from './workflows/warp_spots' addParams(registration_params)
 
 workflow {
 
@@ -55,7 +57,6 @@ workflow {
                final_params.moving,
                final_params.moving_subpath,
                final_params.warped_spots_txmpath,
-               outdir,
                output_filenames,
                points_files
     )
