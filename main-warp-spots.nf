@@ -57,8 +57,8 @@ workflow {
                final_params.moving,
                final_params.moving_subpath,
                final_params.warped_spots_txmpath,
+               output_filenames,
                points_files,
-               output_filenames
     )
 
 }
