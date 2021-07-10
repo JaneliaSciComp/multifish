@@ -17,11 +17,9 @@ BASEDIR=$(realpath $DIR/..)
 export TMPDIR="${TMPDIR:-/tmp}"
 export SINGULARITY_TMPDIR="${SINGULARITY_TMPDIR:-$TMPDIR}"
 export SINGULARITY_CACHEDIR="${SINGULARITY_CACHEDIR:-$TMPDIR/singularity}"
-export SPARK_LOCAL_DIR="${SPARK_LOCAL_DIR:-$TMPDIR}"
 mkdir -p $TMPDIR
 mkdir -p $SINGULARITY_TMPDIR
 mkdir -p $SINGULARITY_CACHEDIR
-mkdir -p $SPARK_LOCAL_DIR
 
 verify_md5=true
 data_size="small"
@@ -59,7 +57,8 @@ mkdir -p $outputdir
 #
 
 ./main.nf \
-        --runtime_opts "--nv -B $BASEDIR -B $datadir -B $TMPDIR --env USER=$USER" \
+        --runtime_opts "-B $BASEDIR -B $datadir -B $TMPDIR" \
+        --singularity_cache_dir "$SINGULARITY_CACHEDIR" \
         --workers "1" \
         --worker_cores "16" \
         --gb_per_core "3" \
@@ -71,7 +70,6 @@ mkdir -p $outputdir
         --spot_extraction_z_stride "256" \
         --spot_extraction_cpus "1" \
         --spot_extraction_memory "8" \
-        --spark_work_dir "$datadir/spark" \
         --data_dir "$inputdir" \
         --output_dir "$outputdir" \
         --ref_acq "$fixed_round" \
