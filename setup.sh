@@ -3,7 +3,7 @@ set -e
 
 BASEDIR=$(cd "$(dirname "$0")"; pwd)
 NEXTFLOW_SPARK_GITURL=https://github.com/JaneliaSciComp/nextflow-spark
-NEXTFLOW_SPARK_VERSION=1.2.1
+NEXTFLOW_SPARK_VERSION=1.4.0
 
 # Download Nextflow Spark module
 curl -skL ${NEXTFLOW_SPARK_GITURL}/archive/${NEXTFLOW_SPARK_VERSION}.tar.gz \
