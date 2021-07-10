@@ -105,7 +105,7 @@ log.info """
     
     Pipeline parameters
     -------------------
-    workDir         : $workDir
+    workDir         : ${workDir}
     data_dir        : ${data_dir}
     output_dir      : ${pipeline_output_dir}
     acq_names       : ${acq_names}
@@ -712,7 +712,8 @@ workflow {
     }
 
     def assign_spots_inputs_for_fixed = expected_assign_spots
-    | filter { it[6] == it[7] } | map {
+    | filter { it[6] == it[7] }
+    | map {
         def fixed_acq = it[6]
         def spots_file = file(it[5])
         def assign_spots_output_dir = get_step_output_dir(
@@ -721,7 +722,9 @@ workflow {
         )
         log.debug "Assign spots output for ${fixed_acq} -> ${assign_spots_output_dir}"
         [ spots_file.parent, assign_spots_output_dir] // [ spots_dir, assigned_dir ]
-    } | combine(labeled_acquisitions) | map {
+    }
+    | combine(labeled_acquisitions)
+    | map {
         def r = [
             it[3], it[0], it[1]
         ]
@@ -730,7 +733,8 @@ workflow {
     } // [ label, spots_dir, assigned_dir ]
 
     def expected_assign_spots_for_moving = expected_assign_spots
-    | filter { it[6] != it[7] } | map { it[0..5] }
+    | filter { it[6] != it[7] }
+    | map { it[0..5] }
 
     def assign_spots_inputs = warp_spots_inputs
     | map {
@@ -743,13 +747,23 @@ workflow {
             it[4] // transform path
         ]
     }
+    | filter {
+        def (warped_spots_output_name,
+            fixed_acq,
+            fixed_subpath,
+            moving_acq,
+            moving_subpath) = it
+        assign_spots_acq_names.contains(fixed_acq) ||
+        assign_spots_acq_names.contains(moving_acq)
+    }
     | combine(warp_spots_results, by:0)
     | map {
         // swap  again the fixed input in order 
         // to combine it with segmentation results which are done only for fixed image
         it[1..5] + [ it[0] ]
     }
-    | concat(expected_assign_spots_for_moving) | unique {
+    | concat(expected_assign_spots_for_moving)
+    | unique {
         it.collect { "$it" }
     }
     | combine(labeled_acquisitions, by:0) | map {
