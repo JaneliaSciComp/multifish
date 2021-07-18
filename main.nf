@@ -29,6 +29,10 @@ include {
 // app parameters
 final_params = default_spark_params() + default_mf_params() + params
 
+include {
+    download;
+} from './processes/downloader' addParams(final_params)
+
 stitching_params = final_params + [
     stitching_container: stitching_container_param(final_params),
 ]
@@ -75,6 +79,7 @@ include {
 
 data_dir = final_params.data_dir
 pipeline_output_dir = get_value_or_default(final_params, 'output_dir', data_dir)
+final_params.pipeline_output_dir = pipeline_output_dir
 
 // spark config
 spark_conf = final_params.spark_conf
@@ -214,11 +219,22 @@ if (steps_to_skip.contains('assign_spots')) {
 log.debug "Images for assign spots: ${assign_spots_acq_names}"
 
 workflow {
+    // download
+    def data_dir_res = Channel.of([final_params.data_dir])
+    if (final_params.download_manifest) {
+        data_dir_res = download(Channel.of(["${projectDir}/data-sets/${final_params.download_manifest}.txt", 
+                                        "${final_params.pipeline_output_dir}/download"]))
+        data_dir_res.subscribe {
+            // Update params if data dir has changed
+            final_params.data_dir = it
+        }
+    }
+
     // stitching
     def stitching_results = stitching(
         stitching_app,
         stitch_acq_names,
-        final_params.data_dir,
+        data_dir_res,
         pipeline_output_dir,
         final_params.stitching_output,
         channels,

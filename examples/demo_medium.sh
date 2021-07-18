@@ -17,15 +17,12 @@ BASEDIR=$(realpath $DIR/..)
 export TMPDIR="${TMPDIR:-/tmp}"
 export SINGULARITY_TMPDIR="${SINGULARITY_TMPDIR:-$TMPDIR/singularity_tmp}"
 export SINGULARITY_CACHEDIR="${SINGULARITY_CACHEDIR:-$TMPDIR/singularity_cache}"
-export SPARK_LOCAL_DIR="${SPARK_LOCAL_DIR:-$TMPDIR/spark_local}"
 mkdir -p $TMPDIR
 mkdir -p $SINGULARITY_TMPDIR
 mkdir -p $SINGULARITY_CACHEDIR
-mkdir -p $SPARK_LOCAL_DIR
 
 verify_md5=true
 data_size="medium"
-files_txt="demo_${data_size}.txt"
 fixed_round="LHA3_R3_${data_size}"
 moving_rounds="LHA3_R5_${data_size}"
 
@@ -33,7 +30,7 @@ if [[ "$#" -lt 1 ]]; then
     echo "Usage: $0 <data dir>"
     echo ""
     echo "This is a demonstration of the EASI-FISH analysis pipeline on a medium sized cutout of the LHA3 data set. "
-    echo "The data dir will be created, data will be downloaded there based on $files_txt, and the "
+    echo "The data dir will be created, data will be downloaded there based on the manifest, and the "
     echo "full end-to-end pipeline will run on these data, producing output in the specified data dir."
     echo ""
     exit 1
@@ -41,9 +38,6 @@ fi
 
 datadir=$(realpath $1)
 shift # eat the first argument so that $@ works later
-
-inputdir=$datadir/inputs
-$BASEDIR/data-sets/download_dataset.sh "$BASEDIR/data-sets/$files_txt" "$inputdir" "false"
 
 outputdir=$datadir/outputs
 mkdir -p $outputdir
@@ -59,13 +53,14 @@ mkdir -p $outputdir
 #
 
 ./main.nf \
-        --runtime_opts "--nv -B $BASEDIR -B $datadir -B $TMPDIR --env USER=$USER" \
+        --runtime_opts "-B $BASEDIR -B $datadir -B $TMPDIR" \
+        --singularity_cache_dir "$SINGULARITY_CACHEDIR" \
         --workers "2" \
         --worker_cores "16" \
         --gb_per_core "3" \
         --driver_memory "2g" \
-        --spark_work_dir "$datadir/spark" \
-        --data_dir "$inputdir" \
-        --output_dir "$outputdir" \
         --ref_acq "$fixed_round" \
-        --acq_names "$fixed_round,$moving_rounds" "$@"
+        --acq_names "$fixed_round,$moving_rounds" "$@" \
+        --download_manifest "demo_medium" \
+        --segmentation_model_dir "$outputdir/download/model/starfinity" \
+        --output_dir "$outputdir" "$@"

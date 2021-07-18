@@ -2,3 +2,4 @@ LHA3_R3_medium.mvl  bc7700c3baa1121e74d4f15da71b8f72    https://janelia.figshare
 LHA3_R3_medium.czi  9358626ab10464716cd7ffa00c70d272    https://janelia.figshare.com/ndownloader/files/26510777
 LHA3_R5_medium.mvl  c1281e4d374c4a698970d1d694ea2563    https://janelia.figshare.com/ndownloader/files/26506946
 LHA3_R5_medium.czi  359a469290af70cba4e6d81b94f6719d    https://janelia.figshare.com/ndownloader/files/26510753
+model.zip           7c4b6de492abba160cfa9d7c2bbb4592    https://janelia.figshare.com/ndownloader/files/26271079

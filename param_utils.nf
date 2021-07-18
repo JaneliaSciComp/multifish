@@ -16,6 +16,11 @@ def default_mf_params() {
         output_dir: '',
         skip: '', // do not skip anything by default
 
+        // download params
+        downloader_container: 'multifish/downloader:1.0.0',
+        download_manifest: '',
+        verify_md5: 'true',
+
         // stitching params
         spark_container_repo: multifish_container_repo,
         spark_container_name: 'stitching',
