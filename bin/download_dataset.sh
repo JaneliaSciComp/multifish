@@ -17,7 +17,7 @@ while read -r file md5 url ; do
     filepath=$target_dir/$file
     if [ ! -e $filepath ]; then
         echo "Saving $filepath"
-        curl -L $url -o $filepath
+        curl -skL $url -o $filepath
     fi
     if [ "$verify_md5" = true ]; then 
         if md5sum -s -c <<< "$md5  $filepath"; then
