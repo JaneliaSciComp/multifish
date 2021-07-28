@@ -234,7 +234,7 @@ workflow {
     def stitching_results = stitching(
         stitching_app,
         stitch_acq_names,
-        data_dir_res,
+        data_dir_res.first(),
         pipeline_output_dir,
         final_params.stitching_output,
         channels,
