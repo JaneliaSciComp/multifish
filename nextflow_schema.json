@@ -17,26 +17,26 @@
                 "ref_acq",
                 "channels",
                 "dapi_channel",
-                "bleed_channel"
+                "bleed_channel",
+                "data_dir"
             ],
             "properties": {
                 "data_dir": {
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",
-                    "description": "Path to the directory containing the input CZI/MVL acquisition files.",
-                    "help_text": "If this is not specified, --data_manifest must be specified."
+                    "description": "Path to the directory containing the input CZI/MVL acquisition files."
                 },
                 "data_manifest": {
                     "type": "string",
                     "description": "Name of file manifest or URL where it can be found.",
                     "fa_icon": "far fa-list-alt",
-                    "help_text": "Valid values are any filename found in the data-sets directory (e.g. \"demo_small\", \"demo_medium\") or any URL which points to a manifest file. If this is not specified, --data_dir must be specified. If both are specified, the data in the --data_manifest is downloaded into --data_dir."
+                    "help_text": "If specified, the data in the manifest is downloaded into `--data_dir` before the pipeline begins. Valid values are any filename found in the data-sets directory (e.g. \"demo_small\", \"demo_medium\") or any URL which points to a manifest file. "
                 },
                 "segmentation_model_dir": {
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",
-                    "default": "${projectDir}/external-modules/segmentation/model/starfinity",
-                    "description": "Path to the directory containing the machine learning model for segmentation"
+                    "description": "Path to the directory containing the machine learning model for segmentation",
+                    "help_text": "Defaults to ${projectDir}/external-modules/segmentation/model/starfinity."
                 },
                 "acq_names": {
                     "type": "string",
@@ -97,135 +97,110 @@
                 "stitching_output": {
                     "type": "string",
                     "fa_icon": "far fa-folder",
-                    "default": "stitching",
-                    "description": "Output directory for stitching results (relative to `--output_dir`)"
+                    "description": "Output directory for stitching results. Default: stitching",
+                    "help_text": "This directory path is relative to `--output_dir`",
+                    "hidden": true
                 },
                 "spark_work_dir": {
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",
-                    "default": "/fsx/results/spark",
-                    "description": "Path to directory containing Spark working files and logs during stitching.",
-                    "help_text": "The Spark configuration is written here by the pipeline before launching the Spark cluster. The Spark workers write their logs back here, and it is also used to communicate the master IP address to all workers. Therefore, this must be a shared directory accessible to both the head node and all worker nodes. On AWS, Fuse-mounted S3 will not work here due to write buffering. It's best to use FSx, but EBS will also work, as long as its mounted on all the EC2 nodes."
+                    "description": "Path to directory containing Spark working files and logs during stitching. Default: ${workDir}/spark",
+                    "help_text": "The Spark configuration is written here by the pipeline before launching the Spark cluster. The Spark workers write their logs back here, and it is also used to communicate the master IP address to all workers. Therefore, this must be a shared directory accessible to both the head node and all worker nodes. On AWS, Fuse-mounted S3 will not work here due to write buffering. It's best to use FSx, but EBS will also work, as long as its mounted on all the EC2 nodes. "
                 },
                 "spark_local_dir": {
                     "type": "string",
                     "fa_icon": "far fa-folder-open",
-                    "default": "/tmp",
-                    "description": "Path to directory that Spark will uses for local temporary files",
+                    "description": "Path to directory that Spark will uses for local temporary files. Default: /tmp",
                     "help_text": "This path does not need to be shared among workers, and does not need to be accessible to the head node. Usually, /tmp will do."
                 },
                 "stitching_ref": {
                     "type": "integer",
                     "fa_icon": "fas fa-asterisk",
-                    "description": "Index of the channel used for stitching",
+                    "description": "Index of the channel used for stitching. Default: index of `--dapi_channel`",
                     "help_text": "If this is not defined it defaults to `--dapi_channel`"
                 },
                 "resolution": {
                     "type": "string",
                     "fa_icon": "fas fa-file-image",
-                    "default": "0.23,0.23,0.42",
                     "pattern": "^[\\.\\d]+,[\\.\\d]+,[\\.\\d]+$",
-                    "description": "Voxel resolution in all 3 dimensions (comma-delimited tuple)"
+                    "description": "Voxel resolution in all 3 dimensions. Default: 0.23,0.23,0.42",
+                    "help_text": "This is a comma-delimited tuple as x,y,z."
                 },
                 "axis": {
                     "type": "string",
                     "fa_icon": "fas fa-chart-line",
-                    "default": "-x,y,z"
+                    "description": "Axis mapping for the objective->pixel coordinates conversion. Default: -x,y,z",
+                    "help_text": "Comma-separated axis specification with optional flips."
                 },
                 "stitching_block_size": {
                     "type": "string",
                     "fa_icon": "fas fa-cube",
-                    "default": "128,128,64",
                     "pattern": "^\\d+,\\d+,\\d+$",
-                    "description": "Block size to use when converting CZI to n5 before stitching"
+                    "description": "Block size to use when converting CZI to n5 before stitching. Default: 128,128,64"
                 },
                 "retile_z_size": {
                     "type": "integer",
                     "fa_icon": "far fa-square",
-                    "default": 64,
-                    "description": "Block size (in Z dimension) when retiling after stitching",
+                    "description": "Block size (in Z dimension) when retiling after stitching. Default: 64",
                     "help_text": "This must be smaller than the number of Z slices in the data."
                 },
                 "stitching_mode": {
                     "type": "string",
                     "fa_icon": "fas fa-braille",
-                    "default": "incremental"
+                    "description": "Rematching mode ('full' or 'incremental'). Default: incremental",
+                    "hidden": true
                 },
                 "stitching_padding": {
                     "type": "string",
                     "fa_icon": "fas fa-expand",
-                    "default": "0,0,0"
+                    "description": "Padding for the overlap regions. Default: 0,0,0"
                 },
                 "stitching_blur_sigma": {
                     "type": "integer",
                     "fa_icon": "fas fa-border-style",
-                    "default": "2"
+                    "description": "Sigma value of the gaussian blur preapplied to the images before stitching. Default: 2"
                 },
                 "workers": {
                     "type": "integer",
                     "fa_icon": "fas fa-cogs",
-                    "default": 4,
-                    "description": "Number of Spark workers to use for stitching one acquisition"
+                    "description": "Number of Spark workers to use for stitching one acquisition. Default: 4"
                 },
                 "worker_cores": {
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
-                    "default": 4,
-                    "description": "Number of cores allocated to each Spark worker"
+                    "description": "Number of cores allocated to each Spark worker. Default: 4"
                 },
                 "gb_per_core": {
                     "type": "integer",
                     "fa_icon": "fas fa-cog",
-                    "default": 4,
-                    "description": "Size of memory (in GB) that is allocated for each core of a Spark worker. The total memory usage for stitching one acquisition will be workers * worker_cores * gb_per_core."
+                    "description": "Size of memory (in GB) that is allocated for each core of a Spark worker. Default: 4",
+                    "help_text": "The total memory usage for stitching one acquisition will be workers * worker_cores * gb_per_core. "
                 },
                 "driver_memory": {
                     "type": "string",
                     "fa_icon": "fas fa-memory",
-                    "default": "15g",
-                    "description": "Amount of memory to allocate for the Spark driver"
+                    "description": "Amount of memory to allocate for the Spark driver. Default: 15g"
                 },
                 "wait_for_spark_timeout_seconds": {
                     "type": "integer",
                     "fa_icon": "fas fa-clock",
-                    "default": 3600,
-                    "description": "Number of seconds to wait for Spark cluster to start",
+                    "description": "Number of seconds to wait for Spark cluster to start. Default: 3600",
                     "hidden": true
                 },
                 "sleep_between_timeout_checks_seconds": {
                     "type": "integer",
                     "fa_icon": "fas fa-clock",
-                    "default": 2,
-                    "description": "Number of seconds to sleep between timeout checks",
+                    "description": "Number of seconds to sleep between timeout checks. Default: 2",
                     "hidden": true
                 },
                 "stitching_app": {
                     "type": "string",
                     "fa_icon": "fas fa-file-medical-alt",
-                    "default": "/app/app.jar",
-                    "description": "Path to the JAR file containing the stitching application.",
+                    "description": "Path to the JAR file containing the stitching application. Default: /app/app.jar",
                     "hidden": true
                 }
             },
-            "fa_icon": "far fa-map",
-            "required": [
-                "spark_work_dir",
-                "spark_local_dir",
-                "resolution",
-                "axis",
-                "stitching_block_size",
-                "retile_z_size",
-                "stitching_mode",
-                "stitching_padding",
-                "stitching_blur_sigma",
-                "workers",
-                "worker_cores",
-                "gb_per_core",
-                "driver_memory",
-                "wait_for_spark_timeout_seconds",
-                "sleep_between_timeout_checks_seconds",
-                "stitching_app"
-            ]
+            "fa_icon": "far fa-map"
         },
         "registration": {
             "title": "Registration",
@@ -236,56 +211,54 @@
                 "registration_output": {
                     "type": "string",
                     "fa_icon": "far fa-folder",
-                    "default": "registration",
-                    "description": "Output directory for registration results (relative to `--output_dir`)"
+                    "description": "Output directory for registration results. Default: registration",
+                    "help_text": "This path is relative to `--output_dir`."
                 },
                 "aff_scale": {
                     "type": "string",
-                    "description": "The scale level for affine alignments",
-                    "default": "s3",
+                    "description": "The scale level for affine alignments. Default: s3",
                     "fa_icon": "fas fa-file-image"
                 },
                 "def_scale": {
                     "type": "string",
-                    "description": "The scale level for deformable alignments",
-                    "default": "s2",
+                    "description": "The scale level for deformable alignments. Default: s2",
                     "fa_icon": "fas fa-file-image"
                 },
                 "spots_cc_radius": {
                     "type": "integer",
-                    "default": 8,
-                    "fa_icon": "far fa-circle"
+                    "fa_icon": "far fa-circle",
+                    "description": "Default: 8"
                 },
                 "spots_spot_number": {
                     "type": "integer",
-                    "default": 2000,
-                    "fa_icon": "fas fa-hashtag"
+                    "fa_icon": "fas fa-hashtag",
+                    "description": "Default: 2000"
                 },
                 "ransac_cc_cutoff": {
                     "type": "number",
-                    "default": 0.9,
-                    "fa_icon": "fas fa-level-down-alt"
+                    "fa_icon": "fas fa-level-down-alt",
+                    "description": "Default: 0.9"
                 },
                 "ransac_dist_threshold": {
                     "type": "number",
-                    "default": 2.5,
-                    "fa_icon": "fas fa-level-down-alt"
+                    "fa_icon": "fas fa-level-down-alt",
+                    "description": "Default: 2.5"
                 },
                 "deform_iterations": {
                     "type": "string",
-                    "default": "500x200x25x1",
-                    "fa_icon": "fas fa-retweet"
+                    "fa_icon": "fas fa-retweet",
+                    "description": "Default: 500x200x25x1"
                 },
                 "deform_auto_mask": {
                     "type": "integer",
                     "fa_icon": "fas fa-mask",
-                    "default": "0"
+                    "description": "Default: 0"
                 },
                 "registration_xy_stride": {
                     "type": "integer",
-                    "description": "The number of voxels along x/y for registration tiling, must be power of 2",
-                    "default": 256,
-                    "fa_icon": "fas fa-walking"
+                    "description": "The number of voxels along x/y for registration tiling. Default: 256",
+                    "fa_icon": "fas fa-walking",
+                    "help_text": "Must be power of 2."
                 },
                 "registration_xy_overlap": {
                     "type": "integer",
@@ -296,58 +269,38 @@
                 },
                 "registration_z_stride": {
                     "type": "integer",
-                    "description": "The number of voxels along z for registration tiling, must be power of 2",
-                    "default": 256,
-                    "fa_icon": "fas fa-walking"
+                    "description": "The number of voxels along z for registration tiling. Default: 256",
+                    "fa_icon": "fas fa-walking",
+                    "help_text": "Must be power of 2."
                 },
                 "registration_z_overlap": {
                     "type": "integer",
-                    "description": "Tile overlap on z axes",
+                    "description": "Tile overlap on Z axes",
                     "help_text": "Defaults to registration_z_stride/8 when not specified.",
                     "fa_icon": "fas fa-align-center",
                     "hidden": true
                 },
                 "aff_scale_transform_cpus": {
                     "type": "integer",
-                    "description": "Number of CPU cores for affine scale registration",
-                    "default": 1,
+                    "description": "Number of CPU cores for affine scale registration. Default: 1",
                     "fa_icon": "fas fa-microchip"
                 },
                 "def_scale_transform_cpus": {
                     "type": "integer",
-                    "description": "Number of CPU cores for deformable scale registration",
-                    "default": 8,
+                    "description": "Number of CPU cores for deformable scale registration. Default: 8",
                     "fa_icon": "fas fa-microchip"
                 },
                 "registration_stitch_cpus": {
                     "type": "integer",
-                    "description": "Number of CPU cores for re-stitching registered tiles",
-                    "default": 2,
+                    "description": "Number of CPU cores for re-stitching registered tiles. Default: 2",
                     "fa_icon": "fas fa-microchip"
                 },
                 "registration_transform_cpus": {
                     "type": "integer",
-                    "description": "Number of CPU cores for final registered transform",
-                    "default": 12,
+                    "description": "Number of CPU cores for final registered transform. Default: 12",
                     "fa_icon": "fas fa-microchip"
                 }
             },
-            "required": [
-                "aff_scale",
-                "def_scale",
-                "spots_cc_radius",
-                "spots_spot_number",
-                "ransac_cc_cutoff",
-                "ransac_dist_threshold",
-                "deform_iterations",
-                "deform_auto_mask",
-                "registration_xy_stride",
-                "registration_z_stride",
-                "aff_scale_transform_cpus",
-                "def_scale_transform_cpus",
-                "registration_stitch_cpus",
-                "registration_transform_cpus"
-            ],
             "fa_icon": "fas fa-layer-group"
         },
         "segmentation": {
@@ -360,26 +313,20 @@
                 "segmentation_output": {
                     "type": "string",
                     "fa_icon": "far fa-folder",
-                    "default": "segmentation",
-                    "description": "Output directory for segmentation results (relative to `--output_dir`)"
+                    "description": "Output directory for segmentation results. Default: segmentation",
+                    "help_text": "This path is relative to `--output_dir`."
                 },
                 "segmentation_scale": {
                     "type": "string",
                     "fa_icon": "fas fa-cube",
-                    "default": "s2",
-                    "description": "Imagery scale to use for segmentation"
+                    "description": "Imagery scale to use for segmentation. Default: s2"
                 },
                 "segmentation_cpus": {
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
-                    "default": 3,
-                    "description": "Number of CPU cores to allocate for segmentation"
+                    "description": "Number of CPU cores to allocate for segmentation. Default: 3"
                 }
-            },
-            "required": [
-                "segmentation_scale",
-                "segmentation_cpus"
-            ]
+            }
         },
         "spot_extraction": {
             "title": "Spot Extraction",
@@ -390,20 +337,18 @@
                 "spot_extraction_output": {
                     "type": "string",
                     "fa_icon": "far fa-folder",
-                    "default": "spots",
-                    "description": "Output directory for spot extraction results (relative to `--output_dir`)"
+                    "description": "Output directory for spot extraction results. Default: spots",
+                    "help_text": "This path is relative to `--output_dir`."
                 },
                 "spot_extraction_scale": {
                     "type": "string",
                     "fa_icon": "far fa-folder",
-                    "default": "s0",
-                    "description": "Scale of imagery to use for spot extraction"
+                    "description": "Scale of imagery to use for spot extraction. Default: s0"
                 },
                 "spot_extraction_xy_stride": {
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
-                    "default": 1024,
-                    "description": "The number of voxels along x/y for registration tiling, must be power of 2. Increasing this requires increasing `--spot_extraction_memory`."
+                    "description": "The number of voxels along x/y for registration tiling, must be power of 2. Increasing this requires increasing `--spot_extraction_memory`. Default: 1024"
                 },
                 "spot_extraction_xy_overlap": {
                     "type": "integer",
@@ -415,8 +360,7 @@
                 "spot_extraction_z_stride": {
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
-                    "default": 512,
-                    "description": "The number of voxels along z for registration tiling, must be power of 2. Increasing this requires increasing `--spot_extraction_memory`."
+                    "description": "The number of voxels along z for registration tiling, must be power of 2. Increasing this requires increasing `--spot_extraction_memory`. Default: 512"
                 },
                 "spot_extraction_z_overlap": {
                     "type": "integer",
@@ -428,36 +372,27 @@
                 "default_airlocalize_params": {
                     "type": "string",
                     "fa_icon": "far fa-folder",
-                    "default": "/app/airlocalize/params/air_localize_default_params.txt",
-                    "description": "Path to hAirLocalize parameter file",
+                    "description": "Path to hAirLocalize parameter file. Default: /app/airlocalize/params/air_localize_default_params.txt",
                     "help_text": "By default, this points to default parameters inside the container"
                 },
                 "per_channel_air_localize_params": {
                     "type": "string",
                     "fa_icon": "far fa-folder",
                     "description": "Comma-delimited paths to alternative airlocalize parameter files, one per channel",
-                    "default": ",,,"
+                    "default": ",,,",
+                    "help_text": "If you have 4 channels, and you are extracting spots from c0, c1, and c3, this parameter should look like this: `/path/to/params_c0.txt,/path/to/params_c1.txt,,/path/to/params_c3.txt`. Note the double comma to denote the empty file for c2, which should not be processed."
                 },
                 "spot_extraction_cpus": {
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
-                    "default": 1,
-                    "description": "Number of CPU cores to allocate for each hAirlocalize job"
+                    "description": "Number of CPU cores to allocate for each hAirlocalize job. Default: 1"
                 },
                 "spot_extraction_memory": {
                     "type": "integer",
                     "fa_icon": "fas fa-memory",
-                    "default": 1,
-                    "description": "Amount of RAM (in GB) to allocate to each hAirlocalize job. Needs to be increased when increasing strides."
+                    "description": "Amount of RAM (in GB) to allocate to each hAirlocalize job. Needs to be increased when increasing strides. Default: 1"
                 }
-            },
-            "required": [
-                "spot_extraction_scale",
-                "spot_extraction_xy_stride",
-                "spot_extraction_z_stride",
-                "spot_extraction_cpus",
-                "spot_extraction_memory"
-            ]
+            }
         },
         "spot_warping": {
             "title": "Spot Warping",
@@ -467,14 +402,9 @@
                 "warp_spots_cpus": {
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
-                    "default": 2,
-                    "description": "Number of CPU cores to use for warp spots",
-                    "hidden": true
+                    "description": "Number of CPU cores to use for warp spots. Default: 2"
                 }
             },
-            "required": [
-                "warp_spots_cpus"
-            ],
             "fa_icon": "fas fa-chess-board"
         },
         "intensities": {
@@ -485,21 +415,15 @@
                 "measure_intensities_output": {
                     "type": "string",
                     "fa_icon": "far fa-folder",
-                    "default": "intensities",
-                    "description": "Output directory for intensities (relative to `--output_dir)`",
-                    "hidden": true
+                    "description": "Output directory for intensities. Default: intensities",
+                    "help_text": "This path is relative to `--output_dir`."
                 },
                 "measure_intensities_cpus": {
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
-                    "default": 1,
-                    "description": "Number of CPU cores to use for intensity measurement ",
-                    "hidden": true
+                    "description": "Number of CPU cores to use for intensity measurement. Default: 1"
                 }
             },
-            "required": [
-                "measure_intensities_cpus"
-            ],
             "fa_icon": "fas fa-ruler-horizontal"
         },
         "spot_assignment": {
@@ -510,21 +434,15 @@
                 "assign_spots_output": {
                     "type": "string",
                     "fa_icon": "far fa-folder",
-                    "default": "assignments",
-                    "description": "Output directory for spot assignments (relative to `--output_dir)`",
-                    "hidden": true
+                    "description": "Output directory for spot assignments. Default: assignments",
+                    "help_text": "This path is relative to `--output_dir`."
                 },
                 "assign_spots_cpus": {
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
-                    "default": 1,
-                    "description": "Number of CPU cores to use for spot assignment",
-                    "hidden": true
+                    "description": "Number of CPU cores to use for spot assignment. Default: 1"
                 }
             },
-            "required": [
-                "assign_spots_cpus"
-            ],
             "fa_icon": "fas fa-random"
         },
         "containers": {
@@ -534,73 +452,55 @@
             "properties": {
                 "mfrepo": {
                     "type": "string",
-                    "default": "janeliascicomp",
-                    "description": "Docker registry/repository to use for containers",
+                    "description": "Docker registry/repository to use for containers. Default: janeliascicomp",
                     "fa_icon": "fas fa-database",
                     "help_text": "By default, the pipeline uses containers built as part of this project and deployed to DockerHub. You can rebuild the containers and deploy them to your own Registry and specify it here.",
                     "hidden": true
                 },
                 "spark_container_repo": {
                     "type": "string",
-                    "description": "Docker container repo for stitching",
-                    "default": "<mfrepo>",
+                    "description": "Docker container repo for stitching. Default: <mfrepo>",
                     "fa_icon": "fas fa-database",
                     "hidden": true
                 },
                 "spark_container_name": {
                     "type": "string",
-                    "description": "Docker container name for stitching",
-                    "default": "stitching",
+                    "description": "Docker container name for stitching. Default: stitching",
                     "fa_icon": "fas fa-box-open",
                     "hidden": true
                 },
                 "spark_container_version": {
                     "type": "string",
-                    "description": "Docker container version for stitching",
-                    "default": "1.0.0",
+                    "description": "Docker container version for stitching. Default: 1.0.0",
                     "fa_icon": "fas fa-code-branch",
                     "hidden": true
                 },
                 "registration_container": {
                     "type": "string",
-                    "description": "Docker container for running registration and warp_spots",
-                    "default": "<mfrepo>/registration:1.2.0",
+                    "description": "Docker container for running registration and warp_spots. Default: <mfrepo>/registration:1.2.0",
                     "fa_icon": "fas fa-box-open",
                     "hidden": true
                 },
                 "segmentation_container": {
                     "type": "string",
-                    "default": "<mfrepo>/segmentation:1.0.0",
-                    "description": "Docker container for running segmentation",
+                    "description": "Docker container for running segmentation. Default: <mfrepo>/segmentation:1.0.0",
                     "fa_icon": "fas fa-box-open",
                     "hidden": true
                 },
                 "spot_extraction_container": {
                     "type": "string",
-                    "description": "Docker container for running spot extraction",
-                    "default": "<mfrepo>/spot_extraction:1.0.0",
+                    "description": "Docker container for running spot extraction. Default: <mfrepo>/spot_extraction:1.0.0",
                     "fa_icon": "fas fa-box-open",
                     "hidden": true
                 },
                 "spots_assignment_container": {
                     "type": "string",
-                    "description": "Docker container for running intensity measurement and spot assignment",
-                    "default": "<mfrepo>/spot_assignment:1.2.0",
+                    "description": "Docker container for running intensity measurement and spot assignment. Default: <mfrepo>/spot_assignment:1.2.0",
                     "fa_icon": "fas fa-box-open",
                     "hidden": true
                 }
             },
-            "description": "Customize the Docker containers used for each pipeline step",
-            "required": [
-                "mfrepo",
-                "spark_container_repo",
-                "spark_container_name",
-                "spark_container_version",
-                "registration_container",
-                "segmentation_container",
-                "spot_extraction_container",
-                "spots_assignment_container"
-            ]
+            "description": "Customize the Docker containers used for each pipeline step"
         },
         "other": {
             "title": "Other Options",
