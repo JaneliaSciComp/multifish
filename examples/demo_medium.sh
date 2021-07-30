@@ -61,6 +61,6 @@ mkdir -p $outputdir
         --driver_memory "2g" \
         --ref_acq "$fixed_round" \
         --acq_names "$fixed_round,$moving_rounds" "$@" \
-        --download_manifest "demo_medium" \
+        --data_manifest "demo_medium" \
         --segmentation_model_dir "$outputdir/download/model/starfinity" \
         --output_dir "$outputdir" "$@"

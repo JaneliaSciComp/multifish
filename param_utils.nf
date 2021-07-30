@@ -18,7 +18,7 @@ def default_mf_params() {
 
         // download params
         downloader_container: 'multifish/downloader:1.0.0',
-        download_manifest: '',
+        data_manifest: '',
         verify_md5: 'true',
 
         // stitching params

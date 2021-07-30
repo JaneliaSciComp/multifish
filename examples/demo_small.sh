@@ -70,6 +70,6 @@ mkdir -p $outputdir
         --spot_extraction_memory "8" \
         --ref_acq "$fixed_round" \
         --acq_names "$fixed_round,$moving_rounds"  \
-        --download_manifest "demo_small" \
+        --data_manifest "demo_small" \
         --segmentation_model_dir "$outputdir/download/model/starfinity" \
         --output_dir "$outputdir" "$@"

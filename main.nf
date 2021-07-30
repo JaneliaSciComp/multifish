@@ -220,14 +220,15 @@ log.debug "Images for assign spots: ${assign_spots_acq_names}"
 
 workflow {
     // download
-    def data_dir_res = Channel.of([final_params.data_dir])
-    if (final_params.download_manifest) {
-        data_dir_res = download(Channel.of(["${projectDir}/data-sets/${final_params.download_manifest}.txt", 
-                                        "${final_params.pipeline_output_dir}/download"]))
-        data_dir_res.subscribe {
-            // Update params if data dir has changed
-            final_params.data_dir = it
+    def data_dir_res = Channel.of(final_params.data_dir)
+    if (final_params.data_manifest) {
+        if (!final_params.data_dir) {
+            final_params.data_dir = "${final_params.pipeline_output_dir}/download"
         }
+        data_dir_res = download(Channel.of([
+                                    "${projectDir}/data-sets/${final_params.data_manifest}.txt", 
+                                    final_params.data_dir
+                                ]))
     }
 
     // stitching
