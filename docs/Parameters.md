@@ -21,15 +21,15 @@ Note that the demo scripts set all these directories relative to the TMPDIR by d
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| --data_dir | | Path to the directory containing the input CZI/MVL acquisition files | 
+| --data_dir | | Path to the directory containing the input CZI/MVL acquisition files |
 | --output_dir | | Path to the directory containing pipeline outputs |
 | --spark_work_dir | | Path to directory containing Spark working files and logs during stitching |
 | &#x2011;&#x2011;segmentation_model_dir | | Path to the directory containing the machine learning model for segmentation |
 | --acq_names | | Names of acquisition rounds to process. These should match the names of the CZI/MVL files found in the data_dir. |  
 | --ref_acq | | Name of the acquisition round to use as the fixed reference |
 | --skip | | Comma-delimited list of steps to skip, e.g. "stitching,registration" (Valid values: stitching, spot_extraction, segmentation, registration, warp_spots, intensities, assign_spots) |
-| --runtime_opts | | Runtime options for Singularity must include mounts for any directory paths you are using. You can also pass the --nv flag here to make use of NVIDIA GPU resources. For example, `--nv -B /your/data/dir -B /your/output/dir` | 
-| --mfrepo | janeliascicomp (on DockerHub) | Docker Registry and Repository to use for containers | 
+| --runtime_opts | | Runtime options for Singularity must include mounts for any directory paths you are using. You can also pass the --nv flag here to make use of NVIDIA GPU resources. For example, `--nv -B /your/data/dir -B /your/output/dir` |
+| --mfrepo | janeliascicomp (on DockerHub) | Docker Registry and Repository to use for containers |
 | -workdir | ./work | Nextflow working directory where all intermediate files are saved |
 | -profile | localsingularity | Configuration profile to use (Valid values: localsingularity, lsf) |
 | -with-tower | | [Nextflow Tower](https://tower.nf) URL for monitoring |
@@ -51,7 +51,7 @@ Note that the demo scripts set all these directories relative to the TMPDIR by d
 | &#x2011;&#x2011;stitching_blur_sigma | 2 | |
 | --workers | 4 | Number of Spark workers to use for stitching one acquisition |
 | --worker_cores | 4 | Number of cores allocated to each Spark worker |
-| --gb_per_core | 15 | Size of memory (in GB) that is allocated for each core of a Spark worker. The total memory usage for stitching one acquisition will be workers * worker_cores * gb_per_core. | 
+| --gb_per_core | 15 | Size of memory (in GB) that is allocated for each core of a Spark worker. The total memory usage for stitching one acquisition will be workers *worker_cores* gb_per_core. |
 | --driver_memory | 15g | Amount of memory to allocate for the Spark driver |
 
 ## Spot Extraction Parameters
@@ -79,7 +79,7 @@ Note that the demo scripts set all these directories relative to the TMPDIR by d
 | --segmentation_container | \<mfrepo\>/segmentation:1.0.0 | Docker container to use for running segmentation |
 | --segmentation_output | segmentation | Output directory for segmentation (relative to --output_dir) |
 | &#x2011;&#x2011;segmentation_model_dir | ./external-modules/segmentation/model/starfinity | Starfinity model for segmentation |
-| --dapi_channel | c2 | DAPI channel | 
+| --dapi_channel | c2 | DAPI channel |
 | --segmentation_scale | s2 | Imagery scale to use for segmentation |
 | --segmentation_cpus | 3 | Number of CPU cores to allocate for segmentation |
 
@@ -88,8 +88,8 @@ Note that the demo scripts set all these directories relative to the TMPDIR by d
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
 | --registration_container | \<mfrepo\>/registration:1.1.0 | Docker container to use for running registration and warp_spots |
-| --registration_output | registration | Output directory for registration (relative to --output_dir) | 
-| --dapi_channel | c2 | DAPI channel | 
+| --registration_output | registration | Output directory for registration (relative to --output_dir) |
+| --dapi_channel | c2 | DAPI channel |
 | --aff_scale | s3 | The scale level for affine alignments |
 | --def_scale | s2 | The scale level for deformable alignments |
 | --spots_cc_radius | 8 | |
@@ -100,7 +100,7 @@ Note that the demo scripts set all these directories relative to the TMPDIR by d
 | --deform_auto_mask | 0 | |
 | --registration_xy_stride | 256 | The number of voxels along x/y for registration tiling, must be power of 2 |
 | --registration_xy_overlap | xy_stride/8 | Tile overlap on x/y axes |
-| --registration_z_stride | 256 | The number of voxels along z for registration tiling, must be power of 2 | 
+| --registration_z_stride | 256 | The number of voxels along z for registration tiling, must be power of 2 |
 | --registration_z_overlap | z_stride/8 | Tile overlap on z axis |
 | --aff_scale_transform_cpus | 1 | Number of CPU cores for affine scale registration |
 | --def_scale_transform_cpus | 8 | Number of CPU cores for deformable scale registration  |
@@ -112,17 +112,17 @@ Note that the demo scripts set all these directories relative to the TMPDIR by d
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
 | &#x2011;&#x2011;registration_container | \<mfrepo\>/registration:1.0.0 | Docker container to use for running registration and warp_spots |
-| --warp_spots_cpus | 2 | Number of CPU cores to use for warp spots | 
+| --warp_spots_cpus | 2 | Number of CPU cores to use for warp spots |
 
 ## Intensity Measurement Parameters
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
 | &#x2011;&#x2011;spots_assignment_container | \<mfrepo\>/spot_assignment:1.0.0 | Docker container to use for running intensities and spot_assignment |
-| --measure_intensities_output | intensities | Output directory for intensities (relative to --output_dir) | 
-| --dapi_channel | c2 | DAPI channel | 
-| --bleed_channel | c3 | | 
-| --measure_intensities_cpus | 1 | Number of CPU cores to use for intensity measurement | 
+| --measure_intensities_output | intensities | Output directory for intensities (relative to --output_dir) |
+| --dapi_channel | c2 | DAPI channel |
+| --bleed_channel | c3 | |
+| --measure_intensities_cpus | 1 | Number of CPU cores to use for intensity measurement |
 
 ## Spot Assignment Parameters
 

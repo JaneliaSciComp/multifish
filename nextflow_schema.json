@@ -12,7 +12,6 @@
             "description": "Describes the input data and models",
             "help_text": "",
             "required": [
-                "data_dir",
                 "segmentation_model_dir",
                 "acq_names",
                 "ref_acq",
@@ -24,7 +23,14 @@
                 "data_dir": {
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",
-                    "description": "Path to the directory containing the input CZI/MVL acquisition files"
+                    "description": "Path to the directory containing the input CZI/MVL acquisition files.",
+                    "help_text": "If this is not specified, --data_manifest must be specified."
+                },
+                "data_manifest": {
+                    "type": "string",
+                    "description": "Name of file manifest or URL where it can be found.",
+                    "fa_icon": "far fa-list-alt",
+                    "help_text": "Valid values are any filename found in the data-sets directory (e.g. \"demo_small\", \"demo_medium\") or any URL which points to a manifest file. If this is not specified, --data_dir must be specified. If both are specified, the data in the --data_manifest is downloaded into --data_dir."
                 },
                 "segmentation_model_dir": {
                     "type": "string",
@@ -35,7 +41,8 @@
                 "acq_names": {
                     "type": "string",
                     "fa_icon": "fas fa-vial",
-                    "description": "Names of acquisition rounds to process. These should match the names of the CZI/MVL files found in the data_dir."
+                    "description": "Names of acquisition rounds to process. These should match the names of the CZI/MVL files found in the data_dir.",
+                    "help_text": "e.g. LHA3_R3_small,LHA3_R5_small if you have files called LHA3_R3_small.czi and LHA3_R5_small.czi"
                 },
                 "ref_acq": {
                     "type": "string",
@@ -47,7 +54,8 @@
                     "type": "string",
                     "fa_icon": "fas fa-layer-group",
                     "default": "c0,c1,c2,c3",
-                    "description": "List of channel names to process"
+                    "description": "List of channel names to process",
+                    "help_text": "Channel names are specified in the format \"c[channel_number]\", where the channel_number is 0-indexed."
                 },
                 "dapi_channel": {
                     "type": "string",
@@ -60,7 +68,7 @@
                     "type": "string",
                     "fa_icon": "fas fa-asterisk",
                     "default": "c3",
-                    "description": "Channel (other than DAPI) used to correct bleedthrough on DAPI channel"
+                    "description": "Channel (other than DAPI) that needs bleedthrough correction"
                 }
             }
         },
