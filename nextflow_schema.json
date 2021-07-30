@@ -35,7 +35,7 @@
                 "segmentation_model_dir": {
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",
-                    "description": "Path to the directory containing the machine learning model for segmentation",
+                    "description": "Path to the directory containing the machine learning model for segmentation.",
                     "help_text": "Defaults to ${projectDir}/external-modules/segmentation/model/starfinity."
                 },
                 "acq_names": {
@@ -47,28 +47,28 @@
                 "ref_acq": {
                     "type": "string",
                     "fa_icon": "fas fa-asterisk",
-                    "description": "Name of the acquisition round to use as the fixed reference",
+                    "description": "Name of the acquisition round to use as the fixed reference.",
                     "help_text": "e.g. LHA3_R3_small"
                 },
                 "channels": {
                     "type": "string",
                     "fa_icon": "fas fa-layer-group",
                     "default": "c0,c1,c2,c3",
-                    "description": "List of channel names to process",
+                    "description": "List of channel names to process.",
                     "help_text": "Channel names are specified in the format \"c[channel_number]\", where the channel_number is 0-indexed."
                 },
                 "dapi_channel": {
                     "type": "string",
                     "fa_icon": "fas fa-asterisk",
                     "default": "c2",
-                    "description": "Name of the DAPI channel",
+                    "description": "Name of the DAPI channel.",
                     "help_text": "The DAPI channel is used as a reference channel for registration, segmentation, and spot extraction."
                 },
                 "bleed_channel": {
                     "type": "string",
                     "fa_icon": "fas fa-asterisk",
                     "default": "c3",
-                    "description": "Channel (other than DAPI) that needs bleedthrough correction"
+                    "description": "Channel (other than DAPI) that needs bleedthrough correction."
                 }
             }
         },
@@ -116,7 +116,7 @@
                 "stitching_ref": {
                     "type": "integer",
                     "fa_icon": "fas fa-asterisk",
-                    "description": "Index of the channel used for stitching. Default: index of `--dapi_channel`",
+                    "description": "Index of the channel used for stitching. Default: the index of dapi_channel",
                     "help_text": "If this is not defined it defaults to `--dapi_channel`"
                 },
                 "resolution": {
@@ -333,7 +333,7 @@
         "spot_extraction": {
             "title": "Spot Extraction",
             "type": "object",
-            "description": "Options for the spot extraction algorithm (hAirlocalize)",
+            "description": "Options for the spot extraction algorithm (AirLocalize)",
             "fa_icon": "fas fa-eye-dropper",
             "properties": {
                 "spot_extraction_output": {
@@ -351,7 +351,8 @@
                 "spot_extraction_xy_stride": {
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
-                    "description": "The number of voxels along x/y for registration tiling, must be power of 2. Increasing this requires increasing `--spot_extraction_memory`. Default: 1024"
+                    "description": "The number of voxels along x/y for registration tiling. Default: 1024",
+                    "help_text": "Must be power of 2. Increasing this requires increasing `--spot_extraction_memory`."
                 },
                 "spot_extraction_xy_overlap": {
                     "type": "integer",
@@ -363,7 +364,8 @@
                 "spot_extraction_z_stride": {
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
-                    "description": "The number of voxels along z for registration tiling, must be power of 2. Increasing this requires increasing `--spot_extraction_memory`. Default: 512"
+                    "description": "The number of voxels along Z for registration tiling.  Default: 512",
+                    "help_text": "Must be a power of 2. Increasing this requires increasing `--spot_extraction_memory`."
                 },
                 "spot_extraction_z_overlap": {
                     "type": "integer",
