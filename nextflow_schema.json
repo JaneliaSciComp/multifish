@@ -12,13 +12,13 @@
             "description": "Describes the input data and models",
             "help_text": "",
             "required": [
+                "data_dir",
                 "segmentation_model_dir",
                 "acq_names",
                 "ref_acq",
                 "channels",
                 "dapi_channel",
-                "bleed_channel",
-                "data_dir"
+                "bleed_channel"
             ],
             "properties": {
                 "data_dir": {
@@ -212,7 +212,8 @@
                     "type": "string",
                     "fa_icon": "far fa-folder",
                     "description": "Output directory for registration results. Default: registration",
-                    "help_text": "This path is relative to `--output_dir`."
+                    "help_text": "This path is relative to `--output_dir`.",
+                    "hidden": true
                 },
                 "aff_scale": {
                     "type": "string",
@@ -314,7 +315,8 @@
                     "type": "string",
                     "fa_icon": "far fa-folder",
                     "description": "Output directory for segmentation results. Default: segmentation",
-                    "help_text": "This path is relative to `--output_dir`."
+                    "help_text": "This path is relative to `--output_dir`.",
+                    "hidden": true
                 },
                 "segmentation_scale": {
                     "type": "string",
@@ -338,7 +340,8 @@
                     "type": "string",
                     "fa_icon": "far fa-folder",
                     "description": "Output directory for spot extraction results. Default: spots",
-                    "help_text": "This path is relative to `--output_dir`."
+                    "help_text": "This path is relative to `--output_dir`.",
+                    "hidden": true
                 },
                 "spot_extraction_scale": {
                     "type": "string",
@@ -372,25 +375,25 @@
                 "default_airlocalize_params": {
                     "type": "string",
                     "fa_icon": "far fa-folder",
-                    "description": "Path to hAirLocalize parameter file. Default: /app/airlocalize/params/air_localize_default_params.txt",
-                    "help_text": "By default, this points to default parameters inside the container"
+                    "description": "Path to the default AirLocalize parameter file. Default: /app/airlocalize/params/air_localize_default_params.txt",
+                    "help_text": "By default, this points to default parameters inside the container",
+                    "hidden": true
                 },
                 "per_channel_air_localize_params": {
                     "type": "string",
                     "fa_icon": "far fa-folder",
-                    "description": "Comma-delimited paths to alternative airlocalize parameter files, one per channel",
-                    "default": ",,,",
+                    "description": "Comma-delimited paths to alternative AirLocalize parameter files, one per channel.",
                     "help_text": "If you have 4 channels, and you are extracting spots from c0, c1, and c3, this parameter should look like this: `/path/to/params_c0.txt,/path/to/params_c1.txt,,/path/to/params_c3.txt`. Note the double comma to denote the empty file for c2, which should not be processed."
                 },
                 "spot_extraction_cpus": {
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
-                    "description": "Number of CPU cores to allocate for each hAirlocalize job. Default: 1"
+                    "description": "Number of CPU cores to allocate for each AirLocalize job. Default: 1"
                 },
                 "spot_extraction_memory": {
                     "type": "integer",
                     "fa_icon": "fas fa-memory",
-                    "description": "Amount of RAM (in GB) to allocate to each hAirlocalize job. Needs to be increased when increasing strides. Default: 1"
+                    "description": "Amount of RAM (in GB) to allocate to each AirLocalize job. Needs to be increased when increasing strides. Default: 1"
                 }
             }
         },
@@ -416,7 +419,8 @@
                     "type": "string",
                     "fa_icon": "far fa-folder",
                     "description": "Output directory for intensities. Default: intensities",
-                    "help_text": "This path is relative to `--output_dir`."
+                    "help_text": "This path is relative to `--output_dir`.",
+                    "hidden": true
                 },
                 "measure_intensities_cpus": {
                     "type": "integer",
@@ -435,7 +439,8 @@
                     "type": "string",
                     "fa_icon": "far fa-folder",
                     "description": "Output directory for spot assignments. Default: assignments",
-                    "help_text": "This path is relative to `--output_dir`."
+                    "help_text": "This path is relative to `--output_dir`.",
+                    "hidden": true
                 },
                 "assign_spots_cpus": {
                     "type": "integer",
@@ -512,11 +517,24 @@
                     "description": "Comma-delimited list of steps to skip, e.g. 'stitching,registration' (Valid values: stitching, spot_extraction, segmentation, registration, warp_spots, intensities, assign_spots)",
                     "fa_icon": "fas fa-fast-forward"
                 },
+                "singularity_cache_dir": {
+                    "type": "string",
+                    "description": "Shared directory where Singularity containers are cached.",
+                    "fa_icon": "fas fa-folder-open",
+                    "hidden": true
+                },
                 "runtime_opts": {
                     "type": "string",
-                    "description": "Runtime options for Singularity must include mounts for any directory paths you are using. You can also pass the --nv flag here to make use of NVIDIA GPU resources. For example, `--nv -B /your/data/dir -B /your/output/dir`",
                     "fa_icon": "fas fa-terminal",
-                    "help_text": "When running with Singularity (e.g. on an HPC cluster) this option must be used to bind all data paths into the container."
+                    "help_text": "Runtime options for Singularity must include mounts for any directory paths you are using. You can also pass the --nv flag here to make use of NVIDIA GPU resources. For example, `--nv -B /your/data/dir -B /your/output/dir`\n",
+                    "description": "Runtime options for the container engine being used (e.g. Singularity or Docker)",
+                    "hidden": true
+                },
+                "lsf_opts": {
+                    "type": "string",
+                    "description": "Options for LSF cluster at Janelia, when using the `lsf` profile.",
+                    "fa_icon": "fas fa-terminal",
+                    "hidden": true
                 }
             },
             "description": "Other global options affecting all pipelines stages"
