@@ -516,12 +516,13 @@
             "properties": {
                 "skip": {
                     "type": "string",
-                    "description": "Comma-delimited list of steps to skip, e.g. 'stitching,registration' (Valid values: stitching, spot_extraction, segmentation, registration, warp_spots, intensities, assign_spots)",
-                    "fa_icon": "fas fa-fast-forward"
+                    "description": "Comma-delimited list of steps to skip, e.g. stitching,registration.",
+                    "fa_icon": "fas fa-fast-forward",
+                    "help_text": "Valid values: stitching, spot_extraction, segmentation, registration, warp_spots, intensities, assign_spots"
                 },
                 "singularity_cache_dir": {
                     "type": "string",
-                    "description": "Shared directory where Singularity containers are cached.",
+                    "description": "Shared directory where Singularity containers are cached. Default: $HOME/.singularity_cache",
                     "fa_icon": "fas fa-folder-open",
                     "hidden": true
                 },
@@ -529,12 +530,12 @@
                     "type": "string",
                     "fa_icon": "fas fa-terminal",
                     "help_text": "Runtime options for Singularity must include mounts for any directory paths you are using. You can also pass the --nv flag here to make use of NVIDIA GPU resources. For example, `--nv -B /your/data/dir -B /your/output/dir`\n",
-                    "description": "Runtime options for the container engine being used (e.g. Singularity or Docker)",
+                    "description": "Runtime options for the container engine being used (e.g. Singularity or Docker).",
                     "hidden": true
                 },
                 "lsf_opts": {
                     "type": "string",
-                    "description": "Options for LSF cluster at Janelia, when using the `lsf` profile.",
+                    "description": "Options for LSF cluster at Janelia, when using the lsf profile.",
                     "fa_icon": "fas fa-terminal",
                     "hidden": true
                 }
