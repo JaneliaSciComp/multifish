@@ -14,6 +14,7 @@ def default_mf_params() {
                        // should only be used when all steps must be performed for all acquisions
         ref_acq: '', // reference image for registration and/or segmentation
         output_dir: '',
+        shared_scratch_dir: "$workDir/scratch",
         skip: '', // do not skip anything by default
 
         // download params
