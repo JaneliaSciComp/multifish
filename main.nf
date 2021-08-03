@@ -226,7 +226,7 @@ workflow {
             final_params.data_dir = "${final_params.pipeline_output_dir}/download"
         }
         data_dir_res = download(Channel.of([
-                                    "${projectDir}/data-sets/${final_params.data_manifest}.txt", 
+                                    file("${projectDir}/data-sets/${final_params.data_manifest}.txt"), 
                                     final_params.data_dir
                                 ]))
     }

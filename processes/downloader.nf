@@ -1,17 +1,18 @@
 process download {
     label 'small'
+    stageInMode 'copy'
 
     container { params.downloader_container }
 
     input:
-    tuple val(data_set_path), val(output_dir)
+    tuple file(manifest_file), val(output_dir)
 
     output:
     val(output_dir)
 
     script:
     """
-    download_dataset.sh "${data_set_path}" "${output_dir}" "${params.verify_md5}"
+    download_dataset.sh "${manifest_file}" "${output_dir}" "${params.verify_md5}"
     """
 }
 
