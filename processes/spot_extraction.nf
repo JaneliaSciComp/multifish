@@ -68,7 +68,7 @@ process airlocalize {
     }
     args = args_list.join(' ')
     """
-    umask 0002
+    export SCRATCH_DIR=${params.shared_scratch_dir}
     echo "/app/airlocalize/airlocalize.sh ${args}"
     /app/airlocalize/airlocalize.sh ${args}
     """

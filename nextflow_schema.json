@@ -32,6 +32,13 @@
                     "fa_icon": "far fa-list-alt",
                     "help_text": "If specified, the data in the manifest is downloaded into `--data_dir` before the pipeline begins. Valid values are any filename found in the data-sets directory (e.g. \"demo_small\", \"demo_medium\") or any URL which points to a manifest file. "
                 },
+                "verify_md5": {
+                    "type": "string",
+                    "description": "Verify MD5 sum for all downloads. Default: true",
+                    "hidden": true,
+                    "fa_icon": "fas fa-lock",
+                    "help_text": "This can be disabled to save time, but it's not recommended."
+                },
                 "segmentation_model_dir": {
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",
@@ -520,24 +527,31 @@
                     "fa_icon": "fas fa-fast-forward",
                     "help_text": "Valid values: stitching, spot_extraction, segmentation, registration, warp_spots, intensities, assign_spots"
                 },
+                "shared_scratch_dir": {
+                    "type": "string",
+                    "description": "Shared scratch space accessible to all the compute nodes. Default: $workDir/scratch",
+                    "fa_icon": "fas fa-folder-open"
+                },
                 "singularity_cache_dir": {
                     "type": "string",
                     "description": "Shared directory where Singularity containers are cached. Default: $HOME/.singularity_cache",
-                    "fa_icon": "fas fa-folder-open",
-                    "hidden": true
+                    "fa_icon": "fas fa-folder-open"
+                },
+                "singularity_user": {
+                    "type": "string",
+                    "fa_icon": "fas fa-user",
+                    "description": "User to use for running Singularity containers. Default: $USER or ec2-user when using the tower profile"
                 },
                 "runtime_opts": {
                     "type": "string",
                     "fa_icon": "fas fa-terminal",
                     "help_text": "Runtime options for Singularity must include mounts for any directory paths you are using. You can also pass the --nv flag here to make use of NVIDIA GPU resources. For example, `--nv -B /your/data/dir -B /your/output/dir`\n",
-                    "description": "Runtime options for the container engine being used (e.g. Singularity or Docker).",
-                    "hidden": true
+                    "description": "Runtime options for the container engine being used (e.g. Singularity or Docker)."
                 },
                 "lsf_opts": {
                     "type": "string",
                     "description": "Options for LSF cluster at Janelia, when using the lsf profile.",
-                    "fa_icon": "fas fa-terminal",
-                    "hidden": true
+                    "fa_icon": "fas fa-terminal"
                 }
             },
             "description": "Other global options affecting all pipelines stages"
