@@ -6,31 +6,17 @@
     "type": "object",
     "definitions": {
         "data": {
-            "title": "Input Data",
+            "title": "Data",
             "type": "object",
-            "fa_icon": "fas fa-database",
-            "description": "Describes the input data and models",
-            "help_text": "",
-            "required": [
-                "data_dir",
-                "segmentation_model_dir",
-                "acq_names",
-                "ref_acq",
-                "channels",
-                "dapi_channel",
-                "bleed_channel"
-            ],
+            "description": "Describe your input data and where pipeline results should be saved",
+            "default": "",
             "properties": {
-                "data_dir": {
-                    "type": "string",
-                    "fa_icon": "fas fa-folder-open",
-                    "description": "Path to the directory containing the input CZI/MVL acquisition files."
-                },
                 "data_manifest": {
                     "type": "string",
-                    "description": "Name of file manifest or URL where it can be found.",
+                    "description": "Name or path to the file manifest for downloading input data.",
                     "fa_icon": "far fa-list-alt",
-                    "help_text": "If specified, the data in the manifest is downloaded into `--data_dir` before the pipeline begins. Valid values are any filename found in the data-sets directory (e.g. \"demo_small\", \"demo_medium\") or any URL which points to a manifest file. "
+                    "help_text": "If specified, the data in the manifest is downloaded into `--data_dir` before the pipeline begins. Valid values are any filename found in the data-sets directory (e.g. \"demo_small\", \"demo_medium\") or any path which points to a manifest file. ",
+                    "default": "demo_small"
                 },
                 "verify_md5": {
                     "type": "string",
@@ -39,11 +25,38 @@
                     "fa_icon": "fas fa-lock",
                     "help_text": "This can be disabled to save time, but it's not recommended."
                 },
+                "shared_work_dir": {
+                    "type": "string",
+                    "description": "Shared working directory accessible by all nodes. Typically something like /fsx/username/pipeline",
+                    "help_text": "When running on a system like AWS, you should set this to an FSx for Lustre filesystem, and the final_output_dir to a Fuse-mounted S3 bucket. This will cause all processing to happen on high-performance disk, and the outputs will only be copied to slower S3 at the very last step. Setting this parameter will automatically populate `data_dir`, `output_dir`, `segmentation_model_dir`, and `spark_work_dir`. You can override any of them in the detailed settings.\n",
+                    "fa_icon": "fas fa-folder-open"
+                },
+                "data_dir": {
+                    "type": "string",
+                    "fa_icon": "fas fa-folder-open",
+                    "description": "Path to the directory containing the input CZI/MVL acquisition files. If shared_work_dir is defined, this defaults to $shared_work_dir/inputs.",
+                    "hidden": true,
+                    "help_text": "If `shared_work_dir` is defined, this is automatically set to `$shared_work_dir/inputs`."
+                },
+                "output_dir": {
+                    "type": "string",
+                    "description": "Path to the directory containing pipeline outputs. If shared_work_dir is defined, this defaults to $shared_work_dir/outputs.",
+                    "fa_icon": "fas fa-folder-open",
+                    "hidden": true,
+                    "help_text": "If `shared_work_dir` is defined, this is automatically set to `$shared_work_dir/outputs`."
+                },
                 "segmentation_model_dir": {
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",
                     "description": "Path to the directory containing the machine learning model for segmentation.",
-                    "help_text": "Defaults to ${projectDir}/external-modules/segmentation/model/starfinity."
+                    "help_text": "If `shared_work_dir` is defined, this is automatically set to `$shared_work_dir/data/model/starfinity`. Otherwise it defaults to ${projectDir}/external-modules/segmentation/model/starfinity.",
+                    "hidden": true
+                },
+                "publish_dir": {
+                    "type": "string",
+                    "fa_icon": "fas fa-folder-open",
+                    "description": "Optional publishing directory where results should be copied when the pipeline is successfully completed. Typically a Fusion mount path like /fusion/s3/bucket-name.",
+                    "help_text": "This is useful for getting data off of FSx and onto something externally accessible like S3."
                 },
                 "acq_names": {
                     "type": "string",
@@ -77,23 +90,14 @@
                     "default": "c3",
                     "description": "Channel (other than DAPI) that needs bleedthrough correction."
                 }
-            }
-        },
-        "output": {
-            "title": "Output Options",
-            "type": "object",
-            "fa_icon": "fas fa-sign-out-alt",
-            "description": "Options for the overall pipeline output",
-            "help_text": "",
-            "properties": {
-                "output_dir": {
-                    "type": "string",
-                    "description": "Path to the directory containing pipeline outputs",
-                    "fa_icon": "fas fa-folder-open"
-                }
             },
             "required": [
-                "output_dir"
+                "acq_names",
+                "ref_acq",
+                "channels",
+                "dapi_channel",
+                "bleed_channel",
+                "shared_work_dir"
             ]
         },
         "stitching": {
@@ -111,19 +115,21 @@
                 "spark_work_dir": {
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",
-                    "description": "Path to directory containing Spark working files and logs during stitching. Default: ${workDir}/spark",
-                    "help_text": "The Spark configuration is written here by the pipeline before launching the Spark cluster. The Spark workers write their logs back here, and it is also used to communicate the master IP address to all workers. Therefore, this must be a shared directory accessible to both the head node and all worker nodes. On AWS, Fuse-mounted S3 will not work here due to write buffering. It's best to use FSx, but EBS will also work, as long as its mounted on all the EC2 nodes. "
+                    "description": "Path to directory containing Spark working files and logs during stitching. Default: $shared_work_dir/spark or $workDir/spark",
+                    "help_text": "The Spark configuration is written here by the pipeline before launching the Spark cluster. The Spark workers write their logs back here, and it is also used to communicate the master IP address to all workers. Therefore, this must be a shared directory accessible to both the head node and all worker nodes. On AWS, Fuse-mounted S3 will not work here due to write buffering. It's best to use FSx, but EBS will also work, as long as its mounted on all the EC2 nodes. ",
+                    "hidden": true
                 },
                 "spark_local_dir": {
                     "type": "string",
                     "fa_icon": "far fa-folder-open",
                     "description": "Path to directory that Spark will uses for local temporary files. Default: /tmp",
-                    "help_text": "This path does not need to be shared among workers, and does not need to be accessible to the head node. Usually, /tmp will do."
+                    "help_text": "This path does not need to be shared among workers, and does not need to be accessible to the head node. Usually, /tmp will do.",
+                    "hidden": true
                 },
                 "stitching_ref": {
                     "type": "integer",
                     "fa_icon": "fas fa-asterisk",
-                    "description": "Index of the channel used for stitching. Default: the index of dapi_channel",
+                    "description": "Index of the channel used for stitching. Default: the dapi_channel",
                     "help_text": "If this is not defined it defaults to `--dapi_channel`"
                 },
                 "resolution": {
@@ -529,18 +535,20 @@
                 },
                 "shared_scratch_dir": {
                     "type": "string",
-                    "description": "Shared scratch space accessible to all the compute nodes. Default: $workDir/scratch",
+                    "description": "Shared scratch space accessible to all the compute nodes. Default: $shared_work_dir/scratch or $workDir/scratch",
                     "fa_icon": "fas fa-folder-open"
                 },
                 "singularity_cache_dir": {
                     "type": "string",
-                    "description": "Shared directory where Singularity containers are cached. Default: $HOME/.singularity_cache",
+                    "description": "Shared directory where Singularity containers are cached. Default: $shared_work_dir/singularity_cache or $HOME/.singularity_cache",
                     "fa_icon": "fas fa-folder-open"
                 },
                 "singularity_user": {
                     "type": "string",
                     "fa_icon": "fas fa-user",
-                    "description": "User to use for running Singularity containers. Default: $USER or ec2-user when using the tower profile"
+                    "description": "User to use for running Singularity containers. Default: $USER",
+                    "hidden": true,
+                    "help_text": "This is automatically set to `ec2-user` when using the 'tower' profile"
                 },
                 "runtime_opts": {
                     "type": "string",
@@ -560,9 +568,6 @@
     "allOf": [
         {
             "$ref": "#/definitions/data"
-        },
-        {
-            "$ref": "#/definitions/output"
         },
         {
             "$ref": "#/definitions/stitching"

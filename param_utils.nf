@@ -13,12 +13,15 @@ def default_mf_params() {
         acq_names: '', // this is the default parameter for all acquisitions that must be processed
                        // should only be used when all steps must be performed for all acquisions
         ref_acq: '', // reference image for registration and/or segmentation
-        output_dir: '',
+        shared_work_dir: '',
         shared_scratch_dir: "$workDir/scratch",
+        data_dir: '',
+        output_dir: '',
+        publish_dir: '',
         skip: '', // do not skip anything by default
 
         // download params
-        downloader_container: 'multifish/downloader:1.0.0',
+        downloader_container: 'multifish/downloader:1.1.0',
         data_manifest: '',
         verify_md5: 'true',
 
@@ -116,6 +119,24 @@ def default_mf_params() {
         assign_spots_output: 'assignments',
         assign_spots_cpus: 1,
     ]
+}
+
+def set_derived_defaults(mf_params) {
+    if (mf_params.shared_work_dir) {
+        if (!mf_params.data_dir) {
+            mf_params.data_dir = "${mf_params.shared_work_dir}/inputs"
+        }
+        if (!mf_params.output_dir) {
+            mf_params.output_dir = "${mf_params.shared_work_dir}/outputs"
+        }
+        if (!mf_params.segmentation_model_dir) {
+            mf_params.segmentation_model_dir = "${mf_params.shared_work_dir}/data"
+        }
+        if (!mf_params.spark_work_dir) {
+            mf_params.spark_work_dir = "${mf_params.shared_work_dir}/spark"
+        }
+    }
+    mf_params
 }
 
 def get_value_or_default(Map ps, String param, String default_value) {

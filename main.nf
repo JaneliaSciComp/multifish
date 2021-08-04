@@ -8,6 +8,7 @@ include {
 
 include {
     default_mf_params;
+    set_derived_defaults;
     get_value_or_default;
     get_list_or_default;
     stitching_container_param;
@@ -27,10 +28,11 @@ include {
 } from './param_utils'
 
 // app parameters
-final_params = default_spark_params() + default_mf_params() + params
+final_params = set_derived_defaults(default_spark_params() + default_mf_params() + params)
 
 include {
     download;
+    publish;
 } from './processes/downloader' addParams(final_params)
 
 stitching_params = final_params + [
@@ -77,9 +79,9 @@ include {
     assign_spots;
 } from './processes/spot_assignment' addParams(spot_assignment_params)
 
+data_manifest = final_params.data_manifest
 data_dir = final_params.data_dir
-pipeline_output_dir = get_value_or_default(final_params, 'output_dir', data_dir)
-final_params.pipeline_output_dir = pipeline_output_dir
+pipeline_output_dir = final_params.output_dir
 
 // spark config
 spark_conf = final_params.spark_conf
@@ -110,12 +112,15 @@ log.info """
     
     Pipeline parameters
     -------------------
-    workDir         : ${workDir}
-    data_dir        : ${data_dir}
-    output_dir      : ${pipeline_output_dir}
-    acq_names       : ${acq_names}
-    ref_acq         : ${ref_acq}
-    steps_to_skip   : ${steps_to_skip}
+    workDir                : ${workDir}
+    data_manifest          : ${data_manifest}
+    shared_work_dir        : ${final_params.shared_work_dir}
+    data_dir               : ${data_dir}
+    output_dir             : ${pipeline_output_dir}
+    publish_dir            : ${final_params.publish_dir}
+    acq_names              : ${acq_names}
+    ref_acq                : ${ref_acq}
+    steps_to_skip          : ${steps_to_skip}
     """
     .stripIndent()
 
@@ -220,15 +225,15 @@ log.debug "Images for assign spots: ${assign_spots_acq_names}"
 
 workflow {
     // download
-    def data_dir_res = Channel.of(final_params.data_dir)
-    if (final_params.data_manifest) {
-        if (!final_params.data_dir) {
-            final_params.data_dir = "${final_params.pipeline_output_dir}/download"
+    def data_dir_res = Channel.of(data_dir)
+    if (data_manifest) {
+        if (data_manifest.startsWith('/')) {
+            manifest_file = data_manifest
         }
-        data_dir_res = download(Channel.of([
-                                    file("${projectDir}/data-sets/${final_params.data_manifest}.txt"), 
-                                    final_params.data_dir
-                                ]))
+        else {
+            manifest_file = "${projectDir}/data-sets/${data_manifest}.txt"
+        }
+        data_dir_res = download(Channel.of([file(manifest_file), final_params.data_dir]))
     }
 
     // stitching
@@ -813,7 +818,13 @@ workflow {
         final_params.assign_spots_cpus
     )
 
-    assign_spots_results | view
+    // publish all data
+    if (final_params.publish_dir) {
+        assign_spots_results 
+            | collect
+            | map { [pipeline_output_dir, final_params.publish_dir] } 
+            | publish
+    }
 }
 
 def get_acq_output(output, acq_name) {

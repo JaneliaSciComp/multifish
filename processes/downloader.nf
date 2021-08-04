@@ -16,3 +16,20 @@ process download {
     """
 }
 
+process publish {
+    label 'small'
+
+    container { params.downloader_container }
+
+    input:
+    tuple val(output_dir), val(publish_dir)
+
+    output:
+    val(output_dir)
+
+    script:
+    """
+    mkdir -p "${publish_dir}"
+    rsync -a "${output_dir}/" "${publish_dir}/"
+    """
+}
