@@ -30,6 +30,6 @@ process publish {
     script:
     """
     mkdir -p "${publish_dir}"
-    rsync -a "${output_dir}/" "${publish_dir}/"
+    rsync -a --exclude stitching "${output_dir}/" "${publish_dir}/"
     """
 }
