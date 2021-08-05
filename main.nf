@@ -28,7 +28,7 @@ include {
 } from './param_utils'
 
 // app parameters
-final_params = set_derived_defaults(default_spark_params() + default_mf_params() + params)
+final_params = set_derived_defaults(default_spark_params() + default_mf_params() + params, params)
 
 include {
     download;
@@ -115,6 +115,7 @@ log.info """
     workDir                : ${workDir}
     data_manifest          : ${data_manifest}
     shared_work_dir        : ${final_params.shared_work_dir}
+    segmentation_model_dir : ${final_params.segmentation_model_dir}
     data_dir               : ${data_dir}
     output_dir             : ${pipeline_output_dir}
     publish_dir            : ${final_params.publish_dir}

@@ -65,7 +65,7 @@ def default_mf_params() {
 
         // segmentation params
         segmentation_output: 'segmentation',
-        segmentation_model_dir: '',
+        segmentation_model_dir: "${projectDir}/external-modules/segmentation/model/starfinity",
         segmentation_scale: 's2',
         segmentation_cpus: 3, // it needs at least 3 cpus for Janelia cluster config because of memory requirements
         segmentation_memory: '45 G',
@@ -135,10 +135,8 @@ def set_derived_defaults(mf_params, user_params) {
         if (!user_params.spark_work_dir) {
             mf_params.spark_work_dir = "${mf_params.shared_work_dir}/spark"
         }
-    }
-    else {
-        if (!user_params.segmentation_model_dir) {
-            mf_params.segmentation_model_dir = "${projectDir}/external-modules/segmentation/model/starfinity"
+        if (!user_params.singularity_cache_dir) {
+            mf_params.singularity_cache_dir = "${mf_params.shared_work_dir}/singularity"
         }
     }
     mf_params
