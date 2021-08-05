@@ -130,7 +130,7 @@ def set_derived_defaults(mf_params, user_params) {
             mf_params.output_dir = "${mf_params.shared_work_dir}/outputs"
         }
         if (!user_params.segmentation_model_dir) {
-            mf_params.segmentation_model_dir = "${mf_params.shared_work_dir}/data"
+            mf_params.segmentation_model_dir = "${mf_params.shared_work_dir}/inputs/model/starfinity"
         }
         if (!user_params.spark_work_dir) {
             mf_params.spark_work_dir = "${mf_params.shared_work_dir}/spark"

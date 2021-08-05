@@ -28,7 +28,7 @@
                 "shared_work_dir": {
                     "type": "string",
                     "description": "Shared working directory accessible by all nodes. Typically something like /fsx/username/pipeline",
-                    "help_text": "When running on a system like AWS, you should set this to an FSx for Lustre filesystem, and the final_output_dir to a Fuse-mounted S3 bucket. This will cause all processing to happen on high-performance disk, and the outputs will only be copied to slower S3 at the very last step. Setting this parameter will automatically populate `data_dir`, `output_dir`, `segmentation_model_dir`, and `spark_work_dir`. You can override any of them in the detailed settings.\n",
+                    "help_text": "Setting this parameter will automatically configure `data_dir`, `output_dir`, `segmentation_model_dir`, `spark_work_dir`, and `singularity_cache_dir`. You can override any of them in the hidden settings. When running on a system like AWS Batch, you should set this to an FSx for Lustre filesystem, and the final_output_dir to a Fuse-mounted S3 bucket. This will cause all processing to happen on high-performance disk, and the outputs will only be copied to slower S3 at the very last step. \n",
                     "fa_icon": "fas fa-folder-open"
                 },
                 "data_dir": {
@@ -38,19 +38,19 @@
                     "hidden": true,
                     "help_text": "If `shared_work_dir` is defined, this is automatically set to `$shared_work_dir/inputs`."
                 },
+                "segmentation_model_dir": {
+                    "type": "string",
+                    "fa_icon": "fas fa-folder-open",
+                    "description": "Path to the directory containing the machine learning model for segmentation.",
+                    "help_text": "If `shared_work_dir` is defined, this is automatically set to `$shared_work_dir/inputs/model/starfinity`. It is assumed that either the model is already there, or it will be downloaded and unzipped according to the `data_manifest`. Otherwise it defaults to ${projectDir}/external-modules/segmentation/model/starfinity, which is normally configured by setup.sh. ",
+                    "hidden": true
+                },
                 "output_dir": {
                     "type": "string",
                     "description": "Path to the directory containing pipeline outputs. If shared_work_dir is defined, this defaults to $shared_work_dir/outputs.",
                     "fa_icon": "fas fa-folder-open",
                     "hidden": true,
                     "help_text": "If `shared_work_dir` is defined, this is automatically set to `$shared_work_dir/outputs`."
-                },
-                "segmentation_model_dir": {
-                    "type": "string",
-                    "fa_icon": "fas fa-folder-open",
-                    "description": "Path to the directory containing the machine learning model for segmentation.",
-                    "help_text": "If `shared_work_dir` is defined, this is automatically set to `$shared_work_dir/data/model/starfinity`. Otherwise it defaults to ${projectDir}/external-modules/segmentation/model/starfinity.",
-                    "hidden": true
                 },
                 "publish_dir": {
                     "type": "string",
@@ -92,12 +92,12 @@
                 }
             },
             "required": [
+                "shared_work_dir",
                 "acq_names",
                 "ref_acq",
                 "channels",
                 "dapi_channel",
-                "bleed_channel",
-                "shared_work_dir"
+                "bleed_channel"
             ]
         },
         "stitching": {
@@ -541,7 +541,8 @@
                 "singularity_cache_dir": {
                     "type": "string",
                     "description": "Shared directory where Singularity containers are cached. Default: $shared_work_dir/singularity_cache or $HOME/.singularity_cache",
-                    "fa_icon": "fas fa-folder-open"
+                    "fa_icon": "fas fa-folder-open",
+                    "hidden": true
                 },
                 "singularity_user": {
                     "type": "string",
