@@ -3,17 +3,15 @@ umask 0002
 
 if [ -z "$SCRATCH_DIR" ] ; then
     echo "SCRATCH_DIR not set, creating one using default TMPDIR"
-    TEMP_DIR=`mktemp -d`
-    export MCR_CACHE_ROOT="${TEMP_DIR}/mcr_cache_$$"
+    export MCR_CACHE_ROOT=`mktemp -d`
 else
-    TEMP_DIR="${SCRATCH_DIR}/mcr_cache_$$"
-    export MCR_CACHE_ROOT="${TEMP_DIR}"
+    export MCR_CACHE_ROOT="${SCRATCH_DIR}/mcr_cache_$$"
 fi
     
 
 function cleanTemp {
-    rm -rf ${TEMP_DIR}
-    echo "Cleaned up temporary files at $TEMP_DIR"
+    rm -rf ${MCR_CACHE_ROOT}
+    echo "Cleaned up temporary files at $MCR_CACHE_ROOT"
 }
 trap cleanTemp EXIT
 
