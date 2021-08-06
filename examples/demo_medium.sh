@@ -39,9 +39,6 @@ fi
 datadir=$(realpath $1)
 shift # eat the first argument so that $@ works later
 
-outputdir=$datadir/outputs
-mkdir -p $outputdir
-
 #
 # Memory Considerations
 # =====================
@@ -54,13 +51,12 @@ mkdir -p $outputdir
 
 ./main.nf \
         --runtime_opts "-B $BASEDIR -B $datadir -B $TMPDIR" \
+        --data_manifest "demo_medium" \
+        --shared_work_dir "$datadir" \
         --singularity_cache_dir "$SINGULARITY_CACHEDIR" \
         --workers "2" \
         --worker_cores "16" \
         --gb_per_core "3" \
         --driver_memory "2g" \
         --ref_acq "$fixed_round" \
-        --acq_names "$fixed_round,$moving_rounds" "$@" \
-        --data_manifest "demo_medium" \
-        --segmentation_model_dir "$outputdir/download/model/starfinity" \
-        --output_dir "$outputdir" "$@"
+        --acq_names "$fixed_round,$moving_rounds" "$@" 
