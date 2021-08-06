@@ -1,4 +1,4 @@
-import z5py
+import zarr
 import numpy as np
 import sys
 import json
@@ -64,7 +64,6 @@ def read_coords(path):
 
 
 if __name__ == '__main__':
-
     image_path       = sys.argv[1]
     subpath          = sys.argv[2]
     coords           = sys.argv[3]
@@ -82,12 +81,19 @@ if __name__ == '__main__':
     extent_vox     = np.round(extent/vox).astype(np.uint16)
     ends           = offset_vox + extent_vox
 
-    image = z5py.File(image_path, use_zarr_format=False)[subpath]
+    image = zarr.open(store=zarr.N5Store(image_path+subpath), mode='r')
+    print('N5 Path:',image_path)
+    print('N5 Data Set:',subpath)
+    print('Shape:',image.shape)
+    print('Voxel Size:',vox)
+
     data  = image[offset_vox[2]:ends[2], offset_vox[1]:ends[1], offset_vox[0]:ends[0]]
+    print('Non-zero voxel count:',np.count_nonzero(data))
+
     data  = np.moveaxis(data, (0, 2), (2, 0))
 
     if dapi_subpath:
-        dapi_image = z5py.File(image_path, use_zarr_format=False)[dapi_subpath]
+        dapi_image = zarr.open(store=zarr.N5Store(image_path+dapi_subpath), mode='r')
         dapi  = dapi_image[offset_vox[2]:ends[2], offset_vox[1]:ends[1], offset_vox[0]:ends[0]]
         dapi  = np.moveaxis(dapi, (0, 2), (2, 0))
         lo=np.percentile(np.ndarray.flatten(dapi),99.5)
@@ -95,15 +101,18 @@ if __name__ == '__main__':
         bg_data=np.percentile(np.ndarray.flatten(data[data!=0]),1)
         dapi_factor=np.median((data[dapi>lo] - bg_data)/(dapi[dapi>lo] - bg_dapi))
         data  = np.maximum(0, data - bg_data - dapi_factor * (dapi -bg_dapi)).astype('float32')
-        print('bleed_through:',dapi_factor)
+        print('Bleedthrough:',dapi_factor)
         print('DAPI background:',bg_dapi)
         print('c3 background:',bg_data)
 
+    print('Initializing MATLAB runtime...')
     # use compiled matlab AIRLOCALIZE, no need for matlab license
     AIRLOCALIZE_N5.initialize_runtime(['-nojvm', '-nodisplay'])
     AIRLOCALIZE=AIRLOCALIZE_N5.initialize()
     matlab_data = as_matlab(data)
-    points = AIRLOCALIZE.AIRLOCALIZE_N5(params, matlab_data,output, nargout=1)
+    print('Calling AIRLOCALIZE_N5')
+    
+    points = AIRLOCALIZE.AIRLOCALIZE_N5(params, matlab_data, output, nargout=1)
     points = np.array(points._data).reshape(points.size, order='F')
     # TODO: write default spot file for tiles that return 0 spots
     points[:, :3] = points[:, :3] * vox + offset

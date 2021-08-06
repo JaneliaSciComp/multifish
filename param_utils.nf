@@ -171,7 +171,7 @@ def stitching_container_param(Map ps) {
 def spot_extraction_container_param(Map ps) {
     def spot_extraction_container = ps.spot_extraction_container
     if (!spot_extraction_container)
-        "${ps.mfrepo}/spot_extraction:1.0.0"
+        "${ps.mfrepo}/spot_extraction:1.0.2"
     else
         spot_extraction_container
 }

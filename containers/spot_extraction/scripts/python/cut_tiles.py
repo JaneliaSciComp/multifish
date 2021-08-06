@@ -1,4 +1,3 @@
-import z5py
 import json
 import sys
 import numpy as np
