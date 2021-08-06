@@ -123,19 +123,19 @@ def default_mf_params() {
 
 def set_derived_defaults(mf_params, user_params) {
     if (mf_params.shared_work_dir) {
-        if (!user_params.data_dir) {
+        if (!user_params.containsKey('data_dir')) {
             mf_params.data_dir = "${mf_params.shared_work_dir}/inputs"
         }
-        if (!user_params.output_dir) {
+        if (!user_params.containsKey('output_dir')) {
             mf_params.output_dir = "${mf_params.shared_work_dir}/outputs"
         }
-        if (!user_params.segmentation_model_dir) {
+        if (!user_params.containsKey('segmentation_model_dir')) {
             mf_params.segmentation_model_dir = "${mf_params.shared_work_dir}/inputs/model/starfinity"
         }
-        if (!user_params.spark_work_dir) {
+        if (!user_params.containsKey('spark_work_dir')) {
             mf_params.spark_work_dir = "${mf_params.shared_work_dir}/spark"
         }
-        if (!user_params.singularity_cache_dir) {
+        if (!user_params.containsKey('singularity_cache_dir')) {
             mf_params.singularity_cache_dir = "${mf_params.shared_work_dir}/singularity"
         }
     }
