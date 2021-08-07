@@ -62,13 +62,15 @@
                     "type": "string",
                     "fa_icon": "fas fa-vial",
                     "description": "Names of acquisition rounds to process. These should match the names of the CZI/MVL files found in the data_dir.",
-                    "help_text": "e.g. LHA3_R3_small,LHA3_R5_small if you have files called LHA3_R3_small.czi and LHA3_R5_small.czi"
+                    "help_text": "e.g. LHA3_R3_small,LHA3_R5_small if you have files called LHA3_R3_small.czi and LHA3_R5_small.czi",
+                    "default": "LHA3_R3_medium,LHA3_R5_medium"
                 },
                 "ref_acq": {
                     "type": "string",
                     "fa_icon": "fas fa-asterisk",
                     "description": "Name of the acquisition round to use as the fixed reference.",
-                    "help_text": "e.g. LHA3_R3_small"
+                    "help_text": "e.g. LHA3_R3_small",
+                    "default": "LHA3_R3_medium"
                 },
                 "channels": {
                     "type": "string",
