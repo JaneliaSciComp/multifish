@@ -97,8 +97,7 @@
                 "acq_names",
                 "ref_acq",
                 "channels",
-                "dapi_channel",
-                "bleed_channel"
+                "dapi_channel"
             ]
         },
         "stitching": {
