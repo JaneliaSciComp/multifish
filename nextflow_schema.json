@@ -75,21 +75,20 @@
                 "channels": {
                     "type": "string",
                     "fa_icon": "fas fa-layer-group",
-                    "default": "c0,c1,c2,c3",
+                    "default": "c0,c1",
                     "description": "List of channel names to process.",
                     "help_text": "Channel names are specified in the format \"c[channel_number]\", where the channel_number is 0-indexed."
                 },
                 "dapi_channel": {
                     "type": "string",
                     "fa_icon": "fas fa-asterisk",
-                    "default": "c2",
+                    "default": "c1",
                     "description": "Name of the DAPI channel.",
                     "help_text": "The DAPI channel is used as a reference channel for registration, segmentation, and spot extraction."
                 },
                 "bleed_channel": {
                     "type": "string",
                     "fa_icon": "fas fa-asterisk",
-                    "default": "c3",
                     "description": "Channel (other than DAPI) that needs bleedthrough correction."
                 }
             },
@@ -178,23 +177,27 @@
                 "workers": {
                     "type": "integer",
                     "fa_icon": "fas fa-cogs",
-                    "description": "Number of Spark workers to use for stitching one acquisition. Default: 4"
+                    "description": "Number of Spark workers to use for stitching one acquisition. Default: 4",
+                    "default": 1
                 },
                 "worker_cores": {
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
-                    "description": "Number of cores allocated to each Spark worker. Default: 4"
+                    "description": "Number of cores allocated to each Spark worker. Default: 4",
+                    "default": 16
                 },
                 "gb_per_core": {
                     "type": "integer",
                     "fa_icon": "fas fa-cog",
                     "description": "Size of memory (in GB) that is allocated for each core of a Spark worker. Default: 4",
-                    "help_text": "The total memory usage for stitching one acquisition will be workers * worker_cores * gb_per_core. "
+                    "help_text": "The total memory usage for stitching one acquisition will be workers * worker_cores * gb_per_core. ",
+                    "default": 3
                 },
                 "driver_memory": {
                     "type": "string",
                     "fa_icon": "fas fa-memory",
-                    "description": "Amount of memory to allocate for the Spark driver. Default: 15g"
+                    "description": "Amount of memory to allocate for the Spark driver. Default: 15g",
+                    "default": "2g"
                 },
                 "wait_for_spark_timeout_seconds": {
                     "type": "integer",
@@ -367,14 +370,16 @@
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
                     "description": "The number of voxels along x/y for registration tiling. Default: 1024",
-                    "help_text": "Must be power of 2. Increasing this requires increasing `--spot_extraction_memory`."
+                    "help_text": "Must be power of 2. Increasing this requires increasing `--spot_extraction_memory`.",
+                    "default": 512
                 },
                 "spot_extraction_xy_overlap": {
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
                     "description": "Tile overlap on x/y axes",
                     "help_text": "Defaults to 5% of spot_extraction_xy_stride",
-                    "hidden": true
+                    "hidden": true,
+                    "default": 256
                 },
                 "spot_extraction_z_stride": {
                     "type": "integer",
