@@ -15,7 +15,7 @@ def default_mf_params() {
         ref_acq: '', // reference image for registration and/or segmentation
         shared_work_dir: '',
         shared_scratch_dir: "$workDir/scratch",
-        local_scratch_dir: "\$PWD",
+        local_scratch_dir: "\$PROCESS_DIR",
         data_dir: '',
         output_dir: '',
         publish_dir: '',
