@@ -515,7 +515,7 @@
                 },
                 "spot_extraction_container": {
                     "type": "string",
-                    "description": "Docker container for running spot extraction. Default: <mfrepo>/spot_extraction:1.0.0",
+                    "description": "Docker container for running spot extraction. Default: <mfrepo>/spot_extraction:1.0.2",
                     "fa_icon": "fas fa-box-open",
                     "hidden": true
                 },
