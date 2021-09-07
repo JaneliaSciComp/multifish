@@ -69,7 +69,7 @@ process airlocalize {
     args = args_list.join(' ')
     """
     export SCRATCH_DIR=${params.local_scratch_dir}
-    echo "SCRATCH_DIR: $SCRATCH_DIR"
+    echo "SCRATCH_DIR: \$SCRATCH_DIR"
     echo "/app/airlocalize/airlocalize.sh ${args}"
     /app/airlocalize/airlocalize.sh ${args}
     """
