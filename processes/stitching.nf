@@ -17,13 +17,13 @@ process prepare_stitching_data {
         ? acq_output_dir
         : "${acq_output_dir}/${stitching_output}"
     mvl = "${input_dir}/${acq_name}.mvl"
-    mvl_link = "${stitching_dir}/${acq_name}.mvl"
-    czi = "${input_dir}/${acq_name}.czi"
-    czi_link = "${stitching_dir}/${acq_name}.czi"
+    mvl_link_dir = "${stitching_dir}"
+    czi = "${input_dir}/${acq_name}*.czi"
+    czi_link_dir = "${stitching_dir}"
     """
     umask 0002
-    mkdir -p "${stitching_dir}"
-    ln -s "${mvl}" "${mvl_link}" || true
-    ln -s "${czi}" "${czi_link}" || true
+    mkdir -p ${stitching_dir}
+    ln -s ${mvl} ${mvl_link_dir} || true
+    ln -s ${czi} ${czi_link_dir} || true
     """
 }

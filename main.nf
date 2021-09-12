@@ -139,6 +139,7 @@ stitching_ref = stitching_ref_param(final_params)
 stitching_mode = final_params.stitching_mode
 stitching_padding = final_params.stitching_padding
 stitching_blur_sigma = final_params.stitching_blur_sigma
+stitching_czi_pattern = final_params.stitching_czi_pattern
 
 // if spot extraction is not desired include 'spot_extraction' in the 'skip' parameter 
 if (steps_to_skip.contains('spot_extraction')) {
@@ -253,6 +254,7 @@ workflow {
         stitching_mode,
         stitching_padding,
         stitching_blur_sigma,
+        stitching_czi_pattern,
         spark_conf,
         spark_work_dir,
         spark_workers,

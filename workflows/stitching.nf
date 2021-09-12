@@ -46,6 +46,7 @@ workflow stitching {
     stitching_mode
     stitching_padding
     stitching_blur_sigma
+    stitching_czi_pattern
     spark_conf
     spark_work_dir
     spark_workers
@@ -94,6 +95,7 @@ workflow stitching {
         stitching_mode,
         stitching_padding,
         stitching_blur_sigma,
+        stitching_czi_pattern,
         spark_conf,
         acq_inputs.spark_work_dirs,
         spark_workers,
@@ -127,6 +129,7 @@ workflow stitch {
     stitching_mode
     stitching_padding
     stitching_blur_sigma
+    stitching_czi_pattern
     spark_conf
     spark_work_dirs
     spark_workers
@@ -184,7 +187,7 @@ workflow stitch {
         indexed_acq_data,
         { acq_name, stitching_dir ->
             def mvl_inputs = entries_inputs_args(stitching_dir, [ acq_name ], '-i', '', '.mvl')
-            def czi_inputs = entries_inputs_args('', [ acq_name ], '-f', '', '.czi')
+            def czi_inputs = entries_inputs_args('', [ acq_name ], '-f', stitching_czi_pattern, '.czi')
             return "${mvl_inputs} ${czi_inputs} -r '${resolution}' -a '${axis_mapping}' -b ${stitching_dir}"
         }
     )

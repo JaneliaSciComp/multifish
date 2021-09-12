@@ -40,6 +40,7 @@ def default_mf_params() {
         stitching_mode: 'incremental',
         stitching_padding: '0,0,0',
         stitching_blur_sigma: '2',
+        stitching_czi_pattern: '', // A suffix pattern that is applied to acq_names when creating CZI names e.g. "_V%02d"
         workers: 4,
         worker_cores: 4,
         gb_per_core: 4,
