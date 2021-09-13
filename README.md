@@ -67,7 +67,7 @@ The pipeline includes the following modules:
 * **segmentation** - Cell segmentation using Starfinity
 * **registration** - Bigstream distributed registration pipeline
 * **warp_spots** - Warp detected spots to registration
-* **intensities** - Intensity measurement
+* **measure_intensities** - Intensity measurement
 * **assign_spots** - Mapping of spot counts to segmented cells
 
 ![Pipeline Diagram](docs/pipeline_diagram.png)

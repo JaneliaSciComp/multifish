@@ -27,7 +27,7 @@ Note that the demo scripts set all these directories relative to the TMPDIR by d
 | &#x2011;&#x2011;segmentation_model_dir | | Path to the directory containing the machine learning model for segmentation |
 | --acq_names | | Names of acquisition rounds to process. These should match the names of the CZI/MVL files found in the data_dir. |  
 | --ref_acq | | Name of the acquisition round to use as the fixed reference |
-| --skip | | Comma-delimited list of steps to skip, e.g. "stitching,registration" (Valid values: stitching, spot_extraction, segmentation, registration, warp_spots, intensities, assign_spots) |
+| --skip | | Comma-delimited list of steps to skip, e.g. "stitching,registration" (Valid values: stitching, spot_extraction, segmentation, registration, warp_spots, measure_intensities, assign_spots) |
 | --runtime_opts | | Runtime options for Singularity must include mounts for any directory paths you are using. You can also pass the --nv flag here to make use of NVIDIA GPU resources. For example, `--nv -B /your/data/dir -B /your/output/dir` |
 | --mfrepo | janeliascicomp (on DockerHub) | Docker Registry and Repository to use for containers |
 | -workdir | ./work | Nextflow working directory where all intermediate files are saved |
