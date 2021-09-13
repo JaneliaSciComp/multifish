@@ -53,7 +53,6 @@ shift # eat the first argument so that $@ works later
         --runtime_opts "-B $BASEDIR -B $datadir -B $TMPDIR" \
         --data_manifest "demo_medium" \
         --shared_work_dir "$datadir" \
-        --singularity_cache_dir "$SINGULARITY_CACHEDIR" \
         --workers "2" \
         --worker_cores "16" \
         --gb_per_core "3" \
