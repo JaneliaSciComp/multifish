@@ -59,24 +59,33 @@ shift # eat the first argument so that $@ works later
         --spark_work_dir "$datadir/spark" \
         --stitching_czi_pattern '_V%02d' \
         --workers "1" \
-        --worker_cores "8" \
-        --gb_per_core "2" \
+        --worker_cores "12" \
+        --gb_per_core "4" \
         --driver_memory "1g" \
         --channels "c0,c1" \
         --dapi_channel "c1" \
         --stitching_block_size "1024,1024,256" \
         --retile_z_size "128" \
         --registration_xy_stride "512" \
-        --registration_xy_overlap "64" \
-        --registration_z_stride "128" \
-        --registration_z_overlap "64" \
+        --registration_z_stride "64" \
+        --registration_xy_overlap "0" \
+        --registration_z_overlap "0" \
         --aff_scale "s1" \
         --def_scale "s2" \
-        --spot_extraction_xy_stride "256" \
+        --segmentation_cpus: "8" \
+        --segmentation_memory: "20 G" \
+        --spot_extraction_xy_stride "512" \
         --spot_extraction_z_stride "128" \
-        --spot_extraction_xy_overlap "64" \
-        --spot_extraction_z_overlap "64" \
+        --spot_extraction_xy_overlap "32" \
+        --spot_extraction_z_overlap "32" \
         --spot_extraction_cpus "1" \
         --spot_extraction_memory "2" \
+        --aff_scale_transform_memory "5 G" \
+        --def_scale_transform_memory "5 G" \
+        --deform_memory "5 G" \
+        --registration_stitch_memory "5 G" \
+        --registration_transform_memory "5 G" \
+        --warp_spots_cpus "4" \
+        --warp_spots_memory "8 G" \
         --ref_acq "$fixed_round" \
         --acq_names "$fixed_round,$moving_rounds" "$@"
