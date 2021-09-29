@@ -1,3 +1,8 @@
+---
+layout: default
+nav_order: 10
+---
+
 # Parameters
 
 The pipeline supports many types of parameters for customization to your compute environment and data. These can all be specified on the command line using the standard syntax `--argument="value"` or `--argument "value"`. You can also use any option supported by Nextflow itself. Note that certain arguments (i.e. those interpreted by Nextflow) use a single dash instead of two.

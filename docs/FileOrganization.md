@@ -1,3 +1,8 @@
+---
+layout: default
+nav_order: 15
+---
+
 # File Organization
 
 The pipeline takes input from one directory (`--data_dir`) and generates output (including intermediate output files) in another directory (`--output_dir`).

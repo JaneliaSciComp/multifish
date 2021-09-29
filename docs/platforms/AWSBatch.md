@@ -1,4 +1,10 @@
-# Create the AWSBatch compute environments
+---
+layout: default
+parent: Platforms
+nav_order: 4
+---
+
+# AWS Batch
 
 For running Multifish pipeline we use 2 AWSBatch compute environments - one for the tasks that only require CPU 
 and one for the tasks that require GPU. In addition to that we need an EFS volume that will be mounted on all 
