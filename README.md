@@ -1,6 +1,6 @@
 # EASI-FISH Nextflow Pipeline
 
-The purpose of this pipeline is to analyze imagery collected using [EASI-FISH](https://github.com/multiFISH/EASI-FISH) (Expansion-Assisted Iterative Fluorescence *In Situ* Hybridization). It includes automated image stitching, distributed multi-round image registration, cell segmentation, and distributed spot detection.
+This pipeline analyzes imagery collected using [EASI-FISH](https://github.com/multiFISH/EASI-FISH) (Expansion-Assisted Iterative Fluorescence *In Situ* Hybridization). It includes automated image stitching, distributed multi-round image registration, cell segmentation, and distributed spot detection.
 
 ![Pipeline Diagram](docs/images/pipeline_diagram.png)
 
@@ -15,10 +15,6 @@ For tech-saavy users, the pipeline can be invoked from the command-line and runs
 To [install Nextflow](https://www.nextflow.io/docs/latest/getstarted.html):
 
     curl -s https://get.nextflow.io | bash 
-
-Alternatively, you can install it as a conda package:
-
-    conda create --name multifish -c bioconda nextflow
 
 To [install Singularity](https://sylabs.io/guides/3.7/admin-guide/installation.html) on CentOS Linux:
 
@@ -35,7 +31,3 @@ Before running the pipeline for the first time, run setup to pull in external de
 You can now launch the pipeline using:
 
     ./main.nf [arguments]
-
-## Open Source License
-
-This software is made available under [Janelia's Open Source Software](https://www.janelia.org/open-science/software-licensing) policy which uses the BSD 3-Clause License.
