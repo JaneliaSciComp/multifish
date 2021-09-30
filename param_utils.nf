@@ -14,7 +14,7 @@ def default_mf_params() {
                        // should only be used when all steps must be performed for all acquisions
         ref_acq: '', // reference image for registration and/or segmentation
         shared_work_dir: '',
-        shared_scratch_dir: "$workDir/scratch",
+        //shared_scratch_dir: "$workDir/scratch", // currently not used
         local_scratch_dir: "\$PROCESS_DIR",
         data_dir: '',
         output_dir: '',

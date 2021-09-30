@@ -7,6 +7,11 @@ nav_order: 40
 
 ## Working with submodules
 
+To pull in the submodules:
+
+    git submodule init
+    git submodule update
+
 To update the external modules, you need to pull from Git with a special flag:
 
     git pull --recurse-submodules

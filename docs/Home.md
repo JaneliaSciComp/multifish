@@ -14,8 +14,6 @@ The purpose of this pipeline is to analyze imagery for spatial transcriptomics c
 
 ## Modules
 
-This pipeline is containerized and portable across the various platforms supported by [Nextflow](https://www.nextflow.io). So far it has been tested on a standalone workstation, the Janelia compute cluster (IBM Platform LSF), and AWS. If you run it successfully on any other platform, please let us know so that we can update this documentation.
-
 The pipeline includes the following modules:
 
 * **stitching** - Spark-based distributed stitching pipeline
@@ -25,3 +23,5 @@ The pipeline includes the following modules:
 * **warp_spots** - Warp detected spots to registration
 * **measure_intensities** - Intensity measurement
 * **assign_spots** - Mapping of spot counts to segmented cells
+
+Some of these modules can be executed individually, using alternative `*.nf` scripts in the root project directory. You can also skip individual steps using the `--skip` parameter, as long as the processed data is placed in its expected location for any downstream steps.

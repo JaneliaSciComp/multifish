@@ -21,9 +21,7 @@
 title: EASI-FISH Nextflow Pipeline
 email: rokickik@janelia.hhmi.org
 description: >- # this means to ignore newlines until "baseurl:"
-  The purpose of this pipeline is to analyze imagery collected using [EASI-FISH](https://github.com/multiFISH/EASI-FISH) (Expansion-Assisted Iterative Fluorescence *In Situ* Hybridization). It includes automated image stitching, distributed multi-round image registration, cell segmentation, and distributed spot detection.
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+  Pipeline to analyze imagery collected using EASI-FISH (Expansion-Assisted Iterative Fluorescence *In Situ* Hybridization)
 
 domain: janeliascicomp.github.io
 url: https://janeliascicomp.github.io
@@ -62,6 +60,3 @@ aux_links:
 
 ga_tracking: G-DG75YS4HX3
 ga_tracking_anonymize_ip: true # Use GDPR compliant Google Analytics settings
-
-
-
