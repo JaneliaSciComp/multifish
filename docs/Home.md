@@ -24,4 +24,4 @@ The pipeline includes the following modules:
 * **measure_intensities** - Intensity measurement
 * **assign_spots** - Mapping of spot counts to segmented cells
 
-Some of these modules can be executed individually, using alternative `*.nf` scripts in the root project directory. You can also skip individual steps using the `--skip` parameter, as long as the processed data is placed in its expected location for any downstream steps.
+Some of these modules can be executed individually, using alternative `main-*.nf` scripts in the root project directory. You can also skip individual steps using the `--skip` parameter, as long as the processed data is placed in its expected location for any downstream steps.
