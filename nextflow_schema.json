@@ -539,11 +539,6 @@
                     "fa_icon": "fas fa-fast-forward",
                     "help_text": "Valid values: stitching, spot_extraction, segmentation, registration, warp_spots, intensities, assign_spots"
                 },
-                "shared_scratch_dir": {
-                    "type": "string",
-                    "description": "Shared scratch space accessible to all the compute nodes. Default: $shared_work_dir/scratch or $workDir/scratch",
-                    "fa_icon": "fas fa-folder-open"
-                },
                 "singularity_cache_dir": {
                     "type": "string",
                     "description": "Shared directory where Singularity containers are cached. Default: $shared_work_dir/singularity_cache or $HOME/.singularity_cache",

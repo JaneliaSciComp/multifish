@@ -11,33 +11,41 @@ The pipeline supports many types of parameters for customization to your compute
 
 You can export variables into your environment before calling the pipeline, or set them on the same line like this:
 
-    TMPDIR=/opt/tmp ./examples/demo_small.sh /opt/demo_small
-
-Note that the demo scripts set all these directories relative to the TMPDIR by default, so setting TMPDIR sets everything else to the same location.
+    SINGULARITY_TMPDIR=/opt/tmp ./examples/demo_small.sh /opt/demo_small
 
 | Variable   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| TMPDIR | /tmp | Directory used for temporary files by certain processes like MATLAB's MCR Cache. |
-| SINGULARITY_TMPDIR | /tmp | Directory where Docker images are downlaoded and converted to Singularity Image Format. Needs to be large enough to accomodate several GB, so moving it out of /tmp is sometimes necessary. |
-| SINGULARITY_CACHEDIR | $HOME/.singularity_cache | Directory where Singularity images are cached. This needs to be accessible from all nodes. |
-| SPARK_LOCAL_DIR | /tmp | Directory used for temporary storage by Spark (in the stitching module). |
+| TMPDIR | /tmp | Directory used for temporary files by certain processes. |
+| SINGULARITY_TMPDIR | /tmp | Directory where Docker images are downloaded and converted to Singularity Image Format. Needs to be large enough to accommodate several GB, so moving it out of /tmp is sometimes necessary. |
 
 ## Global Parameters
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| --data_dir | | Path to the directory containing the input CZI/MVL acquisition files |
-| --output_dir | | Path to the directory containing pipeline outputs |
-| --spark_work_dir | | Path to directory containing Spark working files and logs during stitching |
-| &#x2011;&#x2011;segmentation_model_dir | | Path to the directory containing the machine learning model for segmentation |
-| --acq_names | | Names of acquisition rounds to process. These should match the names of the CZI/MVL files found in the data_dir. |  
-| --ref_acq | | Name of the acquisition round to use as the fixed reference |
 | --skip | | Comma-delimited list of steps to skip, e.g. "stitching,registration" (Valid values: stitching, spot_extraction, segmentation, registration, warp_spots, measure_intensities, assign_spots) |
+| --singularity_cache_dir | $HOME/.singularity_cache | Shared directory where Singularity containers are cached. Default: $shared_work_dir/singularity_cache or $HOME/.singularity_cache |
+| --singularity_user | $USER | User to use for running Singularity containers. This is automatically set to `ec2-user` when using the 'tower' profile.  |
 | --runtime_opts | | Runtime options for Singularity must include mounts for any directory paths you are using. You can also pass the --nv flag here to make use of NVIDIA GPU resources. For example, `--nv -B /your/data/dir -B /your/output/dir` |
-| --mfrepo | janeliascicomp (on DockerHub) | Docker Registry and Repository to use for containers |
 | -workdir | ./work | Nextflow working directory where all intermediate files are saved |
 | -profile | localsingularity | Configuration profile to use (Valid values: localsingularity, lsf) |
 | -with-tower | | [Nextflow Tower](https://tower.nf) URL for monitoring |
+
+## Data Parameters
+
+| Argument   | Default | Description                                                                           |
+|------------|---------|---------------------------------------------------------------------------------------|
+| --data_manifest | | Name or path to the file manifest for downloading input data. If specified, the data in the manifest is downloaded into `--data_dir` before the pipeline begins. Valid values are any filename found in the data-sets directory (e.g. "demo_small", "demo_medium") or any path which points to a manifest file. |
+| --verify_md5 | true |  Verify MD5 sum for all downloads. This can be disabled to save time, but it's not recommended. |
+| --shared_work_dir | | Shared working directory accessible by all nodes. Setting this parameter will automatically configure `data_dir`, `output_dir`, `segmentation_model_dir`, `spark_work_dir`, and `singularity_cache_dir` relative to this directory. |
+| --data_dir | | Path to the directory containing the input CZI/MVL acquisition files. If shared_work_dir is defined, this defaults to $shared_work_dir/inputs. If `shared_work_dir` is defined, this is automatically set to `$shared_work_dir/inputs`. |
+| &#x2011;&#x2011;segmentation_model_dir | | Path to the directory containing the machine learning model for segmentation. If `shared_work_dir` is defined, this is automatically set to `$shared_work_dir/inputs/model/starfinity`. It is assumed that either the model is already there, or it will be downloaded and unzipped according to the `data_manifest`. Otherwise it defaults to ${projectDir}/external-modules/segmentation/model/starfinity, which is normally configured by setup.sh. |
+| --output_dir | | Path to the directory containing pipeline outputs |
+| --publish_dir | | Optional publishing directory where results should be copied when the pipeline is successfully completed. This is useful when running in the cloud, e.g. for getting data off of FSx and onto something externally accessible like S3. Typically a Fusion mount path like /fusion/s3/bucket-name. |
+| --acq_names | | Names of acquisition rounds to process. These should match the names of the CZI/MVL files found in the data_dir. e.g. LHA3_R3_small,LHA3_R5_small if you have files called LHA3_R3_small.czi and LHA3_R5_small.czi. |  
+| --ref_acq | | Name of the acquisition round to use as the fixed reference. e.g. LHA3_R3_small |
+| --channels | c0,c1,c2,c3 | List of channel names to process. Channel names are specified in the format "c[channel_number]", where the channel_number is 0-indexed. |
+| --dapi_channel | c2 | Name of the DAPI channel. The DAPI channel is used as a reference channel for registration, segmentation, and spot extraction. |
+| --bleed_channel | c3 | Channel (other than DAPI) used to correct bleed-through on DAPI channel |
 
 ## Stitching Parameters
 
@@ -45,9 +53,9 @@ Note that the demo scripts set all these directories relative to the TMPDIR by d
 |------------|---------|---------------------------------------------------------------------------------------|
 | --stitching_app | external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar | Path to the JAR file containing the stitching application. This is built by the `setup.sh` script run in *Quick Start* above. |
 | --stitching_output | stitching | Output directory for stitching (relative to --output_dir) |
+| --spark_work_dir | | Path to directory containing Spark working files and logs during stitching |
 | --resolution | 0.23,0.23,0.42 | |
 | --axis | -x,y,z | Axis mapping for objective to pixel coordinates conversion when parsing CZI metadata. Minus sign flips the axis. |
-| --channels | c0,c1,c2,c3 | List of channels to stitch |
 | --stitching_block_size | 128,128,64 | Block size to use when converting CZI to n5 before stitching |
 | --retile_z_size | 64 | Block size (in Z dimension) when retiling after stitching. This must be smaller than the number of Z slices in the data. |
 | --stitching_ref | 2 | Index of the channel used for stitching; if this is not defined it defaults to dapi_channel |
@@ -63,10 +71,7 @@ Note that the demo scripts set all these directories relative to the TMPDIR by d
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| --spot_extraction_container | \<mfrepo\>/spotextraction:1.0.0 | Docker container to use for running spot extraction |
 | --spot_extraction_output | spots | Output directory for spot extraction (relative to --output_dir) |
-| --dapi_channel | c2 | DAPI channel |
-| --bleed_channel | c3 | Channel (other than DAPI) used to correct bleedthrough on DAPI channel |
 | --spot_extraction_scale | s0 | Scale of imagery to use for spot extraction |
 | --spot_extraction_xy_stride | 1024 | The number of voxels along x/y for registration tiling, must be power of 2. Increasing this requires increasing the memory allocation. |
 | --spot_extraction_xy_overlap | 5% of xy_stride | Tile overlap on x/y axes |
@@ -81,7 +86,6 @@ Note that the demo scripts set all these directories relative to the TMPDIR by d
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| --segmentation_container | \<mfrepo\>/segmentation:1.0.0 | Docker container to use for running segmentation |
 | --segmentation_output | segmentation | Output directory for segmentation (relative to --output_dir) |
 | &#x2011;&#x2011;segmentation_model_dir | ./external-modules/segmentation/model/starfinity | Starfinity model for segmentation |
 | --dapi_channel | c2 | DAPI channel |
@@ -92,7 +96,6 @@ Note that the demo scripts set all these directories relative to the TMPDIR by d
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| --registration_container | \<mfrepo\>/registration:1.1.0 | Docker container to use for running registration and warp_spots |
 | --registration_output | registration | Output directory for registration (relative to --output_dir) |
 | --dapi_channel | c2 | DAPI channel |
 | --aff_scale | s3 | The scale level for affine alignments |
@@ -116,14 +119,12 @@ Note that the demo scripts set all these directories relative to the TMPDIR by d
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| &#x2011;&#x2011;registration_container | \<mfrepo\>/registration:1.0.0 | Docker container to use for running registration and warp_spots |
 | --warp_spots_cpus | 2 | Number of CPU cores to use for warp spots |
 
 ## Intensity Measurement Parameters
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| &#x2011;&#x2011;spots_assignment_container | \<mfrepo\>/spot_assignment:1.0.0 | Docker container to use for running intensities and spot_assignment |
 | --measure_intensities_output | intensities | Output directory for intensities (relative to --output_dir) |
 | --dapi_channel | c2 | DAPI channel |
 | --bleed_channel | c3 | |
@@ -133,6 +134,18 @@ Note that the demo scripts set all these directories relative to the TMPDIR by d
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| &#x2011;&#x2011;spots_assignment_container | \<mfrepo\>/spot_assignment:1.0.0 | Docker container to use for running intensities and spot_assignment |
 | --assign_spots_output | assignments | Output directory for spot assignments (relative to --output_dir) |
 | --assign_spots_cpus | 1 | Number of CPU cores to use for spot assignment |
+
+## Container Options
+
+| Argument   | Default | Description                                                                           |
+|------------|---------|---------------------------------------------------------------------------------------|
+| --mfrepo | janeliascicomp (on DockerHub) | Docker Registry and Repository to use for containers |
+| --spark_container_repo | <mfrepo> | Docker container repo for stitching. |
+| --spark_container_name | stitching | Docker container name for stitching. |
+| --spark_container_version | 1.0.0 | Docker container version for stitching. |
+| --registration_container | \<mfrepo\>/registration:1.1.0 | Docker container to use for running registration and warp_spots |
+| --segmentation_container | \<mfrepo\>/segmentation:1.0.0 | Docker container to use for running segmentation |
+| --spot_extraction_container | \<mfrepo\>/spotextraction:1.0.0 | Docker container to use for running spot extraction |
+| &#x2011;&#x2011;spots_assignment_container | \<mfrepo\>/spot_assignment:1.0.0 | Docker container to use for running measure_intensities and spot_assignment |
