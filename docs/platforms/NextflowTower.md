@@ -10,45 +10,19 @@ You can run the pipeline from a web GUI interface known as Nextflow Tower. A pub
 
 ## Creating a Compute Environment
 
-You (or your system administrator) will first need to create a compute environment in Tower to describe your compute resources. Use the "Tower Forge" method to automatically create the required resources. The official documentation provides [detailed instructions](https://help.tower.nf/compute-envs/aws-batch/#forge-aws-resources) to set this up. Below are some hints that we found works for this pipeline.
+You (or your system administrator) will first need to create a compute environment in Tower to describe your compute resources. Use the "Tower Forge" method to automatically create the required resources. The official documentation provides [detailed instructions](https://help.tower.nf/compute-envs/aws-batch/#forge-aws-resources) to set this up. Below are some hints for the values that we found works for this pipeline.
 
-### IAM User Permissions
-
-If your institution has AWS account, contact your systems administrator to get these permissions on your account. If you are using your own personal AWS account, you can simply follow the instructions.
-
-### Creating an S3 Bucket for Storage
-
-### Forge compute environment
-
-| Parameter | Value             |
-|-----------|-------------------|
-| Pipeline work directory | `/fsx/work` |
-| Config mode | "Batch Forge" |
-| Provisioning model | "On Demand" |
-| Max CPUs | `100` |
-| EBS Auto scale | off |
-| Enable Fusion mounts | on |
-| Enable GPU | on |
-| Allowed S3 buckets | Your S3 bucket |
-| EFS file system | None |
-| FSx for Lustre | "Create new FSx file system" |
-| FSx size | 1200 |
-| FSx mount path | /fsx |
+![Screen of creating a compute environment](../images/compute_env_creation.png)
 
 ## Adding the Pipeline
 
-In the *Launchpad* tab, click **New pipeline** and paste the
+In the *Launchpad* tab, click **New pipeline** and fill in these values:
 
-| Parameter | Value             |
-|-----------|-------------------|
-| Pipeline to launch | `https://github.com/JaneliaSciComp/multifish` |
-| Work directory | `/fsx/work` |
-| Config profiles | **tower** |
-| Pull latest | on |
+![Screenshot of creating a new pipeline](../images/new_pipeline.png)
 
 ## Launching the Pipeline
 
-When you click on the pipeline in the Launchpad, you will see all of the parameters laid out in a web GUI. By default, the parameters will allow you to run the `demo_small` test data set. All you need to do is fill in the `shared_work_dir` to point to your fsx mount (e.g. /fsx/pipeline) and `publish_dir` to point to your mounted S3 bucket (/fusion/s3/bucket-name). This works by downloading data in the data_manifest.
+When you click on the pipeline in the Launchpad, you will see all of the parameters laid out in a web GUI. By default, the parameters will allow you to run the `demo_small` test data set. All you need to do is fill in the `shared_work_dir` to point to your fsx mount (e.g. /fsx/pipeline) and `publish_dir` to point to your mounted S3 bucket (/fusion/s3/bucket-name). This will begin by downloading data in the data_manifest, adn then running the complete analysis pipeline.
 
 ### Processing your data
 

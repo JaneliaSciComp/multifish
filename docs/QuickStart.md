@@ -9,7 +9,7 @@ nav_order: 2
 
 The easiest way to use the EASI-FISH pipeline is by running it from the Nextflow Tower web interface. For Janelia users, Nextflow Tower is [available locally](http://nextflow.int.janelia.org) (requires Janelia VPN) and allows us to execute on either the Janelia cluster or AWS cloud. If your institution does not have Nextflow Tower installed, you can use the official [Nextflow Tower](tower.nf) instance to execute on any cloud platform.
 
-See the [Nextflow Tower platform documentation](platforms/NextflowTower.md) for step-by-step instructions.
+See the [platform documentation](platforms/NextflowTower.md) for step-by-step instructions.
 
 ## Command-line Quick Start
 
@@ -41,7 +41,7 @@ You can now launch the pipeline using:
 
 ## Demo Data Sets
 
-To get running quickly, there are demo scripts available which download EASI-FISH example data and run the full pipeline. You can analyze the smallest data set like this:
+To get running quickly, there are [example scripts](https://github.com/JaneliaSciComp/multifish/tree/master/examples) provided which download EASI-FISH example data and run the full pipeline. You can analyze the smallest data set like this:
 
     ./examples/demo_small.sh <data dir> [arguments]
 
