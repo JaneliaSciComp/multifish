@@ -10,7 +10,15 @@ You can run the pipeline from a web GUI interface known as Nextflow Tower. A pub
 
 ## Creating a Compute Environment
 
-You (or your system administrator) will first need to create a compute environment in Tower to describe your compute resources. Tower provides [detailed documentation](https://help.tower.nf/compute-envs/overview) about this step, and below we detail some parameters that we found works for this pipeline.
+You (or your system administrator) will first need to create a compute environment in Tower to describe your compute resources. Use the "Tower Forge" method to automatically create the required resources. The official documentation provides [detailed instructions](https://help.tower.nf/compute-envs/aws-batch/#forge-aws-resources) to set this up. Below are some hints that we found works for this pipeline.
+
+### IAM User Permissions
+
+If your institution has AWS account, contact your systems administrator to get these permissions on your account. If you are using your own personal AWS account, you can simply follow the instructions.
+
+### Creating an S3 Bucket for Storage
+
+### Forge compute environment
 
 | Parameter | Value             |
 |-----------|-------------------|
@@ -24,6 +32,8 @@ You (or your system administrator) will first need to create a compute environme
 | Allowed S3 buckets | Your S3 bucket |
 | EFS file system | None |
 | FSx for Lustre | "Create new FSx file system" |
+| FSx size | 1200 |
+| FSx mount path | /fsx |
 
 ## Adding the Pipeline
 
