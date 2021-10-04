@@ -126,6 +126,11 @@
                     "help_text": "This path does not need to be shared among workers, and does not need to be accessible to the head node. Usually, /tmp will do.",
                     "hidden": true
                 },
+                "stitching_czi_pattern": {
+                    "type": "string",
+                    "description": "A suffix pattern that is applied to acq_names when creating CZI names e.g. \"_V%02d\"",
+                    "fa_icon": "far fa-copy"
+                },
                 "stitching_ref": {
                     "type": "integer",
                     "fa_icon": "fas fa-asterisk",

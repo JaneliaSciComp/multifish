@@ -54,6 +54,7 @@ You can export variables into your environment before calling the pipeline, or s
 | --stitching_app | external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar | Path to the JAR file containing the stitching application. This is built by the `setup.sh` script run in *Quick Start* above. |
 | --stitching_output | stitching | Output directory for stitching (relative to --output_dir) |
 | --spark_work_dir | | Path to directory containing Spark working files and logs during stitching |
+| --stitching_czi_pattern | | A suffix pattern that is applied to acq_names when creating CZI names e.g. "_V%02d" |
 | --resolution | 0.23,0.23,0.42 | |
 | --axis | -x,y,z | Axis mapping for objective to pixel coordinates conversion when parsing CZI metadata. Minus sign flips the axis. |
 | --stitching_block_size | 128,128,64 | Block size to use when converting CZI to n5 before stitching |
