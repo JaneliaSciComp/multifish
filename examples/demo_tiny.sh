@@ -2,14 +2,14 @@
 #
 # This script downloads all the necessary data and runs the end-to-end pipeline on a small demo data set.
 # 
-# It takes about 2 hours to run.
+# It takes about 30 minutes to run.
 #
 # The parameters below are tuned for a 40 core machine, with 128 GB of RAM. 
 #
 # If your /tmp directory is on a filesystem with less than 10 GB of space, you can set the TMPDIR variable
 # in your environment before calling this script, for example, to use your /opt for all file access:
 #
-#   TMPDIR=/opt/tmp ./examples/demo_small.sh /opt/demo
+#   TMPDIR=/opt/tmp ./examples/demo_tiny.sh /opt/demo
 #
 
 DIR=$(cd "$(dirname "$0")"; pwd)
@@ -24,7 +24,7 @@ mkdir -p $SINGULARITY_TMPDIR
 mkdir -p $SINGULARITY_CACHEDIR
 
 verify_md5=true
-data_size="small"
+data_size="tiny"
 fixed_round="LHA3_R3_${data_size}"
 moving_rounds="LHA3_R5_${data_size}"
 
@@ -52,11 +52,9 @@ shift # eat the first argument so that $@ works later
 #
 
 ./main.nf \
-        --runtime_opts "-B $BASEDIR -B $datadir -B $TMPDIR -B /nrs/multifish" \
-        --data_dir "/nrs/multifish/Pipeline/Examples/small_example_data_2021Sep/" \
-        --output_dir "$datadir/outputs" \
-        --segmentation_model_dir '/groups/scicompsoft/home/rokickik/dev/multifish/external-modules/segmentation/model/starfinity/' \
-        --spark_work_dir "$datadir/spark" \
+        --runtime_opts "-B $BASEDIR -B $datadir -B $TMPDIR" \
+        --data_manifest "demo_$data_size" \
+        --shared_work_dir "$datadir" \
         --stitching_czi_pattern '_V%02d' \
         --workers "1" \
         --worker_cores "12" \

@@ -1,0 +1,7 @@
+LHA3_R3_tiny.mvl       3b799dab4cc816b81c74652ebd7e63a3    https://janelia.figshare.com/ndownloader/files/30900679
+LHA3_R3_tiny_V01.czi   26395350a2e33937321cd6a61b345454    https://janelia.figshare.com/ndownloader/files/30900664
+LHA3_R3_tiny_V02.czi   7373d9c07e69e33f16f166430757c408    https://janelia.figshare.com/ndownloader/files/30900676
+LHA3_R5_tiny.mvl       7300eaacaa089f8e6303a872a484e715    https://janelia.figshare.com/ndownloader/files/30900778
+LHA3_R5_tiny_V01.czi   9688f2cdec1c7d3d1228b3240a2a9502    https://janelia.figshare.com/ndownloader/files/30900766
+LHA3_R5_tiny_V02.czi   9a8de1ebca387dfbeb265e9fbb8ab435    https://janelia.figshare.com/ndownloader/files/30900781
+model.zip           7c4b6de492abba160cfa9d7c2bbb4592    https://janelia.figshare.com/ndownloader/files/26271079

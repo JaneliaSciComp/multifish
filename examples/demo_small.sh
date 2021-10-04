@@ -53,7 +53,7 @@ shift # eat the first argument so that $@ works later
 
 ./main.nf \
         --runtime_opts "-B $BASEDIR -B $datadir -B $TMPDIR" \
-        --data_manifest "demo_small" \
+        --data_manifest "demo_$data_size" \
         --shared_work_dir "$datadir" \
         --workers "1" \
         --worker_cores "16" \
