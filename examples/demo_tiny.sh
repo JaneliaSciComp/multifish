@@ -2,9 +2,7 @@
 #
 # This script downloads all the necessary data and runs the end-to-end pipeline on a small demo data set.
 # 
-# It takes about 30 minutes to run.
-#
-# The parameters below are tuned for a 40 core machine, with 128 GB of RAM. 
+# It takes 20 minutes to run on a 40 core machine with 128 GB of RAM. 
 #
 # If your /tmp directory is on a filesystem with less than 10 GB of space, you can set the TMPDIR variable
 # in your environment before calling this script, for example, to use your /opt for all file access:
