@@ -93,7 +93,7 @@ def default_mf_params() {
         ransac_cpus: 1,
         ransac_memory: '1 G',
         spots_cpus: 1,
-        spots_memory: '1 G',
+        spots_memory: '2 G',
         interpolate_cpus: 1,
         interpolate_memory: '1 G',
         coarse_spots_cpus: 1,
