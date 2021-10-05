@@ -16,7 +16,7 @@
                     "description": "Name or path to the file manifest for downloading input data.",
                     "fa_icon": "far fa-list-alt",
                     "help_text": "If specified, the data in the manifest is downloaded into `--data_dir` before the pipeline begins. Valid values are any filename found in the data-sets directory (e.g. \"demo_small\", \"demo_medium\") or any path which points to a manifest file. ",
-                    "default": "demo_small"
+                    "default": "demo_tiny"
                 },
                 "verify_md5": {
                     "type": "string",
@@ -63,14 +63,14 @@
                     "fa_icon": "fas fa-vial",
                     "description": "Names of acquisition rounds to process. These should match the names of the CZI/MVL files found in the data_dir.",
                     "help_text": "e.g. LHA3_R3_small,LHA3_R5_small if you have files called LHA3_R3_small.czi and LHA3_R5_small.czi",
-                    "default": "LHA3_R3_small,LHA3_R5_small"
+                    "default": "LHA3_R3_tiny,LHA3_R5_tiny"
                 },
                 "ref_acq": {
                     "type": "string",
                     "fa_icon": "fas fa-asterisk",
                     "description": "Name of the acquisition round to use as the fixed reference.",
                     "help_text": "e.g. LHA3_R3_small",
-                    "default": "LHA3_R3_small"
+                    "default": "LHA3_R3_tiny"
                 },
                 "channels": {
                     "type": "string",
@@ -129,7 +129,8 @@
                 "stitching_czi_pattern": {
                     "type": "string",
                     "description": "A suffix pattern that is applied to acq_names when creating CZI names e.g. \"_V%02d\"",
-                    "fa_icon": "far fa-copy"
+                    "fa_icon": "far fa-copy",
+                    "default": "_V%02d"
                 },
                 "stitching_ref": {
                     "type": "integer",
@@ -154,13 +155,15 @@
                     "type": "string",
                     "fa_icon": "fas fa-cube",
                     "pattern": "^\\d+,\\d+,\\d+$",
-                    "description": "Block size to use when converting CZI to n5 before stitching. Default: 128,128,64"
+                    "description": "Block size to use when converting CZI to n5 before stitching. Default: 128,128,64",
+                    "default": "1024,1024,256"
                 },
                 "retile_z_size": {
                     "type": "integer",
                     "fa_icon": "far fa-square",
                     "description": "Block size (in Z dimension) when retiling after stitching. Default: 64",
-                    "help_text": "This must be smaller than the number of Z slices in the data."
+                    "help_text": "This must be smaller than the number of Z slices in the data.",
+                    "default": 128
                 },
                 "stitching_mode": {
                     "type": "string",
@@ -188,20 +191,20 @@
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
                     "description": "Number of cores allocated to each Spark worker. Default: 4",
-                    "default": 16
+                    "default": 12
                 },
                 "gb_per_core": {
                     "type": "integer",
                     "fa_icon": "fas fa-cog",
                     "description": "Size of memory (in GB) that is allocated for each core of a Spark worker. Default: 4",
                     "help_text": "The total memory usage for stitching one acquisition will be workers * worker_cores * gb_per_core. ",
-                    "default": 3
+                    "default": 4
                 },
                 "driver_memory": {
                     "type": "string",
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of memory to allocate for the Spark driver. Default: 15g",
-                    "default": "2g"
+                    "default": "1g"
                 },
                 "wait_for_spark_timeout_seconds": {
                     "type": "integer",
@@ -240,12 +243,14 @@
                 "aff_scale": {
                     "type": "string",
                     "description": "The scale level for affine alignments. Default: s3",
-                    "fa_icon": "fas fa-file-image"
+                    "fa_icon": "fas fa-file-image",
+                    "default": "s2"
                 },
                 "def_scale": {
                     "type": "string",
                     "description": "The scale level for deformable alignments. Default: s2",
-                    "fa_icon": "fas fa-file-image"
+                    "fa_icon": "fas fa-file-image",
+                    "default": "s1"
                 },
                 "spots_cc_radius": {
                     "type": "integer",
@@ -281,27 +286,31 @@
                     "type": "integer",
                     "description": "The number of voxels along x/y for registration tiling. Default: 256",
                     "fa_icon": "fas fa-walking",
-                    "help_text": "Must be power of 2."
+                    "help_text": "Must be power of 2.",
+                    "default": 512
                 },
                 "registration_xy_overlap": {
                     "type": "integer",
                     "description": "Tile overlap on x/y axes",
                     "help_text": "Defaults to registration_xy_stride/8 when not specified.",
                     "fa_icon": "fas fa-align-center",
-                    "hidden": true
+                    "hidden": true,
+                    "default": 0
                 },
                 "registration_z_stride": {
                     "type": "integer",
                     "description": "The number of voxels along z for registration tiling. Default: 256",
                     "fa_icon": "fas fa-walking",
-                    "help_text": "Must be power of 2."
+                    "help_text": "Must be power of 2.",
+                    "default": 64
                 },
                 "registration_z_overlap": {
                     "type": "integer",
                     "description": "Tile overlap on Z axes",
                     "help_text": "Defaults to registration_z_stride/8 when not specified.",
                     "fa_icon": "fas fa-align-center",
-                    "hidden": true
+                    "hidden": true,
+                    "default": 0
                 },
                 "ransac_cpus": {
                     "type": "integer",
@@ -351,7 +360,8 @@
                 "aff_scale_transform_memory": {
                     "type": "string",
                     "fa_icon": "fas fa-memory",
-                    "description": "Amount of memory for Affine Scale Transform step of registration. Default: 15 G"
+                    "description": "Amount of memory for Affine Scale Transform step of registration. Default: 15 G",
+                    "default": "5 G"
                 },
                 "def_scale_transform_cpus": {
                     "type": "integer",
@@ -361,7 +371,8 @@
                 "def_scale_transform_memory": {
                     "type": "string",
                     "fa_icon": "fas fa-memory",
-                    "description": "Amount of memory for Deformable Scale Transform step of registration. Default: 80 G"
+                    "description": "Amount of memory for Deformable Scale Transform step of registration. Default: 80 G",
+                    "default": "5 G"
                 },
                 "deform_cpus": {
                     "type": "integer",
@@ -371,7 +382,8 @@
                 "deform_memory": {
                     "type": "string",
                     "fa_icon": "fas fa-memory",
-                    "description": "Amount of memory for Deform step of registration. Default: 10 G"
+                    "description": "Amount of memory for Deform step of registration. Default: 10 G",
+                    "default": "5 G"
                 },
                 "registration_stitch_cpus": {
                     "type": "integer",
@@ -381,7 +393,8 @@
                 "registration_stitch_memory": {
                     "type": "string",
                     "fa_icon": "fas fa-memory",
-                    "description": "Amount of memory for Stitch step of registration. Default: 20 G"
+                    "description": "Amount of memory for Stitch step of registration. Default: 20 G",
+                    "default": "5 G"
                 },
                 "registration_transform_cpus": {
                     "type": "integer",
@@ -391,7 +404,8 @@
                 "registration_transform_memory": {
                     "type": "string",
                     "fa_icon": "fas fa-memory",
-                    "description": "Amount of memory for final Transform step of registration. Default: 80 G"
+                    "description": "Amount of memory for final Transform step of registration. Default: 80 G",
+                    "default": "5 G"
                 }
             },
             "fa_icon": "fas fa-layer-group"
@@ -418,12 +432,14 @@
                 "segmentation_cpus": {
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
-                    "description": "Number of CPU cores for segmentation. Default: 3"
+                    "description": "Number of CPU cores for segmentation. Default: 3",
+                    "default": 8
                 },
                 "segmentation_memory": {
                     "type": "string",
                     "fa_icon": "fas fa-memory",
-                    "description": "Amount of memory for segmentation. Default: 45 G"
+                    "description": "Amount of memory for segmentation. Default: 45 G",
+                    "default": "20 G"
                 }
             }
         },
@@ -458,20 +474,22 @@
                     "description": "Tile overlap on x/y axes",
                     "help_text": "Defaults to 5% of spot_extraction_xy_stride",
                     "hidden": true,
-                    "default": 256
+                    "default": 32
                 },
                 "spot_extraction_z_stride": {
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
                     "description": "The number of voxels along Z for registration tiling.  Default: 512",
-                    "help_text": "Must be a power of 2. Increasing this requires increasing `--spot_extraction_memory`."
+                    "help_text": "Must be a power of 2. Increasing this requires increasing `--spot_extraction_memory`.",
+                    "default": 128
                 },
                 "spot_extraction_z_overlap": {
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
                     "description": "Tile overlap on z axes",
                     "help_text": "Defaults to 5% of spot_extraction_z_stride",
-                    "hidden": true
+                    "hidden": true,
+                    "default": 32
                 },
                 "default_airlocalize_params": {
                     "type": "string",
@@ -489,12 +507,14 @@
                 "spot_extraction_cpus": {
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
-                    "description": "Number of CPU cores to allocate for each AirLocalize job. Default: 1"
+                    "description": "Number of CPU cores to allocate for each AirLocalize job. Default: 1",
+                    "default": 1
                 },
                 "spot_extraction_memory": {
                     "type": "integer",
                     "fa_icon": "fas fa-memory",
-                    "description": "Amount of RAM (in GB) to allocate to each AirLocalize job. Needs to be increased when increasing strides. Default: 1"
+                    "description": "Amount of RAM (in GB) to allocate to each AirLocalize job. Needs to be increased when increasing strides. Default: 1",
+                    "default": 2
                 }
             }
         },
@@ -506,12 +526,14 @@
                 "warp_spots_cpus": {
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
-                    "description": "Number of CPU cores to use for warp spots. Default: 2"
+                    "description": "Number of CPU cores to use for warp spots. Default: 2",
+                    "default": 4
                 },
                 "warp_spots_memory": {
                     "type": "string",
                     "fa_icon": "fas fa-memory",
-                    "description": "Amount of memory for warp spots. Default: 30 G"
+                    "description": "Amount of memory for warp spots. Default: 30 G",
+                    "default": "8 G"
                 }
             },
             "fa_icon": "fas fa-chess-board"
