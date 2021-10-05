@@ -111,10 +111,25 @@ You can export variables into your environment before calling the pipeline, or s
 | --registration_xy_overlap | xy_stride/8 | Tile overlap on x/y axes |
 | --registration_z_stride | 256 | The number of voxels along z for registration tiling, must be power of 2 |
 | --registration_z_overlap | z_stride/8 | Tile overlap on z axis |
-| --aff_scale_transform_cpus | 1 | Number of CPU cores for affine scale registration |
-| --def_scale_transform_cpus | 8 | Number of CPU cores for deformable scale registration  |
-| --registration_stitch_cpus | 2 | Number of CPU cores for re-stitching registered tiles  |
 | &#x2011;&#x2011;registration_transform_cpus | 12 | Number of CPU cores for final registered transform |
+| --ransac_cpus | 1 | Number of CPU cores for RANSAC |
+| --ransac_memory | 1 G | Amount of memory for RANSAC |
+| --spots_cpus | 1 | Number of CPU cores for Spots step of registration |
+| --spots_memory | 2 G | Amount of memory for Spots step of registration |
+| --interpolate_cpus | 1 | Number of CPU cores for Interpolate step of registration |
+| --interpolate_memory | 1 G | Amount of memory for Interpolate step of registration |
+| --coarse_spots_cpus | 1 | Number of CPU cores for Coarse Spots step of registration |
+| --coarse_spots_memory | 2 G | Amount of memory for Coarse Spots step of registration |
+| --aff_scale_transform_cpus | 1 | Number of CPU cores for Affine Scale Transform step of registration |
+| --aff_scale_transform_memory | 15 G | Amount of memory for Affine Scale Transform step of registration |
+| --def_scale_transform_cpus | 8 | Number of CPU cores for Deformable Scale Transform step of registration |
+| --def_scale_transform_memory | 80 G | Amount of memory for Deformable Scale Transform step of registration |
+| --deform_cpus | 1 | Number of CPU cores for Deform step of registration |
+| --deform_memory | 10 G | Amount of memory for Deform step of registration | 
+| --registration_stitch_cpus | 2 | Number of CPU cores for Stitch step of registration |
+| --registration_stitch_memory | 20 G | Amount of memory for Stitch step of registration |
+| --registration_transform_cpus | 12 | Number of CPU cores for final Transform step of registration |
+| --registration_transform_memory | 80 G | Amount of memory for final Transform step of registration |
 
 ## Spot Warping Parameters
 

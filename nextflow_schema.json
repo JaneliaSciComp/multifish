@@ -330,7 +330,7 @@
                 "spots_memory": {
                     "type": "string",
                     "fa_icon": "fas fa-memory",
-                    "description": "Amount of memory for Spots step of registration. Default: 1 G"
+                    "description": "Amount of memory for Spots step of registration. Default: 2 G"
                 },
                 "interpolate_cpus": {
                     "type": "integer",
