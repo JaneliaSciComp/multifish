@@ -244,13 +244,13 @@
                     "type": "string",
                     "description": "The scale level for affine alignments. Default: s3",
                     "fa_icon": "fas fa-file-image",
-                    "default": "s2"
+                    "default": "s1"
                 },
                 "def_scale": {
                     "type": "string",
                     "description": "The scale level for deformable alignments. Default: s2",
                     "fa_icon": "fas fa-file-image",
-                    "default": "s1"
+                    "default": "s2"
                 },
                 "spots_cc_radius": {
                     "type": "integer",
