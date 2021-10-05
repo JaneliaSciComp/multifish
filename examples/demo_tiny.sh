@@ -66,8 +66,8 @@ shift # eat the first argument so that $@ works later
         --registration_z_stride "64" \
         --registration_xy_overlap "0" \
         --registration_z_overlap "0" \
-        --aff_scale "s1" \
-        --def_scale "s2" \
+        --aff_scale "s2" \
+        --def_scale "s1" \
         --segmentation_cpus: "8" \
         --segmentation_memory: "20 G" \
         --spot_extraction_xy_stride "512" \

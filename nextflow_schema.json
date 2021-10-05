@@ -303,25 +303,95 @@
                     "fa_icon": "fas fa-align-center",
                     "hidden": true
                 },
+                "ransac_cpus": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-microchip",
+                    "description": "Number of CPU cores for RANSAC. Default: 1"
+                },
+                "ransac_memory": {
+                    "type": "string",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory for RANSAC. Default: 1 G"
+                },
+                "spots_cpus": {
+                    "type": "string",
+                    "fa_icon": "fas fa-microchip",
+                    "description": "Number of CPU cores for Spots step of registration. Default: 1"
+                },
+                "spots_memory": {
+                    "type": "string",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory for Spots step of registration. Default: 1 G"
+                },
+                "interpolate_cpus": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-microchip",
+                    "description": "Number of CPU cores for Interpolate step of registration. Default: 1"
+                },
+                "interpolate_memory": {
+                    "type": "string",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory for Interpolate step of registration. Default: 1 G"
+                },
+                "coarse_spots_cpus": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-microchip",
+                    "description": "Number of CPU cores for Coarse Spots step of registration. Default: 1"
+                },
+                "coarse_spots_memory": {
+                    "type": "string",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory for Coarse Spots step of registration. Default: 2 G"
+                },
                 "aff_scale_transform_cpus": {
                     "type": "integer",
                     "description": "Number of CPU cores for affine scale registration. Default: 1",
                     "fa_icon": "fas fa-microchip"
+                },
+                "aff_scale_transform_memory": {
+                    "type": "string",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory for Affine Scale Transform step of registration. Default: 15 G"
                 },
                 "def_scale_transform_cpus": {
                     "type": "integer",
                     "description": "Number of CPU cores for deformable scale registration. Default: 8",
                     "fa_icon": "fas fa-microchip"
                 },
+                "def_scale_transform_memory": {
+                    "type": "string",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory for Deformable Scale Transform step of registration. Default: 80 G"
+                },
+                "deform_cpus": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-microchip",
+                    "description": "Number of CPU cores for Deform step of registration. Default: 1"
+                },
+                "deform_memory": {
+                    "type": "string",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory for Deform step of registration. Default: 10 G"
+                },
                 "registration_stitch_cpus": {
                     "type": "integer",
-                    "description": "Number of CPU cores for re-stitching registered tiles. Default: 2",
+                    "description": "Number of CPU cores for Stitch step of registration. Default: 2",
                     "fa_icon": "fas fa-microchip"
+                },
+                "registration_stitch_memory": {
+                    "type": "string",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory for Stitch step of registration. Default: 20 G"
                 },
                 "registration_transform_cpus": {
                     "type": "integer",
-                    "description": "Number of CPU cores for final registered transform. Default: 12",
+                    "description": "Number of CPU cores for final Transform step of registration. Default: 12",
                     "fa_icon": "fas fa-microchip"
+                },
+                "registration_transform_memory": {
+                    "type": "string",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory for final Transform step of registration. Default: 80 G"
                 }
             },
             "fa_icon": "fas fa-layer-group"
@@ -348,7 +418,12 @@
                 "segmentation_cpus": {
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
-                    "description": "Number of CPU cores to allocate for segmentation. Default: 3"
+                    "description": "Number of CPU cores for segmentation. Default: 3"
+                },
+                "segmentation_memory": {
+                    "type": "string",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory for segmentation. Default: 45 G"
                 }
             }
         },
@@ -432,6 +507,11 @@
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
                     "description": "Number of CPU cores to use for warp spots. Default: 2"
+                },
+                "warp_spots_memory": {
+                    "type": "string",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory for warp spots. Default: 30 G"
                 }
             },
             "fa_icon": "fas fa-chess-board"
