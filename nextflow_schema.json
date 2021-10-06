@@ -503,12 +503,12 @@
                 "spot_extraction_cpus": {
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
-                    "description": "Number of CPU cores to allocate for each AirLocalize job. Default: 1",
+                    "description": "Number of CPU cores to allocate for each AirLocalize job. Default: 1"
                 },
                 "spot_extraction_memory": {
                     "type": "integer",
                     "fa_icon": "fas fa-memory",
-                    "description": "Amount of RAM to allocate to each AirLocalize job. Needs to be increased when increasing strides. Default: 2 G",
+                    "description": "Amount of RAM to allocate to each AirLocalize job. Needs to be increased when increasing strides. Default: 2 G"
                 }
             }
         },
