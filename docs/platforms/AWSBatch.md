@@ -123,7 +123,7 @@ nextflow run main.nf \
     --spot_extraction_xy_stride 512 \
     --spot_extraction_z_stride 256 \
     --spot_extraction_cpus 2 \
-    --spot_extraction_memory 8 \
+    --spot_extraction_memory "8 G" \
     --spark_local_dir "/tmp" \
     --spark_work_dir "/efs-multifish/spark/small" \
     --data_dir "/s3-multifish/small" \

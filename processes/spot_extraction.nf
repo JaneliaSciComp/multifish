@@ -39,7 +39,7 @@ process cut_tiles {
 process airlocalize {
     container = params.spot_extraction_container
     cpus { params.spot_extraction_cpus }
-    memory { "${params.spot_extraction_memory} GB" }
+    memory { params.spot_extraction_memory }
 
     input: 
     val(image_path)

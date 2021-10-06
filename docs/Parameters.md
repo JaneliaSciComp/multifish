@@ -81,7 +81,7 @@ You can export variables into your environment before calling the pipeline, or s
 | --default_airlocalize_params | /app/airlocalize/params/air_localize_default_params.txt | Path to hAirLocalize parameter file. By default, this points to default parameters inside the container. |
 | &#x2011;&#x2011;per_channel_air_localize_params | ,,, | Paths to alternative airlocalize parameter files, one per channel |
 | --spot_extraction_cpus | 2 | Number of CPU cores to allocate for each hAirlocalize job |
-| --spot_extraction_memory | 30 | Amount of RAM (in GB) to allocate to each hAirlocalize job. Needs to be increased when increasing strides. |
+| --spot_extraction_memory | 2 G | Amount of RAM (in GB) to allocate to each hAirlocalize job. Needs to be increased when increasing strides. |
 
 ### Segmentation Parameters
 

@@ -75,7 +75,7 @@ shift # eat the first argument so that $@ works later
         --spot_extraction_xy_overlap "32" \
         --spot_extraction_z_overlap "32" \
         --spot_extraction_cpus "1" \
-        --spot_extraction_memory "2" \
+        --spot_extraction_memory "2 G" \
         --aff_scale_transform_memory "5 G" \
         --def_scale_transform_memory "5 G" \
         --deform_memory "5 G" \
