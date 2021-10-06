@@ -133,7 +133,7 @@
                     "default": "_V%02d"
                 },
                 "stitching_ref": {
-                    "type": "integer",
+                    "type": "string",
                     "fa_icon": "fas fa-asterisk",
                     "description": "Index of the channel used for stitching. Default: the dapi_channel",
                     "help_text": "If this is not defined it defaults to `--dapi_channel`"
@@ -177,7 +177,7 @@
                     "description": "Padding for the overlap regions. Default: 0,0,0"
                 },
                 "stitching_blur_sigma": {
-                    "type": "integer",
+                    "type": "string",
                     "fa_icon": "fas fa-border-style",
                     "description": "Sigma value of the gaussian blur preapplied to the images before stitching. Default: 2"
                 },
@@ -253,12 +253,12 @@
                     "default": "s2"
                 },
                 "spots_cc_radius": {
-                    "type": "integer",
+                    "type": "string",
                     "fa_icon": "far fa-circle",
                     "description": "Default: 8"
                 },
                 "spots_spot_number": {
-                    "type": "integer",
+                    "type": "string",
                     "fa_icon": "fas fa-hashtag",
                     "description": "Default: 2000"
                 },
@@ -278,37 +278,37 @@
                     "description": "Default: 500x200x25x1"
                 },
                 "deform_auto_mask": {
-                    "type": "integer",
+                    "type": "string",
                     "fa_icon": "fas fa-mask",
                     "description": "Default: 0"
                 },
                 "registration_xy_stride": {
-                    "type": "integer",
+                    "type": "string",
                     "description": "The number of voxels along x/y for registration tiling. Default: 256",
                     "fa_icon": "fas fa-walking",
                     "help_text": "Must be power of 2.",
-                    "default": 512
+                    "default": "512"
                 },
                 "registration_xy_overlap": {
-                    "type": "integer",
+                    "type": "string",
                     "description": "Tile overlap on x/y axes",
                     "help_text": "Defaults to registration_xy_stride/8 when not specified.",
                     "fa_icon": "fas fa-align-center",
-                    "default": 0
+                    "default": "0"
                 },
                 "registration_z_stride": {
-                    "type": "integer",
+                    "type": "string",
                     "description": "The number of voxels along z for registration tiling. Default: 256",
                     "fa_icon": "fas fa-walking",
                     "help_text": "Must be power of 2.",
-                    "default": 64
+                    "default": "64"
                 },
                 "registration_z_overlap": {
-                    "type": "integer",
+                    "type": "string",
                     "description": "Tile overlap on Z axes",
                     "help_text": "Defaults to registration_z_stride/8 when not specified.",
                     "fa_icon": "fas fa-align-center",
-                    "default": 0
+                    "default": "0"
                 },
                 "ransac_cpus": {
                     "type": "integer",
@@ -460,32 +460,32 @@
                     "description": "Scale of imagery to use for spot extraction. Default: s0"
                 },
                 "spot_extraction_xy_stride": {
-                    "type": "integer",
+                    "type": "string",
                     "fa_icon": "fas fa-cube",
                     "description": "The number of voxels along x/y for registration tiling. Default: 1024",
                     "help_text": "Must be power of 2. Increasing this requires increasing `--spot_extraction_memory`.",
-                    "default": 512
+                    "default": "512"
                 },
                 "spot_extraction_xy_overlap": {
-                    "type": "integer",
+                    "type": "string",
                     "fa_icon": "fas fa-cube",
                     "description": "Tile overlap on x/y axes",
                     "help_text": "Defaults to 5% of spot_extraction_xy_stride",
-                    "default": 32
+                    "default": "32"
                 },
                 "spot_extraction_z_stride": {
-                    "type": "integer",
+                    "type": "string",
                     "fa_icon": "fas fa-cube",
                     "description": "The number of voxels along Z for registration tiling.  Default: 512",
                     "help_text": "Must be a power of 2. Increasing this requires increasing `--spot_extraction_memory`.",
-                    "default": 128
+                    "default": "128"
                 },
                 "spot_extraction_z_overlap": {
-                    "type": "integer",
+                    "type": "string",
                     "fa_icon": "fas fa-cube",
                     "description": "Tile overlap on z axes",
                     "help_text": "Defaults to 5% of spot_extraction_z_stride",
-                    "default": 32
+                    "default": "32"
                 },
                 "default_airlocalize_params": {
                     "type": "string",
