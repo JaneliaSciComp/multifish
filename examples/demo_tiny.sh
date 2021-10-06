@@ -21,11 +21,6 @@ mkdir -p $TMPDIR
 mkdir -p $SINGULARITY_TMPDIR
 mkdir -p $SINGULARITY_CACHEDIR
 
-verify_md5=true
-data_size="tiny"
-fixed_round="LHA3_R3_${data_size}"
-moving_rounds="LHA3_R5_${data_size}"
-
 if [[ "$#" -lt 1 ]]; then
     echo "Usage: $0 <data dir>"
     echo ""
@@ -50,38 +45,7 @@ shift # eat the first argument so that $@ works later
 #
 
 ./main.nf \
-        --runtime_opts "-B $BASEDIR -B $datadir -B $TMPDIR" \
-        --data_manifest "demo_$data_size" \
-        --shared_work_dir "$datadir" \
-        --stitching_czi_pattern '_V%02d' \
-        --workers "1" \
-        --worker_cores "12" \
-        --gb_per_core "4" \
-        --driver_memory "1g" \
-        --channels "c0,c1" \
-        --dapi_channel "c1" \
-        --stitching_block_size "1024,1024,256" \
-        --retile_z_size "128" \
-        --registration_xy_stride "512" \
-        --registration_z_stride "64" \
-        --registration_xy_overlap "0" \
-        --registration_z_overlap "0" \
-        --aff_scale "s1" \
-        --def_scale "s2" \
-        --segmentation_cpus "8" \
-        --segmentation_memory "2 G" \
-        --spot_extraction_xy_stride "512" \
-        --spot_extraction_z_stride "128" \
-        --spot_extraction_xy_overlap "32" \
-        --spot_extraction_z_overlap "32" \
-        --spot_extraction_cpus "1" \
-        --spot_extraction_memory "2 G" \
-        --aff_scale_transform_memory "5 G" \
-        --def_scale_transform_memory "5 G" \
-        --deform_memory "5 G" \
-        --registration_stitch_memory "5 G" \
-        --registration_transform_memory "5 G" \
-        --warp_spots_cpus "4" \
-        --warp_spots_memory "8 G" \
-        --ref_acq "$fixed_round" \
-        --acq_names "$fixed_round,$moving_rounds" "$@"
+        -params-file "./examples/demo_tiny.json" \
+        --runtime_opts "-B $datadir -B $TMPDIR" \
+        --shared_work_dir "$datadir" "$@"
+

@@ -23,11 +23,6 @@ mkdir -p $TMPDIR
 mkdir -p $SINGULARITY_TMPDIR
 mkdir -p $SINGULARITY_CACHEDIR
 
-verify_md5=true
-data_size="small"
-fixed_round="LHA3_R3_${data_size}"
-moving_rounds="LHA3_R5_${data_size}"
-
 if [[ "$#" -lt 1 ]]; then
     echo "Usage: $0 <data dir>"
     echo ""
@@ -52,19 +47,6 @@ shift # eat the first argument so that $@ works later
 #
 
 ./main.nf \
-        --runtime_opts "-B $BASEDIR -B $datadir -B $TMPDIR" \
-        --data_manifest "demo_$data_size" \
-        --shared_work_dir "$datadir" \
-        --workers "1" \
-        --worker_cores "16" \
-        --gb_per_core "3" \
-        --driver_memory "2g" \
-        --channels "c0,c1" \
-        --stitching_ref "1" \
-        --dapi_channel "c1" \
-        --spot_extraction_xy_stride "512" \
-        --spot_extraction_z_stride "256" \
-        --spot_extraction_cpus "1" \
-        --spot_extraction_memory "8" \
-        --ref_acq "$fixed_round" \
-        --acq_names "$fixed_round,$moving_rounds" "$@"
+        -params-file "./examples/demo_small.json" \
+        --runtime_opts "-B $datadir -B $TMPDIR" \
+        --shared_work_dir "$datadir" "$@"
