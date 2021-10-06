@@ -92,6 +92,7 @@ You can export variables into your environment before calling the pipeline, or s
 | --dapi_channel | c2 | DAPI channel |
 | --segmentation_scale | s2 | Imagery scale to use for segmentation |
 | --segmentation_cpus | 3 | Number of CPU cores to allocate for segmentation |
+| --segmentation_memory | 45 G | Amount of memory to allocate for segmentation |
 
 ## Registration Parameters
 

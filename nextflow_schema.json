@@ -294,7 +294,6 @@
                     "description": "Tile overlap on x/y axes",
                     "help_text": "Defaults to registration_xy_stride/8 when not specified.",
                     "fa_icon": "fas fa-align-center",
-                    "hidden": true,
                     "default": 0
                 },
                 "registration_z_stride": {
@@ -309,7 +308,6 @@
                     "description": "Tile overlap on Z axes",
                     "help_text": "Defaults to registration_z_stride/8 when not specified.",
                     "fa_icon": "fas fa-align-center",
-                    "hidden": true,
                     "default": 0
                 },
                 "ransac_cpus": {
@@ -354,7 +352,7 @@
                 },
                 "aff_scale_transform_cpus": {
                     "type": "integer",
-                    "description": "Number of CPU cores for affine scale registration. Default: 1",
+                    "description": "Number of CPU cores for Affine Scale Transform step of registration. Default: 1",
                     "fa_icon": "fas fa-microchip"
                 },
                 "aff_scale_transform_memory": {
@@ -439,7 +437,7 @@
                     "type": "string",
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of memory for segmentation. Default: 45 G",
-                    "default": "20 G"
+                    "default": "2 G"
                 }
             }
         },
@@ -473,7 +471,6 @@
                     "fa_icon": "fas fa-cube",
                     "description": "Tile overlap on x/y axes",
                     "help_text": "Defaults to 5% of spot_extraction_xy_stride",
-                    "hidden": true,
                     "default": 32
                 },
                 "spot_extraction_z_stride": {
@@ -488,7 +485,6 @@
                     "fa_icon": "fas fa-cube",
                     "description": "Tile overlap on z axes",
                     "help_text": "Defaults to 5% of spot_extraction_z_stride",
-                    "hidden": true,
                     "default": 32
                 },
                 "default_airlocalize_params": {
