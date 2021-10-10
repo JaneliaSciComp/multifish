@@ -31,7 +31,10 @@ if __name__ == '__main__':
 
         vox    = n5mu.read_voxel_spacing(reference, subpath)
         grid   = n5mu.read_voxel_grid(reference, subpath) * vox
+
+        print("Reading", point_file)
         points = np.loadtxt(point_file)
+
         if points.shape[0] == 0: points = np.array([[-1, -1, -1, 0, 0]])  # file has 0 points
         if len(points.shape) == 1: points = points[np.newaxis, :]         # file has 1 point
         points = points[:, :-1]  # last column from air localize is all zeros
@@ -49,5 +52,7 @@ if __name__ == '__main__':
         all_points = np.vstack((all_points, points))
         all_points = all_points[ (all_points != -1).all(axis=1), : ]
         all_points = all_points[ (all_points != -8).all(axis=1), : ]
+
+    print("Writing", output)
     np.savetxt(output, all_points, delimiter=',')
 

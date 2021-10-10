@@ -25,14 +25,22 @@ if __name__ == '__main__':
     min_tile_size          = 128
 
     grid          = n5mu.read_voxel_grid(ref_img_path, ref_img_subpath)
+    print("grid", grid)
     stride        = np.array([xy_stride, xy_stride, z_stride], dtype=np.uint16)
+    print("stride", stride)
     overlap       = np.array([xy_overlap, xy_overlap, z_overlap], dtype=np.uint16)
+    print("overlap", overlap)
     tile_grid     = [ x//y+1 if x % y >= min_tile_size else x//y for x, y in zip(grid, stride-overlap) ]
+    print("tile_grid", tile_grid)
     
     vox           = n5mu.read_voxel_spacing(ref_img_path, ref_img_subpath)
+    print("vox", vox)
     grid          = grid * vox
+    print("vox grid", grid)
     stride        = stride * vox
+    print("vox stride", stride)
     overlap       = overlap * vox
+    print("vox overlap", overlap)
     offset        = np.array([0., 0., 0.])
 
 
@@ -45,7 +53,9 @@ if __name__ == '__main__':
 
                 iii = [xxx, yyy, zzz]
                 extent = [grid[i]-offset[i] if iii[i] == tile_grid[i]-1 else stride[i] for i in range(3)]
-                write_coords_file(ttt + '/coords.txt', offset, extent, iii)
+                filename = ttt + '/coords.txt'
+                print("writing", filename)
+                write_coords_file(filename, offset, extent, iii)
 
                 offset[0] += stride[0] - overlap[0]
 
