@@ -1,4 +1,4 @@
-include { create_container_options } from 'utils'
+include { create_container_options } from './utils'
 
 process download {
     label 'small'
