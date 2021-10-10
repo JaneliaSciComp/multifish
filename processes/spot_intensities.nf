@@ -1,5 +1,5 @@
 process measure_intensities {
-    container = params.spots_assignment_container
+    container { params.spots_assignment_container }
     cpus { cpus }
 
     input:

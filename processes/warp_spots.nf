@@ -1,6 +1,6 @@
 process collect_merged_points_files {
     label "small"
- 
+    
     container { params.registration_container }
  
     input:

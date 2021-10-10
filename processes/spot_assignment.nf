@@ -1,5 +1,5 @@
 process assign_spots {
-    container = params.spots_assignment_container
+    container { params.spots_assignment_container }
     cpus { cpus }
 
     input:

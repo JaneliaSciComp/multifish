@@ -1,6 +1,7 @@
 process prepare_stitching_data {
-    container = params.stitching_container
     label 'small'
+    
+    container { params.stitching_container }
 
     input:
     val(input_dir)
