@@ -1,8 +1,11 @@
+include { create_container_options } from 'utils'
+
 process download {
     label 'small'
     stageInMode 'copy'
 
     container { params.downloader_container }
+    containerOptions { create_container_options([ file(output_dir).parent ]) }
 
     input:
     tuple file(manifest_file), val(output_dir)
@@ -20,6 +23,7 @@ process publish {
     label 'small'
 
     container { params.downloader_container }
+    containerOptions { create_container_options([ file(publish_dir).parent ]) }
 
     input:
     tuple val(output_dir), val(publish_dir)
