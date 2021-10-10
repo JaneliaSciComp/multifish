@@ -8,7 +8,7 @@
     "retile_z_size":"64",
     "workers":1,
     "worker_cores":4,
-    "gb_per_core":15,
+    "gb_per_core":12,
     "driver_memory":"2g",
     "segmentation_cpus":8,
     "segmentation_memory":"20 G",
