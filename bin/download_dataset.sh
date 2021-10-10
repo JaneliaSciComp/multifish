@@ -4,13 +4,6 @@ manifest_path=$1
 target_dir=$2
 verify_md5="${3:-true}"
 
-echo "ls -l /sharedscratch"
-ls -l /sharedscratch
-echo "ls -l $target_dir"
-ls -l $target_dir
-echo "sleeping 2 seconds"
-sleep 2
-echo "mkdir -p $target_dir"
 mkdir -p $target_dir
 
 if [[ ! -e $manifest_path ]]; then
