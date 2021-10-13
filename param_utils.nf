@@ -189,7 +189,7 @@ def segmentation_container_param(Map ps) {
 def registration_container_param(Map ps) {
     def registration_container = ps.registration_container
     if (!registration_container)
-        "${ps.mfrepo}/registration:1.2.0"
+        "${ps.mfrepo}/registration:1.2.1"
     else
         registration_container
 }

@@ -7,7 +7,7 @@ ARG GIT_TAG=master
 
 # Checkout and build the code
 WORKDIR /tmp/app
-RUN git clone --branch $GIT_TAG --depth 1 https://github.com/JaneliaSciComp/bigstream.git . \
+RUN git clone --branch $GIT_TAG --depth 1 https://github.com/GFleishman/bigstream.git . \
     && /usr/local/bin/buildinfo.sh
 
 # Create final image
@@ -22,7 +22,7 @@ RUN conda env create -f /tmp/environment.yml \
 
 # OpenGL is needed for opencv
 # procps is needed to get ps so that Nextflow Tower can do metrics collection
-RUN apt-get update \
+RUN apt-get --allow-releaseinfo-change update \
     && apt-get install -y libgl1-mesa-glx procps
 
 COPY --from=builder /tmp/app /app
