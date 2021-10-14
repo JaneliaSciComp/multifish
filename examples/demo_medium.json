@@ -24,8 +24,8 @@
     "registration_transform_memory":"80 G",
     "spot_extraction_xy_stride":1024,
     "spot_extraction_z_stride":512,
-    "spot_extraction_cpus":1,
-    "spot_extraction_memory":"8 G",
+    "spot_extraction_cpus":2,
+    "spot_extraction_memory":"20 G",
     "warp_spots_cpus":4,
     "warp_spots_memory":"30 G"
 }
