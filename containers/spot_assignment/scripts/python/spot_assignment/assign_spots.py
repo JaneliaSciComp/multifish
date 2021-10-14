@@ -17,7 +17,7 @@ fx = sorted(glob(spot_dir+"/*.txt"))
 
 lb_id = np.unique(lb[lb != 0])
 z, y, x = lb.shape
-s=[0.92,0.92,0.84] ## voxel size in segmentation image
+s=[0.92,0.92,0.84] ## TODO: get voxel size of segmentation image from original pixelResolution * s2 downsamplingFactors
 count = pd.DataFrame(np.empty([len(lb_id), 0]), index=lb_id)
 
 for f in fx:

@@ -385,6 +385,7 @@ workflow {
         channels
     )
 
+    // Take moving subpath (e.g. /c0/s2) extract the components (e.g. c0, s2) and add them to the end of the tuple
     def extended_registration_results = registration_results | map {
         // extract the channel from the registration results
         def moving_subpath_components = it[3].tokenize('/')
@@ -569,7 +570,7 @@ workflow {
     | concat(expected_segmentation_results)
     | unique {
         "${it[0]}"
-    } // [ stitched_n5_immage, labels_tiff_image]
+    } // [ stitched_n5_image, labels_tiff_image]
 
     // prepare intensities measurements inputs
     def expected_registrations_for_intensities = Channel.fromList(labeled_spots_acq_names)
@@ -608,7 +609,7 @@ workflow {
 
     def intensities_inputs_for_fixed = expected_registrations_for_intensities
     | filter {
-        it[9] == it[10] // filter the expected registration that have the same fixed and moving sourcec
+        it[9] == it[10] // filter the expected registration that have the same fixed and moving source
     } | map {
         [ it[0], it[7], it[8] ] // [ fixed_image, ch, deformation_scale ]
     } | combine(labeled_acquisitions) | map {
