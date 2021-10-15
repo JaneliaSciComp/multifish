@@ -1,0 +1,16 @@
+maru_version: 0.1.1
+name: rs_fish
+version: 1.0.0
+remotes:
+- multifish
+- registry.int.janelia.org/multifish
+build_args:
+  GIT_TAG: main
+template_args:
+  flavor: java_maven
+  build:
+    repo_url: https://github.com/PreibischLab/RS-FISH-Spark.git
+    command: mvn package
+  java_maven:
+    jdk_version: "8"
+    main_class: net.preibisch.rsfish.spark.SparkRSFISH
