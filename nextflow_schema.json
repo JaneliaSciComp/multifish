@@ -416,7 +416,7 @@
                 }
             }
         },
-        "spot_extraction": {
+        "airlocalize": {
             "title": "Spot Extraction",
             "type": "object",
             "description": "Options for the spot extraction algorithm (AirLocalize)",
@@ -434,29 +434,33 @@
                     "fa_icon": "far fa-folder",
                     "description": "Scale of imagery to use for spot extraction. Default: s0"
                 },
-                "spot_extraction_xy_stride": {
+                "airlocalize_xy_stride": {
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
                     "description": "The number of voxels along x/y for registration tiling. Default: 1024",
-                    "help_text": "Must be power of 2. Increasing this requires increasing `--spot_extraction_memory`."
+                    "help_text": "Must be power of 2. Increasing this requires increasing `--airlocalize_memory`.",
+                    "default": 512
                 },
-                "spot_extraction_xy_overlap": {
+                "airlocalize_xy_overlap": {
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
                     "description": "Tile overlap on x/y axes",
-                    "help_text": "Defaults to 5% of spot_extraction_xy_stride"
+                    "help_text": "Defaults to 5% of airlocalize_xy_stride",
+                    "default": 32
                 },
-                "spot_extraction_z_stride": {
+                "airlocalize_z_stride": {
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
                     "description": "The number of voxels along Z for registration tiling.  Default: 512",
-                    "help_text": "Must be a power of 2. Increasing this requires increasing `--spot_extraction_memory`."
+                    "help_text": "Must be a power of 2. Increasing this requires increasing `--airlocalize_memory`.",
+                    "default": 128
                 },
-                "spot_extraction_z_overlap": {
+                "airlocalize_z_overlap": {
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
                     "description": "Tile overlap on z axes",
-                    "help_text": "Defaults to 5% of spot_extraction_z_stride"
+                    "help_text": "Defaults to 5% of airlocalize_z_stride",
+                    "default": 32
                 },
                 "default_airlocalize_params": {
                     "type": "string",
@@ -471,13 +475,13 @@
                     "description": "Comma-delimited paths to alternative AirLocalize parameter files, one per channel.",
                     "help_text": "If you have 4 channels, and you are extracting spots from c0, c1, and c3, this parameter should look like this: `/path/to/params_c0.txt,/path/to/params_c1.txt,,/path/to/params_c3.txt`. Note the double comma to denote the empty file for c2, which should not be processed."
                 },
-                "spot_extraction_cpus": {
+                "airlocalize_cpus": {
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
                     "description": "Number of CPU cores to allocate for each AirLocalize job. Default: 1"
                 },
-                "spot_extraction_memory": {
-                    "type": "string",
+                "airlocalize_memory": {
+                    "type": "integer",
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of RAM to allocate to each AirLocalize job. Needs to be increased when increasing strides. Default: 2 G"
                 }
@@ -583,9 +587,9 @@
                     "fa_icon": "fas fa-box-open",
                     "hidden": true
                 },
-                "spot_extraction_container": {
+                "airlocalize_container": {
                     "type": "string",
-                    "description": "Docker container for running spot extraction. Default: <mfrepo>/spot_extraction:1.0.2",
+                    "description": "Docker container for running spot extraction. Default: <mfrepo>/airlocalize:1.0.2",
                     "fa_icon": "fas fa-box-open",
                     "hidden": true
                 },
@@ -607,7 +611,7 @@
                     "type": "string",
                     "description": "Comma-delimited list of steps to skip, e.g. stitching,registration.",
                     "fa_icon": "fas fa-fast-forward",
-                    "help_text": "Valid values: stitching, spot_extraction, segmentation, registration, warp_spots, intensities, assign_spots"
+                    "help_text": "Valid values: stitching, airlocalize, segmentation, registration, warp_spots, intensities, assign_spots"
                 },
                 "singularity_cache_dir": {
                     "type": "string",
@@ -651,7 +655,7 @@
             "$ref": "#/definitions/segmentation"
         },
         {
-            "$ref": "#/definitions/spot_extraction"
+            "$ref": "#/definitions/airlocalize"
         },
         {
             "$ref": "#/definitions/spot_warping"

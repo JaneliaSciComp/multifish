@@ -24,12 +24,12 @@
     "deform_memory":"2 G",
     "registration_stitch_memory":"2 G",
     "registration_transform_memory":"2 G",
-    "spot_extraction_xy_stride":512,
-    "spot_extraction_xy_overlap":32,
-    "spot_extraction_z_stride":128,
-    "spot_extraction_z_overlap":32,
-    "spot_extraction_cpus":1,
-    "spot_extraction_memory":"2 G",
+    "airlocalize_xy_stride":512,
+    "airlocalize_xy_overlap":32,
+    "airlocalize_z_stride":128,
+    "airlocalize_z_overlap":32,
+    "airlocalize_cpus":1,
+    "airlocalize_memory":"2 G",
     "warp_spots_cpus":4,
     "warp_spots_memory":"2 G"
 }

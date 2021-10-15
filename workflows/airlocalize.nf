@@ -1,27 +1,22 @@
 include {
     cut_tiles;
-    airlocalize;
+    run_airlocalize;
     merge_points;
-} from '../processes/spot_extraction' addParams(lsf_opts: params.lsf_opts, 
-                                                spot_extraction_container: params.spot_extraction_container)
+} from '../processes/airlocalize' addParams(lsf_opts: params.lsf_opts, 
+                                                airlocalize_container: params.airlocalize_container)
 
 include {
     index_channel;
 } from './utils'
 
-workflow spot_extraction {
+workflow airlocalize {
     take:
     input_dir
     output_dir
-    channels
+    spot_channels
     scale
-    xy_stride
-    xy_overlap
-    z_stride
-    z_overlap
     dapi_channel
     bleedthrough_channels
-    per_channel_air_localize_params
 
     main:
     def tile_cut_res = cut_tiles(
@@ -29,10 +24,10 @@ workflow spot_extraction {
         dapi_channel,
         scale,
         output_dir.map { "${it}/tiles" },
-        xy_stride,
-        xy_overlap,
-        z_stride,
-        z_overlap
+        params.airlocalize_xy_stride,
+        params.airlocalize_xy_overlap,
+        params.airlocalize_z_stride,
+        params.airlocalize_z_overlap
     )
 
     def tiles_with_inputs = tile_cut_res
@@ -43,8 +38,21 @@ workflow spot_extraction {
         }
     }
 
+    def per_channel_air_localize_params = [
+        params.channels?.split(','),
+        params.per_channel_air_localize_params?.split(',', -1)
+    ].transpose()
+    .inject([:]) { a, b ->
+        ch = b[0]
+        airlocalize_params = b[1] == null || b[1] == ''
+            ? params.default_airlocalize_params
+            : b[1]
+        a[ch] =  airlocalize_params
+        return a 
+    }
+
     def airlocalize_inputs = tiles_with_inputs
-    | combine(channels)
+    | combine(spot_channels)
     | map {
         def (tile_input, tile_dir, ch) = it
         def dapi_correction = bleedthrough_channels.contains(ch)
@@ -65,7 +73,7 @@ workflow spot_extraction {
         return airlocalize_args
     }
 
-    def airlocalize_results = airlocalize(
+    def airlocalize_results = run_airlocalize(
         airlocalize_inputs.map { it[0] },
         airlocalize_inputs.map { it[1] },
         airlocalize_inputs.map { it[2] },
@@ -96,8 +104,8 @@ workflow spot_extraction {
             ch,
             scale,
             tiles_dir,
-            xy_overlap,
-            z_overlap,
+            params.airlocalize_xy_overlap,
+            params.airlocalize_z_overlap,
             tiles_dir.parent
         ]
         log.debug "Merge ${tiles} using ${merge_points_args}"

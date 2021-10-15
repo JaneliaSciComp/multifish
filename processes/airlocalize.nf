@@ -1,7 +1,7 @@
 process cut_tiles {
     label 'small'
 
-    container { params.spot_extraction_container }
+    container { params.airlocalize_container }
 
     input:
     val(image_path)
@@ -37,9 +37,9 @@ process cut_tiles {
 }
 
 process airlocalize {
-    container = params.spot_extraction_container
-    cpus { params.spot_extraction_cpus }
-    memory { params.spot_extraction_memory }
+    container = params.airlocalize_container
+    cpus { params.airlocalize_cpus }
+    memory { params.airlocalize_memory }
 
     input: 
     val(image_path)
@@ -78,7 +78,7 @@ process airlocalize {
 process merge_points {
     label 'small'
 
-    container { params.spot_extraction_container }
+    container { params.airlocalize_container }
 
     input:
     val(image_path)

@@ -47,6 +47,7 @@ shift # eat the first argument so that $@ works later
 #
 
 ./main.nf \
-        -params-file "./examples/demo_small.json" \
-        --runtime_opts "-B $datadir -B $TMPDIR" \
-        --shared_work_dir "$datadir" "$@"
+    -params-file "./examples/demo_small.json" \
+    --runtime_opts "-B $datadir -B $TMPDIR" \
+    --shared_work_dir "$datadir" "$@"
+

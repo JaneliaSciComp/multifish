@@ -5,7 +5,7 @@ def default_mf_params() {
     [
         mfrepo: multifish_container_repo,
         stitching_container: '',
-        spot_extraction_container: '',
+        airlocalize_container: '',
         segmentation_container: '',
         registration_container: '',
         spots_assignment_container: '',
@@ -55,15 +55,15 @@ def default_mf_params() {
         // spot extraction params
         spot_extraction_output: 'spots',
         spot_extraction_scale: 's0',
-        spot_extraction_xy_stride: 0, // use the default defined by spot_extraction_xy_stride_param
-        spot_extraction_xy_overlap: 0, // use the default defined by spot_extraction_xy_overlap_param
-        spot_extraction_z_stride: 0, // use the default defined by spot_extraction_z_stride_param
-        spot_extraction_z_overlap: 0, // use the default defined by spot_extraction_z_overlap_param
+        airlocalize_xy_stride: 0, // use the default defined by airlocalize_xy_stride_param
+        airlocalize_xy_overlap: 0, // use the default defined by airlocalize_xy_overlap_param
+        airlocalize_z_stride: 0, // use the default defined by airlocalize_z_stride_param
+        airlocalize_z_overlap: 0, // use the default defined by airlocalize_z_overlap_param
         bleed_channel: 'c3',
         default_airlocalize_params: default_airlocalize_params,
         per_channel_air_localize_params: ",,,",
-        spot_extraction_cpus: 1,
-        spot_extraction_memory: '2 G',
+        airlocalize_cpus: 1,
+        airlocalize_memory: '2 G',
 
         // segmentation params
         segmentation_output: 'segmentation',
@@ -175,7 +175,7 @@ def spot_extraction_container_param(Map ps) {
     if (!spot_extraction_container)
         "${ps.mfrepo}/spot_extraction:1.0.3"
     else
-        spot_extraction_container
+        airlocalize_container
 }
 
 def segmentation_container_param(Map ps) {
@@ -219,41 +219,41 @@ def stitching_ref_param(Map ps) {
     }
 }
 
-def spot_extraction_xy_stride_param(Map ps) {
-    def spot_extraction_xy_stride = ps.spot_extraction_xy_stride
-    if (!spot_extraction_xy_stride) {
+def airlocalize_xy_stride_param(Map ps) {
+    def airlocalize_xy_stride = ps.airlocalize_xy_stride
+    if (!airlocalize_xy_stride) {
         return 1024
     } else {
-        return spot_extraction_xy_stride
+        return airlocalize_xy_stride
     }
 }
 
-def spot_extraction_xy_overlap_param(Map ps) {
-    def spot_extraction_xy_overlap = ps.spot_extraction_xy_overlap
-    if (!spot_extraction_xy_overlap) {
-        spot_extraction_xy_overlap = (int) (0.05 * spot_extraction_xy_stride_param(ps))
-        return spot_extraction_xy_overlap < 50 ?  50 : spot_extraction_xy_overlap
+def airlocalize_xy_overlap_param(Map ps) {
+    def airlocalize_xy_overlap = ps.airlocalize_xy_overlap
+    if (!airlocalize_xy_overlap) {
+        airlocalize_xy_overlap = (int) (0.05 * airlocalize_xy_stride_param(ps))
+        return airlocalize_xy_overlap < 50 ?  50 : airlocalize_xy_overlap
     } else {
-        return spot_extraction_xy_overlap
+        return airlocalize_xy_overlap
     }
 }
 
-def spot_extraction_z_stride_param(Map ps) {
-    def spot_extraction_z_stride = ps.spot_extraction_z_stride
-    if (!spot_extraction_z_stride) {
+def airlocalize_z_stride_param(Map ps) {
+    def airlocalize_z_stride = ps.airlocalize_z_stride
+    if (!airlocalize_z_stride) {
         return 512
     } else {
-        return spot_extraction_z_stride
+        return airlocalize_z_stride
     }
 }
 
-def spot_extraction_z_overlap_param(Map ps) {
-    def spot_extraction_z_overlap = ps.spot_extraction_z_overlap
-    if (!spot_extraction_z_overlap) {
-        spot_extraction_z_overlap = (int) (0.05 * spot_extraction_z_stride_param(ps))
-        return spot_extraction_z_overlap < 50 ?  50 : spot_extraction_z_overlap
+def airlocalize_z_overlap_param(Map ps) {
+    def airlocalize_z_overlap = ps.airlocalize_z_overlap
+    if (!airlocalize_z_overlap) {
+        airlocalize_z_overlap = (int) (0.05 * airlocalize_z_stride_param(ps))
+        return airlocalize_z_overlap < 50 ?  50 : airlocalize_z_overlap
     } else {
-        return spot_extraction_z_overlap
+        return airlocalize_z_overlap
     }
 }
 

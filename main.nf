@@ -12,14 +12,14 @@ include {
     get_value_or_default;
     get_list_or_default;
     stitching_container_param;
-    spot_extraction_container_param;
+    airlocalize_container_param;
     segmentation_container_param;
     registration_container_param;
     stitching_ref_param;
-    spot_extraction_xy_stride_param;
-    spot_extraction_xy_overlap_param;
-    spot_extraction_z_stride_param;
-    spot_extraction_z_overlap_param;
+    airlocalize_xy_stride_param;
+    airlocalize_xy_overlap_param;
+    airlocalize_z_stride_param;
+    airlocalize_z_overlap_param;
     registration_xy_stride_param;
     registration_xy_overlap_param;
     registration_z_stride_param;
@@ -42,12 +42,16 @@ include {
     stitching;
 } from './workflows/stitching' addParams(stitching_params)
 
-spot_extraction_params = final_params + [
-    spot_extraction_container: spot_extraction_container_param(final_params),
+airlocalize_params = final_params + [
+    airlocalize_container: airlocalize_container_param(final_params),
+    airlocalize_xy_stride: airlocalize_xy_stride_param(final_params),
+    airlocalize_xy_overlap: airlocalize_xy_overlap_param(final_params),
+    airlocalize_z_stride: airlocalize_z_stride_param(final_params),
+    airlocalize_z_overlap: airlocalize_z_overlap_param(final_params),
 ]
 include {
-    spot_extraction;
-} from './workflows/spot_extraction' addParams(spot_extraction_params)
+    airlocalize;
+} from './workflows/airlocalize' addParams(airlocalize_params)
 
 segmentation_params = final_params + [
     segmentation_container: segmentation_container_param(final_params)
@@ -150,18 +154,7 @@ if (steps_to_skip.contains('spot_extraction')) {
 log.debug "Images for spot extraction: ${spot_extraction_acq_names}"
 bleedthrough_channels = final_params.bleed_channel?.split(',')
 spot_channels = channels - [final_params.dapi_channel]
-per_channel_air_localize_params = [
-    channels,
-    final_params.per_channel_air_localize_params?.split(',', -1)
-].transpose()
- .inject([:]) { a, b ->
-    ch = b[0]
-    airlocalize_params = b[1] == null || b[1] == ''
-        ? final_params.default_airlocalize_params
-        : b[1]
-    a[ch] =  airlocalize_params
-    return a 
-}
+log.debug  "Channels for spot detection: ${spot_channels}"
 
 // if segmentation is not desired do not set segmentation_acq_name or ref_acq in the command line
 if (steps_to_skip.contains('segmentation')) {
@@ -287,18 +280,13 @@ workflow {
     )
 
     // run spot extraction
-    def spot_extraction_results = spot_extraction(
+    def spot_extraction_results = airlocalize(
         spot_extraction_inputs.map { "${it[1]}/export.n5" },
         spot_extraction_output_dirs,
         spot_channels,
         final_params.spot_extraction_scale,
-        spot_extraction_xy_stride_param(final_params),
-        spot_extraction_xy_overlap_param(final_params),
-        spot_extraction_z_stride_param(final_params),
-        spot_extraction_z_overlap_param(final_params),
         final_params.dapi_channel,
-        bleedthrough_channels, // bleed_channel
-        per_channel_air_localize_params
+        bleedthrough_channels
     ) // [ input_image, ch, scale, spots_file ]
     spot_extraction_results.subscribe { log.debug "Spot extraction results: $it" }
 

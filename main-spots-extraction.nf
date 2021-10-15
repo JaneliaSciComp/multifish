@@ -12,36 +12,28 @@ params.outdir = ""
 
 include {
     default_mf_params;
-    spot_extraction_container_param;
-    spot_extraction_xy_stride_param;
-    spot_extraction_xy_overlap_param;
-    spot_extraction_z_stride_param;
-    spot_extraction_z_overlap_param;
+    airlocalize_container_param;
+    airlocalize_xy_stride_param;
+    airlocalize_xy_overlap_param;
+    airlocalize_z_stride_param;
+    airlocalize_z_overlap_param;
 } from './param_utils'
 
 final_params = default_mf_params() + params
 
+airlocalize_params = final_params + [
+    airlocalize_container: airlocalize_container_param(final_params),
+    airlocalize_xy_stride: airlocalize_xy_stride_param(final_params),
+    airlocalize_xy_overlap: airlocalize_xy_overlap_param(final_params),
+    airlocalize_z_stride: airlocalize_z_stride_param(final_params),
+    airlocalize_z_overlap: airlocalize_z_overlap_param(final_params),
+]
 include {
-    spot_extraction;
-} from './workflows/spot_extraction' addParams(lsf_opts: final_params.lsf_opts,
-                                               spot_extraction_container: spot_extraction_container_param(final_params),
-                                               spot_extraction_cpus: final_params.spot_extraction_cpus,
-                                               spot_extraction_memory: final_params.spot_extraction_memory)
+    airlocalize;
+} from './workflows/airlocalize' addParams(airlocalize_params)
 
 channels = final_params.channels?.split(',')
 bleedthrough_channels = final_params.bleed_channel?.split(',')
-per_channel_air_localize_params = [
-    channels,
-    final_params.per_channel_air_localize_params?.split(',', -1)
-].transpose()
- .inject([:]) { a, b ->
-    ch = b[0]
-    airlocalize_params = b[1] == null || b[1] == ''
-        ? final_params.default_airlocalize_params
-        : b[1]
-    a[ch] =  airlocalize_params
-    return a 
-}
 
 workflow {
 
@@ -52,18 +44,13 @@ workflow {
         log.error "Stitched image must be specified"
     }
 
-    spot_extraction(
+    airlocalize(
         final_params.stitchdir,
         Channel.of(outdir),
         channels,
         final_params.spot_extraction_scale,
-        spot_extraction_xy_stride_param(final_params),
-        spot_extraction_xy_overlap_param(final_params),
-        spot_extraction_z_stride_param(final_params),
-        spot_extraction_z_overlap_param(final_params),
         final_params.dapi_channel,
-        bleedthrough_channels, // bleed_channel
-        per_channel_air_localize_params
+        bleedthrough_channels // bleed_channel
     )
 
 }

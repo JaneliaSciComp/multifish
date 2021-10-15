@@ -74,14 +74,14 @@ You can export variables into your environment before calling the pipeline, or s
 |------------|---------|---------------------------------------------------------------------------------------|
 | --spot_extraction_output | spots | Output directory for spot extraction (relative to --output_dir) |
 | --spot_extraction_scale | s0 | Scale of imagery to use for spot extraction |
-| --spot_extraction_xy_stride | 1024 | The number of voxels along x/y for registration tiling, must be power of 2. Increasing this requires increasing the memory allocation. |
-| --spot_extraction_xy_overlap | 5% of xy_stride | Tile overlap on x/y axes |
-| --spot_extraction_z_stride | 512 | The number of voxels along z for registration tiling, must be power of 2. Increasing this requires increasing the memory allocation. |
-| --spot_extraction_z_overlap | 5% of z_stride | Tile overlap on z axis |
+| --airlocalize_xy_stride | 1024 | The number of voxels along x/y for registration tiling, must be power of 2. Increasing this requires increasing the memory allocation. |
+| --airlocalize_xy_overlap | 5% of xy_stride | Tile overlap on x/y axes |
+| --airlocalize_z_stride | 512 | The number of voxels along z for registration tiling, must be power of 2. Increasing this requires increasing the memory allocation. |
+| --airlocalize_z_overlap | 5% of z_stride | Tile overlap on z axis |
 | --default_airlocalize_params | /app/airlocalize/params/air_localize_default_params.txt | Path to hAirLocalize parameter file. By default, this points to default parameters inside the container. |
 | &#x2011;&#x2011;per_channel_air_localize_params | ,,, | Paths to alternative airlocalize parameter files, one per channel |
-| --spot_extraction_cpus | 2 | Number of CPU cores to allocate for each hAirlocalize job |
-| --spot_extraction_memory | 2 G | Amount of RAM (in GB) to allocate to each hAirlocalize job. Needs to be increased when increasing strides. |
+| --airlocalize_cpus | 2 | Number of CPU cores to allocate for each hAirlocalize job |
+| --airlocalize_memory | 30 G | Amount of RAM (in GB) to allocate to each hAirlocalize job. Needs to be increased when increasing strides. |
 
 ### Segmentation Parameters
 
@@ -164,5 +164,5 @@ You can export variables into your environment before calling the pipeline, or s
 | --spark_container_version | 1.0.0 | Docker container version for stitching. |
 | --registration_container | \<mfrepo\>/registration:1.1.0 | Docker container to use for running registration and warp_spots |
 | --segmentation_container | \<mfrepo\>/segmentation:1.0.0 | Docker container to use for running segmentation |
-| --spot_extraction_container | \<mfrepo\>/spotextraction:1.0.0 | Docker container to use for running spot extraction |
+| --airlocalize_container | \<mfrepo\>/spotextraction:1.0.0 | Docker container to use for running spot extraction |
 | &#x2011;&#x2011;spots_assignment_container | \<mfrepo\>/spot_assignment:1.0.0 | Docker container to use for running measure_intensities and spot_assignment |

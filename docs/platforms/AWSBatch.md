@@ -120,10 +120,10 @@ nextflow run main.nf \
     --stitching_ref 1 \
     --dapi_channel c1 \
     --segmentation_cpus 1 \
-    --spot_extraction_xy_stride 512 \
-    --spot_extraction_z_stride 256 \
-    --spot_extraction_cpus 2 \
-    --spot_extraction_memory "8 G" \
+    --airlocalize_xy_stride 512 \
+    --airlocalize_z_stride 256 \
+    --airlocalize_cpus 2 \
+    --airlocalize_memory "8 G" \
     --spark_local_dir "/tmp" \
     --spark_work_dir "/efs-multifish/spark/small" \
     --data_dir "/s3-multifish/small" \
