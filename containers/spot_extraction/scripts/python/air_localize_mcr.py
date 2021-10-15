@@ -115,7 +115,7 @@ if __name__ == '__main__':
     points = AIRLOCALIZE.AIRLOCALIZE_N5(params, matlab_data, output, nargout=1)
     points = np.array(points._data).reshape(points.size, order='F')
     # TODO: write default spot file for tiles that return 0 spots
+
+    # Write out points in micrometer cooordinate space
     points[:, :3] = points[:, :3] * vox + offset
-
     np.savetxt(output + '/air_localize_points' + suffix, points)
-
