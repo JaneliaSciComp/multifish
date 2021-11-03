@@ -24,15 +24,18 @@ if __name__ == '__main__':
     n5_path       = sys.argv[6]
     subpath       = sys.argv[7]
 
+    n5 = n5mu.open_n5(n5_path)
+    vox    = n5mu.read_n5_voxel_spacing(n5, subpath)
+    grid   = n5mu.read_n5_voxel_grid(n5, subpath) * vox
+
     all_points = [-1, -1, -1, 0]
     points_files = sorted(glob(tiledir + '/*/air_localize_points' + suffix))
     for point_file in points_files:
 
-        vox    = n5mu.read_voxel_spacing(n5_path, subpath)
-        grid   = n5mu.read_voxel_grid(n5_path, subpath) * vox
-
         print("Reading", point_file)
         points = np.loadtxt(point_file)
+        num_points = points.shape[0]
+        print(f"Got {num_points} points")
 
         if points.shape[0] == 0: points = np.array([[-1, -1, -1, 0, 0]])  # file has 0 points
         if len(points.shape) == 1: points = points[np.newaxis, :]         # file has 1 point
@@ -51,12 +54,6 @@ if __name__ == '__main__':
         all_points = np.vstack((all_points, points))
         all_points = all_points[ (all_points != -1).all(axis=1), : ]
         all_points = all_points[ (all_points != -8).all(axis=1), : ]
-<<<<<<< HEAD
-
-    print("Writing", output)
-    np.savetxt(output, all_points, delimiter=',')
-=======
->>>>>>> 9f6d7d2 (RS-FISH implementation (WIP))
 
     filepath = f"{output}{suffix}"
     print("Saving ", filepath)
@@ -66,7 +63,6 @@ if __name__ == '__main__':
     print("Creating scaled output dir", d)
     d.mkdir(parents=True, exist_ok=True)
 
-    n5 = n5mu.open_n5(n5_path)
     group = os.path.split(subpath.strip('/'))[0]
     for scale in n5[group]:
         print("Transforming points to scale", scale)
@@ -85,8 +81,6 @@ if __name__ == '__main__':
         np.savetxt(filepath, points_vox, delimiter=',', \
             fmt=['%.4f','%.4f','%.4f','%d','%d','%.4f'], \
             header='x,y,z,t,c,intensity', comments="")
-
-        
 
         # Currently we output just s0 scale voxel coordinates. Remove this break to output all scales s1, s2, etc..
         break

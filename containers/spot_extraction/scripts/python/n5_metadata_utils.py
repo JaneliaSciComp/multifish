@@ -8,7 +8,6 @@ def _correct_subpath(subpath):
 
 
 def _get_atts(n5_path, subpath, correct_subpath=True):
-
     if correct_subpath: atts_path = n5_path + _correct_subpath(subpath)
     else: atts_path = n5_path + subpath
     atts_path += '/attributes.json'
@@ -17,7 +16,6 @@ def _get_atts(n5_path, subpath, correct_subpath=True):
 
 
 def read_voxel_spacing(n5_path, subpath):
-
     atts = _get_atts(n5_path, subpath)
     if subpath[-2:] == 's0':
         print("Reading vox as 'pixelResolution.dimensions' from %s/%s" % (n5_path, subpath))
@@ -30,14 +28,12 @@ def read_voxel_spacing(n5_path, subpath):
 
 
 def read_voxel_grid(n5_path, subpath):
-
     atts = _get_atts(n5_path, subpath, correct_subpath=False)
     print("Reading voxel grid as 'dimensions' from %s/%s" % (n5_path, subpath))
     return np.array(atts['dimensions']).astype(np.uint16)
 
 
 def transfer_metadata(ref_path, ref_subpath, out_path, out_subpath):
-
     if ref_subpath[-2:] != out_subpath[-2:]:
         print('can only transfer metadata between equivalent scale levels')
         print('nothing copied')
@@ -54,18 +50,23 @@ def transfer_metadata(ref_path, ref_subpath, out_path, out_subpath):
 # TODO: modify the rest of the code to use these instead
 
 def open_n5(n5_path):
+    print(f"Opening N5 from {n5_path}")
     return zarr.open(store=zarr.N5Store(n5_path), mode='r')
 
 
 def read_n5_voxel_spacing(n5, subpath):
     if subpath[-2:] == 's0':
+        print(f"Reading vox as 'pixelResolution.dimensions' from {subpath}")
         vox = np.array(n5.attrs['pixelResolution']['dimensions'])
     else:
+        print(f"Reading vox as 'pixelResolution'*'downsamplingFactors' from {subpath}")
         attrs = n5[subpath].attrs
         vox = np.array(attrs['pixelResolution']) * np.array(attrs['downsamplingFactors'])
+    print("Got vox", vox)
     return vox.astype(np.float32)
 
 
 def read_n5_voxel_grid(n5, subpath):
-    return np.array(n5[subpath].shape).astype(np.uint16)
-
+    print(f"Reading voxel grid as array shape from {subpath}")
+    # We must flip here because Zarr reads N5 metadata in reverse
+    return np.flip(n5[subpath].shape).astype(np.uint16)

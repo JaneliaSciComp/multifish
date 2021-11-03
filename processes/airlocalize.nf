@@ -36,7 +36,7 @@ process cut_tiles {
     """
 }
 
-process airlocalize {
+process run_airlocalize {
     container = params.airlocalize_container
     cpus { params.airlocalize_cpus }
     memory { params.airlocalize_memory }

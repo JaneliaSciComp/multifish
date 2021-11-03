@@ -58,7 +58,6 @@ def default_mf_params() {
         spot_extraction_scale: 's0',
 
         // Airlocalize params
-        run_airlocalize: true,
         airlocalize_xy_stride: 0, // use the default defined by airlocalize_xy_stride_param
         airlocalize_xy_overlap: 0, // use the default defined by airlocalize_xy_overlap_param
         airlocalize_z_stride: 0, // use the default defined by airlocalize_z_stride_param
@@ -69,7 +68,7 @@ def default_mf_params() {
         airlocalize_memory: '2 G',
 
         // RS-Fish params
-        run_rsfish: false,
+        use_rsfish: false,
         rsfish_container_repo: multifish_container_repo,
         rsfish_container_name: 'rs_fish',
         rsfish_container_version: '1.0.0',
@@ -185,7 +184,7 @@ def stitching_container_param(Map ps) {
         stitching_container
 }
 
-def spot_extraction_container_param(Map ps) {
+def airlocalize_container_param(Map ps) {
     def spot_extraction_container = ps.spot_extraction_container
     if (!spot_extraction_container)
         "${ps.mfrepo}/spot_extraction:1.1.0"
