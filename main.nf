@@ -50,8 +50,8 @@ airlocalize_params = final_params + [
     airlocalize_z_overlap: airlocalize_z_overlap_param(final_params),
 ]
 include {
-    airlocalize;
-} from './workflows/airlocalize' addParams(airlocalize_params)
+    spot_extraction;
+} from './workflows/spot_extraction' addParams(airlocalize_params)
 
 segmentation_params = final_params + [
     segmentation_container: segmentation_container_param(final_params)
@@ -280,12 +280,10 @@ workflow {
     )
 
     // run spot extraction
-    def spot_extraction_results = airlocalize(
+    def spot_extraction_results = spot_extraction(
         spot_extraction_inputs.map { "${it[1]}/export.n5" },
         spot_extraction_output_dirs,
         spot_channels,
-        final_params.spot_extraction_scale,
-        final_params.dapi_channel,
         bleedthrough_channels
     ) // [ input_image, ch, scale, spots_file ]
     spot_extraction_results.subscribe { log.debug "Spot extraction results: $it" }
@@ -435,11 +433,11 @@ workflow {
     // they should be available once spot_extraction_results complete
     // otherwise they should have been done already and 
     // they are provided by expected_spot_extraction_results
-    def spots_to_warp = spot_extraction_results
+    def spots_to_warp = spot_extraction_results  
     | concat(expected_spot_extraction_results)
-    | unique {
-        it[0..2].collect { "$it" }
-    }
+    // | unique {
+    //     it[0..2].collect { "$it" }
+    // }
     | map {
         // input, channel, spots_file
         def r = [ it[0], it[1], it[3] ]
@@ -509,7 +507,8 @@ workflow {
         ]
         log.debug "Registration result to be combined with extracted spots result: $it -> $r"
         return r
-    } | combine(spots_to_warp, by:[0,1]) | map {
+    } 
+    | combine(spots_to_warp, by:[0,1]) | map {
         // combined registration result by input and channel:
         // [ moving, channel, moving_subpath, fixed, fixed_subpath, inv_transform, warped_spots_output, spots_file]
         def spots_file =  file(it[7])
@@ -523,7 +522,7 @@ workflow {
             "${it[6]}/${warped_spots_fname}", // warped spots file
             "${spots_file}" // spots file path (as string)
         ]
-        log.debug "Prepare  warp spots input  $it -> $r"
+        log.debug "Prepare warp spots input $it -> $r"
         r
     }
 
@@ -826,7 +825,7 @@ def get_acq_output(output, acq_name) {
 def get_step_output_dir(output_dir, step_output) {
     return step_output == null || step_output == ''
         ? output_dir
-        : new File(output_dir, step_output)
+        : (new File(output_dir, step_output)).absolutePath
 }
 
 def get_stitched_inputs_for_step(output_dir, step_acq_names, stitching_output, stitching_results) {

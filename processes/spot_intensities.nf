@@ -32,7 +32,7 @@ process measure_intensities {
     """
     umask 0002
     mkdir -p ${output_path}
-    echo "python /app/intensity_measurement/scripts/intensity_measurements.py ${args}"
-    python /app/intensity_measurement/scripts/intensity_measurements.py ${args}
+    echo "python /app/scripts/intensity_measurements.py ${args}"
+    python /app/scripts/intensity_measurements.py ${args}
     """
 }

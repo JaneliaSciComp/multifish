@@ -13,13 +13,13 @@ if __name__ == '__main__':
 
     print("Reading", lb_dir)
     lb = imread(lb_dir)
-    fx = sorted(glob(spot_dir+"/*.txt"))
+    fx = sorted(glob(spot_dir+"/air_localize_points_c*.txt"))
 
     lb_id = np.unique(lb[lb != 0])
     z, y, x = lb.shape
     
     # TODO: get voxel size of segmentation image from original pixelResolution * s2 downsamplingFactors
-    s=[0.92,0.92,0.84] 
+    s=[0.92,0.92,0.84]
 
     count = pd.DataFrame(np.empty([len(lb_id), 0]), index=lb_id)
 

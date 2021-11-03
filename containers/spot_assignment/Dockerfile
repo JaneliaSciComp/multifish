@@ -27,6 +27,4 @@ RUN conda install python=3.6
 RUN conda env update -n base -f conda-requirements.yml && \
     rm -f conda-requirements.yml
 
-COPY scripts/python/intensity_measurement /app/intensity_measurement/scripts
-
-COPY scripts/python/spot_assignment /app/spot_assignment/scripts
+COPY scripts/python /app/scripts

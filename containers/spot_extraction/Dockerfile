@@ -52,17 +52,17 @@ ENV MCR_CACHE_VERBOSE=true
 
 COPY compiled_matlab /app/airlocalize
 COPY compiled_matlab/AIRLOCALIZE_N5/AIRLOCALIZE_N5.ctf /app/airlocalize/compiled_matlab/AIRLOCALIZE_N5
-COPY scripts/python /app/airlocalize/scripts
-COPY params /app/airlocalize/params
 
 COPY conda-requirements.yml .
-
 RUN conda config --set always_yes yes --set changeps1 no && \
     conda update -q conda && \
     conda install python=3.6
 
 RUN conda env update -n base -f conda-requirements.yml && \
     rm -f conda-requirements.yml
+
+COPY scripts/python /app/airlocalize/scripts
+COPY params /app/airlocalize/params
 
 RUN cd /usr/local/MATLAB/MATLAB_Runtime/v95/toolbox/compiler_sdk/pysdk_py && \
     python setup.py install && \

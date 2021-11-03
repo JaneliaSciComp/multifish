@@ -93,11 +93,13 @@ process merge_points {
     tuple val(image_path), val(ch), val(scale), val(merged_points_path)
 
     script:
-    merged_points_path = "${output_path}/merged_points_${ch}.txt"
+    def merged_points_prefix = "${output_path}/merged_points"
+    def merged_points_suffix = "_${ch}.txt"
+    merged_points_path = "${merged_points_prefix}${merged_points_suffix}"
     args_list = [
         "${tiles_dir}",
-        "_${ch}.txt",
-        merged_points_path,
+        merged_points_suffix,
+        merged_points_prefix,
         xy_overlap,
         z_overlap,
         image_path,

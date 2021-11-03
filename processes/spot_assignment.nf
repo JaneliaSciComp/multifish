@@ -21,7 +21,7 @@ process assign_spots {
     """
     umask 0002
     mkdir -p ${output_path}
-    echo "python /app/spot_assignment/scripts/assign_spots.py ${args}"
-    python /app/spot_assignment/scripts/assign_spots.py ${args}
+    echo "python /app/scripts/assign_spots.py ${args}"
+    python /app/scripts/assign_spots.py ${args}
     """
 }

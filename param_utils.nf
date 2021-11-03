@@ -50,20 +50,35 @@ def default_mf_params() {
 
         dapi_channel: 'c2', // DAPI channel used to drive both the segmentation and the registration
         ref_acq: '', // this is the default parameter for the fixed round and 
-                                // should be used only when all steps that require a fixed round must be done
+                     // should be used only when all steps that require a fixed round must be done
+        bleed_channel: 'c3',
 
         // spot extraction params
         spot_extraction_output: 'spots',
         spot_extraction_scale: 's0',
+
+        // Airlocalize params
+        run_airlocalize: true,
         airlocalize_xy_stride: 0, // use the default defined by airlocalize_xy_stride_param
         airlocalize_xy_overlap: 0, // use the default defined by airlocalize_xy_overlap_param
         airlocalize_z_stride: 0, // use the default defined by airlocalize_z_stride_param
         airlocalize_z_overlap: 0, // use the default defined by airlocalize_z_overlap_param
-        bleed_channel: 'c3',
         default_airlocalize_params: default_airlocalize_params,
         per_channel_air_localize_params: ",,,",
         airlocalize_cpus: 1,
         airlocalize_memory: '2 G',
+
+        // RS-Fish params
+        run_rsfish: false,
+        rsfish_container_repo: multifish_container_repo,
+        rsfish_container_name: 'rs_fish',
+        rsfish_container_version: '1.0.0',
+        rs_fish_app: '/app/app.jar',
+        rsfish_workers: 1,
+        rsfish_worker_cores: 8,
+        rsfish_gb_per_core: 4,
+        rsfish_driver_cores: 1,
+        rsfish_driver_memory: '1g',
 
         // segmentation params
         segmentation_output: 'segmentation',
@@ -173,7 +188,7 @@ def stitching_container_param(Map ps) {
 def spot_extraction_container_param(Map ps) {
     def spot_extraction_container = ps.spot_extraction_container
     if (!spot_extraction_container)
-        "${ps.mfrepo}/spot_extraction:1.0.3"
+        "${ps.mfrepo}/spot_extraction:1.1.0"
     else
         airlocalize_container
 }
@@ -197,7 +212,7 @@ def registration_container_param(Map ps) {
 def spots_assignment_container_param(Map ps) {
     def spots_assignment_container = ps.spots_assignment_container
     if (!spots_assignment_container)
-        "${ps.mfrepo}/spot_assignment:1.2.0"
+        "${ps.mfrepo}/spot_assignment:1.3.0"
     else
         spots_assignment_container
 }
