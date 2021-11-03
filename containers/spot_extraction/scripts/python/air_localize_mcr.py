@@ -125,5 +125,5 @@ if __name__ == '__main__':
     points_um = np.copy(points)
     points_um[:, :3] = points_um[:, :3] * vox + offset
     filename = f"{output}/air_localize_points{suffix}"
-    print("Saving {num_points} points to", filename)
-    np.savetxt(filename, points)
+    print(f"Saving {num_points} points to", filename)
+    np.savetxt(filename, points_um)
