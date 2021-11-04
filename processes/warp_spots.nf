@@ -11,7 +11,7 @@ process collect_merged_points_files {
 
     script:
     """
-    merged_points_files=`ls ${merged_points_dir}/merged_points_c*.txt || true`
+    merged_points_files=`ls ${merged_points_dir}/spots_c*.txt || true`
     if [[ -z \${merged_points_files} ]]; then
         merged_points_files_res=${merged_points_dir}
     else

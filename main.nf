@@ -702,7 +702,7 @@ workflow {
                 "${moving_dir}/export.n5", // moving stitched image
                 "/${it[2]}/${final_params.def_scale}", // channel/deform scale
                 "${registration_dir}/invtransform", // transform path
-                "${warped_spots_dir}/merged_points_${it[2]}_warped.txt",
+                "${warped_spots_dir}/spots_${it[2]}_warped.txt",
                 fixed_acq,
                 moving_acq
             ]
@@ -717,7 +717,7 @@ workflow {
                 "${moving_dir}/export.n5", // moving stitched image
                 "/${it[2]}/${final_params.def_scale}", // channel/deform scale
                 '', // no transform path
-                "${spots_dir}/merged_points_${it[2]}.txt",
+                "${spots_dir}/spots_${it[2]}.txt",
                 fixed_acq,
                 moving_acq
             ]
@@ -739,11 +739,11 @@ workflow {
     | combine(labeled_acquisitions)
     | map {
         def r = [
-            it[3], it[0], it[1]
+            it[3], it[0], it[1], it[2], "/${final_params.dapi_channel}/${final_params.segmentation_scale}"
         ]
         log.debug "Assign spots input for fixed image: $it -> $r"
         return r
-    } // [ label, spots_dir, assigned_dir ]
+    } // [ label, spots_dir, assigned_dir, n5_file, subpath ]
 
     def expected_assign_spots_for_moving = expected_assign_spots
     | filter { it[6] != it[7] }
@@ -784,6 +784,7 @@ workflow {
         def fixed_stitched_results = file(it[0])
         def fixed_acq = fixed_stitched_results.parent.parent.name
         def moving_stitched_results = file(it[2])
+        def moving_subpath = it[3]
         def moving_acq = moving_stitched_results.parent.parent.name
         def assign_spots_output_dir = get_step_output_dir(
             get_acq_output(pipeline_output_dir, moving_acq),
@@ -793,9 +794,11 @@ workflow {
         def warped_spots_file = file(it[5])
         def warped_spots_dir = warped_spots_file.parent
         def r = [
-            it[6], // labels
+            it[6], // segmentation labels (TIFF)
             warped_spots_dir, // warped spots dir
-            assign_spots_output_dir
+            assign_spots_output_dir, // assignment output dir
+            moving_stitched_results,
+            moving_subpath
         ]
         log.debug "Assign spots input for warped spots: $it -> $r"
         return r
@@ -806,6 +809,8 @@ workflow {
         assign_spots_inputs.map { it[0] },
         assign_spots_inputs.map { it[1] },
         assign_spots_inputs.map { it[2] },
+        assign_spots_inputs.map { it[3] },
+        assign_spots_inputs.map { it[4] },
         final_params.assign_spots_cpus
     )
 

@@ -6,6 +6,8 @@ process assign_spots {
     val(labels_path)
     val(spots_path)
     val(output_path)
+    val(n5_path)
+    val(subpath)
     val(cpus)
 
     output:
@@ -14,8 +16,10 @@ process assign_spots {
     script:
     args_list = [
         labels_path,
-        spots_path,
-        output_path
+        "\"${spots_path}/spots_*.txt\"",
+        output_path,
+        n5_path,
+        subpath
     ]
     args = args_list.join(' ')
     """

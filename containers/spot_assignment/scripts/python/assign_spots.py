@@ -1,25 +1,28 @@
 import os
 import sys
 import numpy as np
+import n5_metadata_utils as n5mu
 import pandas as pd
 from glob import glob
 from skimage.io import imread
 from os.path import abspath, dirname
 
 if __name__ == '__main__':
-    lb_dir = sys.argv[1]
-    spot_dir = sys.argv[2]
-    out_dir = sys.argv[3]
+    lb_dir                = sys.argv[1]
+    spot_glob_pattern     = sys.argv[2]
+    out_dir               = sys.argv[3]
+    n5_path               = sys.argv[4]
+    segmentation_subpath  = sys.argv[5]
 
+    n5     = n5mu.open_n5(n5_path)
+    vox    = n5mu.read_n5_voxel_spacing(n5, segmentation_subpath)
+    
     print("Reading", lb_dir)
     lb = imread(lb_dir)
-    fx = sorted(glob(spot_dir+"/air_localize_points_c*.txt"))
+    fx = sorted(glob(spot_glob_pattern))
 
     lb_id = np.unique(lb[lb != 0])
     z, y, x = lb.shape
-    
-    # TODO: get voxel size of segmentation image from original pixelResolution * s2 downsamplingFactors
-    s=[0.92,0.92,0.84]
 
     count = pd.DataFrame(np.empty([len(lb_id), 0]), index=lb_id)
 
@@ -32,7 +35,7 @@ if __name__ == '__main__':
         n = len(spot)
         
         # Convert from micrometer space to the voxel space of the segmented image
-        rounded_spot = np.round(spot[:, :3]/s).astype('int')
+        rounded_spot = np.round(spot[:, :3]/vox).astype('int')
         df = pd.DataFrame(np.zeros([len(lb_id), 1]), index=lb_id, columns=['count'])
 
         for i in range(0, n):

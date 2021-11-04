@@ -90,20 +90,20 @@ process merge_points {
     val(output_path)
 
     output:
-    tuple val(image_path), val(ch), val(scale), val(merged_points_path)
+    tuple val(image_path), val(ch), val(scale), val(output_microns)
 
     script:
-    def merged_points_prefix = "${output_path}/merged_points"
-    def merged_points_suffix = "_${ch}.txt"
-    merged_points_path = "${merged_points_prefix}${merged_points_suffix}"
+    output_microns = "${output_path}/spots_${ch}.txt"
+    output_voxels = "${output_path}/spots_airlocalize_${ch}.csv"
     args_list = [
-        "${tiles_dir}",
-        merged_points_suffix,
-        merged_points_prefix,
+        "\"${tiles_dir}/*/air_localize_points_${ch}.txt\"",
+        output_microns,
+        output_voxels,
         xy_overlap,
         z_overlap,
         image_path,
-        "/${ch}/${scale}"
+        "/${ch}/${scale}",
+        "/${ch}/s0"
     ]
     args = args_list.join(' ')
     """

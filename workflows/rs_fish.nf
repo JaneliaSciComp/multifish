@@ -65,7 +65,7 @@ workflow rsfish {
     | map {
         def (index, input_dir, output_dir, channel) = it
         def acq_name = file(input_dir).parent.parent.name
-        def output_file = "${output_dir}/rsfish_points_${channel}.csv"
+        def output_file = "${output_dir}/spots_rsfish_${channel}.csv"
         [
             "--image=${input_dir} --dataset=/${channel}/${scale} --minIntensity=0 --maxIntensity=4096 --anisotropy=0.7 --output=${output_file}",
             cluster_work_dir,
