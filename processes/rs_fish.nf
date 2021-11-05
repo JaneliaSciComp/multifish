@@ -17,15 +17,28 @@ process prepare_spots_dirs {
 process postprocess_spots {
     label 'small'
 
+    container { params.airlocalize_container }
+
     input:
     val(spots_path)
+    val(output_path)
+    val(n5_path)
+    val(subpath)
 
     output:
-    val(spots_path)
+    val(output_path)
 
     script:
+    args_list = [
+        spots_path,
+        output_path,
+        n5_path,
+        subpath
+    ]
+    args = args_list.join(' ')
     """
-    echo "${spots_path}"
+    echo "python /app/airlocalize/scripts/post_rsfish.py ${args}"
+    python /app/airlocalize/scripts/post_rsfish.py ${args}
     """
 
 }

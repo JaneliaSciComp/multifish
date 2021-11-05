@@ -65,20 +65,26 @@ workflow rsfish {
     | map {
         def (index, input_dir, output_dir, channel) = it
         def acq_name = file(input_dir).parent.parent.name
+        def subpath = "/${channel}/${scale}"
         def output_file = "${output_dir}/spots_rsfish_${channel}.csv"
+        def output_voxel_file = "${output_dir}/spots_${channel}.txt"
         [
-            "--image=${input_dir} --dataset=/${channel}/${scale} --minIntensity=0 --maxIntensity=4096 --anisotropy=0.7 --output=${output_file}",
+            "--image=${input_dir} --dataset=${subpath} --minIntensity=${params.rsfish_min} --maxIntensity=${params.rsfish_max} "
+                + "--anisotropy=${params.rsfish_anisotropy} --output=${output_file}",
             cluster_work_dir,
             "rsFISH_${acq_name}_${channel}.log",
+            input_dir,
+            subpath,
+            output_voxel_file,
             output_file
         ]
-    } // [ args, cluster_work_dir, log_name, output_file ]
-    | combine(spark_cluster_res, by:1) // [ cluster_work_dir, args, log_name, output_file, spark_uri ]
+    } // [ args, cluster_work_dir, log_name, input_dir, subpath, output_voxel_file, output_file ]
+    | combine(spark_cluster_res, by:1) // [ cluster_work_dir, args, log_name, input_dir, subpath, output_voxel_file, output_file, spark_uri ]
 
     rsfish_args.subscribe {  log.debug "RS-FISH app args: $it"  }
 
     def rsfish_done = run_rsfish(
-        rsfish_args.map { it[4] }, // spark URI
+        rsfish_args.map { it[7] }, // spark URI
         params.rs_fish_app,
         'net.preibisch.rsfish.spark.SparkRSFISH',
         rsfish_args.map { it[1] }, // app args
@@ -104,11 +110,14 @@ workflow rsfish {
 
     def postprocess_spots_inputs = rs_fish_results 
         | map { it.reverse() } // [ cluster_work_dir, terminate_file_name ]
-        | combine(rsfish_args) // [ cluster_work_dir, terminate_file_name, args, log_name, output_file, spark_uri ]
+        | combine(rsfish_args, by:0) // [ cluster_work_dir, terminate_file_name, args, log_name, input_dir, subpath, output_voxel_file, output_file, spark_uri ]
     postprocess_spots_inputs.subscribe {  log.debug "Post process spots args: $it"  }
 
     postprocess_spots = postprocess_spots(
-        postprocess_spots_inputs.map { it[4] }
+        postprocess_spots_inputs.map { it[7] },
+        postprocess_spots_inputs.map { it[6] },
+        postprocess_spots_inputs.map { it[4] },
+        postprocess_spots_inputs.map { it[5] },
     )
 
     emit:

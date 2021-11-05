@@ -78,6 +78,9 @@ def default_mf_params() {
         rsfish_gb_per_core: 4,
         rsfish_driver_cores: 1,
         rsfish_driver_memory: '1g',
+        rsfish_min: 0,
+        rsfish_max: 4096,
+        rsfish_anisotropy: 0.7,
 
         // segmentation params
         segmentation_output: 'segmentation',
