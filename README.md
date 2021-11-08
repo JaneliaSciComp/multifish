@@ -1,5 +1,7 @@
 # EASI-FISH Nextflow Pipeline
 
+[![DOI](https://zenodo.org/badge/329431552.svg)](https://zenodo.org/badge/latestdoi/329431552)
+
 This pipeline analyzes imagery collected using [EASI-FISH](https://github.com/multiFISH/EASI-FISH) (Expansion-Assisted Iterative Fluorescence *In Situ* Hybridization). It includes automated image stitching, distributed multi-round image registration, cell segmentation, and distributed spot detection.
 
 ![Pipeline Diagram](docs/images/pipeline_diagram.png)
