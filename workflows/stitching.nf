@@ -313,8 +313,13 @@ workflow stitch {
         }
     )
     def rename_done = rename_retile_inouts(
-        rename_args.map { it[1] }, // rename commands
-        rename_args.map { [ it[0], it[2] ] } // [spark URI, spark working dir]
+        rename_args.flatMap { it[1] }, // rename commands
+        rename_args.flatMap {
+            def (spark_uri, spark_working_dir, ren_cmds) = it
+            ren_cmds.collect { ren_cmd ->
+                [spark_uri, spark_working_dir]
+            }
+        } // [spark URI, spark working dir]
     )
 
     // prepare stitching args

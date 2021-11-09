@@ -35,13 +35,14 @@ process rename_retile_inouts {
     container { params.stitching_container }
 
     input:
-    each ren_cmd from ren_cmds
-    forwarding_args
+    val(ren_cmd)
+    val(forwarding_args)
 
     output:
-    forwarding_args
+    val(forwarding_args)
 
     script:
+    log.info("Rename: ${ren_cmd}, Forwarding args: ${forwarding_args}")
     """
     echo "ren ${ren_cmd}"
     mv ${ren_cmd}
