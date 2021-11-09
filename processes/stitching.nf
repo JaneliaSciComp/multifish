@@ -28,3 +28,22 @@ process prepare_stitching_data {
     ln -s ${czi} ${czi_link_dir} || true
     """
 }
+
+process rename_retile_inouts {
+    label 'small'
+
+    container { params.stitching_container }
+
+    input:
+    each ren_cmd from ren_cmds
+    forwarding_args
+
+    output:
+    forwarding_args
+
+    script:
+    """
+    echo "ren ${ren_cmd}"
+    mv ${ren_cmd}
+    """
+}
