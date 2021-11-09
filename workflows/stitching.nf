@@ -14,6 +14,7 @@ include {
 
 include {
     prepare_stitching_data;
+    rename_retile_inouts;
 } from '../processes/stitching'
 
 include {
