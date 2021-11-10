@@ -313,11 +313,14 @@ workflow stitch {
                 }
         }
     )
+    rename_args | view
     def rename_done = run_rename_cmds(
-        rename_args.map { it[1] }, // rename commands
-        rename_args.map {
-            def (spark_uri, spark_working_dir) = it
-            [spark_uri, spark_working_dir]
+        rename_args.flatMap { it[1] }, // rename commands
+        rename_args.flatMap {
+            def (spark_uri, ren_cmds, spark_working_dir) = it
+            ren_cmds.collect {
+                [spark_uri, spark_working_dir]
+            }
         } // [spark URI, spark working dir]
     )
 
