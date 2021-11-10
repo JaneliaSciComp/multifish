@@ -14,7 +14,7 @@ include {
 
 include {
     prepare_stitching_data;
-    rename_retile_inouts;
+    run_rename_cmds;
 } from '../processes/stitching'
 
 include {
@@ -311,16 +311,13 @@ workflow stitch {
                         "${stitching_dir}/${ch}-n5-retiled.json ${stitching_dir}/${ch}-n5.json"
                     ]
                 }
-                .flatten()
         }
     )
-    def rename_done = rename_retile_inouts(
-        rename_args.flatMap { it[1] }, // rename commands
-        rename_args.flatMap {
-            def (spark_uri, spark_working_dir, ren_cmds) = it
-            ren_cmds.collect { ren_cmd ->
-                [spark_uri, spark_working_dir]
-            }
+    def rename_done = run_rename_cmds(
+        rename_args.map { it[1] }, // rename commands
+        rename_args.map {
+            def (spark_uri, spark_working_dir) = it
+            [spark_uri, spark_working_dir]
         } // [spark URI, spark working dir]
     )
 

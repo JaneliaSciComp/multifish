@@ -29,22 +29,24 @@ process prepare_stitching_data {
     """
 }
 
-process rename_retile_inouts {
+process run_rename_cmds {
     label 'small'
 
     container { params.stitching_container }
 
     input:
-    val(ren_cmd)
+    val(ren_cmds)
     val(forwarding_args)
 
     output:
     val(forwarding_args)
 
     script:
-    log.info("Rename: ${ren_cmd}, Forwarding args: ${forwarding_args}")
-    """
-    echo "ren ${ren_cmd}"
-    mv ${ren_cmd}
-    """
+    log.info("Rename: ${ren_cmds}, Forwarding args: ${forwarding_args}")
+    ren_cmds.each { ren_cmd ->
+        """
+        echo "ren ${ren_cmd}"
+        mv ${ren_cmd}
+        """
+    }
 }
