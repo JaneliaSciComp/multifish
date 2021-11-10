@@ -304,12 +304,14 @@ workflow stitch {
         indexed_spark_work_dirs,
         indexed_acq_data,
         { acq_name, stitching_dir -> 
-            channels.flatten { ch ->
-                [
-                    "${stitching_dir}/${ch}-n5.json ${stitching_dir}/${ch}-orig-n5.json",
-                    "${stitching_dir}/${ch}-n5-retiled.json ${stitching_dir}/${ch}-n5.json"
-                ]
-            }
+            channels
+                .collect { ch ->
+                    [
+                        "${stitching_dir}/${ch}-n5.json ${stitching_dir}/${ch}-orig-n5.json",
+                        "${stitching_dir}/${ch}-n5-retiled.json ${stitching_dir}/${ch}-n5.json"
+                    ]
+                }
+                .flatten()
         }
     )
     def rename_done = rename_retile_inouts(
