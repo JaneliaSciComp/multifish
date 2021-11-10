@@ -42,11 +42,14 @@ process run_rename_cmds {
     val(forwarding_args)
 
     script:
-    log.info("Rename: ${ren_cmds}, Forwarding args: ${forwarding_args}")
-    ren_cmds.each { ren_cmd ->
+    def ren_code = ren_cmds.inject('') { code_block, ren_cmd ->
         """
+        ${code_block}
         echo "ren ${ren_cmd}"
         mv ${ren_cmd}
         """
     }
+    """
+    ${ren_code}
+    """
 }
