@@ -311,16 +311,15 @@ workflow stitch {
                         "${stitching_dir}/${ch}-n5-retiled.json ${stitching_dir}/${ch}-n5.json"
                     ]
                 }
+                .flatten()
         }
     )
     rename_args | view
     def rename_done = run_rename_cmds(
-        rename_args.flatMap { it[1] }, // rename commands
-        rename_args.flatMap {
+        rename_args.map { it[1] }, // all rename commands for all channels
+        rename_args.map {
             def (spark_uri, ren_cmds, spark_working_dir) = it
-            ren_cmds.collect {
-                [spark_uri, spark_working_dir]
-            }
+            [spark_uri, spark_working_dir]
         } // [spark URI, spark working dir]
     )
 
