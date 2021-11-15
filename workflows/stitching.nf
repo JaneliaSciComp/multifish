@@ -299,7 +299,7 @@ workflow stitch {
     // prepare stitching args
     def stitching_args = prepare_app_args(
         "stitching",
-        rename_done,
+        retile_done,
         indexed_spark_work_dirs,
         indexed_acq_data,
         { acq_name, stitching_dir ->
