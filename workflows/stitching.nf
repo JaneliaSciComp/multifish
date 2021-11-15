@@ -330,7 +330,7 @@ workflow stitch {
         indexed_spark_work_dirs,
         indexed_acq_data,
         { acq_name, stitching_dir ->
-            retiled_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5', '.json')
+            def retiled_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5', '.json')
             return "--stitch -r ${registration_channel} ${retiled_n5_channels_args} --mode '${stitching_mode}' --padding '${stitching_padding}' --blurSigma ${stitching_blur_sigma}"
         }
     )
@@ -359,7 +359,7 @@ workflow stitch {
         indexed_spark_work_dirs,
         indexed_acq_data,
         { acq_name, stitching_dir ->
-            stitched_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5-final', '.json')
+            def stitched_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5-final', '.json')
             return "--fuse ${stitched_n5_channels_args} --blending --fill"
         }
     )
