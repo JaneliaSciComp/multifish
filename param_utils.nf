@@ -165,7 +165,7 @@ def get_list_or_default(Map ps, String param, List default_list) {
 def stitching_container_param(Map ps) {
     def stitching_container = ps.stitching_container
     if (!stitching_container)
-        "${ps.mfrepo}/stitching:1.0.0"
+        "${ps.mfrepo}/stitching:1.0.1-beta"
     else
         stitching_container
 }
