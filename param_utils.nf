@@ -29,7 +29,7 @@ def default_mf_params() {
         // stitching params
         spark_container_repo: multifish_container_repo,
         spark_container_name: 'stitching',
-        spark_container_version: '1.0.0',
+        spark_container_version: '1.1.0',
         stitching_app: '/app/app.jar',
         stitching_output: 'stitching',
         resolution: '0.23,0.23,0.42',
@@ -165,7 +165,7 @@ def get_list_or_default(Map ps, String param, List default_list) {
 def stitching_container_param(Map ps) {
     def stitching_container = ps.stitching_container
     if (!stitching_container)
-        "${ps.mfrepo}/stitching:1.0.0"
+        "${ps.mfrepo}/stitching:1.1.0"
     else
         stitching_container
 }

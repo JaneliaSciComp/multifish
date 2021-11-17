@@ -14,7 +14,6 @@ include {
 
 include {
     prepare_stitching_data;
-    run_rename_cmds;
 } from '../processes/stitching'
 
 include {
@@ -297,41 +296,16 @@ workflow stitch {
         spark_driver_logconfig,
         spark_driver_deploy_mode
     )
-    // prepare rename retile input/output args
-    def rename_args = prepare_app_args(
-        "rename retile args",
-        retile_done,
-        indexed_spark_work_dirs,
-        indexed_acq_data,
-        { acq_name, stitching_dir -> 
-            channels
-                .collect { ch ->
-                    [
-                        "${stitching_dir}/${ch}-n5.json ${stitching_dir}/${ch}-orig-n5.json",
-                        "${stitching_dir}/${ch}-n5-retiled.json ${stitching_dir}/${ch}-n5.json"
-                    ]
-                }
-                .flatten()
-        }
-    )
-    rename_args | view
-    def rename_done = run_rename_cmds(
-        rename_args.map { it[1] }, // all rename commands for all channels
-        rename_args.map {
-            def (spark_uri, ren_cmds, spark_working_dir) = it
-            [spark_uri, spark_working_dir]
-        } // [spark URI, spark working dir]
-    )
-
     // prepare stitching args
     def stitching_args = prepare_app_args(
         "stitching",
-        rename_done,
+        retile_done,
         indexed_spark_work_dirs,
         indexed_acq_data,
         { acq_name, stitching_dir ->
-            def retiled_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5', '.json')
-            return "--stitch -r ${registration_channel} ${retiled_n5_channels_args} --mode '${stitching_mode}' --padding '${stitching_padding}' --blurSigma ${stitching_blur_sigma}"
+            def retiled_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5-retiled', '.json')
+            def correction_args = entries_inputs_args(stitching_dir, channels, '--correction-images-paths', '-n5', '.json')
+            return "--stitch -r ${registration_channel} ${retiled_n5_channels_args} ${correction_args} --mode '${stitching_mode}' --padding '${stitching_padding}' --blurSigma ${stitching_blur_sigma}"
         }
     )
     def stitching_done = run_stitching(
@@ -359,8 +333,9 @@ workflow stitch {
         indexed_spark_work_dirs,
         indexed_acq_data,
         { acq_name, stitching_dir ->
-            def stitched_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5-final', '.json')
-            return "--fuse ${stitched_n5_channels_args} --blending --fill"
+            def stitched_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5-retiled-final', '.json')
+            def correction_args = entries_inputs_args(stitching_dir, channels, '--correction-images-paths', '-n5', '.json')
+            return "--fuse ${stitched_n5_channels_args} ${correction_args} --blending --fill"
         }
     )
     def fuse_done = run_fuse(
