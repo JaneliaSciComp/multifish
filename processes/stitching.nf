@@ -28,28 +28,3 @@ process prepare_stitching_data {
     ln -s ${czi} ${czi_link_dir} || true
     """
 }
-
-process run_rename_cmds {
-    label 'small'
-
-    container { params.stitching_container }
-
-    input:
-    val(ren_cmds)
-    val(forwarding_args)
-
-    output:
-    val(forwarding_args)
-
-    script:
-    def ren_code = ren_cmds.inject('') { code_block, ren_cmd ->
-        """
-        ${code_block}
-        echo "ren ${ren_cmd}"
-        mv ${ren_cmd}
-        """
-    }
-    """
-    ${ren_code}
-    """
-}
