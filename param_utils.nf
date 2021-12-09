@@ -81,6 +81,9 @@ def default_mf_params() {
         rsfish_min: 0,
         rsfish_max: 4096,
         rsfish_anisotropy: 0.7,
+        rsfish_sigma: 1.5,
+        rsfish_threshold: 0.007,
+        rsfish_params: '',
 
         // segmentation params
         segmentation_output: 'segmentation',

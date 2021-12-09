@@ -74,6 +74,11 @@ You can export variables into your environment before calling the pipeline, or s
 |------------|---------|---------------------------------------------------------------------------------------|
 | --spot_extraction_output | spots | Output directory for spot extraction (relative to --output_dir) |
 | --spot_extraction_scale | s0 | Scale of imagery to use for spot extraction |
+
+## Airlocalize Parameters
+
+| Argument   | Default | Description                                                                           |
+|------------|---------|---------------------------------------------------------------------------------------|
 | --airlocalize_xy_stride | 1024 | The number of voxels along x/y for registration tiling, must be power of 2. Increasing this requires increasing the memory allocation. |
 | --airlocalize_xy_overlap | 5% of xy_stride | Tile overlap on x/y axes |
 | --airlocalize_z_stride | 512 | The number of voxels along z for registration tiling, must be power of 2. Increasing this requires increasing the memory allocation. |
@@ -82,6 +87,23 @@ You can export variables into your environment before calling the pipeline, or s
 | &#x2011;&#x2011;per_channel_air_localize_params | ,,, | Paths to alternative airlocalize parameter files, one per channel |
 | --airlocalize_cpus | 2 | Number of CPU cores to allocate for each hAirlocalize job |
 | --airlocalize_memory | 30 G | Amount of RAM (in GB) to allocate to each hAirlocalize job. Needs to be increased when increasing strides. |
+
+## RS-FISH Parameters
+
+| Argument   | Default | Description                                                                           |
+|------------|---------|---------------------------------------------------------------------------------------|
+| --use_rsfish | false | Use RS-FISH instead of AirLocalize for Spot Extraction |
+| --rsfish_min | 0 | Minimal intensity of the image |
+| --rsfish_max | 4096 | Maximal intensity of the image |
+| --rsfish_anisotropy | 0.7 | The anisotropy factor (scaling of z relative to xy, can be determined using the anisotropy plugin) |
+| --rsfish_sigma | 1.5 | Sigma value for Difference-of-Gaussian (DoG) calculation |
+| --rsfish_threshold | 0.007 | Threshold value for Difference-of-Gaussian (DoG) calculation |
+| --rsfish_params | | Any other parameters to pass to the RS-FISH algorithm |
+| --rsfish_workers | 1 | Number of Spark workers to use for RS-FISH spot detection |
+| --rsfish_worker_cores | 8 | Number of cores allocated to each Spark worker |
+| --rsfish_gb_per_core | 4 | Size of memory (in GB) that is allocated for each core of a Spark worker. The total memory usage for stitching one acquisition will be workers *worker_cores* gb_per_core.  |
+| --rsfish_driver_cores | 1 | Number of cores to allocate for the Spark driver |
+| --rsfish_driver_memory | 1g | Amount of memory to allocate for the Spark driver  |
 
 ### Segmentation Parameters
 
@@ -126,7 +148,7 @@ You can export variables into your environment before calling the pipeline, or s
 | --def_scale_transform_cpus | 8 | Number of CPU cores for Deformable Scale Transform step of registration |
 | --def_scale_transform_memory | 80 G | Amount of memory for Deformable Scale Transform step of registration |
 | --deform_cpus | 1 | Number of CPU cores for Deform step of registration |
-| --deform_memory | 10 G | Amount of memory for Deform step of registration | 
+| --deform_memory | 10 G | Amount of memory for Deform step of registration |
 | --registration_stitch_cpus | 2 | Number of CPU cores for Stitch step of registration |
 | --registration_stitch_memory | 20 G | Amount of memory for Stitch step of registration |
 | --registration_transform_cpus | 12 | Number of CPU cores for final Transform step of registration |
@@ -159,10 +181,13 @@ You can export variables into your environment before calling the pipeline, or s
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
 | --mfrepo | janeliascicomp (on DockerHub) | Docker Registry and Repository to use for containers |
-| --spark_container_repo | <mfrepo> | Docker container repo for stitching. |
-| --spark_container_name | stitching | Docker container name for stitching. |
-| --spark_container_version | 1.0.0 | Docker container version for stitching. |
+| --spark_container_repo | <mfrepo> | Docker container repo for stitching |
+| --spark_container_name | stitching | Docker container name for stitching |
+| --spark_container_version | 1.0.0 | Docker container version for stitching |
 | --registration_container | \<mfrepo\>/registration:1.1.0 | Docker container to use for running registration and warp_spots |
 | --segmentation_container | \<mfrepo\>/segmentation:1.0.0 | Docker container to use for running segmentation |
 | --airlocalize_container | \<mfrepo\>/spotextraction:1.0.0 | Docker container to use for running spot extraction |
 | &#x2011;&#x2011;spots_assignment_container | \<mfrepo\>/spot_assignment:1.0.0 | Docker container to use for running measure_intensities and spot_assignment |
+| --rsfish_container_repo | <mfrepo> | Docker container repo for RS-FISH |
+| --rsfish_container_name | rs_fish | Docker container name for RS-FISH |
+| --rsfish_container_version | 1.0.0 | Docker container version for |

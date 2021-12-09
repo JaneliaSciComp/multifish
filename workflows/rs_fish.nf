@@ -70,7 +70,8 @@ workflow rsfish {
         def output_voxel_file = "${output_dir}/spots_${channel}.txt"
         [
             "--image=${input_dir} --dataset=${subpath} --minIntensity=${params.rsfish_min} --maxIntensity=${params.rsfish_max} "
-                + "--anisotropy=${params.rsfish_anisotropy} --output=${output_file}",
+                + "--anisotropy=${params.rsfish_anisotropy} --sigma=${params.rsfish_sigma} --threshold=${params.rsfish_threshold} "
+                + "--output=${output_file} ${params.rsfish_params}",
             cluster_work_dir,
             "rsFISH_${acq_name}_${channel}.log",
             input_dir,

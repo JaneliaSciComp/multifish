@@ -5,6 +5,12 @@
     "description": "EASI-FISH spatial transcriptomics analysis pipeline",
     "type": "object",
     "definitions": {
+        "rs_fish": {
+            "title": "RS-FISH",
+            "type": "object",
+            "description": "",
+            "default": ""
+        },
         "data": {
             "title": "Data",
             "type": "object",
@@ -642,6 +648,9 @@
         }
     },
     "allOf": [
+        {
+            "$ref": "#/definitions/rs_fish"
+        },
         {
             "$ref": "#/definitions/data"
         },
