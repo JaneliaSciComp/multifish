@@ -1,0 +1,46 @@
+cff-version: 1.2.0
+title: EASI-FISH for thick tissue defines lateral hypothalamus spatio-molecular organization
+message: Please cite the following work when using this software
+doi: 10.1016/j.cell.2021.11.024
+date-released: 2021-12-01
+authors:
+  - given-names: Yuhan
+    family-names: Wang
+  - given-names: Mark
+    family-names: Eddison
+  - given-names: Greg
+    family-names: Fleishman
+  - given-names: Martin
+    family-names: Weigert
+  - given-names: Shengjin
+    family-names: Xu
+  - given-names: Tim
+    family-names: Wang
+  - given-names: Konrad
+    family-names: Rokicki
+  - given-names: Cristian
+    family-names: Goina
+  - given-names: Fredrick E
+    family-names: Henry
+  - given-names: Andrew L
+    family-names: Lemire
+  - given-names: Uwe
+    family-names: Schmidt
+  - given-names: Hui
+    family-names: Yang
+  - given-names: Karel
+    family-names: Svoboda
+  - given-names: Eugene W
+    family-names: Myers
+  - given-names: Stephan
+    family-names: Saalfeld
+  - given-names: Wyatt
+    family-names: Korff
+  - given-names: Scott M
+    family-names: Sternson
+  - given-names: Paul W
+    family-names: Tillberg
+type: software
+repository-code: 'https://github.com/JaneliaSciComp/multifish'
+url: 'https://janeliascicomp.github.io/multifish/'
+license: BSD-3-Clause
