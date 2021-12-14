@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 title: EASI-FISH for thick tissue defines lateral hypothalamus spatio-molecular organization
-message: Please cite the following work when using this software
+message: If you use this software, please cite it using the metadata from CITATION.cff
 doi: 10.1016/j.cell.2021.11.024
 date-released: 2021-12-01
 authors:
