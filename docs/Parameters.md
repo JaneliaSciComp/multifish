@@ -75,7 +75,7 @@ You can export variables into your environment before calling the pipeline, or s
 | --spot_extraction_output | spots | Output directory for spot extraction (relative to --output_dir) |
 | --spot_extraction_scale | s0 | Scale of imagery to use for spot extraction |
 
-## Airlocalize Parameters
+### Airlocalize Parameters
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
@@ -88,7 +88,7 @@ You can export variables into your environment before calling the pipeline, or s
 | --airlocalize_cpus | 2 | Number of CPU cores to allocate for each hAirlocalize job |
 | --airlocalize_memory | 30 G | Amount of RAM (in GB) to allocate to each hAirlocalize job. Needs to be increased when increasing strides. |
 
-## RS-FISH Parameters
+### RS-FISH Parameters
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
@@ -98,14 +98,14 @@ You can export variables into your environment before calling the pipeline, or s
 | --rsfish_anisotropy | 0.7 | The anisotropy factor (scaling of z relative to xy, can be determined using the anisotropy plugin) |
 | --rsfish_sigma | 1.5 | Sigma value for Difference-of-Gaussian (DoG) calculation |
 | --rsfish_threshold | 0.007 | Threshold value for Difference-of-Gaussian (DoG) calculation |
-| --rsfish_params | | Any other parameters to pass to the RS-FISH algorithm |
+| --rsfish_params | | Any other parameters to pass to the RS-FISH algorithm. Complete parameter documentation for RS-FISH is [available here](https://github.com/PreibischLab/RS-FISH-Spark/blob/main/src/main/java/net/preibisch/rsfish/spark/SparkRSFISH.java). |
 | --rsfish_workers | 1 | Number of Spark workers to use for RS-FISH spot detection |
 | --rsfish_worker_cores | 8 | Number of cores allocated to each Spark worker |
 | --rsfish_gb_per_core | 4 | Size of memory (in GB) that is allocated for each core of a Spark worker. The total memory usage for stitching one acquisition will be workers *worker_cores* gb_per_core.  |
 | --rsfish_driver_cores | 1 | Number of cores to allocate for the Spark driver |
 | --rsfish_driver_memory | 1g | Amount of memory to allocate for the Spark driver  |
 
-### Segmentation Parameters
+## Segmentation Parameters
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
