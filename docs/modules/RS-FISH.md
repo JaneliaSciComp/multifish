@@ -16,7 +16,7 @@ To use RS-FISH instead of AirLocalize, you must pass the `--use_rsfish` paramete
 --use_rsfish --rsfish_min 0 --rsfish_max 4096 --rsfish_anisotropy 0.7 --rsfish_sigma 1.5
 ```
 
-More information about the parameters, including controlling the Spark cluster size, is included in the [parameter documentation](Parameters.md).
+More information about the parameters, including controlling the Spark cluster size, is included in the [parameter documentation](../Parameters.html).
 
 
 ## Interactive Parameter Finding
