@@ -5,6 +5,12 @@ nav_order: 30
 
 # Troubleshooting
 
+## Common Errors
+
+### Exit status 130
+
+On IBM Platform LSF (e.g. Janelia Cluster) this means that the process ran out of memory. You need to increase the memory setting for the task in question. On the Janelia Cluster, this means increasing the number of CPUs (which are mapped to slots at Janelia, and each slot gives you an additional 15 GB of memory).
+
 ## Temporary Files
 
 The pipeline produces various temporary files during processing, and one common problem is running out of space for these files.
