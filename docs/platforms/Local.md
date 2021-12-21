@@ -1,12 +1,13 @@
 ---
 layout: default
 parent: Platforms
+name: Local Workstation
 nav_order: 1
 ---
 
-# Local
+# Local Workstation
 
-The pipeline should run on any Linux-based system using Singularity. You should also be able to run it on Mac/Windows systems using Docker, but this has not been fully tested.
+The pipeline runs on any Linux-based system using Singularity. Before running the pipeline, [follow the quick start instructions](../QuickStart.html) to make sure you have all of the prerequisites installed.
 
 To run the pipeline locally you can use the default **standard** profile:
 

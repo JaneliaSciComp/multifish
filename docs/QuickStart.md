@@ -7,9 +7,7 @@ nav_order: 2
 
 ## Nextflow Tower Quick Start
 
-The easiest way to use the EASI-FISH pipeline is by running it from the Nextflow Tower web interface. For Janelia users, Nextflow Tower is [available locally](http://nextflow.int.janelia.org) (requires Janelia VPN) and allows us to execute on either the Janelia cluster or AWS cloud. If your institution does not have Nextflow Tower installed, you can use the official [Nextflow Tower](tower.nf) instance to execute on any cloud platform.
-
-See the [platform documentation](platforms/NextflowTower.md) for step-by-step instructions.
+The easiest way to use the EASI-FISH pipeline is by running it from the Nextflow Tower web GUI interface. See the [step-by-step instructions here](tower/NextflowTower.html).
 
 ## Command-line Quick Start
 
@@ -17,7 +15,7 @@ For tech-savvy users, the pipeline can be invoked from the command-line and runs
 
 To [install Nextflow](https://www.nextflow.io/docs/latest/getstarted.html):
 
-    curl -s https://get.nextflow.io | bash 
+    curl -s https://get.nextflow.io | bash
 
 Alternatively, you can install it as a conda package:
 
@@ -66,5 +64,3 @@ And a `demo_medium.sh` with that requires 209 GB in total:
     65G     /opt/demo_medium/inputs
     145G    /opt/demo_medium/outputs
     665M    /opt/demo_medium/spark
-
-

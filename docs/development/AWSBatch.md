@@ -1,7 +1,7 @@
 ---
 layout: default
-parent: Platforms
-nav_order: 4
+parent: Development
+nav_order: 50
 ---
 
 # AWS Batch

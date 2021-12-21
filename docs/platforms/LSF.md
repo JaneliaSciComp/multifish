@@ -1,14 +1,14 @@
 ---
 layout: default
 parent: Platforms
-nav_order: 2
+nav_order: 10
 ---
 
-# IBM Platform LSF
+# LSF Cluster
 
 To run the pipeline on a compute cluster, Singularity must be installed on all the cluster nodes you are using. Singularity is a popular HPC containerization tool, so many institutional clusters already support it. If not, ask your system administrator to [install it](https://sylabs.io/guides/3.1/user-guide/installation.html).
 
-To run on an LSF cluster, simply specify the **lsf** profile:
+To run on an *IBM Platform LSF* cluster, simply specify the **lsf** profile:
 
     ./main.nf -profile lsf
 
