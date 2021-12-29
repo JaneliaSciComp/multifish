@@ -9,7 +9,6 @@
             "title": "Data",
             "type": "object",
             "description": "Describe your input data and where pipeline results should be saved",
-            "default": "",
             "properties": {
                 "data_manifest": {
                     "type": "string",
@@ -219,7 +218,6 @@
             "title": "Registration",
             "type": "object",
             "description": "Options for the registration algorithm (Bigstream)",
-            "default": "",
             "properties": {
                 "registration_output": {
                     "type": "string",
@@ -446,29 +444,25 @@
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
                     "description": "The number of voxels along x/y for registration tiling. Default: 1024",
-                    "help_text": "Must be power of 2. Increasing this requires increasing `--airlocalize_memory`.",
-                    "default": 512
+                    "help_text": "Must be power of 2. Increasing this requires increasing `--airlocalize_memory`."
                 },
                 "airlocalize_xy_overlap": {
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
                     "description": "Tile overlap on x/y axes",
-                    "help_text": "Defaults to 5% of airlocalize_xy_stride",
-                    "default": 32
+                    "help_text": "Defaults to 5% of airlocalize_xy_stride"
                 },
                 "airlocalize_z_stride": {
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
                     "description": "The number of voxels along Z for registration tiling.  Default: 512",
-                    "help_text": "Must be a power of 2. Increasing this requires increasing `--airlocalize_memory`.",
-                    "default": 128
+                    "help_text": "Must be a power of 2. Increasing this requires increasing `--airlocalize_memory`."
                 },
                 "airlocalize_z_overlap": {
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
                     "description": "Tile overlap on z axes",
-                    "help_text": "Defaults to 5% of airlocalize_z_stride",
-                    "default": 32
+                    "help_text": "Defaults to 5% of airlocalize_z_stride"
                 },
                 "default_airlocalize_params": {
                     "type": "string",
