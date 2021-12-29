@@ -5,12 +5,6 @@
     "description": "EASI-FISH spatial transcriptomics analysis pipeline",
     "type": "object",
     "definitions": {
-        "rs_fish": {
-            "title": "RS-FISH",
-            "type": "object",
-            "description": "",
-            "default": ""
-        },
         "data": {
             "title": "Data",
             "type": "object",
@@ -422,10 +416,10 @@
                 }
             }
         },
-        "airlocalize": {
+        "spot_extraction": {
             "title": "Spot Extraction",
             "type": "object",
-            "description": "Options for the spot extraction algorithm (AirLocalize)",
+            "description": "Options for spot extraction",
             "fa_icon": "fas fa-eye-dropper",
             "properties": {
                 "spot_extraction_output": {
@@ -439,7 +433,15 @@
                     "type": "string",
                     "fa_icon": "far fa-folder",
                     "description": "Scale of imagery to use for spot extraction. Default: s0"
-                },
+                }
+            }
+        },
+        "airlocalize": {
+            "title": "Spot Extraction: Airlocalize",
+            "type": "object",
+            "description": "Options for the AirLocalize spot extraction algorithm",
+            "fa_icon": "fas fa-eye-dropper",
+            "properties": {
                 "airlocalize_xy_stride": {
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
@@ -490,6 +492,77 @@
                     "type": "integer",
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of RAM to allocate to each AirLocalize job. Needs to be increased when increasing strides. Default: 2 G"
+                }
+            }
+        },
+        "rs_fish": {
+            "title": "Spot Extraction: RS-FISH",
+            "type": "object",
+            "description": "Options for the RS-FISH spot extraction algorithm",
+            "fa_icon": "fas fa-eye-dropper",
+            "properties": {
+                "use_rsfish": {
+                    "type": "string",
+                    "description": "Use RS-FISH instead of AirLocalize for Spot Extraction. Default: false",
+                    "fa_icon": "fas fa-fish"
+                },
+                "rsfish_min": {
+                    "type": "integer",
+                    "description": "Minimal intensity of the image. Default: 0",
+                    "fa_icon": "fas fa-angle-double-down"
+                },
+                "rsfish_max": {
+                    "type": "integer",
+                    "description": "Maximal intensity of the image. Default: 4096",
+                    "fa_icon": "fas fa-angle-double-up"
+                },
+                "rsfish_anisotropy": {
+                    "type": "number",
+                    "description": "The anisotropy factor. Default: 0.7",
+                    "help_text": "Scaling of z relative to xy. Can be determined using the RS-FISH anisotropy plugin in Fiji.",
+                    "fa_icon": "fas fa-arrows-alt"
+                },
+                "rsfish_sigma": {
+                    "type": "number",
+                    "description": "Sigma value for Difference-of-Gaussian (DoG) calculation. Default 1.5",
+                    "fa_icon": "fab fa-etsy"
+                },
+                "rsfish_threshold": {
+                    "type": "number",
+                    "description": "Threshold value for Difference-of-Gaussian (DoG) calculation. Default: 0.007",
+                    "fa_icon": "fas fa-level-down-alt"
+                },
+                "rsfish_params": {
+                    "type": "string",
+                    "description": "Any other parameters to pass to the RS-FISH algorithm.",
+                    "help_text": "Complete parameter documentation for RS-FISH is available here: https://github.com/PreibischLab/RS-FISH-Spark/blob/main/src/main/java/net/preibisch/rsfish/spark/SparkRSFISH.java",
+                    "fa_icon": "fas fa-terminal"
+                },
+                "rsfish_workers": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-cogs",
+                    "description": "Number of Spark workers to use for RS-FISH spot detection. Default: 4"
+                },
+                "rsfish_worker_cores": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-microchip",
+                    "description": "Number of cores allocated to each RS-FISH Spark worker. Default: 4"
+                },
+                "rsfish_gb_per_core": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-cog",
+                    "description": "Size of memory (in GB) that is allocated for each core of a RS-FISH Spark worker. Default: 4",
+                    "help_text": "The total memory usage for one acquisition will be workers * worker_cores * gb_per_core."
+                },
+                "rsfish_driver_cores": {
+                    "type": "string",
+                    "fa_icon": "fas fa-microchip",
+                    "description": "Number of cores allocated for the RS-FISH Spark driver. Default: 1"
+                },
+                "rsfish_driver_memory": {
+                    "type": "string",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory to allocate for the RS-FISH Spark driver. Default: 15g"
                 }
             }
         },
@@ -649,9 +722,6 @@
     },
     "allOf": [
         {
-            "$ref": "#/definitions/rs_fish"
-        },
-        {
             "$ref": "#/definitions/data"
         },
         {
@@ -664,7 +734,13 @@
             "$ref": "#/definitions/segmentation"
         },
         {
+            "$ref": "#/definitions/spot_extraction"
+        },
+        {
             "$ref": "#/definitions/airlocalize"
+        },
+        {
+            "$ref": "#/definitions/rs_fish"
         },
         {
             "$ref": "#/definitions/spot_warping"
