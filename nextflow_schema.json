@@ -496,7 +496,7 @@
             "fa_icon": "fas fa-eye-dropper",
             "properties": {
                 "use_rsfish": {
-                    "type": "string",
+                    "type": "boolean",
                     "description": "Use RS-FISH instead of AirLocalize for Spot Extraction. Default: false",
                     "fa_icon": "fas fa-fish"
                 },
