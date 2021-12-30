@@ -2,6 +2,8 @@
 process prepare_spots_dirs {
     label 'small'
 
+    container { params.airlocalize_container }
+    
     input:
     val(spots_path)
 
