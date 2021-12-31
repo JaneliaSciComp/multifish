@@ -1,6 +1,6 @@
 maru_version: 0.1.1
 name: rs_fish
-version: 1.0.0
+version: 1.0.1
 remotes:
 - multifish
 - registry.int.janelia.org/multifish

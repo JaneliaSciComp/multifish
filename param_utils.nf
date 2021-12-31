@@ -71,7 +71,7 @@ def default_mf_params() {
         use_rsfish: false,
         rsfish_container_repo: multifish_container_repo,
         rsfish_container_name: 'rs_fish',
-        rsfish_container_version: '1.0.0',
+        rsfish_container_version: '1.0.1',
         rs_fish_app: '/app/app.jar',
         rsfish_workers: 1,
         rsfish_worker_cores: 8,

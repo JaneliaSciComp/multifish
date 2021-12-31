@@ -20,4 +20,4 @@ COPY --from=builder /buildinfo /
 RUN echo "#!/bin/bash" >> /entrypoint.sh \
     && echo 'java -cp /app/app.jar -Xmx20G -Dspark.master=local[8] net.preibisch.rsfish.spark.SparkRSFISH "$@"' >> /entrypoint.sh \
     && chmod +x /entrypoint.sh
-ENTRYPOINT [ "/entrypoint.sh"]
+#ENTRYPOINT [ "/entrypoint.sh"]
