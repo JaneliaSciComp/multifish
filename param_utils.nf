@@ -141,7 +141,7 @@ def default_mf_params() {
         // spot assignment parameters
         assign_spots_output: 'assignments',
         assign_spots_cpus: 1,
-        assign_spots_memory: '1 G',
+        assign_spots_memory: '5 G',
     ]
 }
 

@@ -594,6 +594,11 @@
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
                     "description": "Number of CPU cores to use for intensity measurement. Default: 1"
+                },
+                "measure_intensities_memory": {
+                    "type": "string",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory for intensity measurement. Default: 8 G"
                 }
             },
             "fa_icon": "fas fa-ruler-horizontal"
@@ -614,6 +619,11 @@
                     "type": "integer",
                     "fa_icon": "fas fa-microchip",
                     "description": "Number of CPU cores to use for spot assignment. Default: 1"
+                },
+                "assign_spots_memory": {
+                    "type": "string",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory for spot assignment. Default: 5 G"
                 }
             },
             "fa_icon": "fas fa-random"
