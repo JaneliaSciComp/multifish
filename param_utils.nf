@@ -136,10 +136,12 @@ def default_mf_params() {
         // intensity measurement parameters
         measure_intensities_output: 'intensities',
         measure_intensities_cpus: 1,
+        measure_intensities_memory: '8 G',
 
         // spot assignment parameters
         assign_spots_output: 'assignments',
         assign_spots_cpus: 1,
+        assign_spots_memory: '1 G',
     ]
 }
 

@@ -168,6 +168,7 @@ You can export variables into your environment before calling the pipeline, or s
 | --dapi_channel | c2 | DAPI channel |
 | --bleed_channel | c3 | |
 | --measure_intensities_cpus | 1 | Number of CPU cores to use for intensity measurement |
+| --measure_intensities_memory | 1 G | Amount of memory to use for intensity measurement |
 
 ## Spot Assignment Parameters
 
@@ -175,6 +176,7 @@ You can export variables into your environment before calling the pipeline, or s
 |------------|---------|---------------------------------------------------------------------------------------|
 | --assign_spots_output | assignments | Output directory for spot assignments (relative to --output_dir) |
 | --assign_spots_cpus | 1 | Number of CPU cores to use for spot assignment |
+| --assign_spots_memory | 5 G | Amount of memory to use for spot assignment |
 
 ## Container Options
 

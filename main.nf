@@ -810,8 +810,7 @@ workflow {
         assign_spots_inputs.map { it[1] },
         assign_spots_inputs.map { it[2] },
         assign_spots_inputs.map { it[3] },
-        assign_spots_inputs.map { it[4] },
-        final_params.assign_spots_cpus
+        assign_spots_inputs.map { it[4] }
     )
 
     // publish all data

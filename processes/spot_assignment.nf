@@ -1,6 +1,7 @@
 process assign_spots {
     container { params.spots_assignment_container }
-    cpus { cpus }
+    cpus { params.assign_spots_cpus }
+    memory { params.assign_spots_memory }
 
     input:
     val(labels_path)
@@ -8,7 +9,6 @@ process assign_spots {
     val(output_path)
     val(n5_path)
     val(subpath)
-    val(cpus)
 
     output:
     tuple val(labels_path), val(spots_path), val(output_path)

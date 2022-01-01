@@ -1,6 +1,7 @@
 process measure_intensities {
     container { params.spots_assignment_container }
-    cpus { cpus }
+    cpus { params.measure_intensities_cpus }
+    memory { params.measure_intensities_memory }
 
     input:
     val(labels_path)
