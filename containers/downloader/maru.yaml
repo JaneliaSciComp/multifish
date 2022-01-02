@@ -4,3 +4,4 @@ version: 1.1.0
 remotes:
 - multifish
 - registry.int.janelia.org/multifish
+- public.ecr.aws/janeliascicomp/multifish

@@ -30,3 +30,9 @@ Commit as normal, then back at the root update the submodule commit pointer and 
 ## Building containers
 
 All containers used by the pipeline have been made available on Docker Hub. You can rebuild these to make customizations or to replace the algorithms used. To build the containers and push to Docker Hub, install [maru](https://github.com/JaneliaSciComp/maru) and run `maru build`.
+
+## Publishing containers
+
+To push to AWS ECR, you need to login as follows:
+
+    aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws

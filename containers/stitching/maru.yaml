@@ -4,6 +4,7 @@ version: 1.1.0
 remotes:
 - multifish
 - registry.int.janelia.org/multifish
+- public.ecr.aws/janeliascicomp/multifish
 build_args:
   STITCHING_SPARK_GIT_TAG: master
 template_args:
