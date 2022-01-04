@@ -22,20 +22,21 @@ process postprocess_spots {
     container { params.airlocalize_container }
 
     input:
-    val(spots_path)
-    val(output_path)
     val(n5_path)
-    val(subpath)
+    val(ch)
+    val(scale)
+    val(spots_voxels)
+    val(spots_microns)
 
     output:
-    val(output_path)
+    tuple val(n5_path), val(ch), val(scale), val(spots_microns), val(spots_voxels)
 
     script:
     args_list = [
-        spots_path,
-        output_path,
+        spots_voxels,
+        spots_microns,
         n5_path,
-        subpath
+        "/$ch/$scale"
     ]
     args = args_list.join(' ')
     """

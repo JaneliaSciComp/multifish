@@ -90,15 +90,15 @@ process merge_points {
     val(output_path)
 
     output:
-    tuple val(image_path), val(ch), val(scale), val(output_microns)
+    tuple val(image_path), val(ch), val(scale), val(spots_microns), val(spots_voxels)
 
     script:
-    output_microns = "${output_path}/spots_${ch}.txt"
-    output_voxels = "${output_path}/spots_airlocalize_${ch}.csv"
+    spots_microns = "${output_path}/spots_${ch}.txt"
+    spots_voxels = "${output_path}/spots_airlocalize_${ch}.csv"
     args_list = [
         "\"${tiles_dir}/*/air_localize_points_${ch}.txt\"",
-        output_microns,
-        output_voxels,
+        spots_microns,
+        spots_voxels,
         xy_overlap,
         z_overlap,
         image_path,

@@ -439,7 +439,7 @@ workflow {
     //     it[0..2].collect { "$it" }
     // }
     | map {
-        // input, channel, spots_file
+        // input, channel, scale, spots_microns, spots_voxels
         def r = [ it[0], it[1], it[3] ]
         log.debug "Extracted spots to warp: $r"
         return r

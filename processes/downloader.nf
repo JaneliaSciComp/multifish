@@ -35,5 +35,7 @@ process publish {
     """
     mkdir -p "${publish_dir}"
     rsync -a --exclude stitching "${output_dir}/" "${publish_dir}/"
+    # TODO: use include file, e.g.
+    # rsync -arm --include-from=$HOME/dev/multifish/include.txt --exclude="*"
     """
 }
