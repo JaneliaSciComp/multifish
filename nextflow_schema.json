@@ -694,7 +694,7 @@
                     "type": "string",
                     "description": "Comma-delimited list of steps to skip, e.g. stitching,registration.",
                     "fa_icon": "fas fa-fast-forward",
-                    "help_text": "Valid values: stitching, airlocalize, segmentation, registration, warp_spots, intensities, assign_spots"
+                    "help_text": "Valid values: stitching,spot_extraction,segmentation,registration,warp_spots,measure_intensities,assign_spots"
                 },
                 "singularity_cache_dir": {
                     "type": "string",

@@ -206,7 +206,7 @@ Other global options affecting all pipelines stages
 
 |Parameter|Description|Help Text|Type
 |-----------|-----------|-----------|-----------
-|`skip`|Comma-delimited list of steps to skip, e.g. stitching,registration.|Valid values: stitching, airlocalize, segmentation, registration, warp_spots, intensities, assign_spots|`string`
+|`skip`|Comma-delimited list of steps to skip, e.g. stitching,registration.|Valid values: stitching,spot_extraction,segmentation,registration,warp_spots,measure_intensities,assign_spots|`string`
 |`singularity_cache_dir`|Shared directory where Singularity containers are cached. Default: $shared_work_dir/singularity_cache or $HOME/.singularity_cache||`string`
 |`singularity_user`|User to use for running Singularity containers. Default: $USER|This is automatically set to `ec2-user` when using the 'tower' profile|`string`
 |`runtime_opts`|Runtime options for the container engine being used (e.g. Singularity or Docker).|Runtime options for Singularity must include mounts for any directory paths you are using. You can also pass the --nv flag here to make use of NVIDIA GPU resources. For example, `--nv -B /your/data/dir -B /your/output/dir`
