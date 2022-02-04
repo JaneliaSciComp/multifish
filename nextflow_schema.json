@@ -103,7 +103,7 @@
                     "type": "string",
                     "fa_icon": "far fa-folder",
                     "description": "Output directory for stitching results. Default: stitching",
-                    "help_text": "This directory path is relative to `--output_dir`",
+                    "help_text": "This directory path is relative to `output_dir`",
                     "hidden": true
                 },
                 "spark_work_dir": {
@@ -129,7 +129,7 @@
                     "type": "string",
                     "fa_icon": "fas fa-asterisk",
                     "description": "Index of the channel used for stitching. Default: the dapi_channel",
-                    "help_text": "If this is not defined it defaults to `--dapi_channel`"
+                    "help_text": "If this is not defined it defaults to `dapi_channel`"
                 },
                 "resolution": {
                     "type": "string",
@@ -223,7 +223,7 @@
                     "type": "string",
                     "fa_icon": "far fa-folder",
                     "description": "Output directory for registration results. Default: registration",
-                    "help_text": "This path is relative to `--output_dir`.",
+                    "help_text": "This path is relative to `output_dir`.",
                     "hidden": true
                 },
                 "aff_scale": {
@@ -394,7 +394,7 @@
                     "type": "string",
                     "fa_icon": "far fa-folder",
                     "description": "Output directory for segmentation results. Default: segmentation",
-                    "help_text": "This path is relative to `--output_dir`.",
+                    "help_text": "This path is relative to `output_dir`.",
                     "hidden": true
                 },
                 "segmentation_scale": {
@@ -424,7 +424,7 @@
                     "type": "string",
                     "fa_icon": "far fa-folder",
                     "description": "Output directory for spot extraction results. Default: spots",
-                    "help_text": "This path is relative to `--output_dir`.",
+                    "help_text": "This path is relative to `output_dir`.",
                     "hidden": true
                 },
                 "spot_extraction_scale": {
@@ -444,7 +444,7 @@
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
                     "description": "The number of voxels along x/y for registration tiling. Default: 1024",
-                    "help_text": "Must be power of 2. Increasing this requires increasing `--airlocalize_memory`."
+                    "help_text": "Must be power of 2. Increasing this requires increasing `airlocalize_memory`."
                 },
                 "airlocalize_xy_overlap": {
                     "type": "integer",
@@ -456,7 +456,7 @@
                     "type": "integer",
                     "fa_icon": "fas fa-cube",
                     "description": "The number of voxels along Z for registration tiling.  Default: 512",
-                    "help_text": "Must be a power of 2. Increasing this requires increasing `--airlocalize_memory`."
+                    "help_text": "Must be a power of 2. Increasing this requires increasing `airlocalize_memory`."
                 },
                 "airlocalize_z_overlap": {
                     "type": "integer",
@@ -529,7 +529,7 @@
                 "rsfish_params": {
                     "type": "string",
                     "description": "Any other parameters to pass to the RS-FISH algorithm.",
-                    "help_text": "Complete parameter documentation for RS-FISH is available here: https://github.com/PreibischLab/RS-FISH-Spark/blob/main/src/main/java/net/preibisch/rsfish/spark/SparkRSFISH.java",
+                    "help_text": "Complete parameter documentation for RS-FISH is [available here](https://github.com/PreibischLab/RS-FISH-Spark/blob/main/src/main/java/net/preibisch/rsfish/spark/SparkRSFISH.java).",
                     "fa_icon": "fas fa-terminal"
                 },
                 "rsfish_workers": {
@@ -587,7 +587,7 @@
                     "type": "string",
                     "fa_icon": "far fa-folder",
                     "description": "Output directory for intensities. Default: intensities",
-                    "help_text": "This path is relative to `--output_dir`.",
+                    "help_text": "This path is relative to `output_dir`.",
                     "hidden": true
                 },
                 "measure_intensities_cpus": {
@@ -612,7 +612,7 @@
                     "type": "string",
                     "fa_icon": "far fa-folder",
                     "description": "Output directory for spot assignments. Default: assignments",
-                    "help_text": "This path is relative to `--output_dir`.",
+                    "help_text": "This path is relative to `output_dir`.",
                     "hidden": true
                 },
                 "assign_spots_cpus": {
@@ -660,25 +660,25 @@
                 },
                 "registration_container": {
                     "type": "string",
-                    "description": "Docker container for running registration and warp_spots. Default: `<mfrepo>/registration:1.2.0`",
+                    "description": "Docker container for running registration and warp_spots. Default: `<mfrepo>`/registration:1.2.0",
                     "fa_icon": "fas fa-box-open",
                     "hidden": true
                 },
                 "segmentation_container": {
                     "type": "string",
-                    "description": "Docker container for running segmentation. Default: `<mfrepo>/segmentation:1.0.0`",
+                    "description": "Docker container for running segmentation. Default: `<mfrepo>`/segmentation:1.0.0",
                     "fa_icon": "fas fa-box-open",
                     "hidden": true
                 },
                 "airlocalize_container": {
                     "type": "string",
-                    "description": "Docker container for running spot extraction. Default: `<mfrepo>/airlocalize:1.0.2`",
+                    "description": "Docker container for running spot extraction. Default: `<mfrepo>`/airlocalize:1.0.2",
                     "fa_icon": "fas fa-box-open",
                     "hidden": true
                 },
                 "spots_assignment_container": {
                     "type": "string",
-                    "description": "Docker container for running intensity measurement and spot assignment. Default: `<mfrepo>/spot_assignment:1.2.0`",
+                    "description": "Docker container for running intensity measurement and spot assignment. Default: `<mfrepo>`/spot_assignment:1.2.0",
                     "fa_icon": "fas fa-box-open",
                     "hidden": true
                 }
