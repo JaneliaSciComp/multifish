@@ -34,18 +34,18 @@ You can export variables into your environment before calling the pipeline, or s
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| --data_manifest | segmentation | Name or path to the file manifest for downloading input data. If specified, the data in the manifest is downloaded into `--data_dir` before the pipeline begins. Valid values are any base filename found in the data-sets directory (e.g. "demo_small", "demo_medium") or any absolute path which points to a manifest file. By default this just downloads the segmentation model. |
-| --verify_md5 | true |  Verify MD5 sum for all downloads. This can be disabled to save time, but it's not recommended. |
-| --shared_work_dir | | Shared working directory accessible by all nodes. Setting this parameter will automatically configure `data_dir`, `output_dir`, `segmentation_model_dir`, `spark_work_dir`, and `singularity_cache_dir` relative to this directory. |
-| --data_dir | | Path to the directory containing the input CZI/MVL acquisition files. If shared_work_dir is defined, this defaults to $shared_work_dir/inputs. If `shared_work_dir` is defined, this is automatically set to `$shared_work_dir/inputs`. |
-| &#x2011;&#x2011;segmentation_model_dir | | Path to the directory containing the machine learning model for segmentation. If `shared_work_dir` is defined, this is automatically set to `$shared_work_dir/inputs/model/starfinity`. It is assumed that either the model is already there, or it will be downloaded and unzipped according to the `data_manifest`. Otherwise it defaults to ${projectDir}/external-modules/segmentation/model/starfinity, which is normally configured by setup.sh. |
-| --output_dir | | Path to the directory containing pipeline outputs |
-| --publish_dir | | Optional publishing directory where results should be copied when the pipeline is successfully completed. This is useful when running in the cloud, e.g. for getting data off of FSx and onto something externally accessible like S3. Typically a Fusion mount path like /fusion/s3/bucket-name. |
-| --acq_names | | Names of acquisition rounds to process. These should match the names of the CZI/MVL files found in the data_dir. e.g. LHA3_R3_small,LHA3_R5_small if you have files called LHA3_R3_small.czi and LHA3_R5_small.czi. |  
-| --ref_acq | | Name of the acquisition round to use as the fixed reference. e.g. LHA3_R3_small |
-| --channels | c0,c1,c2,c3 | List of channel names to process. Channel names are specified in the format "c[channel_number]", where the channel_number is 0-indexed. |
-| --dapi_channel | c2 | Name of the DAPI channel. The DAPI channel is used as a reference channel for registration, segmentation, and spot extraction. |
-| --bleed_channel | c3 | Channel (other than DAPI) used to correct bleed-through on DAPI channel |
+| `--data_manifest` | segmentation | Name or path to the file manifest for downloading input data. If specified, the data in the manifest is downloaded into `--data_dir` before the pipeline begins. Valid values are any base filename found in the data-sets directory (e.g. "demo_small", "demo_medium") or any absolute path which points to a manifest file. By default this just downloads the segmentation model. |
+| `--verify_md5` | true |  Verify MD5 sum for all downloads. This can be disabled to save time, but it's not recommended. |
+| `--shared_work_dir` | | Shared working directory accessible by all nodes. Setting this parameter will automatically configure `data_dir`, `output_dir`, `segmentation_model_dir`, `spark_work_dir`, and `singularity_cache_dir` relative to this directory. |
+| `--data_dir` | | Path to the directory containing the input CZI/MVL acquisition files. If shared_work_dir is defined, this defaults to $shared_work_dir/inputs. If `shared_work_dir` is defined, this is automatically set to `$shared_work_dir/inputs`. |
+| `--segmentation_model_dir` | | Path to the directory containing the machine learning model for segmentation. If `shared_work_dir` is defined, this is automatically set to `$shared_work_dir/inputs/model/starfinity`. It is assumed that either the model is already there, or it will be downloaded and unzipped according to the `data_manifest`. Otherwise it defaults to ${projectDir}/external-modules/segmentation/model/starfinity, which is normally configured by setup.sh. |
+| `--output_dir` | | Path to the directory containing pipeline outputs |
+| `--publish_dir` | | Optional publishing directory where results should be copied when the pipeline is successfully completed. This is useful when running in the cloud, e.g. for getting data off of FSx and onto something externally accessible like S3. Typically a Fusion mount path like /fusion/s3/bucket-name. |
+| `--acq_names` | | Names of acquisition rounds to process. These should match the names of the CZI/MVL files found in the data_dir. e.g. LHA3_R3_small,LHA3_R5_small if you have files called LHA3_R3_small.czi and LHA3_R5_small.czi. |  
+| `--ref_acq` | | Name of the acquisition round to use as the fixed reference. e.g. LHA3_R3_small |
+| `--channels` | c0,c1,c2,c3 | List of channel names to process. Channel names are specified in the format "c[channel_number]", where the channel_number is 0-indexed. |
+| `--dapi_channel` | c2 | Name of the DAPI channel. The DAPI channel is used as a reference channel for registration, segmentation, and spot extraction. |
+| `--bleed_channel` | c3 | Channel (other than DAPI) used to correct bleed-through on DAPI channel |
 
 ## Stitching Parameters
 
