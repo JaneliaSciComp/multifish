@@ -1,8 +1,8 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
-    "$id": "https://raw.githubusercontent.com/JaneliaSciComp/multifish/tower/nextflow_schema.json",
+    "$id": "https://raw.githubusercontent.com/JaneliaSciComp/multifish/master/nextflow_schema.json",
     "title": "JaneliaSciComp/multifish pipeline parameters",
-    "description": "EASI-FISH spatial transcriptomics analysis pipeline",
+    "description": "Analysis pipeline for EASI-FISH (Expansion-Assisted Iterative Fluorescence In Situ Hybridization)",
     "type": "object",
     "definitions": {
         "data": {
@@ -642,7 +642,7 @@
                 },
                 "spark_container_repo": {
                     "type": "string",
-                    "description": "Docker container repo for stitching. Default: <mfrepo>",
+                    "description": "Docker container repo for stitching. Default: `<mfrepo>`",
                     "fa_icon": "fas fa-database",
                     "hidden": true
                 },
@@ -660,25 +660,25 @@
                 },
                 "registration_container": {
                     "type": "string",
-                    "description": "Docker container for running registration and warp_spots. Default: <mfrepo>/registration:1.2.0",
+                    "description": "Docker container for running registration and warp_spots. Default: `<mfrepo>/registration:1.2.0`",
                     "fa_icon": "fas fa-box-open",
                     "hidden": true
                 },
                 "segmentation_container": {
                     "type": "string",
-                    "description": "Docker container for running segmentation. Default: <mfrepo>/segmentation:1.0.0",
+                    "description": "Docker container for running segmentation. Default: `<mfrepo>/segmentation:1.0.0`",
                     "fa_icon": "fas fa-box-open",
                     "hidden": true
                 },
                 "airlocalize_container": {
                     "type": "string",
-                    "description": "Docker container for running spot extraction. Default: <mfrepo>/airlocalize:1.0.2",
+                    "description": "Docker container for running spot extraction. Default: `<mfrepo>/airlocalize:1.0.2`",
                     "fa_icon": "fas fa-box-open",
                     "hidden": true
                 },
                 "spots_assignment_container": {
                     "type": "string",
-                    "description": "Docker container for running intensity measurement and spot assignment. Default: <mfrepo>/spot_assignment:1.2.0",
+                    "description": "Docker container for running intensity measurement and spot assignment. Default: `<mfrepo>/spot_assignment:1.2.0`",
                     "fa_icon": "fas fa-box-open",
                     "hidden": true
                 }
