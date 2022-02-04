@@ -34,7 +34,7 @@ You can export variables into your environment before calling the pipeline, or s
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| --data_manifest | | Name or path to the file manifest for downloading input data. If specified, the data in the manifest is downloaded into `--data_dir` before the pipeline begins. Valid values are any filename found in the data-sets directory (e.g. "demo_small", "demo_medium") or any path which points to a manifest file. |
+| --data_manifest | segmentation | Name or path to the file manifest for downloading input data. If specified, the data in the manifest is downloaded into `--data_dir` before the pipeline begins. Valid values are any base filename found in the data-sets directory (e.g. "demo_small", "demo_medium") or any absolute path which points to a manifest file. By default this just downloads the segmentation model. |
 | --verify_md5 | true |  Verify MD5 sum for all downloads. This can be disabled to save time, but it's not recommended. |
 | --shared_work_dir | | Shared working directory accessible by all nodes. Setting this parameter will automatically configure `data_dir`, `output_dir`, `segmentation_model_dir`, `spark_work_dir`, and `singularity_cache_dir` relative to this directory. |
 | --data_dir | | Path to the directory containing the input CZI/MVL acquisition files. If shared_work_dir is defined, this defaults to $shared_work_dir/inputs. If `shared_work_dir` is defined, this is automatically set to `$shared_work_dir/inputs`. |
