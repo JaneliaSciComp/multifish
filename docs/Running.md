@@ -44,19 +44,19 @@ In this case, you don't need to provide a `data_manifest` parameter. The default
 
 See the [parameter documentation](Parameters.md) to customize the pipeline for your data.
 
-## Running the pipeline
+## Starting the pipeline
 
-## Using Nextflow Tower
+### Using Nextflow Tower
 
 See the [Nextflow Tower](tower/NextflowTower.html) documentation for step-by-step instructions on how to run the pipeline from the Nextflow Tower web GUI.
 
-## Using the Command Line Interface (CLI)
+### Using the Command Line Interface (CLI)
 
 Assuming you have two acquisitions as above (i.e. named `LHA3_R3_small` and `LHA3_R5_small`), you can run the pipeline with the following command:
 
     ./main.nf --shared_work_dir /path/to/shared/work/dir --runtime_opts "-B /path/to/shared/work/dir" --acq_names LHA3_R3_small,LHA3_R5_small --ref_acq LHA3_R3_small --channels c0,c1 --dapi_channel c1 [other parameters]
 
-This will run the pipeline and execute all of the jobs on the local workstation where you invoke the command. To use a cluster or cloud for executing the jobs, see the [platforms/Platforms.md](Platforms documentation).
+This will run the pipeline and execute all of the jobs on the local workstation where you invoke the command. To use a cluster or cloud for executing the jobs, see the [Platforms documentation](platforms/Platforms.md).
 
 The `--runtime_opts` parameter is required to mount the shared work directory inside the Singularity containers that are used to execute the pipeline jobs. The `--acq_names` parameter is required to specify the names of the acquisitions to process. The `--ref_acq` parameter is required to specify the name of the reference acquisition. The `--channels` parameter specifies the names of the channels to process in each acquisition. The `--dapi_channel` parameter is used to specify the name of the channel that contains the DAPI stain.
 
@@ -85,7 +85,7 @@ In this case, the pipeline was run on two acquisitions, `LHA3_R3_medium` and `LH
 The output of the stitching step includes many intermediate files that can be used for debugging and verification of the results.
 
 * **tiles.json** - multi-view metadata about the acquisition converted from the MVL file
-* **tiles.n5** - imagery converted from CZI to [https://github.com/saalfeldlab/n5](n5 format) tiled according to `--stitching_block_size`
+* **tiles.n5** - imagery converted from CZI to [n5 format](https://github.com/saalfeldlab/n5) tiled according to `--stitching_block_size`
 * **c\<channel\>-n5.json** - metadata about each channel in tiles.n5
 * **c\<channel\>-flatfield** - files for flatfield-correction including the calculated brightfield and offset
 * **c\<channel\>-n5-retiled.json** - metadata after retiling
