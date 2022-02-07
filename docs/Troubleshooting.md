@@ -7,9 +7,15 @@ nav_order: 30
 
 ## Common Errors
 
-### Exit status 130
+### Exit status 130/137
 
-On IBM Platform LSF (e.g. Janelia Cluster) this means that the process ran out of memory. You need to increase the memory setting for the task in question. On the Janelia Cluster, this means increasing the number of CPUs (which are mapped to slots at Janelia, and each slot gives you an additional 15 GB of memory).
+These exit codes indicate that the task ran out of memory. You need to increase the memory setting for the task.
+
+When running with Docker (e.g. on AWS) you will see code 137. On IBM Platform LSF it's exit code 130. 
+
+For example, if a *registration:stitch* task runs out of memory, you will need to increase the corresponding `registration_stitch_memory` parameter, e.g. to `30 G`. 
+
+As a special case, the Janelia LSF Cluster does not respect the memory settings. Instead you need to increase the number of CPUs for the task. CPUs are mapped to slots at Janelia, and each slot gives you an additional 15 GB of memory.
 
 ## Temporary Files
 
