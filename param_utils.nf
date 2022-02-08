@@ -1,5 +1,5 @@
 def default_mf_params() {
-    def multifish_container_repo = 'multifish'
+    def multifish_container_repo = 'public.ecr.aws/janeliascicomp/multifish'
     def default_airlocalize_params = '/app/airlocalize/params/air_localize_default_params.txt'
 
     [
@@ -41,12 +41,12 @@ def default_mf_params() {
         stitching_padding: '0,0,0',
         stitching_blur_sigma: '2',
         stitching_czi_pattern: '', // A suffix pattern that is applied to acq_names when creating CZI names e.g. "_V%02d"
-        workers: 4,
-        worker_cores: 4,
-        gb_per_core: 4,
-        driver_memory: '15g',
-        wait_for_spark_timeout_seconds: 3600,
-        sleep_between_timeout_checks_seconds: 2,
+        workers: 6,
+        worker_cores: 8,
+        gb_per_core: 15,
+        driver_memory: '2g',
+        wait_for_spark_timeout_seconds: 7200,
+        sleep_between_timeout_checks_seconds: 10,
 
         dapi_channel: 'c2', // DAPI channel used to drive both the segmentation and the registration
         ref_acq: '', // this is the default parameter for the fixed round and 
@@ -73,9 +73,9 @@ def default_mf_params() {
         rsfish_container_name: 'rs_fish',
         rsfish_container_version: '1.0.1',
         rs_fish_app: '/app/app.jar',
-        rsfish_workers: 1,
+        rsfish_workers: 6,
         rsfish_worker_cores: 8,
-        rsfish_gb_per_core: 4,
+        rsfish_gb_per_core: 15,
         rsfish_driver_cores: 1,
         rsfish_driver_memory: '1g',
         rsfish_min: 0,
@@ -89,8 +89,8 @@ def default_mf_params() {
         segmentation_output: 'segmentation',
         segmentation_model_dir: "${projectDir}/external-modules/segmentation/model/starfinity",
         segmentation_scale: 's2',
-        segmentation_cpus: 3, // it needs at least 3 cpus for Janelia cluster config because of memory requirements
-        segmentation_memory: '45 G',
+        segmentation_cpus: 30,
+        segmentation_memory: '220 G',
 
         // registration params
         registration_fixed_output: 'fixed',
@@ -117,31 +117,31 @@ def default_mf_params() {
         interpolate_cpus: 1,
         interpolate_memory: '1 G',
         coarse_spots_cpus: 1,
-        coarse_spots_memory: '2 G',
+        coarse_spots_memory: '8 G',
         aff_scale_transform_cpus: 1, // cores for affine scale transforms
         aff_scale_transform_memory: '15 G',
         def_scale_transform_cpus: 8, // cores for deformable scale transforms
         def_scale_transform_memory: '80 G',
         deform_cpus: 1,
-        deform_memory: '10 G',
+        deform_memory: '4 G',
         registration_stitch_cpus: 2,
         registration_stitch_memory: '20 G',
         registration_transform_cpus: 12,
-        registration_transform_memory: '80 G',
+        registration_transform_memory: '120 G',
 
         // warp spots parameters
-        warp_spots_cpus: 2,
+        warp_spots_cpus: 3,
         warp_spots_memory: '30 G',
 
         // intensity measurement parameters
         measure_intensities_output: 'intensities',
         measure_intensities_cpus: 1,
-        measure_intensities_memory: '8 G',
+        measure_intensities_memory: '50 G',
 
         // spot assignment parameters
         assign_spots_output: 'assignments',
         assign_spots_cpus: 1,
-        assign_spots_memory: '5 G',
+        assign_spots_memory: '15 G',
     ]
 }
 
