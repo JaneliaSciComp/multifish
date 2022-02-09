@@ -131,7 +131,7 @@ def default_mf_params() {
 
         // warp spots parameters
         warp_spots_cpus: 3,
-        warp_spots_memory: '30 G',
+        warp_spots_memory: '60 G',
 
         // intensity measurement parameters
         measure_intensities_output: 'intensities',
