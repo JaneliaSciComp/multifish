@@ -26,7 +26,10 @@ The pipeline produces various temporary files during processing, and one common 
 The pipeline downloads Docker containers and converts them into Singularity Image Format prior to execution. By default, this uses the /tmp on your system. If the filesystem containing your /tmp directories does not have sufficient space for downloading and extracting the Docker containers, you may see an error like this:
 
     INFO: Converting SIF file to temporary sandbox...
-    FATAL: while extracting /path/to/.singularity_cache/public.ecr.aws-janeliascicomp-multifish-spot_extraction-1.1.0.img: root filesystem extraction failed:     failed to copy content in staging file: write /tmp/rootfs-138799536/archive-375744281: no space left on device
+    FATAL: while extracting /path/to/.singularity_cache/public.ecr.aws-janeliascicomp-multifish-spot_extraction-1.1.0.img: 
+           root filesystem extraction failed:
+           failed to copy content in staging file: 
+           write /tmp/rootfs-138799536/archive-375744281: no space left on device
 
 If this happens, you will need to point the `SINGULARITY_TMPDIR` environment variable to an alternate location, e.g.
 
