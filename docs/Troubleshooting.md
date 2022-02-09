@@ -23,13 +23,18 @@ The pipeline produces various temporary files during processing, and one common 
 
 ### Container Builds
 
-The pipeline downloads Docker containers and converts them into Singularity Image Format prior to execution. By default, this uses the /tmp on your system. If the filesystem containing your /tmp directories does not have sufficient space for downloading and extracting the Docker containers, you will need to point  `SINGULARITY_TMPDIR` to an alternate location, e.g.
+The pipeline downloads Docker containers and converts them into Singularity Image Format prior to execution. By default, this uses the /tmp on your system. If the filesystem containing your /tmp directories does not have sufficient space for downloading and extracting the Docker containers, you may see an error like this:
+
+    INFO: Converting SIF file to temporary sandbox...
+    FATAL: while extracting /path/to/.singularity_cache/public.ecr.aws-janeliascicomp-multifish-spot_extraction-1.1.0.img: root filesystem extraction failed:     failed to copy content in staging file: write /tmp/rootfs-138799536/archive-375744281: no space left on device
+
+If this happens, you will need to point the `SINGULARITY_TMPDIR` environment variable to an alternate location, e.g.
 
     export SINGULARITY_TMPDIR=/scratch/tmp
 
-If you do this, make sure to mount this directory into the containers using the `-B` option:
+Of course, /scratch/tmp needs to exist on your systems. 
 
-    --runtime_opts "-B $TMPDIR"
+If you are using Nextflow Tower you can put the environment variable export in the "Pre-run script" box.
 
 ### Cached SIF Files
 
