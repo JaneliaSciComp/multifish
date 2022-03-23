@@ -11,7 +11,7 @@ EASI-FISH output can be inspected and visualized with BigDataViewer and Napari. 
 
 Open [n5-viewer](https://github.com/saalfeldlab/n5-viewer) in [Fiji](https://imagej.net/software/fiji/downloads). 
 
-![n5-viewer](images/n5-viewer.png=36)
+![n5-viewer](images/n5-viewer.png)
 
 Browse and load the folder that contains the final stitched result `./stitching/export.n5/`. This should automatically recognize and load all image channels, including both the cytoDAPI channel and FISH channels.  
 
@@ -41,14 +41,16 @@ Segmentation mask can be loaded in Fiji and overlay with raw stitched images (lo
 ## Visualization of spot extraction output
 
 To determine the performance of airlocalize and RS-FISH on large dataset, we can overlay detected spots with raw FISH image using BigDataViewer in [RS-FISH plugin](https://github.com/PreibischLab/RS-FISH).
-
-    `./csv-overlay-bdv 
+```
+    ./csv-overlay-bdv 
     -i '/raw/image/path/export.n5/' # raw image path, n5 file
     -d 'c0'  # channel
     -c '/spot/detection/path/merged_points_c0.txt' # detected spots
-    --pointScaling 4.347826086956522,4.347826086956522,2.380952380952381 #convert physical coordinate to pixel coordinate (don't need for RS-FISH output)`
+    --pointScaling 4.347826086956522,4.347826086956522,2.380952380952381 #convert physical coordinate to pixel coordinate (don't need for RS-FISH output)
+```
 
 ![RS-FISH-spot](images/RS-FISH-spot.png)
+
 We can also load chunks of detected spots and raw FISH image in Napari for inspection (see below).  
 
 
