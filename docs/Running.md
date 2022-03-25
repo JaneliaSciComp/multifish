@@ -125,7 +125,7 @@ If you use RS-FISH, you'll get this output:
 
 ### Intensities
 
-Per channel CSV file containing the centroids and intensities of each segmented cell ("ROI").
+Per channel CSV file containing intensities of each segmented cell ("ROI").
 
 ### Assignments
 
