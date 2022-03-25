@@ -52,7 +52,7 @@ if __name__ == "__main__":
         print('bleed_through channel background:', bg_img)
 
     df = pd.DataFrame(data=np.empty([len(roi)-1, 4]),
-                    columns=['roi', 'weighted_centroid', 'weighted_local_centroid', 'mean_intensity'],
+                    columns=['roi', 'mean_intensity'],
                     dtype=object)
     lb_stat = regionprops(lb, intensity_image=img)
     for i in range(0, len(roi)-1):
