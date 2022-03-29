@@ -17,7 +17,7 @@ include {
 } from '../processes/stitching'
 
 include {
-    entries_inputs_args
+    entries_inputs_args;
 } from './stitching_utils'
 
 include {
