@@ -224,8 +224,7 @@ workflow {
     if (data_manifest) {
         if (data_manifest.startsWith('/')) {
             manifest_file = data_manifest
-        }
-        else {
+        } else {
             manifest_file = "${projectDir}/data-sets/${data_manifest}.txt"
         }
         data_dir_res = download(Channel.of([file(manifest_file), final_params.data_dir]))

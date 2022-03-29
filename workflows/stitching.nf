@@ -389,6 +389,7 @@ def prepare_app_args(app_name,
         def spark_uri = it[3]
         def stitching_dir = it[4]
         def spark_work_dir = it[1] // spark work dir comes from previous result
+        log.debug "Get ${app_name} args using: (${acq_name}, ${stitching_dir})"
         def app_args = app_args_closure.call(acq_name, stitching_dir)
         def app_inputs = [ spark_uri, app_args, spark_work_dir ]
         log.debug "${app_name} app input ${idx}: ${app_inputs}"
