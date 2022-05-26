@@ -1,7 +1,7 @@
 # EASI-FISH Nextflow Pipeline
 
 [![DOI](https://zenodo.org/badge/329431552.svg)](https://zenodo.org/badge/latestdoi/329431552)
-[![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A521.10.3-23aa62.svg)](https://www.nextflow.io/)
+[![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A521.04.1-23aa62.svg)](https://www.nextflow.io/)
 [![Run with Docker](https://img.shields.io/badge/run%20with-docker-0db7ed?logo=docker)](https://www.docker.com/)
 [![Run with Singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg)](https://sylabs.io/docs/)
 [![Launch on Nextflow Tower](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Nextflow%20Tower-%234256e7)](https://tower.nf/launch?pipeline=https://github.com/JaneliaSciComp/multifish)
