@@ -635,7 +635,7 @@
             "properties": {
                 "mfrepo": {
                     "type": "string",
-                    "description": "Docker registry/repository to use for containers. Default: janeliascicomp",
+                    "description": "Docker registry/repository to use for containers. Default: public.ecr.aws/janeliascicomp/multifish",
                     "fa_icon": "fas fa-database",
                     "help_text": "By default, the pipeline uses containers built as part of this project and deployed to DockerHub. You can rebuild the containers and deploy them to your own Registry and specify it here.",
                     "hidden": true
