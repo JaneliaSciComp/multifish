@@ -305,7 +305,8 @@ workflow stitch {
         { acq_name, stitching_dir ->
             def retiled_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5-retiled', '.json')
             def correction_args = entries_inputs_args(stitching_dir, channels, '--correction-images-paths', '-n5', '.json')
-            return "--stitch -r ${registration_channel} ${retiled_n5_channels_args} ${correction_args} --mode '${stitching_mode}' --padding '${stitching_padding}' --blurSigma ${stitching_blur_sigma}"
+            def ref_channel_arg = registration_channel ? "-r ${registration_channel}" : ''
+            return "--stitch ${ref_channel_arg} ${retiled_n5_channels_args} ${correction_args} --mode '${stitching_mode}' --padding '${stitching_padding}' --blurSigma ${stitching_blur_sigma}"
         }
     )
     def stitching_done = run_stitching(

@@ -128,7 +128,7 @@
                 "stitching_ref": {
                     "type": "string",
                     "fa_icon": "fas fa-asterisk",
-                    "description": "Index of the channel used for stitching. Default: the dapi_channel",
+                    "description": "Index of the channel used for stitching, e.g. 'c1' or '1'. You can also specify 'all' to use all of the channels. Default: the dapi_channel",
                     "help_text": "If this is not defined it defaults to `dapi_channel`"
                 },
                 "resolution": {
