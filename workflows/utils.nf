@@ -15,3 +15,11 @@ def index_channel(c) {
         [ accum[0]+1, accum[1]+[indexed_elem] ]
     } | flatMap { it[1] }
 }
+
+/** 
+ * Format a list (typically a tuple) in a readable way, with indices and newlines.
+ */
+def pretty(list) {
+    def slist = list.withIndex().collect {it,index -> return "  $index - $it"}.join("\n")
+    return "[\n${slist}\n]"
+}

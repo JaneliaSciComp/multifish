@@ -201,21 +201,19 @@ process stitch {
     val(image_path)
     val(image_subpath)
     val(ransac_affine_mat)
-    val(transform_dir)
-    val(invtransform_dir)
+    val(output_dir)
     val(output_subpath)
 
     output:
     tuple val(tile),
           val(image_path),
+          val(output_dir),
           val(transform_dir),
-          val(invtransform_dir),
-          val(transform_output),
-          val(invtransform_output)
+          val(invtransform_dir)
 
     script:
-    transform_output = "${transform_dir}${output_subpath}"
-    invtransform_output = "${invtransform_dir}${output_subpath}"
+    transform_dir = "${output_dir}/transform"
+    invtransform_dir = "${output_dir}/invtransform"
     """
     umask 0002
     /app/scripts/waitforpaths.sh $tile ${image_path}${image_subpath} $ransac_affine_mat
