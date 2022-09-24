@@ -224,8 +224,7 @@ workflow {
     if (data_manifest) {
         if (data_manifest.startsWith('/')) {
             manifest_file = data_manifest
-        }
-        else {
+        } else {
             manifest_file = "${projectDir}/data-sets/${data_manifest}.txt"
         }
         data_dir_res = download(Channel.of([file(manifest_file), final_params.data_dir]))
@@ -340,10 +339,10 @@ workflow {
         )
         log.debug "Registration output for ${moving_acq} to ${fixed_acq} -> ${registration_output_dir}"
         def r = [
-            fixed_acq,
-            it[1], // stitching dir for fixed acq
-            moving_acq,
-            it[3], // stitching dir for moving acq
+            "${fixed_acq}",
+            "${it[1]}/export.n5", // stitching export for fixed acq
+            "${moving_acq}",
+            "${it[3]}/export.n5", // stitching export for moving acq
             "${registration_output_dir}" // pass it as string to be consistent, otherwise if types differ channel joins will not work properly
         ]
         log.debug "Registration inputs for channels ${channels}: $it -> $r"
@@ -352,10 +351,8 @@ workflow {
 
     // run registration
     def registration_results =  registration(
-        registration_inputs.map { "${it[1]}/export.n5" },
-        registration_inputs.map { "${it[3]}/export.n5" },
-        registration_inputs.map { it[4] }, // registration output
-        final_params.dapi_channel, // dapi channel  used to calculate all transformations
+        registration_inputs,
+        final_params.dapi_channel, // dapi channel used to calculate all transformations
         registration_xy_stride_param(final_params),
         registration_xy_overlap_param(final_params),
         registration_z_stride_param(final_params),

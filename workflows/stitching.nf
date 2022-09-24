@@ -17,7 +17,7 @@ include {
 } from '../processes/stitching'
 
 include {
-    entries_inputs_args
+    entries_inputs_args;
 } from './stitching_utils'
 
 include {
@@ -305,7 +305,8 @@ workflow stitch {
         { acq_name, stitching_dir ->
             def retiled_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5-retiled', '.json')
             def correction_args = entries_inputs_args(stitching_dir, channels, '--correction-images-paths', '-n5', '.json')
-            return "--stitch -r ${registration_channel} ${retiled_n5_channels_args} ${correction_args} --mode '${stitching_mode}' --padding '${stitching_padding}' --blurSigma ${stitching_blur_sigma}"
+            def ref_channel_arg = registration_channel ? "-r ${registration_channel}" : ''
+            return "--stitch ${ref_channel_arg} ${retiled_n5_channels_args} ${correction_args} --mode '${stitching_mode}' --padding '${stitching_padding}' --blurSigma ${stitching_blur_sigma}"
         }
     )
     def stitching_done = run_stitching(
@@ -389,6 +390,7 @@ def prepare_app_args(app_name,
         def spark_uri = it[3]
         def stitching_dir = it[4]
         def spark_work_dir = it[1] // spark work dir comes from previous result
+        log.debug "Get ${app_name} args using: (${acq_name}, ${stitching_dir})"
         def app_args = app_args_closure.call(acq_name, stitching_dir)
         def app_inputs = [ spark_uri, app_args, spark_work_dir ]
         log.debug "${app_name} app input ${idx}: ${app_inputs}"

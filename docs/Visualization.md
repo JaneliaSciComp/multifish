@@ -51,13 +51,11 @@ To determine the performance of airlocalize and RS-FISH on large dataset, we can
 
 ![RS-FISH-spot](images/RS-FISH-spot.png)
 
-We can also load chunks of detected spots and raw FISH image in Napari for inspection (see below).  
-
+We can also load chunks of detected spots and raw FISH image in Napari for inspection (see below).
 
 ## Data visualization using Napari
 
 We provide [example jupyter notebook](https://github.com/multiFISH/EASI-FISH/blob/master/data_visualization/1_Image_visualization.ipynb) to load data into Napari. For memory considerations on a workstation, users should only attempt to load a subset of the full-resolution image volume, or at a downsampled image scale (for example, the s2, s3 scale in n5 file system). You can also find a youtube video introducing multifish data visualization in Napari [here](https://www.youtube.com/watch?v=QP7ffG9d-do).    
-
 
 ## Cell/spot query using Napari
 

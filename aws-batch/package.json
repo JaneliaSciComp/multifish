@@ -6,7 +6,6 @@
     "sls": "sls"
   },
   "devDependencies": {
-    "serverless": "^2.40.0",
-    "serverless-pseudo-parameters": "^2.5.0"
+    "serverless": "^3.8.0"
   }
 }

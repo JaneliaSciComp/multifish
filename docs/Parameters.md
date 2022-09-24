@@ -48,7 +48,7 @@ Stitching options
 |`spark_work_dir`|Path to directory containing Spark working files and logs during stitching. Default: $shared_work_dir/spark or $workDir/spark|The Spark configuration is written here by the pipeline before launching the Spark cluster. The Spark workers write their logs back here, and it is also used to communicate the master IP address to all workers. Therefore, this must be a shared directory accessible to both the head node and all worker nodes. On AWS, Fuse-mounted S3 will not work here due to write buffering. It's best to use FSx, but EBS will also work, as long as its mounted on all the EC2 nodes. |`string`
 |`spark_local_dir`|Path to directory that Spark will uses for local temporary files. Default: /tmp|This path does not need to be shared among workers, and does not need to be accessible to the head node. Usually, /tmp will do.|`string`
 |`stitching_czi_pattern`|A suffix pattern that is applied to acq_names when creating CZI names e.g. "_V%02d"||`string`
-|`stitching_ref`|Index of the channel used for stitching. Default: the dapi_channel|If this is not defined it defaults to `dapi_channel`|`string`
+|`stitching_ref`|Index of the channel used for stitching, e.g. 'c1' or '1'. You can also specify 'all' to use all of the channels. Default: the dapi_channel|If this is not defined it defaults to `dapi_channel`|`string`
 |`resolution`|Voxel resolution in all 3 dimensions. Default: 0.23,0.23,0.42|This is a comma-delimited tuple as x,y,z.|`string`
 |`axis`|Axis mapping for the objective->pixel coordinates conversion. Default: -x,y,z|Comma-separated axis specification with optional flips.|`string`
 |`stitching_block_size`|Block size to use when converting CZI to n5 before stitching. Default: 128,128,64||`string`

@@ -1,8 +1,5 @@
 service: easi-multifish
 
-plugins:
-  - serverless-pseudo-parameters
-
 custom:
   project: Multifish
   version: 1.0
@@ -40,7 +37,7 @@ resources:
         Type: MANAGED
         State: ENABLED
         ServiceRole: !Ref BatchServiceRole
-        ComputeEnvironmentName: "#{AWS::StackName}-multifish-ondemand-small-cpu-compute-env"
+        ComputeEnvironmentName: "${self:service}-ondemand-small-cpu-compute-env-${self:provider.stage}"
         ComputeResources:
           Type: EC2
           MinvCpus: 0
@@ -63,7 +60,7 @@ resources:
         Type: MANAGED
         State: ENABLED
         ServiceRole: !Ref BatchServiceRole
-        ComputeEnvironmentName: "#{AWS::StackName}-multifish-ondemand-cpu-compute-env"
+        ComputeEnvironmentName: "${self:service}-ondemand-cpu-compute-env-${self:provider.stage}"
         ComputeResources:
           Type: EC2
           MinvCpus: 0
@@ -86,7 +83,7 @@ resources:
         Type: MANAGED
         State: ENABLED
         ServiceRole: !Ref BatchServiceRole
-        ComputeEnvironmentName: "#{AWS::StackName}-multifish-ondemand-gpu-compute-env"
+        ComputeEnvironmentName: "${self:service}-ondemand-gpu-compute-env-${self:provider.stage}"
         ComputeResources:
           Type: EC2
           MinvCpus: 0
@@ -112,7 +109,7 @@ resources:
             ComputeEnvironment: !Ref SmallCPUMultifishOnDemandEnv
         State: ENABLED
         Priority: 100
-        JobQueueName: "${self:service}-${self:provider.stage}-multifish-small-cpu-job-queue"
+        JobQueueName: "${self:service}-small-cpu-job-queue-${self:provider.stage}"
 
     CPUOnlyMultifishJobQueue:
       Type: AWS::Batch::JobQueue
@@ -122,7 +119,7 @@ resources:
             ComputeEnvironment: !Ref CPUMultifishOnDemandEnv
         State: ENABLED
         Priority: 100
-        JobQueueName: "${self:service}-${self:provider.stage}-multifish-cpu-job-queue"
+        JobQueueName: "${self:service}-cpu-job-queue-${self:provider.stage}"
 
     GPUMultifishJobQueue:
       Type: AWS::Batch::JobQueue
@@ -132,7 +129,7 @@ resources:
             ComputeEnvironment: !Ref GPUMultifishOnDemandEnv
         State: ENABLED
         Priority: 100
-        JobQueueName: "${self:service}-${self:provider.stage}-multifish-gpu-job-queue"
+        JobQueueName: "${self:service}-gpu-job-queue-${self:provider.stage}"
 
     BatchServiceRole:
       Type: AWS::IAM::Role
@@ -163,4 +160,4 @@ resources:
         ManagedPolicyArns:
           - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
           - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-        RoleName: "${self:service}-${self:provider.stage}-ECSTaskRole"
+        RoleName: "${self:service}-ECSTaskRole-${self:provider.stage}"

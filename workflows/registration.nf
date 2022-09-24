@@ -17,13 +17,23 @@ include {
 
 include {
     index_channel;
+    pretty;
 } from './utils'
 
+
+// Register one "moving" round acquisition to a "fixed" round.
+// 
+// The first channel passed into this workflow is a set of tuples, 
+// each one defining a registration task:
+//  0 - fixed acq name
+//  1 - fixed image
+//  2 - moving acq name
+//  3 - moving image
+//  4 - output dir
+//
 workflow registration {
     take:
-    fixed_input_dir
-    moving_input_dir
-    output_dir
+    registrations
     reg_ch
     xy_stride
     xy_overlap
@@ -41,13 +51,15 @@ workflow registration {
 
     main:
     // make sure the inputs are all strings
-    def normalized_fixed_input_dir = fixed_input_dir.map { "$it" }
-    def normalized_moving_input_dir = moving_input_dir.map { "$it" }
-    def normalized_output_dir = output_dir.map { "$it" }
+    def normalized_fixed_input_dir = registrations.map { it[1] }
+    def normalized_moving_input_dir = registrations.map { it[3] }
+    def normalized_output_dir = registrations.map { it[4] }
+
+    registrations.subscribe { log.debug "Registration: ${pretty(it)}}" }
 
     // prepare tile coordinates
     def tile_cut_res = cut_tiles(
-        normalized_fixed_input_dir,
+        registrations.map { it[1] },
         "/${reg_ch}/${deformation_scale}",
         normalized_output_dir.map { "${it}/tiles" },
         xy_stride,
@@ -147,7 +159,7 @@ workflow registration {
     | map {
         def (ransac_affine_output, ransac_affine_scale) = it
         def ar = [ "${file(ransac_affine_output).parent.parent}", ransac_affine_output, ransac_affine_scale ]
-        log.debug "Affine result to combine with tiles: $ar"
+        log.debug "Affine result to combine with tiles: ${pretty(ar)}"
         ar
     }
     | combine(tiles_with_inputs, by:0) // // [ output_dir, ransac_affine, scale_path, fixed_input, tile_dir ]
@@ -214,12 +226,12 @@ workflow registration {
             tile_fixed_input,
             tile
         ]
-        log.debug "Extended interpolated result: $r"
+        log.debug "Extended interpolated result: ${pretty(r)}"
         return r
     }
     | combine(def_scale_affine_results, by:0) // [ ransac_affine, tile_fixed_input, tile, ransac_def_scale ]
 
-    deform_inputs.subscribe { log.debug "Deform input: $it" }
+    deform_inputs.subscribe { log.debug "Deform input: ${pretty(it)}" }
 
     // run the deformation
     def deform_results = deform(
@@ -237,7 +249,7 @@ workflow registration {
         def reg_output = "${tile_dir.parent.parent}"
         def aff_matrix = "${reg_output}/aff/ransac_affine.mat"
         def r = [ it[0], it[1],  reg_output, aff_matrix]
-        log.debug "Deform result: $it -> $r"
+        log.debug "Deform result: ${pretty(r)}"
         return r
     }
     | groupTuple(by: [1,2,3]) // wait for all deform to complete
@@ -253,7 +265,16 @@ workflow registration {
         }
     }
 
-    // run stitching once deformation is done for all tiles
+    // Run stitching once deformation is done for all tiles.
+    //
+    // This generates the complete transform mapping coordinates from the moving image to coordinates 
+    // in the fixed image as a displacement vector field. For each voxel we need to store a vector of 
+    // 3 numbers. For these N5 transforms, c0, c1, and c2 are the 3 components of this vector field – 
+    // c0 contains a scalar field of displacements along the first axis, c1 is a scalar field of 
+    // displacements along the second axis and so on.
+    //
+    // This can be a bit confusing because the data N5 files use the same nomenclature to mean something 
+    // else, c0 == channel 0. For transforms you can think of c0 == component 0.
     def stitch_results = stitch(
         deform_results.map { it[0] }, // tile
         xy_overlap,
@@ -261,38 +282,67 @@ workflow registration {
         deform_results.map { it[1] }, //  fixed image path
         "/${reg_ch}/${deformation_scale}",
         deform_results.map { it[3] }, // coarse ransac transformation matrix -> ransac_affine.mat
-        deform_results.map { "${it[2]}/transform" }, // transform directory
-        deform_results.map { "${it[2]}/invtransform" }, // inverse transform directory
+        deform_results.map { it[2] }, // output directory
         "/${deformation_scale}"
     )
-    stitch_results.subscribe { log.debug "Stitch result: $it" }
+    // tuples like this:
+    //  0 - tile dir (LHA3_R5_small-to-LHA3_R3_small/tiles/4)
+    //  1 - fixed image (LHA3_R3_small/stitching/export.n5)
+    //  2 - output dir (LHA3_R5_small-to-LHA3_R3_small)
+    //  3 - transform dir (LHA3_R5_small-to-LHA3_R3_small/transform)
+    //  4 - invtransform dir (LHA3_R5_small-to-LHA3_R3_small/invtransform)
+    stitch_results.subscribe { log.debug "Stitch result: ${pretty(it)}" }
+
+    // set up a lookup channel that maps output dir to moving image dir 
+    // e.g. [LHA3_R5_small-to-LHA3_R3_small, LHA3_R5_small/stitching/export.n5]
+    // so that we can correlate the stitch results back to the moving image
+    def output_to_moving_dir = registrations.map { 
+        [ it[4], it[3] ]
+    }
 
     // for final transformation wait until all tiles are stitched
     // and combine the results with the warped_channels
     def final_transform_inputs = stitch_results
-    | groupTuple(by: [1,2,3,4,5]) // wait for all stitches to complete
-    | combine(normalized_moving_input_dir)
+    | groupTuple(by: [1,2,3,4]) // wait for all stitches to complete
+    | map { // put output dir first and discard the tile dirs
+        [ it[2], it[1], it[3], it[4] ]
+    }
+    | join(output_to_moving_dir, by:0)
     | flatMap { stitch_res ->
-        log.debug "Combined stitched result: ${stitch_res}"
-        def reference = stitch_res[1]
-        def to_warp = stitch_res[6]
+        // tuples like this:
+        //  0 - output dir (LHA3_R5_small-to-LHA3_R3_small)
+        //  1 - fixed image (LHA3_R3_small/stitching/export.n5)
+        //  2 - transform (LHA3_R5_small-to-LHA3_R3_small/transform)
+        //  3 - invtransform (LHA3_R5_small-to-LHA3_R3_small/invtransform)
+        //  4 - moving image (LHA3_R5_small/stitching/export.n5)
+        log.debug "Combined stitched result: ${pretty(stitch_res)}"
+
+        def fixed_image = stitch_res[1]
+        def moving_image = stitch_res[4]
         def transform_dir = file(stitch_res[2])
         def warp_dir = "${transform_dir.parent}/warped"
 
         warped_channels.collect { warped_ch ->
             def r = [
-                reference,
+                fixed_image,
                 "/${warped_ch}/${deformation_scale}",
-                to_warp,
+                moving_image,
                 "/${warped_ch}/${deformation_scale}",
                 transform_dir, // this is the transform dir as a file type
                 warp_dir,
             ]
-            log.debug "Create warp input for channel $warped_ch: $r"
+            log.debug "Create warp input for channel $warped_ch: ${pretty(r)}"
             r
         }
     }
-    final_transform_inputs.subscribe { log.debug "Final warp input: $it" }
+    // tuples like this:
+    //  0 - fixed image
+    //  1 - fixed image subpath
+    //  2 - moving image
+    //  3 - moving image subpath
+    //  4 - transform dir
+    //  5 - warped output dir
+    final_transform_inputs.subscribe { log.debug "Final warp input: ${pretty(it)}" }
 
     // run the final transformation and generate the warped image
     def final_transform_res = final_transform(
@@ -303,7 +353,7 @@ workflow registration {
         final_transform_inputs.map { it[4] },
         final_transform_inputs.map { it[5] }
     )
-    final_transform_res.subscribe { log.debug "Final warp result: $it" }
+    final_transform_res.subscribe { log.debug "Final warp result: ${pretty(it)}" }
 
     def registration_res = final_transform_res
     | groupTuple(by: [0,2,4,5])
@@ -323,7 +373,7 @@ workflow registration {
                 inv_transform, // inv transform
                 final_tx_res[5] // output
             ]
-            log.debug "Registration result: $r"
+            log.debug "Registration result: ${pretty(r)}"
             r
         }
     } // [ <fixed>, <fixed_subpath>, <moving>, <moving_subpath>, <direct_transform>, <inv_transform>, <warped_path> ]

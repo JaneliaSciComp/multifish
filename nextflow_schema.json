@@ -128,7 +128,7 @@
                 "stitching_ref": {
                     "type": "string",
                     "fa_icon": "fas fa-asterisk",
-                    "description": "Index of the channel used for stitching. Default: the dapi_channel",
+                    "description": "Index of the channel used for stitching, e.g. 'c1' or '1'. You can also specify 'all' to use all of the channels. Default: the dapi_channel",
                     "help_text": "If this is not defined it defaults to `dapi_channel`"
                 },
                 "resolution": {
@@ -635,7 +635,7 @@
             "properties": {
                 "mfrepo": {
                     "type": "string",
-                    "description": "Docker registry/repository to use for containers. Default: janeliascicomp",
+                    "description": "Docker registry/repository to use for containers. Default: public.ecr.aws/janeliascicomp/multifish",
                     "fa_icon": "fas fa-database",
                     "help_text": "By default, the pipeline uses containers built as part of this project and deployed to DockerHub. You can rebuild the containers and deploy them to your own Registry and specify it here.",
                     "hidden": true

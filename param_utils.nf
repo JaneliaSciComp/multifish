@@ -233,11 +233,14 @@ def stitching_ref_param(Map ps) {
     def stitching_ref = ps.stitching_ref
         ? ps.stitching_ref
         : ps.dapi_channel
+    if (stitching_ref=="all") {
+        return ''
+    }
     def ch_num_lookup = (stitching_ref =~ /(\d+)/)
     if (ch_num_lookup.find()) {
-        ch_num_lookup[0][1]
+        return ch_num_lookup[0][1]
     } else {
-        ''
+        return ''
     }
 }
 

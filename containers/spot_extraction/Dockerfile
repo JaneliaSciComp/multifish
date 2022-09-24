@@ -1,4 +1,4 @@
-FROM centos:8
+FROM oraclelinux:8
 
 ENV MATLAB_VERSION=R2018b
 ENV DOWNLOAD_FILENAME=MCR_${MATLAB_VERSION}_glnxa64_installer.zip
