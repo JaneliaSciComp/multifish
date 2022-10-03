@@ -238,35 +238,38 @@ workflow stitch {
         spark_driver_logconfig,
         spark_driver_deploy_mode
     )
-    // prepare flatfield args
-    def flatfield_args = prepare_app_args(
-        "flatfield",
-        czi_to_n5_done,
-        indexed_spark_work_dirs,
-        indexed_acq_data,
-        { acq_name, stitching_dir ->
-            def n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5', '.json')
-            return "${n5_channels_args} --2d --bins 256"
-        }
-    )
-    def flatfield_done = run_flatfield_correction(
-        flatfield_args.map { it[0] }, // spark URI
-        stitching_app,
-        'org.janelia.flatfield.FlatfieldCorrection',
-        flatfield_args.map { it[1] }, // app args
-        'flatfieldCorrection.log',
-        terminate_stitching_name,
-        spark_conf,
-        flatfield_args.map { it[2] }, // spark working dir
-        spark_workers,
-        spark_worker_cores,
-        spark_gbmem_per_core,
-        spark_driver_cores,
-        spark_driver_memory,
-        spark_driver_stack_size,
-        spark_driver_logconfig,
-        spark_driver_deploy_mode
-    )
+    def flatfield_done = czi_to_n5_done;
+    if (params.flatfield_correction) {
+        // prepare flatfield args
+        def flatfield_args = prepare_app_args(
+            "flatfield",
+            czi_to_n5_done,
+            indexed_spark_work_dirs,
+            indexed_acq_data,
+            { acq_name, stitching_dir ->
+                def n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5', '.json')
+                return "${n5_channels_args} --2d --bins 256"
+            }
+        )
+        flatfield_done = run_flatfield_correction(
+            flatfield_args.map { it[0] }, // spark URI
+            stitching_app,
+            'org.janelia.flatfield.FlatfieldCorrection',
+            flatfield_args.map { it[1] }, // app args
+            'flatfieldCorrection.log',
+            terminate_stitching_name,
+            spark_conf,
+            flatfield_args.map { it[2] }, // spark working dir
+            spark_workers,
+            spark_worker_cores,
+            spark_gbmem_per_core,
+            spark_driver_cores,
+            spark_driver_memory,
+            spark_driver_stack_size,
+            spark_driver_logconfig,
+            spark_driver_deploy_mode
+        )
+    }
     // prepare retile args
     def retile_args = prepare_app_args(
         "retile",

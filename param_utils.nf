@@ -41,6 +41,7 @@ def default_mf_params() {
         stitching_padding: '0,0,0',
         stitching_blur_sigma: '2',
         stitching_czi_pattern: '', // A suffix pattern that is applied to acq_names when creating CZI names e.g. "_V%02d"
+        flatfield_correction: true,
         workers: 6,
         worker_cores: 8,
         gb_per_core: 15,
