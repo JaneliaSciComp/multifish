@@ -52,6 +52,7 @@ Stitching options
 |`resolution`|Voxel resolution in all 3 dimensions. Default: 0.23,0.23,0.42|This is a comma-delimited tuple as x,y,z.|`string`
 |`axis`|Axis mapping for the objective->pixel coordinates conversion. Default: -x,y,z|Comma-separated axis specification with optional flips.|`string`
 |`stitching_block_size`|Block size to use when converting CZI to n5 before stitching. Default: 128,128,64||`string`
+|`flatfield_correction`|Apply flatfield correction before stitching? Default: true||`boolean`
 |`retile_z_size`|Block size (in Z dimension) when retiling after stitching. Default: 64|This must be smaller than the number of Z slices in the data.|`integer`
 |`stitching_mode`|Rematching mode ('full' or 'incremental'). Default: incremental||`string`
 |`stitching_padding`|Padding for the overlap regions. Default: 0,0,0||`string`
