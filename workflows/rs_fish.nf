@@ -20,6 +20,10 @@ include {
     index_channel;
 } from './utils'
 
+include {
+    get_list_or_default;
+} from '../param_utils'
+
 workflow rsfish {
     take:
     input_dirs
@@ -60,6 +64,8 @@ workflow rsfish {
     // print spark cluster result [ spark_uri, cluster_work_dir ]
     spark_cluster_res.subscribe {  log.debug "Spark cluster result: $it"  }
 
+    def all_per_channels_params = get_all_per_channel_params(params)
+
     def rsfish_args = indexed_input_dirs
     | join(indexed_output_dirs) // [index, input_dir, output_dir]
     | combine(spot_channels) // [index, input_dir, output_dir, channel]
@@ -69,10 +75,19 @@ workflow rsfish {
         def subpath = "/${channel}/${scale}"
         def output_voxel_file = "${output_dir}/spots_rsfish_${channel}.csv"
         def output_microns_file = "${output_dir}/spots_${channel}.txt"
+        def minIntensity = all_per_channels_params.rsfish_min[channel]
+        def maxIntensity = all_per_channels_params.rsfish_max[channel]
+        def anisotropy = all_per_channels_params.rsfish_anisotropy[channel]
+        def sigma = all_per_channels_params.rsfish_sigma[channel]
+        def threshold = all_per_channels_params.rsfish_threshold[channel]
         [
-            "--image=${input_dir} --dataset=${subpath} --minIntensity=${params.rsfish_min} --maxIntensity=${params.rsfish_max} "
-                + "--anisotropy=${params.rsfish_anisotropy} --sigma=${params.rsfish_sigma} --threshold=${params.rsfish_threshold} "
-                + "--output=${output_voxel_file} ${params.rsfish_params}",
+            "--image=${input_dir} --dataset=${subpath} " +
+            "--minIntensity=${minIntensity} " +
+            "--maxIntensity=${maxIntensity} " +
+            "--anisotropy=${anisotropy} " +
+            "--sigma=${sigma} " +
+            "--threshold=${threshold} " +
+            "--output=${output_voxel_file} ${params.rsfish_params}",
             cluster_work_dir,
             "rsFISH_${acq_name}_${channel}.log",
             input_dir,
@@ -127,4 +142,48 @@ workflow rsfish {
 
     emit:
     postprocess_spots
+}
+
+def get_all_per_channel_params(Map ps) {
+    [
+        rsfish_min: get_param_values_per_channel(ps, 'rsfish_min'),
+        rsfish_max: get_param_values_per_channel(ps, 'rsfish_max'),
+        rsfish_anisotropy: get_param_values_per_channel(ps, 'rsfish_anisotropy'),
+        rsfish_sigma: get_param_values_per_channel(ps, 'rsfish_sigma'),
+        rsfish_threshold: get_param_values_per_channel(ps, 'rsfish_threshold'),
+    ]
+}
+
+def get_param_values_per_channel(Map ps, String param_name) {
+    def channels = get_list_or_default(ps, 'channels', [])
+    def per_channel_params
+
+    def source_per_channel_param_values = ps['per_channel'][param_name]
+    if (source_per_channel_param_values == null ||
+            source_per_channel_param_values instanceof String && source_per_channel_param_values.trim() == '' ||
+            source_per_channel_param_values instanceof Boolean) {
+        per_channel_params = []
+    } else if (source_per_channel_param_values instanceof String) {
+        per_channel_params =  ps['per_channel'][param_name].split(',').collect { it.trim() }
+    } else {
+        per_channel_params = [source_per_channel_param_values]
+    }
+
+    // the number of records that need to be filled
+    def nremaining_values = channels.size - per_channel_params.size
+    return [
+        channels,
+        nremaining_values > 0
+            ? per_channel_params + [null] * nremaining_values
+            : per_channel_params
+    ]
+    .transpose()
+    .inject([:]) { param_values, ch_and_value ->
+        def ch = ch_and_value[0]
+        def param_value = ch_and_value[1] 
+                            ? ch_and_value[1]
+                            : ps[param_name]
+        param_values[ch] = param_value
+        return param_values
+    }
 }

@@ -85,6 +85,14 @@ def default_mf_params() {
         rsfish_sigma: 1.5,
         rsfish_threshold: 0.007,
         rsfish_params: '',
+        // RS-Fish parameters adjustable per channel
+        per_channel: [
+            rsfish_min: '',
+            rsfish_max: '',
+            rsfish_anisotropy: '',
+            rsfish_sigma: '',
+            rsfish_threshold: '',
+        ],
 
         // segmentation params
         segmentation_output: 'segmentation',
@@ -175,14 +183,25 @@ def get_value_or_default(Map ps, String param, String default_value) {
 }
 
 def get_list_or_default(Map ps, String param, List default_list) {
-    def value
-    if (ps[param])
-        value = ps[param]
-    else
-        value = null
-    return value
-        ? value.tokenize(',').collect { it.trim() }
-        : default_list
+    def source_value = ps[param]
+
+    if (source_value == null) {
+        return default_list
+    } else if (source_value instanceof Boolean) {
+        // most likely the parameter was set as '--param'
+        // followed by no value
+        return default_list
+    } else if (source_value instanceof String) {
+        if (source_value.trim() == '') {
+            return default_list
+        } else {
+            return source_value.tokenize(',').collect { it.trim() }
+        }
+    } else {
+        // this is the case in which a parameter was set to a numeric value,
+        // e.g., "--param 1000" or "--param 20.3"
+        return [source_value]
+    }
 }
 
 def stitching_container_param(Map ps) {

@@ -43,7 +43,7 @@ workflow airlocalize {
         params.per_channel_air_localize_params?.split(',', -1)
     ].transpose()
     .inject([:]) { a, b ->
-        ch = b[0]
+        def ch = b[0]
         airlocalize_params = b[1] == null || b[1] == ''
             ? params.default_airlocalize_params
             : b[1]
