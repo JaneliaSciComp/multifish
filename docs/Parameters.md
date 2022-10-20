@@ -157,6 +157,22 @@ Options for the RS-FISH spot extraction algorithm
 |`rsfish_driver_cores`|Number of cores allocated for the RS-FISH Spark driver. Default: 1||`string`
 |`rsfish_driver_memory`|Amount of memory to allocate for the RS-FISH Spark driver. Default: 15g||`string`
 
+### Per channel RS-FISH Parameters
+
+The following parameters can be set per channel: `rsfish_min`, `rsfish_max`, `rsfish_anisotropy`, `rsfish_sigma`, `rsfish_threshold`. For that simply prefix the corresponding parameter with `--per_channel.` and set the values using a comma delimited list. The values will be associated with the corresponding channel based on their position, i.e. first value will be associated with the first channel, second with the second channel, etc. If a value is missing or empty the parameter value for the channel will be set to the default from the parameter with the same name (presented above).
+
+For example if the command like is:
+`--channels c0,c1,c2,c3 --sigma 1.7 --per_channel.sigma "1.2,,1.4`
+
+channel c0 will use sigma 1.2
+
+channel c1 will use the default sigma 1.7 (because of the empty value)
+
+channel c2 will use sigma 1.4
+
+channel c3 will use the default sigma 1.7 (because of the missing value - sigma values list is shorter then the channels list)
+
+
 ## Spot Warping
 
 Options for warping detected spots to registration
