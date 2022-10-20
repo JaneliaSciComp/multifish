@@ -80,7 +80,7 @@ workflow rsfish {
         def anisotropy = all_per_channels_params.rsfish_anisotropy[channel]
         def sigma = all_per_channels_params.rsfish_sigma[channel]
         def threshold = all_per_channels_params.rsfish_threshold[channel]
-        [
+        def rsfish_cmd_args = [
             "--image=${input_dir} --dataset=${subpath} " +
             "--minIntensity=${minIntensity} " +
             "--maxIntensity=${maxIntensity} " +
@@ -97,6 +97,8 @@ workflow rsfish {
             channel,
             scale
         ]
+        log.debug "RS-FISH command arguments for channel ${channel} -> ${rsfish_cmd_args}"
+        rsfish_cmd_args
     } // [ args, cluster_work_dir, log_name, input_dir, subpath, output_voxel_file, output_microns_file, channel, scale ]
     | combine(spark_cluster_res, by:1) // [ cluster_work_dir, args, log_name, input_dir, subpath, output_voxel_file, output_microns_file, channel, scale, spark_uri ]
 
