@@ -488,7 +488,7 @@
                     "description": "Number of CPU cores to allocate for each AirLocalize job. Default: 1"
                 },
                 "airlocalize_memory": {
-                    "type": "integer",
+                    "type": "string",
                     "fa_icon": "fas fa-memory",
                     "description": "Amount of RAM to allocate to each AirLocalize job. Needs to be increased when increasing strides. Default: 2 G"
                 }
