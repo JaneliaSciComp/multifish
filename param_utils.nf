@@ -22,7 +22,7 @@ def default_mf_params() {
         skip: '', // do not skip anything by default
 
         // download params
-        downloader_container: 'multifish/downloader:1.1.0',
+        downloader_container: multifish_container_repo+'/downloader:1.1.0',
         data_manifest: 'segmentation',
         verify_md5: 'true',
 
