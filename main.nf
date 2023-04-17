@@ -108,6 +108,7 @@ steps_to_skip = get_list_or_default(final_params, 'skip', [])
 // than 'acq_names' parameter set 'stitch_acq_names' parameter
 acq_names = get_list_or_default(final_params, 'acq_names', [])
 ref_acq = final_params.ref_acq
+channels = get_list_or_default(final_params, 'channels',[])
 
 log.info """
     ===================================
@@ -124,6 +125,7 @@ log.info """
     output_dir             : ${pipeline_output_dir}
     publish_dir            : ${final_params.publish_dir}
     acq_names              : ${acq_names}
+    channels               : ${channels}
     ref_acq                : ${ref_acq}
     steps_to_skip          : ${steps_to_skip}
     """
@@ -136,7 +138,6 @@ if (steps_to_skip.contains('stitching')) {
 }
 log.debug "Images to stitch: ${stitch_acq_names}"
 
-channels = final_params.channels?.split(',')
 stitching_block_size = final_params.stitching_block_size
 retile_z_size = final_params.retile_z_size
 stitching_ref = stitching_ref_param(final_params)

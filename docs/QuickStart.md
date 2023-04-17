@@ -27,7 +27,7 @@ To [install Singularity](https://sylabs.io/guides/3.7/admin-guide/installation.h
 
 Once the prerequisites are installed, you should clone this repository with the following command:
 
-    git clone https://github.com/JaneliaSciComp/multifish.git
+    git clone --recursive https://github.com/JaneliaSciComp/multifish.git
 
 Before running the pipeline for the first time, run setup to pull in external dependencies:
 
