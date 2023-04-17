@@ -576,7 +576,7 @@ workflow {
             get_acq_output(pipeline_output_dir, moving_acq),
             "${final_params.registration_output}/${moving_acq}-to-${fixed_acq}"
         )
-        [
+        def r = [
             "${fixed_dir}/export.n5", // fixed stitched image
             "/${ch}/${final_params.def_scale}", // channel/deform scale
             "${moving_dir}/export.n5", // moving stitched image
@@ -589,6 +589,8 @@ workflow {
             fixed_acq,
             moving_acq
         ]
+        log.debug "Measure intensities input candidate: $it -> $r"
+        r
     }
 
     def intensities_inputs_for_fixed = expected_registrations_for_intensities
@@ -652,8 +654,14 @@ workflow {
         ]
         log.debug "Measure intensities inputs for moving image $it -> $r"
         r
-    } | concat(intensities_inputs_for_fixed) | unique {
+    }
+    | concat(intensities_inputs_for_fixed)
+    | unique {
         [ "${it[0]}", "${it[1]}", "${it[3]}", "${it[4]}" ]
+    }
+    | filter {
+        // if skipping measure_intensities - filter out everything
+        !steps_to_skip.contains('measure_intensities')
     }
 
     // run intensities measurements
