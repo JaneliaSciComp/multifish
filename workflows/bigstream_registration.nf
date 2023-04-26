@@ -127,6 +127,7 @@ def adapt_legacy_params_to_bigstream(Map ps) {
         partitionsize = 256
     }
     [
+        with_dask_cluster: true,
         // spots radius
         global_ransac_cc_radius: ps.spots_cc_radius,
         local_ransac_cc_radius: ps.spots_cc_radius,
