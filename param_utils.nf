@@ -110,11 +110,11 @@ def default_mf_params() {
         registration_xy_overlap: 0, // use the default defined by registration_xy_overlap_param
         registration_z_stride: 0, // use the default defined by registration_z_stride_param - must be a power of 2
         registration_z_overlap: 0, // use the default defined by registration_z_overlap_param
-        spots_cc_radius: '8',
-        spots_spot_number: '2000',
+        spots_cc_radius: 8,
+        spots_spot_number: 2000,
         // ransac params
-        ransac_cc_cutoff: '0.9',
-        ransac_dist_threshold: '2.5',
+        ransac_cc_cutoff: 0.9,
+        ransac_dist_threshold: 2.5,
         // deformation parameters
         deform_iterations: '500x200x25x1',
         deform_auto_mask: '0',
