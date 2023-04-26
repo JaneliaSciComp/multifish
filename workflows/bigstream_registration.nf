@@ -1,8 +1,16 @@
-bigstream_params = get_bigstream_params(params)
+all_bigstream_params = get_bigstream_params(params)
 
 include {
     BIGSTREAM_REGISTRATION;
-} from '../external-modules/bigstream/subworkflows/bigstream-registration' addParams(bigstream_params)
+} from '../external-modules/bigstream/subworkflows/bigstream-registration' addParams(all_bigstream_params)
+
+include {
+    dask_params;
+} from '../external-modules/bigstream/lib/dask_params'
+
+include {
+    bigstream_params;
+} from '../external-modules/bigstream/lib/bigstream_params'
 
 workflow registration {
     take:
@@ -100,6 +108,8 @@ workflow registration {
 }
 
 def get_bigstream_params(Map ps) {
+    dask_params() +
+    bigstream_params() +
     adapt_legacy_params_to_bigstream(ps) +
     ps
 }
