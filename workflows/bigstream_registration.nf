@@ -105,6 +105,9 @@ workflow registration {
             "${local_output}/${local_aligned_name}", // output
         ]
     }
+
+    emit:
+    done = registration_results
 }
 
 def get_bigstream_params(Map ps) {
