@@ -63,17 +63,22 @@ include {
 registration_params = final_params + [
     registration_container: registration_container_param(final_params),
 ]
+
 include {
     registration as legacy_registration;
 } from './workflows/legacy_registration' addParams(registration_params)
+
 include {
     registration as bigstream_registration;
 } from './workflows/bigstream_registration' addParams(registration_params)
 
 include {
-    warp_spots;
     collect_merge_points;
-} from './workflows/warp_spots' addParams(registration_params)
+} from './workflows/collect_spots' addParams(registration_params)
+
+include {
+    warp_spots as legacy_warp_spots;
+} from './workflows/legacy_warp_spots' addParams(registration_params)
 
 spot_assignment_params = final_params + [
     spots_assignment_container: spots_assignment_container_param(final_params),
@@ -528,7 +533,7 @@ workflow {
     }
 
     // run warp spots
-    def warp_spots_results = warp_spots(
+    def warp_spots_results = legacy_warp_spots(
         warp_spots_inputs.map { it[0] }, // fixed
         warp_spots_inputs.map { it[1] }, // fixed_subpath
         warp_spots_inputs.map { it[2] }, // moving
