@@ -64,8 +64,11 @@ registration_params = final_params + [
     registration_container: registration_container_param(final_params),
 ]
 include {
-    registration;
-} from './workflows/registration' addParams(registration_params)
+    registration as legacy_registration;
+} from './workflows/legacy_registration' addParams(registration_params)
+include {
+    registration as bigstream_registration;
+} from './workflows/bigstream_registration' addParams(registration_params)
 
 include {
     warp_spots;
@@ -351,7 +354,7 @@ workflow {
     }
 
     // run registration
-    def registration_results =  registration(
+    def registration_results =  bigstream_registration(
         registration_inputs,
         final_params.dapi_channel, // dapi channel used to calculate all transformations
         registration_xy_stride_param(final_params),
