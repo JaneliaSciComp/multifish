@@ -1,8 +1,8 @@
 bigstream_params = get_bigstream_params(params)
 
 include {
-    BIGSTREAM_REGISTRATION addParams(bigstream_params);
-} from '../external-modules/bigstream/subworkflows/bigstream-registration'
+    BIGSTREAM_REGISTRATION;
+} from '../external-modules/bigstream/subworkflows/bigstream-registration' addParams(bigstream_params)
 
 workflow registration {
     take:
