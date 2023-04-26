@@ -534,13 +534,7 @@ workflow {
 
     // run warp spots
     def warp_spots_results = legacy_warp_spots(
-        warp_spots_inputs.map { it[0] }, // fixed
-        warp_spots_inputs.map { it[1] }, // fixed_subpath
-        warp_spots_inputs.map { it[2] }, // moving
-        warp_spots_inputs.map { it[3] }, // moving_subpath
-        warp_spots_inputs.map { it[4] }, // transform path
-        warp_spots_inputs.map { it[5] }, // warped spots output
-        warp_spots_inputs.map { it[6] }, // spots file path
+        warp_spots_inputs
     ) // [ warped_spots_file, subpath ]
 
     def expected_segmentation_results = Channel.fromList(labeled_spots_acq_names) | map {
