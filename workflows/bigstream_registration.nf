@@ -1,9 +1,3 @@
-all_bigstream_params = get_bigstream_params(params)
-
-include {
-    BIGSTREAM_REGISTRATION;
-} from '../external-modules/bigstream/subworkflows/bigstream-registration' addParams(all_bigstream_params)
-
 include {
     dask_params;
 } from '../external-modules/bigstream/lib/dask_params'
@@ -11,6 +5,12 @@ include {
 include {
     bigstream_params;
 } from '../external-modules/bigstream/lib/bigstream_params'
+
+all_bigstream_params = get_bigstream_params(params)
+
+include {
+    BIGSTREAM_REGISTRATION;
+} from '../external-modules/bigstream/subworkflows/bigstream-registration' addParams(all_bigstream_params)
 
 workflow registration {
     take:
