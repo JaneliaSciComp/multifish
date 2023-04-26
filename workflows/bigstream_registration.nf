@@ -48,7 +48,7 @@ workflow registration {
             "${reg_ch}/${affine_scale}", // global_fixed_subpath
             moving, // global_moving
             "${reg_ch}/${affine_scale}", // global_moving_subpath
-            params.global_steps,
+            'ransac,affine', // global steps
             output,
             "aff/ransac_affine.mat", // global_transform_name
             "aff/ransac_affine",     // global_aligned_name
@@ -56,7 +56,7 @@ workflow registration {
             "${reg_ch}/${deformation_scale}", // local_fixed_subpath
             moving, // local_moving
             "${reg_ch}/${deformation_scale}", // local_moving_subpath
-            params.local_steps,
+            'ransac,deform', // local steps
             output,
             "transform",  // local_transform_name
             "warped", // local_aligned_name
@@ -127,8 +127,6 @@ def adapt_legacy_params_to_bigstream(Map ps) {
         partitionsize = 256
     }
     [
-        global_steps: 'ransac,affine',
-        local_steps: 'ransac,deform',
         // spots radius
         global_ransac_cc_radius: ps.spots_cc_radius,
         local_ransac_cc_radius: ps.spots_cc_radius,
