@@ -360,7 +360,7 @@ workflow {
 
     // run registration
     def registration_results
-    if (params.use_bigstream) {
+    if (final_params.use_bigstream) {
         registration_results =  bigstream_registration(
             registration_inputs,
             final_params.dapi_channel, // dapi channel used to calculate all transformations
@@ -555,7 +555,7 @@ workflow {
 
     // run warp spots
     def warp_spots_results
-    if (params.use_bigstream) {
+    if (final_params.use_bigstream) {
         warp_spots_results = bigstream_warp_spots(
             warp_spots_inputs
         ) // [ warped_spots_file, subpath ]
