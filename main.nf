@@ -360,7 +360,7 @@ workflow {
 
     // run registration
     def registration_results
-    if (use_bigstream) {
+    if (params.use_bigstream) {
         registration_results =  bigstream_registration(
             registration_inputs,
             final_params.dapi_channel, // dapi channel used to calculate all transformations
