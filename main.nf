@@ -65,20 +65,16 @@ registration_params = final_params + [
 ]
 
 include {
-    registration as legacy_registration;
-} from './workflows/legacy_registration' addParams(registration_params)
-
-include {
-    registration as bigstream_registration;
-} from './workflows/bigstream_registration' addParams(registration_params)
+    registration;
+} from './workflows/registration' addParams(registration_params)
 
 include {
     collect_merge_points;
 } from './workflows/collect_spots' addParams(registration_params)
 
 include {
-    warp_spots as legacy_warp_spots;
-} from './workflows/legacy_warp_spots' addParams(registration_params)
+    warp_spots;
+} from './workflows/warp_spots' addParams(registration_params)
 
 spot_assignment_params = final_params + [
     spots_assignment_container: spots_assignment_container_param(final_params),
@@ -359,44 +355,23 @@ workflow {
     }
 
     // run registration
-    def registration_results
-    if (final_params.use_bigstream) {
-        registration_results =  bigstream_registration(
-            registration_inputs,
-            final_params.dapi_channel, // dapi channel used to calculate all transformations
-            registration_xy_stride_param(final_params),
-            registration_xy_overlap_param(final_params),
-            registration_z_stride_param(final_params),
-            registration_z_overlap_param(final_params),
-            final_params.aff_scale,
-            final_params.def_scale,
-            final_params.spots_cc_radius,
-            final_params.spots_spot_number,
-            final_params.ransac_cc_cutoff,
-            final_params.ransac_dist_threshold,
-            final_params.deform_iterations,
-            final_params.deform_auto_mask,
-            channels
-        )
-    } else {
-        registration_results =  legacy_registration(
-            registration_inputs,
-            final_params.dapi_channel, // dapi channel used to calculate all transformations
-            registration_xy_stride_param(final_params),
-            registration_xy_overlap_param(final_params),
-            registration_z_stride_param(final_params),
-            registration_z_overlap_param(final_params),
-            final_params.aff_scale,
-            final_params.def_scale,
-            final_params.spots_cc_radius,
-            final_params.spots_spot_number,
-            final_params.ransac_cc_cutoff,
-            final_params.ransac_dist_threshold,
-            final_params.deform_iterations,
-            final_params.deform_auto_mask,
-            channels
-        )
-    }
+    def registration_results = registration(
+        registration_inputs,
+        final_params.dapi_channel, // dapi channel used to calculate all transformations
+        registration_xy_stride_param(final_params),
+        registration_xy_overlap_param(final_params),
+        registration_z_stride_param(final_params),
+        registration_z_overlap_param(final_params),
+        final_params.aff_scale,
+        final_params.def_scale,
+        final_params.spots_cc_radius,
+        final_params.spots_spot_number,
+        final_params.ransac_cc_cutoff,
+        final_params.ransac_dist_threshold,
+        final_params.deform_iterations,
+        final_params.deform_auto_mask,
+        channels
+    )
 
     // Take moving subpath (e.g. /c0/s2) extract the components (e.g. c0, s2) and add them to the end of the tuple
     def extended_registration_results = registration_results | map {
@@ -554,16 +529,9 @@ workflow {
     }
 
     // run warp spots
-    def warp_spots_results
-    if (final_params.use_bigstream) {
-        warp_spots_results = bigstream_warp_spots(
-            warp_spots_inputs
-        ) // [ warped_spots_file, subpath ]
-    } else {
-        warp_spots_results = legacy_warp_spots(
-            warp_spots_inputs
-        ) // [ warped_spots_file, subpath ]
-    }
+    def warp_spots_results = warp_spots(
+        warp_spots_inputs
+    ) // [ warped_spots_file, subpath ]
 
     def expected_segmentation_results = Channel.fromList(labeled_spots_acq_names) | map {
         def acq_name = it
