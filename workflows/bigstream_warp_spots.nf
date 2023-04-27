@@ -21,7 +21,7 @@ workflow warp_spots {
              transform,
              warped_coords_path,
              coords_path) = it
-        return [
+        [
             [
                 coords_path,
                 warped_coords_path,
@@ -44,7 +44,7 @@ workflow warp_spots {
     | map {
         def (coords, warped_coords,
              pixel_resoultion, downsampling,
-             coords_volume, coords_volume_dataset)) = it
+             coords_volume, coords_volume_dataset) = it
         def r = [
             warped_coords,
             coords_volume,
