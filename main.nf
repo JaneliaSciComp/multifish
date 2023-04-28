@@ -489,8 +489,15 @@ workflow {
         it[0..3].collect { "$it" }
     }
     | map {
-        def fixed_stitched_results = file(it[0])
-        def moving_stitched_results = file(it[2])
+        def (fixed_path, fixed_subpath,
+            moving_path, moving_subpath,
+            transform_path,
+            invtransform_path,
+            deform_path,
+            ref_ch,
+            scale) = it
+        def fixed_stitched_results = file(fixed_path)
+        def moving_stitched_results = file(moving_path)
         def fixed_acq = fixed_stitched_results.parent.parent.name
         def moving_acq = moving_stitched_results.parent.parent.name
         def warped_spots_output_dir = get_step_output_dir(
@@ -499,12 +506,12 @@ workflow {
         )
         log.debug "Warped spots output for ${moving_acq} to ${fixed_acq} -> ${warped_spots_output_dir}"
         def r = [
-            it[2], // moving
-            it[7], // channel
-            it[3], // moving subpath
-            it[0], // fixed
-            it[1], // fixed subpath
-            it[5], // inv transform
+            moving_path, // moving
+            ref_ch, // channel
+            moving_subpath, // moving subpath
+            fixed_path, // fixed
+            fixed_subpath, // fixed subpath
+            invtransform_path, // inv transform
             warped_spots_output_dir
         ]
         log.debug "Registration result to be combined with extracted spots result: $it -> $r"
@@ -520,7 +527,7 @@ workflow {
             it[4], // fixed subpath
             it[0], // moving
             it[2], // moving subpath
-            it[5], // transform subpath
+            it[5], // inv transform path
             "${it[6]}/${warped_spots_fname}", // warped spots file
             "${spots_file}" // spots file path (as string)
         ]

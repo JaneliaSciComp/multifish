@@ -102,7 +102,7 @@ def default_mf_params() {
         segmentation_memory: '220 G',
 
         // registration params
-        use_bigstream: true,
+        use_bigstream: false,
         registration_fixed_output: 'fixed',
         registration_output: 'registration',
         aff_scale: 's3', // the scale level for affine alignments

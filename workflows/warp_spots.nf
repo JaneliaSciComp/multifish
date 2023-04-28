@@ -15,7 +15,7 @@ workflow warp_spots {
     if (params.use_bigstream) {
         done = bigstream_warp_spots(warp_inputs)
     } else {
-        done = legacy_warp_spots(warp_spots)
+        done = legacy_warp_spots(warp_inputs)
     }
 
     emit:
