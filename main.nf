@@ -420,7 +420,7 @@ workflow {
         def (acq_spot_extraction_output_dir, acq_stitching_output_dir, spots_filepath) = it
         def spots_file = file(spots_filepath)
         def spots_filename_comps = spots_file.name.replace('.txt', '').tokenize('_')
-        def spots_channel = spots_filename_comps[2]
+        def spots_channel = spots_filename_comps[-1] // last component
         def d = [
             "${acq_stitching_output_dir}/export.n5",
             spots_channel,
