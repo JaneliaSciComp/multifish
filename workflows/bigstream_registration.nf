@@ -55,7 +55,7 @@ workflow registration {
             'ransac,deform', // local steps
             output,
             "transform",  // local_transform_name
-            "warped", // local_aligned_name
+            '', // local_aligned_name (skip local warping because we do it for all channels as additional deform)
         ]
         // additional deformation input
         def additional_deforms = warped_channels.collect { warped_ch ->
@@ -97,8 +97,8 @@ workflow registration {
             local_moving, // moving
             local_moving_dataset, // moving subpath
             "${local_output}/${local_transform_name}", // dir transform
-            '', // inv transform
-            "${local_output}/${local_aligned_name}", // output
+            '', // inv transform (none)
+            "${local_output}/warped", // output
         ]
     }
 
