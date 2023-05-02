@@ -55,6 +55,7 @@ workflow registration {
             'ransac,deform', // local steps
             output,
             "transform",  // local_transform_name
+            "invtransform", // local_inv_transform_name
             '', // local_aligned_name (skip local warping because we do it for all channels as additional deform)
         ]
         // additional deformation input
@@ -88,6 +89,7 @@ workflow registration {
             local_moving, local_moving_dataset,
             local_output,
             local_transform_name,
+            local_inv_transform_name,
             local_aligned_name,
             deformed_results
         ) = it
@@ -97,7 +99,7 @@ workflow registration {
             local_moving, // moving
             local_moving_dataset, // moving subpath
             "${local_output}/${local_transform_name}", // dir transform
-            '', // inv transform (none)
+            "${local_output}/${local_inv_transform_name}", // dir inv transform
             "${local_output}/warped", // output
         ]
     }
