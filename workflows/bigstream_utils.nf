@@ -14,14 +14,12 @@ def get_bigstream_params(Map ps) {
 }
 
 def adapt_legacy_params_to_bigstream(Map ps) {
-    def partitionsize = 0
-    if (ps.registration_xy_stride) {
-        partitionsize = ps.registration_xy_stride
-    } else if (ps.registration_z_stride) {
-        partitionsize = ps.registration_z_stride
-    } else {
-        partitionsize = 256
-    }
+    def block_xy_size = ps.registration_xy_stride
+        ? ps.registration_xy_stride
+        : 128
+    def block_z_size = ps.registration_z_stride
+        ? ps.registration_z_stride
+        : block_xy_size
     [
         with_dask_cluster: true,
         // spots radius
@@ -36,7 +34,7 @@ def adapt_legacy_params_to_bigstream(Map ps) {
         // ransac align threshold
         global_ransac_align_threshold: ps.ransac_dist_threshold,
         local_ransac_align_threshold: ps.ransac_dist_threshold,
-        local_partitionsize: partitionsize,
+        local_blocksize: "${block_xy_size},${block_xy_size},${block_z_size}",
         local_partition_overlap: 0.125, // 1/8
     ]
 }
