@@ -14,12 +14,8 @@ def get_bigstream_params(Map ps) {
 }
 
 def adapt_legacy_params_to_bigstream(Map ps) {
-    def block_xy_size = ps.registration_xy_stride
-        ? ps.registration_xy_stride
-        : 128
-    def block_z_size = ps.registration_z_stride
-        ? ps.registration_z_stride
-        : block_xy_size
+    def block_xy_size = registration_xy_stride_param(ps)
+    def block_z_size = registration_z_stride_param(ps)
     [
         with_dask_cluster: true,
         // spots radius
