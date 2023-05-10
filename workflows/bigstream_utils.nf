@@ -6,6 +6,11 @@ include {
     bigstream_params;
 } from '../external-modules/bigstream/lib/bigstream_params'
 
+include {
+    registration_xy_stride_param;
+    registration_z_stride_param;
+} from '../param_utils'
+
 def get_bigstream_params(Map ps) {
     dask_params() +
     bigstream_params() +
