@@ -33,7 +33,7 @@ dependencies:
     - networkx==2.5
     - nibabel==3.2.1
     - numcodecs==0.7.2
-    - numpy==1.20.0rc2
+    - numpy==1.20.3
     - opencv-python==4.5.1.48
     - packaging==20.8
     - pillow==8.1.0
