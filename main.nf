@@ -516,7 +516,7 @@ workflow {
             it[4], // fixed subpath
             it[0], // moving
             it[2], // moving subpath
-            it[5], // transform subpath
+            it[5], // inv transform subpath
             "${it[6]}/${warped_spots_fname}", // warped spots file
             "${spots_file}" // spots file path (as string)
         ]
