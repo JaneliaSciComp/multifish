@@ -645,12 +645,15 @@ workflow {
             "${final_params.measure_intensities_output}/${intensities_name}"
         )
         log.debug "Measure intensities output for ${moving_acq} to ${fixed_acq} -> ${measure_intensities_output_dir}"
+        if (it[8] != final_params.segmentation_scale) {
+            log.warn "Warped image and labels must have the same shape so deform and segmentation scale should be the same"
+        }
         def r = [
             it[9], // labels
             it[6], // warped spots image
             intensities_name, // intensity measurements result file prefix (round name)
             it[7], // channel
-            it[8], // scale
+            final_params.segmentation_scale, // scale - same as segmentation scale because
             measure_intensities_output_dir // result output dir
         ]
         log.debug "Measure intensities inputs for moving image $it -> $r"

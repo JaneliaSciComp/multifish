@@ -1,12 +1,12 @@
 maru_version: 0.1.1
 name: registration
-version: 1.2.1
+version: 1.2.2
 build_args:
   GIT_TAG: prototype-$version
 template_args:
   flavor: python_conda
   build:
-    repo_url: https://github.com/GFleishman/bigstream.git
+    repo_url: https://github.com/JaneliaSciComp/bigstream.git
   python_conda:
     python_version: "3.6"
     dependencies: numpy z5py json scipy scikit-image
