@@ -1,6 +1,6 @@
 maru_version: 0.1.1
 name: registration
-version: 1.2.2
+version: 1.2.3
 build_args:
   GIT_TAG: prototype-$version
 template_args:
