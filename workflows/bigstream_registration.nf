@@ -44,6 +44,8 @@ workflow registration {
             "${reg_ch}/${affine_scale}", // global_fixed_subpath
             moving, // global_moving
             "${reg_ch}/${affine_scale}", // global_moving_subpath
+            '', '', // global_fixed_mask, global_fixed_mask_dataset
+            '', '', // global_moving_mask, global_fixed_moving_dataset
             'ransac,affine', // global steps
             output,
             "aff/ransac_affine.mat", // global_transform_name
@@ -52,6 +54,8 @@ workflow registration {
             "${reg_ch}/${deformation_scale}", // local_fixed_subpath
             moving, // local_moving
             "${reg_ch}/${deformation_scale}", // local_moving_subpath
+            '', '', // local_fixed_mask, local_fixed_mask_dataset
+            '', '', // local_moving_mask, local_fixed_moving_dataset
             'ransac,deform', // local steps
             output,
             "transform",  // local_transform_name
