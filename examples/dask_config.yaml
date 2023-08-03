@@ -1,0 +1,7 @@
+distributed:
+   worker:
+      memory:
+         target: 0.9
+         spill: 0.9
+         pause: 0.9
+         recent-to-old-time: 1h
