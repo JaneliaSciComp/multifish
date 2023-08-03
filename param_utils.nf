@@ -23,7 +23,7 @@ def default_mf_params() {
 
         // download params
         downloader_container: multifish_container_repo+'/downloader:1.1.0',
-        data_manifest: 'segmentation',
+        data_manifest: '',
         verify_md5: 'true',
 
         // stitching params
