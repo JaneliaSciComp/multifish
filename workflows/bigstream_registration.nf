@@ -70,10 +70,13 @@ workflow registration {
                 "${output}/warped"
             ]
         }
-        [
+
+        def bigstream_inputs = [
             ri,
             additional_deforms
         ]
+        log.debug "Prepared bigstream inputs: ${bigstream_inputs}"
+        bigstream_inputs
     }
 
     def bigstream_results = BIGSTREAM_REGISTRATION(
@@ -86,11 +89,15 @@ workflow registration {
         def (
             global_fixed, global_fixed_dataset,
             global_moving, global_moving_dataset,
+            global_fixed_mask, global_fixed_mask_dataset,
+            global_moving_mask, global_moving_mask_dataset,
             global_output,
             global_transform_name,
             global_aligned_name,
             local_fixed, local_fixed_dataset,
             local_moving, local_moving_dataset,
+            local_fixed_mask, local_fixed_mask_dataset,
+            local_moving_mask, local_moving_mask_dataset,
             local_output,
             local_transform_name,
             local_inv_transform_name,
@@ -106,6 +113,8 @@ workflow registration {
             "${local_output}/${local_inv_transform_name}", // dir inv transform
             "${local_output}/warped", // output
         ]
+        log.debug "Bigstream results $it -> $r"
+        r
     }
 
     emit:

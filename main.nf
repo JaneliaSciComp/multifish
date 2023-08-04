@@ -385,7 +385,7 @@ workflow {
         //   <warped_channel>, <warped_scale>
         // ]
         def r = it + [ moving_subpath_components[0], moving_subpath_components[1] ]
-        log.debug "Extended registration result: $r"
+        log.debug "Extended registration result: $it -> $r"
         return r
     }
 
