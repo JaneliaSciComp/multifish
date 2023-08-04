@@ -236,33 +236,37 @@ workflow {
     }
 
     // stitching
-    def stitching_results = stitching(
-        stitching_app,
-        stitch_acq_names,
-        data_dir_res.first(),
-        pipeline_output_dir,
-        final_params.stitching_output,
-        channels,
-        resolution,
-        axis_mapping,
-        stitching_block_size,
-        retile_z_size,
-        stitching_ref, // stitching_ref or dapi_channel
-        stitching_mode,
-        stitching_padding,
-        stitching_blur_sigma,
-        stitching_czi_pattern,
-        spark_conf,
-        spark_work_dir,
-        spark_workers,
-        spark_worker_cores,
-        gb_per_core,
-        driver_cores,
-        driver_memory,
-        driver_logconfig
-    ) // [ acq, stitching_dir ]
-    stitching_results.subscribe { log.debug "Stitching results: $it" }
-
+    def stitching_results
+    if (!steps_to_skip.contains('stitching')) {
+        stitching_results = stitching(
+            stitching_app,
+            stitch_acq_names,
+            data_dir_res.first(),
+            pipeline_output_dir,
+            final_params.stitching_output,
+            channels,
+            resolution,
+            axis_mapping,
+            stitching_block_size,
+            retile_z_size,
+            stitching_ref, // stitching_ref or dapi_channel
+            stitching_mode,
+            stitching_padding,
+            stitching_blur_sigma,
+            stitching_czi_pattern,
+            spark_conf,
+            spark_work_dir,
+            spark_workers,
+            spark_worker_cores,
+            gb_per_core,
+            driver_cores,
+            driver_memory,
+            driver_logconfig
+        ) // [ acq, stitching_dir ]
+        stitching_results.subscribe { log.debug "Stitching results: $it" }
+    } else {
+        stitching_results = Channel.of() // empty
+    }
     // in order to allow users to skip stitching - if that is already done
     // we build a channel of expected stitched results which we 
     // concatenate to the actual stitched results and then filter them
