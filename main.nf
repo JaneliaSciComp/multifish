@@ -355,26 +355,32 @@ workflow {
     }
 
     // run registration
-    def registration_results = registration(
-        registration_inputs,
-        final_params.dapi_channel, // dapi channel used to calculate all transformations
-        registration_xy_stride_param(final_params),
-        registration_xy_overlap_param(final_params),
-        registration_z_stride_param(final_params),
-        registration_z_overlap_param(final_params),
-        final_params.aff_scale,
-        final_params.def_scale,
-        final_params.spots_cc_radius,
-        final_params.spots_spot_number,
-        final_params.ransac_cc_cutoff,
-        final_params.ransac_dist_threshold,
-        final_params.deform_iterations,
-        final_params.deform_auto_mask,
-        channels
-    )
+    def registration_results
+    if (!steps_to_skip.contains('registration')) {
+        registration_results = registration(
+            registration_inputs,
+            final_params.dapi_channel, // dapi channel used to calculate all transformations
+            registration_xy_stride_param(final_params),
+            registration_xy_overlap_param(final_params),
+            registration_z_stride_param(final_params),
+            registration_z_overlap_param(final_params),
+            final_params.aff_scale,
+            final_params.def_scale,
+            final_params.spots_cc_radius,
+            final_params.spots_spot_number,
+            final_params.ransac_cc_cutoff,
+            final_params.ransac_dist_threshold,
+            final_params.deform_iterations,
+            final_params.deform_auto_mask,
+            channels
+        )
+    } else {
+        registration_results = Channel.of() // empty
+    }
 
     // Take moving subpath (e.g. /c0/s2) extract the components (e.g. c0, s2) and add them to the end of the tuple
-    def extended_registration_results = registration_results | map {
+    def extended_registration_results = registration_results 
+    | map {
         // extract the channel from the registration results
         def moving_subpath_components = it[3].tokenize('/')
         // [
