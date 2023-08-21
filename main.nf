@@ -87,9 +87,9 @@ include {
     assign_spots;
 } from './processes/spot_assignment' addParams(spot_assignment_params)
 
-data_manifest = final_params.data_manifest
-data_dir = final_params.data_dir
-pipeline_output_dir = final_params.output_dir
+def data_manifest = final_params.data_manifest
+def data_dir = final_params.data_dir
+def pipeline_output_dir = final_params.output_dir
 
 // spark config
 spark_conf = final_params.spark_conf
