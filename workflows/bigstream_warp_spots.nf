@@ -21,7 +21,7 @@ workflow warp_spots {
              transform,
              warped_coords_path,
              coords_path) = it
-        [
+        def r = [
             [
                 coords_path,
                 warped_coords_path,
@@ -36,6 +36,8 @@ workflow warp_spots {
                 '', // transform subpath
             ]
         ]
+        log.debug "Bigstream warp spots input $it -> $r"
+        r
     }
     def bigstream_warp_results = TRANSFORM_COORDS(
         bigstream_warp_inputs.map { it[0] },
