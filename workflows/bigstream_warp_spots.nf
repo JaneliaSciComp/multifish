@@ -33,7 +33,7 @@ workflow warp_spots {
             [
                 '', // affine (none)
                 transform,
-                '', // transform subpath
+                moving_subpath, // transform subpath (it's the same as moving image subpath)
             ]
         ]
         log.debug "Bigstream warp spots input $it -> $r"
