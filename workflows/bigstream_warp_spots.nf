@@ -11,14 +11,14 @@ include {
 workflow warp_spots {
 
     take:
-    warp_inputs // [fixed, fixed_subpath, moving, moving_subpath, transform_path, warped_spots_path, input_spots_path]
+    warp_inputs // [fixed, fixed_subpath, moving, moving_subpath, transform_path, transform_subpath, warped_spots_path, input_spots_path]
 
     main:
     def bigstream_warp_inputs = warp_inputs
     | map {
         def (fixed, fixed_subpath,
              moving, moving_subpath,
-             transform,
+             transform, transform_subpath,
              warped_coords_path,
              coords_path) = it
         def r = [
@@ -33,7 +33,7 @@ workflow warp_spots {
             [
                 '', // affine (none)
                 transform,
-                moving_subpath, // transform subpath (it's the same as moving image subpath)
+                transform_subpath, // transform subpath
             ]
         ]
         log.debug "Bigstream warp spots input $it -> $r"

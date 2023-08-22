@@ -9,7 +9,7 @@ include {
 workflow warp_spots {
 
     take:
-    warp_inputs // [fixed, fixed_subpath, moving, moving_subpath, transform_path, warped_spots_path, input_spots_path]
+    warp_inputs // [fixed, fixed_subpath, moving, moving_subpath, transform_path, transform_subpath, warped_spots_path, input_spots_path]
 
     main:
     if (params.use_bigstream) {

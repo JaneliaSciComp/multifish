@@ -443,13 +443,10 @@ workflow {
     // they are provided by expected_spot_extraction_results
     def spots_to_warp = spot_extraction_results  
     | concat(expected_spot_extraction_results)
-    // | unique {
-    //     it[0..2].collect { "$it" }
-    // }
     | map {
         // input, channel, scale, spots_microns, spots_voxels
         def r = [ it[0], it[1], it[3] ]
-        log.debug "Extracted spots to warp: $r"
+        log.debug "Extracted spots to warp: $it -> $r"
         return r
     } // [ n5_image_path, channel, spots_filepath]
 
@@ -518,6 +515,7 @@ workflow {
             fixed_path, // fixed
             fixed_subpath, // fixed subpath
             invtransform_path, // inv transform
+            scale, // inv transform subpath
             warped_spots_output_dir
         ]
         log.debug "Registration result to be combined with extracted spots result: $it -> $r"
@@ -526,7 +524,7 @@ workflow {
     | combine(spots_to_warp, by:[0,1]) | map {
         // combined registration result by input and channel:
         // [ moving, channel, moving_subpath, fixed, fixed_subpath, inv_transform, warped_spots_output, spots_file]
-        def spots_file =  file(it[7])
+        def spots_file =  file(it[8])
         def warped_spots_fname = spots_file.name.replace('.txt', '_warped.txt')
         def r = [
             it[3], // fixed
@@ -534,7 +532,8 @@ workflow {
             it[0], // moving
             it[2], // moving subpath
             it[5], // inv transform path
-            "${it[6]}/${warped_spots_fname}", // warped spots file
+            it[6], // inv transform subpath (scale)
+            "${it[7]}/${warped_spots_fname}", // warped spots file
             "${spots_file}" // spots file path (as string)
         ]
         log.debug "Prepare warp spots input $it -> $r"

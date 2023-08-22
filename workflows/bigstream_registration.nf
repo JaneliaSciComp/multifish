@@ -59,7 +59,9 @@ workflow registration {
             'ransac,deform', // local steps
             output,
             "transform",  // local_transform_name
+            "${deformation_scale}", // local_transform_dataset
             "invtransform", // local_inv_transform_name
+            "${deformation_scale}", // local_inv_transform_dataset
             '', // local_aligned_name (skip local warping because we do it for all channels as additional deform)
         ]
         // additional deformation input
@@ -100,7 +102,9 @@ workflow registration {
             local_moving_mask, local_moving_mask_dataset,
             local_output,
             local_transform_name,
+            local_transform_dataset,
             local_inv_transform_name,
+            local_inv_transform_dataset,
             local_aligned_name,
             deformed_results
         ) = it
