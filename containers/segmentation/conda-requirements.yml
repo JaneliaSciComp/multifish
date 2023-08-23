@@ -12,4 +12,4 @@ dependencies:
   - pip:
     - gputools
     - edt
-    - git+https://github.com/mpicbg-csbd/stardist@refinement
+    - git+https://github.com/stardist/stardist@refinement
