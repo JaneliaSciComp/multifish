@@ -1,7 +1,23 @@
 distributed:
-   worker:
-      memory:
-         target: 0.9
-         spill: 0.9
-         pause: 0.9
-         recent-to-old-time: 1h
+    admin:
+        tick:
+            interval: 500ms # time between event loop health checks
+            limit: 2h # time allowed between triggering a warning
+
+    scheduler:
+        worker-ttl: 15minutes
+
+    worker:
+        use-file-locking: False
+
+        memory:
+            transfer: 0.6 # default 0.1
+            target: 0.9 # default 0.6
+            spill: 0.8 # default 0.7
+            pause: 0.95 # default 0.8
+            terminate: 0.98 # default 0.95
+            recent-to-old-time: 12h
+            monitor-interval: 1000ms # default 100ms
+
+        profile:
+            interval: 500ms # default 10ms
