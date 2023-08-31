@@ -4,8 +4,15 @@ distributed:
             interval: 500ms # time between event loop health checks
             limit: 2h # time allowed between triggering a warning
 
+    comm:
+        retry:
+            count: 10
+
+        timeouts:
+            connect: 600s
+
     scheduler:
-        worker-ttl: 15minutes
+        worker-ttl: 120s
 
     worker:
         use-file-locking: False
@@ -13,11 +20,11 @@ distributed:
         memory:
             transfer: 0.6 # default 0.1
             target: 0.9 # default 0.6
-            spill: 0.8 # default 0.7
-            pause: 0.95 # default 0.8
+            spill: 0.9 # default 0.7
+            pause: 0.9 # default 0.8
             terminate: 0.98 # default 0.95
             recent-to-old-time: 12h
             monitor-interval: 1000ms # default 100ms
 
         profile:
-            interval: 500ms # default 10ms
+            interval: 50ms # default 10ms
