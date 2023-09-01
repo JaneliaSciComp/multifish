@@ -12,7 +12,8 @@ distributed:
             connect: 600s
 
     scheduler:
-        worker-ttl: 120s
+        allowed-failures: 5 # default 3
+        worker-ttl: 120s # default 5min
 
     worker:
         use-file-locking: False
