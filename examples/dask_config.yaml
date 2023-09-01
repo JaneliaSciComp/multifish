@@ -15,6 +15,10 @@ distributed:
         allowed-failures: 5 # default 3
         worker-ttl: 120s # default 5min
 
+        locks:
+            lease-timeout: 900s
+            lease-validation-interval: 300s
+
     worker:
         use-file-locking: False
 
