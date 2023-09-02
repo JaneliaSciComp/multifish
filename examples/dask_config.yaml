@@ -11,6 +11,11 @@ distributed:
         timeouts:
             connect: 600s
 
+    distributed:
+        nanny:
+            pre-spawn-environ:
+                MALLOC_TRIM_THRESHOLD_: 0
+
     scheduler:
         allowed-failures: 5 # default 3
         worker-ttl: 120s # default 5min
