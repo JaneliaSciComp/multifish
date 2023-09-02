@@ -23,6 +23,8 @@ def adapt_legacy_params_to_bigstream(Map ps) {
     def block_z_size = registration_z_stride_param(ps)
     [
         with_dask_cluster: true,
+        bigstream_global_steps: 'ransac',
+        bigstream_local_steps: 'ransac',
         // spots radius
         global_ransac_cc_radius: ps.spots_cc_radius,
         local_ransac_cc_radius: ps.spots_cc_radius,
