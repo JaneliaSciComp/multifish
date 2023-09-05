@@ -37,11 +37,11 @@ distributed:
             spill: 0.9 # default 0.7
             pause: false # default 0.8
             terminate: false # default 0.95
-            recent-to-old-time: 3h
+            recent-to-old-time: 300s
             monitor-interval: 500ms # default 100ms
 
             rebalance:
-                sender-min: 0.7
+                sender-min: 0.5
                 recipient-max: 0.5
 
         profile:
