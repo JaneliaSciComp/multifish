@@ -67,7 +67,7 @@ workflow registration {
         // additional deformation input
         def additional_deforms = warped_channels.collect { warped_ch ->
             [
-                fixed,
+                moving,
                 "${warped_ch}/${deformation_scale}",
                 "${output}/warped"
             ]
