@@ -36,7 +36,7 @@ def default_mf_params() {
         axis: '-x,y,z',
         channels: 'c0,c1,c2,c3',
         stitching_block_size: '128,128,64',
-        retile_z_size: '64',
+        retile_z_size: 64,
         stitching_mode: 'incremental',
         stitching_padding: '0,0,0',
         stitching_blur_sigma: '2',
