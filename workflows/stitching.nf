@@ -346,7 +346,7 @@ workflow stitch {
         indexed_spark_work_dirs,
         indexed_acq_data,
         { acq_name, stitching_dir ->
-            def stitched_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', "-n5${$retile_suffix}-final", '.json')
+            def stitched_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', "-n5${retile_suffix}-final", '.json')
             def correction_args = entries_inputs_args(stitching_dir, channels, '--correction-images-paths', '-n5', '.json')
             def fillBackgroundArg = params.with_fillBackground ? '--fill' : ''
             return "--fuse ${stitched_n5_channels_args} ${correction_args} --blending ${fillBackgroundArg}"
