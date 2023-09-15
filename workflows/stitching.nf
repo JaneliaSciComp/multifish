@@ -270,35 +270,44 @@ workflow stitch {
             spark_driver_deploy_mode
         )
     }
-    // prepare retile args
-    def retile_args = prepare_app_args(
-        "retile",
-        flatfield_done,
-        indexed_spark_work_dirs,
-        indexed_acq_data,
-        { acq_name, stitching_dir ->
-            def retile_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5', '.json')
-            return "${retile_args} --size ${retile_z_size}"
-        }
-    )
-    def retile_done = run_retile(
-        retile_args.map { it[0] }, // spark URI
-        stitching_app,
-        'org.janelia.stitching.ResaveAsSmallerTilesSpark',
-        retile_args.map { it[1] }, // app args
-        'retileImages.log',
-        terminate_stitching_name,
-        spark_conf,
-        retile_args.map { it[2] }, // spark working dir
-        spark_workers,
-        spark_worker_cores,
-        spark_gbmem_per_core,
-        spark_driver_cores,
-        spark_driver_memory,
-        spark_driver_stack_size,
-        spark_driver_logconfig,
-        spark_driver_deploy_mode
-    )
+    def retile_done
+    def retile_suffix
+    if (retile_z_size) {
+        // prepare retile args
+        def retile_args = prepare_app_args(
+            "retile",
+            flatfield_done,
+            indexed_spark_work_dirs,
+            indexed_acq_data,
+            { acq_name, stitching_dir ->
+                def retile_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5', '.json')
+                return "${retile_args} --size ${retile_z_size}"
+            }
+        )
+        retile_suffix = '-retiled'
+        retile_done = run_retile(
+            retile_args.map { it[0] }, // spark URI
+            stitching_app,
+            'org.janelia.stitching.ResaveAsSmallerTilesSpark',
+            retile_args.map { it[1] }, // app args
+            'retileImages.log',
+            terminate_stitching_name,
+            spark_conf,
+            retile_args.map { it[2] }, // spark working dir
+            spark_workers,
+            spark_worker_cores,
+            spark_gbmem_per_core,
+            spark_driver_cores,
+            spark_driver_memory,
+            spark_driver_stack_size,
+            spark_driver_logconfig,
+            spark_driver_deploy_mode
+        )
+    } else {
+        retile_done = flatfield_done
+        retile_suffix = ''
+
+    }
     // prepare stitching args
     def stitching_args = prepare_app_args(
         "stitching",
@@ -306,7 +315,7 @@ workflow stitch {
         indexed_spark_work_dirs,
         indexed_acq_data,
         { acq_name, stitching_dir ->
-            def retiled_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5-retiled', '.json')
+            def retiled_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', "-n5${retile_suffix}", '.json')
             def correction_args = entries_inputs_args(stitching_dir, channels, '--correction-images-paths', '-n5', '.json')
             def ref_channel_arg = registration_channel ? "-r ${registration_channel}" : ''
             return "--stitch ${ref_channel_arg} ${retiled_n5_channels_args} ${correction_args} --mode '${stitching_mode}' --padding '${stitching_padding}' --blurSigma ${stitching_blur_sigma}"
@@ -337,9 +346,10 @@ workflow stitch {
         indexed_spark_work_dirs,
         indexed_acq_data,
         { acq_name, stitching_dir ->
-            def stitched_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5-retiled-final', '.json')
+            def stitched_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', "-n5${retile_suffix}-final", '.json')
             def correction_args = entries_inputs_args(stitching_dir, channels, '--correction-images-paths', '-n5', '.json')
-            return "--fuse ${stitched_n5_channels_args} ${correction_args} --blending --fill"
+            def fillBackgroundArg = params.with_fillBackground ? '--fill' : ''
+            return "--fuse ${stitched_n5_channels_args} ${correction_args} --blending ${fillBackgroundArg}"
         }
     )
     def fuse_done = run_fuse(

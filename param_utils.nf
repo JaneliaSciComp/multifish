@@ -23,7 +23,7 @@ def default_mf_params() {
 
         // download params
         downloader_container: multifish_container_repo+'/downloader:1.1.0',
-        data_manifest: 'segmentation',
+        data_manifest: '',
         verify_md5: 'true',
 
         // stitching params
@@ -36,12 +36,13 @@ def default_mf_params() {
         axis: '-x,y,z',
         channels: 'c0,c1,c2,c3',
         stitching_block_size: '128,128,64',
-        retile_z_size: '64',
+        retile_z_size: 64,
         stitching_mode: 'incremental',
         stitching_padding: '0,0,0',
         stitching_blur_sigma: '2',
         stitching_czi_pattern: '', // A suffix pattern that is applied to acq_names when creating CZI names e.g. "_V%02d"
         flatfield_correction: true,
+        with_fillBackground: true,
         workers: 6,
         worker_cores: 8,
         gb_per_core: 15,
@@ -110,11 +111,11 @@ def default_mf_params() {
         registration_xy_overlap: 0, // use the default defined by registration_xy_overlap_param
         registration_z_stride: 0, // use the default defined by registration_z_stride_param - must be a power of 2
         registration_z_overlap: 0, // use the default defined by registration_z_overlap_param
-        spots_cc_radius: '8',
-        spots_spot_number: '2000',
+        spots_cc_radius: 8,
+        spots_spot_number: 2000,
         // ransac params
-        ransac_cc_cutoff: '0.9',
-        ransac_dist_threshold: '2.5',
+        ransac_cc_cutoff: 0.9,
+        ransac_dist_threshold: 2.5,
         // deformation parameters
         deform_iterations: '500x200x25x1',
         deform_auto_mask: '0',
