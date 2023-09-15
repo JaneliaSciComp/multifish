@@ -1,0 +1,1 @@
+This is the container recipe for the stardist based segmentation
