@@ -54,6 +54,7 @@ Stitching options
 |`stitching_block_size`|Block size to use when converting CZI to n5 before stitching. Default: 128,128,64||`string`
 |`flatfield_correction`|Apply flatfield correction before stitching? Default: true||`boolean`
 |`retile_z_size`|Block size (in Z dimension) when retiling after stitching. Default: 64|This must be smaller than the number of Z slices in the data.|`integer`
+|`with_fillBackground`|Use fillBackground option when running fuse step. Default: true|Turning this off may help process certain types of data that error otherwise.|`boolean`
 |`stitching_mode`|Rematching mode ('full' or 'incremental'). Default: incremental||`string`
 |`stitching_padding`|Padding for the overlap regions. Default: 0,0,0||`string`
 |`stitching_blur_sigma`|Sigma value of the gaussian blur preapplied to the images before stitching. Default: 2||`integer`
@@ -171,7 +172,6 @@ channel c1 will use the default sigma 1.7 (because of the empty value)
 channel c2 will use sigma 1.4
 
 channel c3 will use the default sigma 1.7 (because of the missing value - sigma values list is shorter then the channels list)
-
 
 ## Spot Warping
 
