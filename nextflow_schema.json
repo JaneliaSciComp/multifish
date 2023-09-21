@@ -155,6 +155,11 @@
                     "fa_icon": "fas fa-cube",
                     "description": "Apply flatfield correction before stitching? Default: true"
                 },
+                "with_fillBackground": {
+                    "type": "boolean",
+                    "fa_icon": "fas fa-cube",
+                    "description": "Use fillBackround for the fuse operation.  Default: true"
+                },
                 "retile_z_size": {
                     "type": "integer",
                     "fa_icon": "far fa-square",
