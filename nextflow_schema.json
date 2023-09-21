@@ -155,16 +155,18 @@
                     "fa_icon": "fas fa-cube",
                     "description": "Apply flatfield correction before stitching? Default: true"
                 },
-                "with_fillBackground": {
-                    "type": "boolean",
-                    "fa_icon": "fas fa-cube",
-                    "description": "Use fillBackround for the fuse operation.  Default: true"
-                },
                 "retile_z_size": {
                     "type": "integer",
                     "fa_icon": "far fa-square",
                     "description": "Block size (in Z dimension) when retiling after stitching. Default: 64",
                     "help_text": "This must be smaller than the number of Z slices in the data."
+                },
+                "with_fillBackground": {
+                    "type": "boolean",
+                    "fa_icon": "far fa-square",
+                    "description": "Use fillBackground option when running fuse step. Default: true",
+                    "help_text": "Turning this off may help process certain types of data that error otherwise.",
+                    "hidden": true
                 },
                 "stitching_mode": {
                     "type": "string",
