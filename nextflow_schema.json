@@ -588,6 +588,31 @@
           "description": "Threshold value for Difference-of-Gaussian (DoG) calculation. Default: 0.007",
           "fa_icon": "fas fa-level-down-alt"
         },
+        "per_channel.rsfish_min": {
+          "type": "string",
+          "description": "Comma delimited per channel values for rsfish_min",
+          "fa_icon": "fas fa-terminal"
+        },
+        "per_channel.rsfish_max": {
+          "type": "string",
+          "description": "Comma delimited per channel values for rsfish_max",
+          "fa_icon": "fas fa-terminal"
+        },
+        "per_channel.rsfish_anisotropy": {
+          "type": "string",
+          "description": "Comma delimited per channel values for rsfish_anisotropy",
+          "fa_icon": "fas fa-terminal"
+        },
+        "per_channel.rsfish_sigma": {
+          "type": "string",
+          "description": "Comma delimited per channel values for rsfish_sigma",
+          "fa_icon": "fas fa-terminal"
+        },
+        "per_channel.rsfish_threshold": {
+          "type": "string",
+          "description": "Comma delimited per channel values for rsfish_threshold",
+          "fa_icon": "fas fa-terminal"
+        },
         "rsfish_params": {
           "type": "string",
           "description": "Any other parameters to pass to the RS-FISH algorithm.",
