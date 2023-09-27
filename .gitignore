@@ -17,3 +17,4 @@ local
 node_modules
 .serverless
 .DS_Store
+.env
