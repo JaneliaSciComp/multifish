@@ -216,7 +216,7 @@ def stitching_container_param(Map ps) {
 def airlocalize_container_param(Map ps) {
     def spot_extraction_container = ps.spot_extraction_container
     if (!spot_extraction_container)
-        "${ps.mfrepo}/spot_extraction:1.1.0"
+        "${ps.mfrepo}/spot_extraction:1.2.0"
     else
         airlocalize_container
 }
