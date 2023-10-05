@@ -1,34 +1,77 @@
-# Copyright 2015-2017 The MathWorks, Inc.
+# Copyright 2015-2022 The MathWorks, Inc.
+import sys
+import warnings
+from shutil import rmtree
+from os.path import exists
 
-from distutils.core import setup
-from distutils.command.clean import clean
-from distutils.command.install import install
+use_build_msg = '.*Use build and pip and other standards-based tools.*'
+excTxt = ''
 
-class InstallRuntime(install):
-    # Calls the default run command, then deletes the build area 
-    # (equivalent to "setup clean --all").
-    def run(self):
-        install.run(self)
-        c = clean(self.distribution)
-        c.all = True
-        c.finalize_options()
-        c.run()
+if 'bdist_wheel' in sys.argv[1:]:
+    # If "python setup.py bdist_wheel" is executed, we need to 
+    # import from setuptools.
+    warnings.filterwarnings('ignore', message=use_build_msg)
+    from setuptools import setup
+    from setuptools.command.install import install
+    try:
+        import wheel
+    except Exception as exc:
+        excTxt = '{}'.format(exc)
 
+if excTxt:
+    print("bdist_wheel requires the 'wheel' module, which can be installed via pip.")
+    raise ModuleNotFoundError(excTxt)
+    
+else:
+    # We start with distutils to minimize disruptions to existing workflows. 
+    # If distutils no longer exists, we try setuptools.
+    try:
+        # We suppress warnings about deprecation of distutils. We will remove
+        # references to distutils before it is removed from Python.
+        warnings.filterwarnings('ignore', 
+            message='.*distutils package is deprecated.*', 
+            category=DeprecationWarning)
+        from distutils.core import setup
+        from distutils.command.install import install
+    except:
+        # We suppress warnings about "setup.py install", which we continue
+        # to support, though we also support pip.
+        warnings.filterwarnings('ignore', message=use_build_msg)
+        from setuptools import setup
+        from setuptools.command.install import install
+        
+    class InstallAndCleanBuildArea(install):
+        # Directories with these names are created during installation, but are 
+        # not needed afterward (unless bdist_wheel is being executed, in which 
+        # case we skip this step).
+        clean_dirs = ["./build", "./dist"]
+
+        def clean_up(self):
+            for dir in self.clean_dirs:
+                if exists(dir):
+                    rmtree(dir, ignore_errors=True) 
+
+        def run(self):
+            install.run(self)
+            self.clean_up()
+    
 if __name__ == '__main__':
-
-    setup(
-        name="matlabruntimeforpython",
-        version="R2018b",
-        description='A module to call MATLAB from Python',
-        author='MathWorks',
-        url='http://www.mathworks.com/',
-        platforms=['Linux', 'Windows', 'MacOS'],
-        packages=[
+    setup_dict = {
+        'name': 'AIRLOCALIZE_N5-R2023b',
+        'version': '23.2',
+        'description': 'A Python interface to AIRLOCALIZE_N5',
+        'author': 'MathWorks',
+        'url': 'https://www.mathworks.com/',
+        'platforms': ['Linux', 'Windows', 'macOS'],
+        'packages': [
             'AIRLOCALIZE_N5'
         ],
-        package_data={'AIRLOCALIZE_N5': ['*.ctf']},
-        # Executes the custom code above in order to delete the build area.
-        cmdclass={'install': InstallRuntime}
-    )
+        'package_data': {'AIRLOCALIZE_N5': ['*.ctf']}
+    }
+    
+    if not 'bdist_wheel' in sys.argv[1:]:
+        setup_dict['cmdclass'] = {'install': InstallAndCleanBuildArea}
+    
+    setup(**setup_dict)
 
 

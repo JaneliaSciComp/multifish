@@ -4,5 +4,6 @@ channels:
   - defaults
 
 dependencies:
-  - numpy=1.19.4
-  - zarr=2.8.1
+  - pip
+  - numpy=1.25.2
+  - zarr=2.16.1

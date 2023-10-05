@@ -1,60 +1,29 @@
 
-import zarr
+import matlab
 import numpy as np
 import sys
-import json
 import AIRLOCALIZE_N5
-import matlab
 import n5_metadata_utils as n5mu
-from _internal.mlarray_utils import _get_strides, _get_mlsize
 
-
-# BEGIN:
-# copied from SO:
-# https://stackoverflow.com/questions/10997254/converting-numpy-arrays-to-matlab-and-vice-versa
-def _wrapper__init__(self, arr):
-    assert arr.dtype == type(self)._numpy_type
-    self._python_type = type(arr.dtype.type().item())
-    self._is_complex = np.issubdtype(arr.dtype, np.complexfloating)
-    self._size = _get_mlsize(arr.shape)
-    self._strides = _get_strides(self._size)[:-1]
-    self._start = 0
-
-    if self._is_complex:
-        self._real = arr.real.ravel(order='F')
-        self._imag = arr.imag.ravel(order='F')
-    else:
-        self._data = arr.ravel(order='F')
-
-_wrappers = {}
-def _define_wrapper(matlab_type, numpy_type):
-    t = type(matlab_type.__name__, (matlab_type,), dict(
-        __init__=_wrapper__init__,
-        _numpy_type=numpy_type
-    ))
-    # this tricks matlab into accepting our new type
-    t.__module__ = matlab_type.__module__
-    _wrappers[numpy_type] = t
-
-_define_wrapper(matlab.double, np.double)
-_define_wrapper(matlab.single, np.single)
-_define_wrapper(matlab.uint8, np.uint8)
-_define_wrapper(matlab.int8, np.int8)
-_define_wrapper(matlab.uint16, np.uint16)
-_define_wrapper(matlab.int16, np.int16)
-_define_wrapper(matlab.uint32, np.uint32)
-_define_wrapper(matlab.int32, np.int32)
-_define_wrapper(matlab.uint64, np.uint64)
-_define_wrapper(matlab.int64, np.int64)
-_define_wrapper(matlab.logical, np.bool_)
 
 def as_matlab(arr):
     try:
-        cls = _wrappers[arr.dtype.type]
+        np2matlabDict = {
+            'float64': matlab.double,
+            'float32': matlab.single,
+            'uint8': matlab.uint8,
+            'int8': matlab.int8,
+            'uint16': matlab.uint16,
+            'int16': matlab.int16,
+            'uint32': matlab.uint32,
+            'int32': matlab.int32,
+            'uint64': matlab.uint64,
+            'int64': matlab.int64,
+        }
+        print('Convert ', arr.shape, arr.dtype, 'to matlab', flush=True)
+        return np2matlabDict[str(arr.dtype)](arr)
     except KeyError:
         raise TypeError("Unsupported data type")
-    return cls(arr)
-# END: SO copy
 
 
 def read_coords(path):
@@ -85,13 +54,13 @@ if __name__ == '__main__':
     ends           = offset_vox + extent_vox
 
     image = n5[subpath]
-    print('N5 Path:',image_path)
-    print('N5 Data Set:',subpath)
-    print('Shape:',image.shape)
-    print('Voxel Size:',vox)
+    print('N5 Path:', image_path, flush=True)
+    print('N5 Data Set:', subpath, flush=True)
+    print('Shape:', image.shape, flush=True)
+    print('Voxel Size:', vox, flush=True)
 
     data  = image[offset_vox[2]:ends[2], offset_vox[1]:ends[1], offset_vox[0]:ends[0]]
-    print('Non-zero voxel count:',np.count_nonzero(data))
+    print('Non-zero voxel count:',np.count_nonzero(data), flush=True)
 
     data  = np.moveaxis(data, (0, 2), (2, 0))
 
@@ -103,27 +72,28 @@ if __name__ == '__main__':
         bg_dapi=np.percentile(np.ndarray.flatten(dapi[dapi!=0]),1)
         bg_data=np.percentile(np.ndarray.flatten(data[data!=0]),1)
         dapi_factor=np.median((data[dapi>lo] - bg_data)/(dapi[dapi>lo] - bg_dapi))
-        data  = np.maximum(0, data - bg_data - dapi_factor * (dapi - bg_dapi)).astype('float32')
-        print('Bleedthrough:',dapi_factor)
-        print('DAPI background:',bg_dapi)
-        print('c3 background:',bg_data)
+        data = np.maximum(0, data - bg_data - dapi_factor * (dapi - bg_dapi)).astype('float32')
+        print('Bleedthrough:',dapi_factor, flush=True)
+        print('DAPI background:',bg_dapi, flush=True)
+        print('c3 background:',bg_data, flush=True)
 
-    print('Initializing MATLAB runtime...')
+    print('Initializing MATLAB runtime...', flush=True)
     # use compiled matlab AIRLOCALIZE, no need for matlab license
     AIRLOCALIZE_N5.initialize_runtime(['-nojvm', '-nodisplay'])
     AIRLOCALIZE=AIRLOCALIZE_N5.initialize()
     matlab_data = as_matlab(data)
-    print('Calling AIRLOCALIZE_N5')
-    
+    print('Calling AIRLOCALIZE_N5 - data shape:', data.shape, data.dtype, flush=True)
     points = AIRLOCALIZE.AIRLOCALIZE_N5(params, matlab_data, output, nargout=1)
     points = np.array(points._data).reshape(points.size, order='F')
-    # TODO: write default spot file for tiles that return 0 spots
+    print('Close MATLAB runtime...', flush=True)
+    AIRLOCALIZE_N5.terminate_runtime()
 
+    # TODO: write default spot file for tiles that return 0 spots
     num_points = points.shape[0]
 
     # Write out points in micrometer cooordinate space
     points_um = np.copy(points)
     points_um[:, :3] = points_um[:, :3] * vox + offset
     filename = f"{output}/air_localize_points{suffix}"
-    print(f"Saving {num_points} points to", filename)
+    print(f"Saving {num_points} points to", filename, flush=True)
     np.savetxt(filename, points_um)
