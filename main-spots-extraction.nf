@@ -29,8 +29,8 @@ airlocalize_params = final_params + [
     airlocalize_z_overlap: airlocalize_z_overlap_param(final_params),
 ]
 include {
-    airlocalize;
-} from './workflows/airlocalize' addParams(airlocalize_params)
+    spot_extraction;
+} from './workflows/spot_extraction' addParams(airlocalize_params)
 
 channels = final_params.channels?.split(',')
 bleedthrough_channels = final_params.bleed_channel?.split(',')
@@ -44,12 +44,10 @@ workflow {
         log.error "Stitched image must be specified"
     }
 
-    airlocalize(
+    spot_extraction(
         final_params.stitchdir,
         Channel.of(outdir),
         channels,
-        final_params.spot_extraction_scale,
-        final_params.dapi_channel,
         bleedthrough_channels // bleed_channel
     )
 
