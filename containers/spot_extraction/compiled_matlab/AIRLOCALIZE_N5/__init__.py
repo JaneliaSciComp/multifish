@@ -1,10 +1,8 @@
-#Copyright 2015-2017 MathWorks, Inc.
+# Copyright 2015-2023 MathWorks, Inc.
 
-# This template is used to generate an __init__.py file for a particular deployable package.
 
 """ Package for executing deployed MATLAB functions """
 
-from __future__ import print_function
 import atexit
 import glob
 import importlib
@@ -18,9 +16,9 @@ import weakref
 
 class _PathInitializer(object):
     PLATFORM_DICT = {'Windows': ['PATH','dll',''], 'Linux': ['LD_LIBRARY_PATH','so','libmw'], 'Darwin': ['DYLD_LIBRARY_PATH','dylib','libmw']}
-    SUPPORTED_PYTHON_VERSIONS = ['2_7', '3_5', '3_6']
-    RUNTIME_VERSION_W_DOTS = '9.5'
-    RUNTIME_VERSION_W_UNDERSCORES = '9_5'
+    SUPPORTED_PYTHON_VERSIONS = ['3_9', '3_10', '3_11']
+    RUNTIME_VERSION_W_DOTS = '23.2'
+    RUNTIME_VERSION_W_UNDERSCORES = '23_2'
     PACKAGE_NAME = 'AIRLOCALIZE_N5'
     
     def set_interpreter_version(self):    
@@ -45,14 +43,17 @@ class _PathInitializer(object):
         self.system = ''
         self.cppext_handle = None
 
+        # path to the folder that stores the mcpyarray Python extension
+        self.extern_bin_dir = ''
+        
+        # path to the folder that stores pure Python matlab_pysdk.runtime code (_runtime_dir)
+        self.pysdk_py_runtime_dir = ''
+
+        # path to the folder that stores the __init__file for the matlab module
+        self.matlab_mod_dist_dir = ''
+
         # path to the folder that stores Python extensions and shared libraries
         self.bin_dir = ''
-
-        # path to the folder that stores pure Python matlab_pysdk.runtime code (_runtime_dir)
-        self.runtime_dir = ''
-
-        # path to the folder that stores the pure Python matlab mlarray code used for type conversion
-        self.ml_dir = ''
 
         self.set_interpreter_version()
         self.get_platform_info()
@@ -62,56 +63,6 @@ class _PathInitializer(object):
 
         self.instances_of_this_package = set([])
 
-            
-    def read_path_file(self):
-        """Look for a file that lists items to add to path. If present, read it and add the paths."""
-        filtered_lines = []
-        if os.path.isfile(self.path_file_name):
-            pth_file = open(self.path_file_name, 'r')
-            lines = pth_file.readlines()
-            for line in lines:
-                stripped_line = line.strip()
-                if stripped_line and stripped_line[0] != '#':
-                    filtered_lines.append(stripped_line)
-        length = len(filtered_lines)
-        if length == 3:
-            (bin_dir, runtime_dir, ml_dir) = filtered_lines
-            if (not os.path.isdir(bin_dir)) or (not os.path.isdir(runtime_dir)) or (not os.path.isdir(ml_dir)):
-                return False
-            else:
-                (self.bin_dir, self.runtime_dir, self.ml_dir) = (bin_dir, runtime_dir, ml_dir)
-                return True
-        else:
-            return False
-
-    def write_path_file(self):
-        """Write a file that lists items to add to path. If present, it will be overwritten."""
-        existing_contents = ''
-        if os.path.isfile(self.path_file_name):
-            path_file = open(self.path_file_name, 'r')
-            existing_contents = path_file.readlines()
-            path_file.close()
-
-        path_file = open(self.path_file_name, 'w')
-        if self.system == 'Windows':
-            print('# bin dir: added to both OS path and system path', file=path_file)
-        else:
-            print('# bin dir: added to system path', file=path_file)
-        print(self.bin_dir, file=path_file)
-        print('', file=path_file)
-        
-        print('# runtime dir: added to system path', file=path_file)
-        print(self.runtime_dir, file=path_file)
-        print('', file=path_file)
-
-        print('# matlab (mlarray) dir: added to system path', file=path_file)
-        print(self.ml_dir, file=path_file)
-        print('', file=path_file)
-
-        if existing_contents:
-            print(existing_contents, file=path_file)
-        path_file.close()
-        
     def get_platform_info(self):
         """Ask Python for the platform and architecture."""
     
@@ -137,7 +88,11 @@ class _PathInitializer(object):
             self.arch = 'glnxa64'
         elif self.system == 'Darwin':
             self.is_mac = True
-            self.arch = 'maci64'
+            # determine if ARM or Intel Mac machine
+            if platform.mac_ver()[-1] == 'arm64':
+                self.arch = 'maca64'
+            else:
+                self.arch = 'maci64'
         else:
             raise RuntimeError('Operating system {0} is not supported.'.format(self.system))
         
@@ -146,7 +101,7 @@ class _PathInitializer(object):
         Look through the system path for a file whose name contains a runtime version
         corresponding to the one with which this package was produced.
         """
-
+        
         # Concatenates the pieces into a string. The double parentheses are necessary.
         if self.system == 'Windows':
             file_to_find = ''.join((self.lib_prefix, 'mclmcrrt',
@@ -165,11 +120,14 @@ class _PathInitializer(object):
         if self.path_var in os.environ:
             path_elements = os.environ[self.path_var].split(os.pathsep)
         if not path_elements:
-            friendly_os_name = self.system
-            if friendly_os_name == 'Darwin':
-                friendly_os_name = 'Mac'
-            raise RuntimeError('On {0}, you must set the environment variable "{1}" to a non-empty string. {2}'.format(
-                friendly_os_name, self.path_var, 'For more details, see the package documentation.'))
+            if self.system == 'Darwin':
+                raise RuntimeError('On the Mac, you must run mwpython rather than python ' + 
+                    'to start a session or script that imports your package. ' +
+                    'For more details, execute "mwpython -help" or see the package documentation.')
+            else:
+                raise RuntimeError('On {0}, you must set the environment variable "{1}" to a non-empty string. {2}'.format(
+                    self.system, self.path_var, 
+                    'For more details, see the package documentation.'))
 
         path_found = ''
         for elem in path_elements:
@@ -178,8 +136,10 @@ class _PathInitializer(object):
                 path_found = elem
                 break
         if not path_found:
-            raise RuntimeError('Could not find an appropriate directory for MATLAB or the MATLAB runtime in {0}. Details: {1}'.format(
-                self.path_var, file_to_find))
+            msg = '{0} {1}. Details: file not found: {2}; {1}: {3}'.format(
+                'Could not find an appropriate directory for MATLAB or the MATLAB runtime in', 
+                self.path_var, file_to_find, os.environ[self.path_var])
+            raise RuntimeError(msg)
 
         path_components = re.split(r'\\|/', path_found)
         
@@ -197,29 +157,34 @@ class _PathInitializer(object):
             raise RuntimeError(output_str.format(self.arch, self.path_var, os.sep, path_found))
             
         matlabroot = os.path.dirname(os.path.dirname(os.path.normpath(path_found)))
+        extern_bin_dir = os.path.join(matlabroot, 'extern', 'bin', self.arch)
+        pysdk_py_runtime_dir = os.path.join(matlabroot, 'toolbox', 'compiler_sdk', 'pysdk_py')
+        matlab_mod_dist_dir = os.path.join(pysdk_py_runtime_dir, 'matlab_mod_dist')
         bin_dir = os.path.join(matlabroot, 'bin', self.arch)
-        runtime_dir = os.path.join(matlabroot, 'toolbox', 'compiler_sdk', 'pysdk_py')
-        ml_dir = os.path.join(runtime_dir, 'mlarray_dist')
+        if not os.path.isdir(extern_bin_dir):
+            raise RuntimeError('Could not find the directory {0}'.format(extern_bin_dir))
+        if not os.path.isdir(pysdk_py_runtime_dir):
+            raise RuntimeError('Could not find the directory {0}'.format(pysdk_py_runtime_dir))
+        if not os.path.isdir(matlab_mod_dist_dir):
+            raise RuntimeError('Could not find the directory {0}'.format(matlab_mod_dist_dir))
         if not os.path.isdir(bin_dir):
             raise RuntimeError('Could not find the directory {0}'.format(bin_dir))
-        if not os.path.isdir(runtime_dir):
-            raise RuntimeError('Could not find the directory {0}'.format(runtime_dir))
-        if not os.path.isdir(ml_dir):
-            raise RuntimeError('Could not find the directory {0}'.format(ml_dir))
-        (self.bin_dir, self.runtime_dir, self.ml_dir) = (bin_dir, runtime_dir, ml_dir)
+        (self.extern_bin_dir, self.pysdk_py_runtime_dir, self.matlab_mod_dist_dir, self.bin_dir) = (
+            extern_bin_dir, pysdk_py_runtime_dir, matlab_mod_dist_dir, bin_dir)
 
     def update_paths(self):
         """Update the OS and Python paths."""
 
-        #For Windows, add the bin_dir to the OS path. This is unnecessary
+        #For Windows, add the extern_bin_dir and bin_dir to the OS path. This is unnecessary
         #for Linux and Mac, where the OS can find this information via rpath.
         if self.is_windows:
-            os.environ[self.path_var] = self.bin_dir + os.pathsep + os.environ[self.path_var]
+            os.environ[self.path_var] = self.extern_bin_dir + os.pathsep + self.bin_dir + os.pathsep + os.environ[self.path_var]
 
         #Add all paths to the Python path.
         sys.path.insert(0, self.bin_dir)
-        sys.path.insert(0, self.runtime_dir)
-        sys.path.insert(0, self.ml_dir)
+        sys.path.insert(0, self.matlab_mod_dist_dir)
+        sys.path.insert(0, self.pysdk_py_runtime_dir)
+        sys.path.insert(0, self.extern_bin_dir)
 
     def import_matlab_pysdk_runtime(self):
         """Import matlab_pysdk.runtime. Must be done after update_paths() and import_cppext() are called."""
@@ -273,20 +238,60 @@ class _PathInitializer(object):
         self.cppext_handle.terminateApplication()
 
     def import_cppext(self):
-        self.cppext_handle = importlib.import_module("matlabruntimeforpython" + self.interpreter_version)
+        firstExceptionMessage = ''
+        secondExceptionMessage = ''
+        diagnosticStr = ''
+        cppext_module_name = "matlabruntimeforpython" + self.interpreter_version
+        try:
+            self.cppext_handle = importlib.import_module(cppext_module_name)
+        except Exception as firstE:
+            firstExceptionMessage = str(firstE)
+            
+        if firstExceptionMessage:
+            import io
+            output = io.StringIO()
+            if self.path_var in os.environ:
+                path_elems = os.environ[self.path_var].split(os.pathsep)
+                norm_path_elems = [os.path.normpath(p) for p in path_elems]
+                path_with_newlines = '\n    '.join(norm_path_elems)
+                print('os.environ[{}]:\n    {}\n'.format(self.path_var, path_with_newlines), file=output)
+            else:
+                print('os.environ[{}] is not set.\n'.format(self.path_var), file=output)
+            dirs = {'bin_dir': self.bin_dir,
+                'extern_bin_dir': self.extern_bin_dir,
+                'pysdk_py_runtime_dir': self.pysdk_py_runtime_dir,
+                'matlab_mod_dist_dir': self.matlab_mod_dist_dir}
+            print('sys.path:', file=output)
+            for path_elem in sys.path:
+                print('    ', *path_elem, sep='', file=output)
+            print('', file=output)
+            import glob
+            for dirname in dirs:
+                norm_dir = os.path.normpath(dirs[dirname])
+                print('{}:'.format(dirname), norm_dir, file=output)
+                glob_expr = '{}{}{}*'.format(dirs[dirname], os.sep, cppext_module_name)
+                glob_output = glob.glob(glob_expr)
+                if glob_output:
+                    print('    glob.glob({}):'.format(glob_expr), file=output)
+                    for g in glob_output:
+                        print('       ', *g, sep='', file=output)
+                else:
+                    print('    glob.glob({}): [none]'.format(glob_expr), file=output)
+                print('', file=output)
+            diagnosticStr = output.getvalue()
+            output.close()
+            secondExceptionMessage = '{}\nDiagnostics:\n{}'.format(firstExceptionMessage, diagnosticStr)
 
-try:
-    _pir = _PathInitializer()
-    _pir.get_paths_from_os()
+        if secondExceptionMessage:
+            raise ImportError(secondExceptionMessage)
 
-    _pir.update_paths()
-    _pir.import_cppext()
-    _pir.import_matlab_pysdk_runtime()
-    _pir.import_matlab()
-except Exception as e:
-    print("Exception caught during initialization of Python interface. Details: {0}".format(e))
-    raise
-    # We let the program exit normally.
+# If an exception is raised, let it propagate normally.
+_pir = _PathInitializer()
+_pir.get_paths_from_os()
+_pir.update_paths()
+_pir.import_cppext()
+_pir.import_matlab_pysdk_runtime()
+_pir.import_matlab()
 
 def initialize():
     """ 
@@ -327,9 +332,13 @@ def initialize_runtime(option_list):
             raise SyntaxError('initialize_runtime takes a list or tuple of strings.')
     _pir.initialize_runtime(option_list)
 
-# terminate_runtime() is intentionally omitted. Instead, when running interactively, 
-# the user should call exit(). When running a script, the runtime will automatically be
-# terminated when the script ends.
+# Before terminating the process, call terminate_runtime() once on any package. This will 
+# ensure graceful MATLAB runtime shutdown. After this call, the user should not use 
+# any MATLAB-related function.
+# When running interactively, the user should call exit() after done using the package. 
+# When running a script, the runtime will automatically be terminated when the script ends.
+def terminate_runtime():
+    _pir.terminate_runtime();
 
 @atexit.register
 def __exit_packages():
