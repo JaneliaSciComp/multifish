@@ -5,7 +5,6 @@ ARG TARGETPLATFORM
 ENV MATLAB_RUNTIME_VERSION=R2023b
 
 RUN dnf update -y && \
-    dnf group install -y "Development Tools" && \
     dnf install -y \
         wget unzip \
         java-1.8.0-openjdk
@@ -56,6 +55,7 @@ ENV LD_LIBRARY_PATH=/usr/lib64:/usr/lib:\
 ENV XAPPLRESDIR=/usr/local/MATLAB/MATLAB_Runtime/${MATLAB_RUNTIME_VERSION}/X11/app-defaults
 
 ENV MCR_CACHE_VERBOSE=true
+ENV KMP_DUPLICATE_LIB_OK=TRUE
 
 RUN cd /usr/local/MATLAB/MATLAB_Runtime/${MATLAB_RUNTIME_VERSION}/toolbox/compiler_sdk/pysdk_py && \
     python setup.py install
