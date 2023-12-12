@@ -1,0 +1,55 @@
+name: dask_waitforworkers
+description: Check if a worker is running
+keywords:
+  - dask
+tools:
+  - dask:
+      description: Dask is a flexible library for parallel computing in Python.
+      homepage: https://www.dask.org/
+      documentation: https://docs.dask.org/en/stable/
+      tool_dev_url: https://github.com/dask/dask
+      licence: ["BSD 3-Clause License"]
+
+input:
+  - meta:
+      type: map
+  - scheduler_address:
+      type: string
+      description: |
+        Scheduler's IP address
+  - cluster_work_dir:
+      type: path
+      description: |
+        The cluster work directory where the scheduler will run
+  - total_workers:
+      type: int
+      description: |
+        Total number of workers in the cluster
+  - required_workers:
+      type: int
+      description: |
+        Number of workers that should be available before the cluster is being used 
+
+output:
+  - meta:
+      type: map
+  - scheduler_address:
+      type: string
+      description: |
+        Scheduler's IP address
+  - cluster_work_fullpath:
+      type: string
+      description: |
+        Full path to the cluster work directory where the scheduler is running
+  - available_workers:
+      type: int
+      description: |
+        Number of workers that are ready
+  - versions:
+      type: string
+      description: |
+        Software versions file
+
+authors:
+  - "@cgoina"
+  - "@krokicki"

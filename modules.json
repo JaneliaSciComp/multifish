@@ -1,0 +1,66 @@
+{
+  "name": "JaneliaSciComp/multifish",
+  "homePage": "https://github.com/JaneliaSciComp/multifish",
+  "repos": {
+    "git@github.com:BioImageTools/nextflow-modules.git": {
+      "modules": {
+        "bits": {
+          "cellpose": {
+            "branch": "main",
+            "git_sha": "02fbed79192d27e7a91341940956d7c88ee59fb7",
+            "installed_by": ["modules"]
+          },
+          "dask/prepare": {
+            "branch": "main",
+            "git_sha": "02fbed79192d27e7a91341940956d7c88ee59fb7",
+            "installed_by": ["dask_cluster"]
+          },
+          "dask/startmanager": {
+            "branch": "main",
+            "git_sha": "02fbed79192d27e7a91341940956d7c88ee59fb7",
+            "installed_by": ["dask_cluster"]
+          },
+          "dask/startworker": {
+            "branch": "main",
+            "git_sha": "02fbed79192d27e7a91341940956d7c88ee59fb7",
+            "installed_by": ["dask_cluster"]
+          },
+          "dask/terminate": {
+            "branch": "main",
+            "git_sha": "02fbed79192d27e7a91341940956d7c88ee59fb7",
+            "installed_by": ["stop_dask"]
+          },
+          "dask/waitformanager": {
+            "branch": "main",
+            "git_sha": "02fbed79192d27e7a91341940956d7c88ee59fb7",
+            "installed_by": ["dask_cluster"]
+          },
+          "dask/waitforworkers": {
+            "branch": "main",
+            "git_sha": "02fbed79192d27e7a91341940956d7c88ee59fb7",
+            "installed_by": ["dask_cluster"]
+          }
+        }
+      },
+      "subworkflows": {
+        "bits": {
+          "dask_cluster": {
+            "branch": "main",
+            "git_sha": "e26f0c240d515961839ed6dc05a9cbdc7207343b",
+            "installed_by": ["start_dask"]
+          },
+          "start_dask": {
+            "branch": "main",
+            "git_sha": "e26f0c240d515961839ed6dc05a9cbdc7207343b",
+            "installed_by": ["subworkflows"]
+          },
+          "stop_dask": {
+            "branch": "main",
+            "git_sha": "e26f0c240d515961839ed6dc05a9cbdc7207343b",
+            "installed_by": ["subworkflows"]
+          }
+        }
+      }
+    }
+  }
+}

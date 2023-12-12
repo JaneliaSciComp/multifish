@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: dask_startcluster
+description: Creates a Dask cluster and waits for it to be ready
+keywords:
+  - dask
+  - infrastructure
+components:
+  - dask/prepare
+  - dask/startscheduler
+  - dask/clusterinfo
+  - dask/startworker
+  - dask/checkworkers

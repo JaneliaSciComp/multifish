@@ -1,0 +1,39 @@
+name: dask_waitformanager
+description: Retrieve dask cluster info from the JSON file created by the scheduler
+keywords:
+  - dask
+tools:
+  - dask:
+      description: Dask is a flexible library for parallel computing in Python.
+      homepage: https://www.dask.org/
+      documentation: https://docs.dask.org/en/stable/
+      tool_dev_url: https://github.com/dask/dask
+      licence: ["BSD 3-Clause License"]
+
+input:
+  - meta:
+      type: map
+  - cluster_work_dir:
+      type: path
+      description: |
+        The cluster work directory where the scheduler will run
+
+output:
+  - meta:
+      type: map
+  - cluster_work_fullpath:
+      type: string
+      description: |
+        Full path to the cluster work directory where the scheduler is running
+  - cluster_address:
+      type: string
+      description: |
+        Dask cluster scheduler's address
+  - available_workers:
+      type: int
+      description: |
+        Number of available workers - this is always 0 here
+
+authors:
+  - "@cgoina"
+  - "@krokicki"
