@@ -19,10 +19,14 @@ include {
 
 workflow {
 
+    def input_dirs = get_list_or_default(params, 'input_dir', [])
+    def acqs = get_list_or_default(params, 'acqs', [])
+    def output_dirs = get_list_or_default(params, 'output_dir', [])
+
     def segmentation_res = segmentation(
-        Channel.of(file(params.input_dir)),
-        Channel.of(params.acqs),
-        Channel.of(file(params.output_dir)),
+        Channel.fromList(input_dirs).map { file(it) } ,
+        Channel.fromList(acqs),
+        Channel.fromList(output_dirs).map { file(it) },
         params.dapi_channel,
         params.segmentation_scale,
         Channel.of(params.model_dir),
