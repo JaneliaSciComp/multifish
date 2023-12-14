@@ -25,4 +25,3 @@ RUN mamba env update -n base -f /tmp-install/conda-requirements.yml
 WORKDIR /app/segmentation
 
 COPY scripts/python /app/segmentation/scripts
-

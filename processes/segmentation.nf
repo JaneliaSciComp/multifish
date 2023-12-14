@@ -26,17 +26,13 @@ process predict {
             -s ${scale} \
             -o ${output_path} \
             -m \${model_fullpath} \
-            --tile-size ${params.segmentation_tile_size} \
-            --blocksize ${params.blocksize} \
-            --overlap ${params.overlap}"
+            --tile-size ${params.segmentation_tile_size}"
     python /app/segmentation/scripts/starfinity_prediction.py \
         -i ${image_path} \
         -c ${ch} \
         -s ${scale} \
         -o ${output_path} \
         -m \${model_fullpath} \
-        --tile-size ${params.segmentation_tile_size} \
-        --blocksize ${params.blocksize} \
-        --overlap ${params.overlap}
+        --tile-size ${params.segmentation_tile_size}
     """
 }

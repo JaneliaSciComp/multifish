@@ -16,10 +16,6 @@ if __name__ == '__main__':
     parser.add_argument('-s','--scale', type=str, help='scale')
     parser.add_argument('--tile-size', dest='tile_size',
                         type=int, default=128, help='tile_size')
-    parser.add_argument('--blocksize', type=int, default=128, help='blocksize')
-    parser.add_argument('--overlap', type=int, default=32, help='block overlap')
-    parser.add_argument('--block-context', dest='block_context', type=int, default=0,
-                        help='block tile context')
 
     args = parser.parse_args()
 
@@ -38,14 +34,11 @@ if __name__ == '__main__':
 
     print('predicting...', flush=True)
     # the affinity based labels 
-    label_starfinity, res_dict = model.predict_instances_big(img_normed,
-                                                             n_tiles=n_tiles,
-                                                             block_size=args.blocksize,
-                                                             min_overlap=args.overlap,
-                                                             context=args.block_context,
-                                                             affinity=True,
-                                                             affinity_thresh=0.1,
-                                                             verbose=True)
+    label_starfinity, res_dict = model.predict_instances(img_normed,
+                                                         n_tiles=n_tiles,
+                                                         affinity=True,
+                                                         affinity_thresh=0.1,
+                                                         verbose=True)
 
     # the normal stardist labels are implicitly calculated and
     # can be accessed from the results dict
