@@ -27,7 +27,7 @@ workflow SEGMENTATION {
         input_dirs,
         dapi_channel,
         scale,
-        model_dir,
+        file(model_dir),
         output_files
     )
 

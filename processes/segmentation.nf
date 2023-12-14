@@ -9,7 +9,7 @@ process predict {
     val(image_path)
     val(ch)
     val(scale)
-    val(model_path)
+    path(model_path)
     val(output_path)
 
     output:
@@ -17,17 +17,26 @@ process predict {
 
     script:
     def output_file = file(output_path)
-    args_list = [
-        '-i', image_path,
-        '-m', model_path,
-        '-c', ch,
-        '-s', scale,
-        '-o', output_path
-    ]
-    args = args_list.join(' ')
     """
+    model_fullpath=\$(readlink ${model_path})
     mkdir -p ${output_file.parent}
-    echo "python /app/segmentation/scripts/starfinity_prediction.py ${args}"
-    python /app/segmentation/scripts/starfinity_prediction.py ${args}
+    echo "python /app/segmentation/scripts/starfinity_prediction.py \
+            -i ${image_path} \
+            -c ${ch} \
+            -s ${scale} \
+            -o ${output_path} \
+            -m \${model_fullpath} \
+            --tile-size ${params.segmentation_tile_size} \
+            --blocksize ${params.blocksize} \
+            --overlap ${params.overlap}"
+    python /app/segmentation/scripts/starfinity_prediction.py \
+        -i ${image_path} \
+        -c ${ch} \
+        -s ${scale} \
+        -o ${output_path} \
+        -m \${model_fullpath} \
+        --tile-size ${params.segmentation_tile_size} \
+        --blocksize ${params.blocksize} \
+        --overlap ${params.overlap}
     """
 }

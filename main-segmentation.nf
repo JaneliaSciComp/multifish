@@ -6,8 +6,13 @@ params.acqs = 'LHA3_R3_small'
 params.output_dir = '../multifish-testdata/LHA3_R3_small/segmentation'
 params.dapi_channel = 'c1'
 params.segmentation_scale = 's5'
-params.model_dir = ''
-params.use_cellpose = true
+params.segmentation_model_dir = '../multifish-testdata/starfinity_model'
+params.segmentation_container = 'public.ecr.aws/janeliascicomp/multifish/segmentation:1.1.0'
+params.segmentation_cpus = 2
+params.segmentation_memory = '20 G'
+params.segmentation_tile_size = 16
+params.blocksize=20
+params.overlap=16
 
 include {
     get_list_or_default;
@@ -29,7 +34,7 @@ workflow {
         Channel.fromList(output_dirs).map { file(it) },
         params.dapi_channel,
         params.segmentation_scale,
-        Channel.of(params.model_dir),
+        params.segmentation_model_dir,
     )
 
     segmentation_res | view

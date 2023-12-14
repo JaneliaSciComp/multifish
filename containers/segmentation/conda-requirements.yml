@@ -1,15 +1,18 @@
 channels:
-  - anaconda
   - conda-forge
   - defaults
 
 dependencies:
+  - python=3.7
   - pip
-  - numpy
-  - z5py=2.0.5
+  - gputools
+  - h5py=2.10.0
+  - keras=2.3.1
+  - numpy=1.19
+  - scikit-image=0.18
   - tensorflow=1.15
   - tensorflow-gpu=1.15
+  - z5py=2.0.5
   - pip:
-    - gputools
     - edt
     - git+https://github.com/stardist/stardist@refinement
