@@ -16,6 +16,12 @@ if __name__ == '__main__':
     parser.add_argument('-s','--scale', type=str, help='scale')
     parser.add_argument('--tile-size', dest='tile_size',
                         type=int, default=128, help='tile_size')
+    parser.add_argument('--affinity-thresh', dest='affinity_threshold', type=float,
+                        default=0.1, help='probablity threshold')
+    parser.add_argument('--prob-thresh', dest='prob_threshold', type=float,
+                        default=None, help='probablity threshold')
+    parser.add_argument('--nms-thresh', dest='nms_threshold', type=float,
+                        default=None, help='non maximum suppression threshold')
 
     args = parser.parse_args()
 
@@ -24,7 +30,10 @@ if __name__ == '__main__':
     img_container = z5py.File(args.input, use_zarr_format=False)
     img = img_container[img_subpath][:, :, :]
 
-    n_tiles = tuple(int(np.ceil(s/args.tile_size)) for s in img.shape)
+    if args.tile_size:
+        n_tiles = tuple(int(np.ceil(s/args.tile_size)) for s in img.shape)
+    else:
+        n_tiles = None
     print('estimated tiling', img.shape, ' -> ', n_tiles, flush=True)
 
     print('normalizing input...', flush=True)
@@ -37,7 +46,9 @@ if __name__ == '__main__':
     label_starfinity, res_dict = model.predict_instances(img_normed,
                                                          n_tiles=n_tiles,
                                                          affinity=True,
-                                                         affinity_thresh=0.1,
+                                                         affinity_thresh=args.affinity_threshold,
+                                                         prob_thresh=args.prob_threshold,
+                                                         nms_thresh=args.nms_threshold,
                                                          verbose=True)
 
     # the normal stardist labels are implicitly calculated and

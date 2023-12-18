@@ -445,9 +445,9 @@
       },
       "fa_icon": "fas fa-layer-group"
     },
-    "segmentation": {
+    "cell_segmentation_common": {
       "title": "Cell Segmentation",
-      "description": "Options for the cell segmentation algorithm (Starfinity)",
+      "description": "Common segmentation parameters",
       "help_text": "",
       "type": "object",
       "fa_icon": "fab fa-cloudsmith",
@@ -473,6 +473,90 @@
           "type": "string",
           "fa_icon": "fas fa-memory",
           "description": "Amount of memory for segmentation. Default: 45 G"
+        },
+        "use_cellpose": {
+          "type": "boolean"
+        }
+      }
+    },
+    "cell_segmentation_starfinity": {
+      "title": "Cell Segmentation - Stardist",
+      "type": "object",
+      "description": "",
+      "default": "Cell segmentation using Stardist",
+      "properties": {
+        "stardist_tile_size": {
+          "type": "integer",
+          "default": 64
+        },
+        "stardist_affinity_thresh": {
+          "type": "number",
+          "default": 0.7
+        },
+        "stardist_prob_thresh": {
+          "type": "number",
+          "default": 0.2
+        },
+        "stardist_nms_thresh": {
+          "type": "number",
+          "default": 0.8
+        }
+      }
+    },
+    "cell_segmentation_cellpose": {
+      "title": "Cell Segmentation - Cellpose",
+      "type": "object",
+      "description": "",
+      "default": "Cell segmentation using Cellpose",
+      "properties": {
+        "distributed_cellpose": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use a dask cluster to run cellpose"
+        },
+        "cellpose_model": {
+          "type": "string",
+          "default": "cyto",
+          "description": "Cellpose model"
+        },
+        "cellpose_diameter": {
+          "type": "integer",
+          "default": 30,
+          "description": "Default cell diameter"
+        },
+        "cellpose_dask_status_port_binding": {
+          "type": "string",
+          "description": "Dask scheduler port binding when using the docker profile"
+        },
+        "cellpose_dask_workers": {
+          "type": "integer",
+          "default": 2,
+          "description": "Maximum number of Dask workers"
+        },
+        "cellpose_required_workers": {
+          "type": "integer",
+          "default": 1,
+          "description": "Required number of available Dask workers"
+        },
+        "cellpose_driver_cpus": {
+          "type": "integer",
+          "default": 2,
+          "description": "CPUs for the cellpose main program"
+        },
+        "cellpose_driver_mem_gb": {
+          "type": "integer",
+          "default": 12,
+          "description": "Mem (in GB) available to the cellpose main program"
+        },
+        "cellpose_worker_cpus": {
+          "type": "integer",
+          "default": 2,
+          "description": "CPUs for cellpose Dask workers"
+        },
+        "cellpose_worker_memgb": {
+          "type": "integer",
+          "default": 10,
+          "description": "Mem (in GB) available to the cellpose Dask workers"
         }
       }
     },
@@ -822,7 +906,13 @@
       "$ref": "#/definitions/registration"
     },
     {
-      "$ref": "#/definitions/segmentation"
+      "$ref": "#/definitions/cell_segmentation_common"
+    },
+    {
+      "$ref": "#/definitions/cell_segmentation_starfinity"
+    },
+    {
+      "$ref": "#/definitions/cell_segmentation_cellpose"
     },
     {
       "$ref": "#/definitions/spot_extraction"
@@ -848,5 +938,14 @@
     {
       "$ref": "#/definitions/other"
     }
-  ]
+  ],
+  "properties": {
+    "dask_work_dir": {
+      "type": "string",
+      "default": "work/dask"
+    },
+    "dask_config_path": {
+      "type": "string"
+    }
+  }
 }
