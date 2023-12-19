@@ -83,7 +83,7 @@ workflow SEGMENTATION {
             dask_config_path_param,
             cellpose_models_cache_dir,
             output_dir,
-            "${acq_meta.id}-${dapi_channel}.tif",
+            "${acq_meta.id}-${scale}-${dapi_channel}.tif",
         ]
         def cluster_info = [
             acq_meta,

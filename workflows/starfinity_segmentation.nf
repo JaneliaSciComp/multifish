@@ -20,7 +20,7 @@ workflow SEGMENTATION {
     def indexed_acqs = index_channel(acqs)
     def output_files = indexed_acqs | join(index_channel(output_dirs)) | map {
         // <output_dir>/<acq>-<dapi-ch>.tif
-         "${it[2]}/${it[1]}-${dapi_channel}.tif"
+         "${it[2]}/${it[1]}-${scale}-${dapi_channel}.tif"
     }
 
     segmentation_results = predict(
