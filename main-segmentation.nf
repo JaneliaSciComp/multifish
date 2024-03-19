@@ -1,16 +1,16 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-params.input_dir = '../multifish-testdata/LHA3_R3_small/stitching/export.n5'
+params.input_dir = '/nrs/scicompsoft/goinac/multifish/small/LHA3_R3_small/stitching/export.n5'
 params.acqs = 'LHA3_R3_small'
-params.output_dir = '../multifish-testdata/LHA3_R3_small/segmentation'
+params.output_dir = '/nrs/scicompsoft/goinac/multifish/small/LHA3_R3_small/segmentation'
 params.dapi_channel = 'c1'
-params.segmentation_scale = 's5'
-params.segmentation_model_dir = '../multifish-testdata/starfinity_model'
+params.segmentation_scale = 's2'
+params.segmentation_model_dir = '/nrs/multifish/Pipeline/segmentation/starfinity/model/starfinity_augment_all'
 params.segmentation_container = 'public.ecr.aws/janeliascicomp/multifish/segmentation:1.1.0'
 params.segmentation_cpus = 2
-params.segmentation_memory = '20 G'
-params.stardist_tile_size = 64
+params.segmentation_memory = '120 G'
+params.stardist_tile_size = 128
 params.stardist_affinity_thresh = 0.01
 params.stardist_prob_thresh = 0.2
 params.stardist_nms_thresh = 0.8
