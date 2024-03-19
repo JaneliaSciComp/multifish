@@ -1,10 +1,8 @@
-include { index_channel;  } from './utils'
+include { index_channel } from './utils'
 
-include { CELLPOSE;       } from '../modules/bits/cellpose/main'
-include { DASK_TERMINATE; } from '../modules/bits/dask/terminate/main'
-
-include { START_DASK;     } from '../subworkflows/bits/start_dask/main'
-include { STOP_DASK;      } from '../subworkflows/bits/stop_dask/main'
+include { CELLPOSE      } from '../modules/janelia/cellpose/main'
+include { DASK_START    } from '../subworkflows/janelia/dask_start/main'
+include { DASK_STOP     } from '../subworkflows/janelia/dask_stop/main'
 
 workflow SEGMENTATION {
     take:
@@ -64,7 +62,7 @@ workflow SEGMENTATION {
     )
 
     dask_cluster_info.subscribe {
-        log.info "Cluster info: $it"
+        log.debug "Cluster info: $it"
     }
 
     def cellpose_input = dask_cluster_info
@@ -111,11 +109,11 @@ workflow SEGMENTATION {
     | map {
         def (acq_meta, cluster_meta, cluster_context) = it
         [
-            cluster_meta, cluster_context.cluster_work_dir,
+            cluster_meta, cluster_context,
         ]
     }
     | groupTuple
-    | DASK_TERMINATE
+    | DASK_STOP
 
     segmentation_results = cellpose_results.results
     | map {

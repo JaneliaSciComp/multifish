@@ -1,0 +1,17 @@
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.11
+  - pip
+  - gputools
+  - h5py
+  - numpy
+  - scikit-image
+  - tensorflow
+  - tensorflow-gpu
+  - zarr
+  - pip:
+    - edt
+    - stardist

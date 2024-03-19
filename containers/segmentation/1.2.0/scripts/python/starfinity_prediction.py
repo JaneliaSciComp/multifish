@@ -4,7 +4,7 @@ import numpy as np
 from tifffile import imsave
 from csbdeep.utils import normalize
 from stardist.models import StarDist3D
-import argparse, sys, z5py
+import argparse, sys, zarr
 
 
 if __name__ == '__main__':
@@ -27,7 +27,7 @@ if __name__ == '__main__':
 
     img_subpath = '/' + args.channel + '/' + args.scale
     print('reading ...', args.input, img_subpath, flush=True)
-    img_container = z5py.File(args.input, use_zarr_format=False)
+    img_container = zarr.open(store=zarr.N5Store(args.input))
     img = img_container[img_subpath][:, :, :]
 
     if args.tile_size:
@@ -45,15 +45,9 @@ if __name__ == '__main__':
     # the affinity based labels 
     label_starfinity, res_dict = model.predict_instances(img_normed,
                                                          n_tiles=n_tiles,
-                                                         affinity=True,
-                                                         affinity_thresh=args.affinity_threshold,
                                                          prob_thresh=args.prob_threshold,
                                                          nms_thresh=args.nms_threshold,
                                                          verbose=True)
-
-    # the normal stardist labels are implicitly calculated and
-    # can be accessed from the results dict
-    label_stardist = res_dict['markers']
 
     print('saving to ', args.output, ' ...', flush=True)
     
