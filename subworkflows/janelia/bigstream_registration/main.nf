@@ -244,6 +244,14 @@ workflow BIGSTREAM_REGISTRATION {
     )
 
     local_align_results.subscribe {
+        // [
+        //    meta, fix, fix_subpath, mov, mov_subpath,
+        //    global_output, global_affine
+        //    local_output, 
+        //    local_deform, local_deform_subpath,
+        //    local_inv_deform, local_inv_deform_subpath
+        //    warped_name_only
+        //  ]
         log.info "Completed local alignment -> $it"
     }
 

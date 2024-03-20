@@ -51,6 +51,17 @@ process BIGSTREAM_GLOBALALIGN {
     mkdir -p \${output_fullpath}
     fix_fullpath=\$(readlink ${fix_image})
     mov_fullpath=\$(readlink ${mov_image})
+    if [[ "${transform_name_param}" != "" ]] ; then
+        affine_dir=\$(dirname "\${output_fullpath}/${transform_name_param}")
+        echo "Create directory for affine transformation: \${affine_dir}"
+        mkdir -p \${affine_dir}
+    fi
+    if [[ "${alignment_name}" != "" ]] ; then
+        alignment_dir=\$(dirname "\${output_fullpath}/${alignment_name}")
+        echo "Create directory for affine alignment: \${alignment_dir}"
+        mkdir -p \${alignment_dir}
+    fi
+
     python /app/bigstream/scripts/main_align_pipeline.py \
         --fixed-global \${fix_fullpath} ${fix_image_subpath_arg} \
         --moving-global \${mov_fullpath} ${mov_image_subpath_arg} \
