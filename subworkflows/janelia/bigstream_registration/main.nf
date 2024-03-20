@@ -150,7 +150,7 @@ workflow BIGSTREAM_REGISTRATION {
         log.info "Cluster files: ${cluster_files_set}"
 
         def cluster_resources = [
-            with_dask,
+            with_dask ? true : false,
             with_dask ? dask_work_dir : [],
             with_dask ? dask_total_workers : 0,
             with_dask ? dask_min_workers : 0,
