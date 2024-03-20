@@ -47,7 +47,7 @@ workflow registration {
             [
                 moving,
                 "${warped_ch}/${deformation_scale}",
-                "${output}/warped"
+                "${output}/warped",
             ]
         }
         // registration input
@@ -105,7 +105,7 @@ workflow registration {
             local_output,
             local_transform_name, local_transform_subpath,
             local_inv_transform_name, local_inv_transform_subpath,
-            local_aligned_name,
+            local_aligned_name
         ) = it
         def r = [
             local_fixed, local_fixed_subpath,
