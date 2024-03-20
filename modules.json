@@ -31,7 +31,7 @@
         "janelia": {
           "bigstream_registration": {
             "branch": "main",
-            "git_sha": "302fae41771d183d85e3df0622ee0e0fde1b975a",
+            "git_sha": "5d6d9e3fadf5f53a0ab720f6b1228dd9fa1baa14",
             "installed_by": ["subworkflows"]
           },
           "dask_start": {

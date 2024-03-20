@@ -140,7 +140,7 @@ workflow BIGSTREAM_REGISTRATION {
                 file(global_results_output),
                 local_fix,
                 local_mov,
-                local_output.parent, // local_output may not exist yet so we use the parent
+                file(local_output).parent, // local_output may not exist yet so we use the parent
             ] + 
             (local_fix_mask ? [local_fix_mask] :[]) +
             (local_mov_mask ? [local_mov_mask] :[]) +
