@@ -127,7 +127,7 @@ workflow BIGSTREAM_REGISTRATION {
                     log.info "Deform input: ${image_path}, ${image_subpath} -> ${deformed_image_output_path}"
                     [
                         image_path,
-                        deformed_image_output_path.parent, // use the parent here because the output dir may not exist yet
+                        file(deformed_image_output_path).parent, // use the parent here because the output dir may not exist yet
                     ]
                 }
                 .flatten()
