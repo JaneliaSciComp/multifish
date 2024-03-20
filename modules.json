@@ -19,6 +19,11 @@
             "branch": "main",
             "git_sha": "d3c5663755e59adbc199e6053811bea474eac1c6",
             "installed_by": ["bigstream_registration"]
+          },
+          "cellpose": {
+            "branch": "main",
+            "git_sha": "a134551c629f02bfd45efaebea451a7115364461",
+            "installed_by": ["modules"]
           }
         }
       },

@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: cellpose
+description: Performs a 3-D segmentation using cellpose distributed on a dask cluster
+keywords:
+  - dask
+  - segmentation
+  - cellpose
+tools:
+  - "cellpose":
+      description: "A generalist algorithm for cell and nucleus segmentation."
+      homepage: "https://github.com/MouseLand/cellpose"
+      documentaton: "https://cellpose.readthedocs.io/en/latest/"
+      tool_dev_url: "https://github.com/MouseLand/cellpose"
+      license: "['BSD-3-Clause']"
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy map containing: id, input_image_dataset, output_image_name
+  - image:
+      type: file
+      description: Path to the image
+  - image_subpath:
+      type: string
+      description: Relative path to the image dataset if needed (for N5 or zarr containers)
+  - dask_config:
+      type: file
+      description: |
+        Optional path to the dask config. If this is not specified pass in as empty list.
+  - models_path:
+      type: directory
+      description: |
+        Optional path to the cellpose models cache directory. If this is not specified pass in as empty list.
+  - outputdir:
+      type: directory
+      description: Directory location of the output image
+  - output_name:
+      type: string
+      description: Name the generated output file(s).
+  - dask_scheduler:
+      type: string
+      description: Dask scheduler IP
+  - cellpose_cpus:
+      type: integer
+      description: Number of cpus needed to run the main cellpose program
+  - cellpose_mem_in_gb:
+      type: string
+      description: Memory needed for the main cellpose program
+output:
+  - meta:
+      type: map
+      description: |
+        Groovy map containing: id, input_image_dataset, output_image_name
+  - results:
+      type: directory
+      description: |
+        Tuple containing meta, input image, output dir
+  - result_names:
+      type: string
+      description: Tuple containing result names and extensions
+  - versions:
+      type: file
+      description: File containing software versions
+      pattern: "versions.yml"
+authors:
+  - "@cgoina"
+maintainers:
+  - "@cgoina"
