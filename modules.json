@@ -36,7 +36,7 @@
           },
           "dask_start": {
             "branch": "main",
-            "git_sha": "7d8bbb8804328feea76986e9be569d0b5c09b4fc",
+            "git_sha": "924523a260b21383b4eb36572d12ff2cc28b0252",
             "installed_by": ["bigstream_registration", "subworkflows"]
           },
           "dask_stop": {

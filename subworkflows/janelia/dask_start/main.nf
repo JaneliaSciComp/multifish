@@ -3,7 +3,7 @@ process DASK_PREPARE {
     container { task.ext.container ?: 'janeliascicomp/dask:2023.10.1-py11-ol9' }
 
     input:
-    tuple val(meta), path(data)
+    tuple val(meta), path(data, stageAs: '?/*')
     path(dask_work_dir, stageAs: 'dask_work/*')
 
     output:
