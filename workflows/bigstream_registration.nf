@@ -78,6 +78,8 @@ workflow registration {
             '', // local_aligned_name (skip local warping because we do it for all channels as additional deform)
             additional_deforms,
             params.bigstream_with_dask_cluster,
+            params.bigstream_dask_work_dir,
+            params.bigstream_dask_config,
             params.bigstream_workers,
             params.bigstream_min_workers,
             params.bigstream_worker_cpus,
