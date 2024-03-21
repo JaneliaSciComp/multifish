@@ -168,7 +168,7 @@ workflow BIGSTREAM_REGISTRATION {
         cluster_input.cluster_files,
         // all the other args will be converted to a value channel
         // by getting the first element only
-        cluster_input.cluster_resources.map { it[0] /*with dask*/ }.first(),
+        cluster_input.cluster_resources.map { it[0] /* with dask */ }.first(),
         cluster_input.cluster_resources.map { it[1] /* work_dir */ }.first(),
         cluster_input.cluster_resources.map { it[2] /* total_workers */ }.first(),
         cluster_input.cluster_resources.map { it[3] /* min_workers */ }.first(),

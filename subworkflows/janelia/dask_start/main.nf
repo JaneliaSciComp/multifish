@@ -15,7 +15,13 @@ process DASK_PREPARE {
 
     script:
     """
-    cluster_work_dir=\$(readlink ${dask_work_dir})
+    if [[ "${dask_work_dir}" == "" ]]; then
+        dwork="dask-\$(date -I)"
+        mkdir -p \${dwork}
+        cluster_work_dir=\$(readlink -e \${dwork})
+    else
+        cluster_work_dir=\$(readlink ${dask_work_dir})
+    fi
     cluster_work_fullpath="\${cluster_work_dir}/${meta.id}"
     /opt/scripts/daskscripts/prepare.sh "\${cluster_work_fullpath}"
     echo "Cluster work dir: \${cluster_work_fullpath}"
@@ -239,7 +245,15 @@ workflow DASK_START {
     def dask_prepare_input = dask_clusters.needed
     | map {
         def (meta, data, distributed_flag, work_dir, n_workers, min_workers, cpus, mem_gb) = it
-        [ meta, data, work_dir, n_workers, min_workers, cpus, mem_gb ]
+        [ 
+            meta,
+            data ?: [],
+            work_dir ?: [],
+            n_workers,
+            min_workers,
+            cpus,
+            mem_gb,
+        ]
     }
 
     // prepare dask cluster work dir meta -> [ meta, cluster_work_dir ]
