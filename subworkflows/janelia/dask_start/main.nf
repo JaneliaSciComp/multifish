@@ -231,7 +231,7 @@ workflow DASK_START {
     | combine(as_value_channel(dask_worker_mem_db))
     | branch {
         def (meta, data, distributed_flag, work_dir, n_workers, min_workers, cpus, mem_gb) = it
-        log.info "Prepare cluster input: $it"
+        log.debug "Prepare cluster input: $it"
         needed: distributed_flag
         not_needed: !(distributed_flag)
     }
@@ -276,7 +276,7 @@ workflow DASK_START {
         def r = [
             meta, cluster_work_dir, scheduler_address, n_workers, min_workers, data, cpus, mem_gb,
         ]
-        log.info "Dask workers input: $r"
+        log.debug "Dask workers input: $r"
         r
     }
 
@@ -285,7 +285,7 @@ workflow DASK_START {
         def (meta, cluster_work_dir, scheduler_address, n_workers, min_workers, data, cpus, mem_gb) = it
         (1..n_workers).collect { worker_id -> 
             def r = [ meta, cluster_work_dir, scheduler_address, worker_id, data, cpus, mem_gb ]
-            log.info "Single dask worker input: $r"
+            log.debug "Single dask worker input: $r"
             r
         }
     }
