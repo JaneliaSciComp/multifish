@@ -53,6 +53,9 @@ workflow registration {
         def bigstream_dask_work_dir = params.bigstream_dask_work_dir instanceof String && params.bigstream_dask_work_dir
             ? file(params.bigstream_dask_work_dir)
             : ''
+        def bigstream_dask_config = params.bigstream_dask_config instanceof String && params.bigstream_dask_config
+            ? file(params.bigstream_dask_config)
+            : ''
         // registration input
         def ri =  [
             meta,
@@ -82,7 +85,7 @@ workflow registration {
             additional_deforms,
             params.bigstream_with_dask_cluster,
             bigstream_dask_work_dir,
-            params.bigstream_dask_config,
+            bigstream_dask_config,
             params.bigstream_workers,
             params.bigstream_min_workers,
             params.bigstream_worker_cpus,
