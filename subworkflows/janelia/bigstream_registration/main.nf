@@ -67,7 +67,7 @@ workflow BIGSTREAM_REGISTRATION {
             global_transform_name,
             global_align_name,
         ]
-        log.info "Prepare global alignment: $it -> $r"
+        log.debug "Prepare global alignment: $it -> $r"
         return r
     }
 
@@ -78,7 +78,7 @@ workflow BIGSTREAM_REGISTRATION {
     )
 
     global_align_results.subscribe {
-        log.info "Completed global alignment -> $it"
+        log.debug "Completed global alignment -> $it"
     }
 
     def cluster_input = global_align_results
@@ -175,6 +175,10 @@ workflow BIGSTREAM_REGISTRATION {
         cluster_input.cluster_resources.map { it[4] /* worker_cpus */ }.first(),
         cluster_input.cluster_resources.map { it[5] /* worker_mem_gb */ }.first(),
     )
+
+    cluster_info.subscribe {
+        log.info "Dask cluster -> $it"
+    }
 
     def local_align_input = cluster_info
     | join(global_align_results, by: 0)
