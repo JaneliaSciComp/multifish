@@ -77,7 +77,7 @@ workflow registration {
             "${deformation_scale}", // local_inv_transform_dataset
             '', // local_aligned_name (skip local warping because we do it for all channels as additional deform)
             additional_deforms,
-            params.with_dask_cluster,
+            params.bigstream_with_dask_cluster,
             params.bigstream_workers,
             params.bigstream_min_workers,
             params.bigstream_worker_cpus,
