@@ -34,7 +34,7 @@ process DASK_STARTMANAGER {
 
     input:
     tuple val(meta), path(cluster_work_dir, stageAs: 'dask_work/*')
-    path(data)
+    path(data, stageAs: '?/*')
 
     output:
     tuple val(meta), env(cluster_work_fullpath), emit: cluster_info
@@ -80,7 +80,7 @@ process DASK_STARTWORKER {
           path(cluster_work_dir, stageAs: 'dask_work/*'),
           val(scheduler_address),
           val(worker_id)
-    path(data)
+    path(data, stageAs: '?/*')
     val(worker_cpus)
     val(worker_mem_in_gb)
 
