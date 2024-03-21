@@ -51,7 +51,7 @@ workflow registration {
             ]
         }
         def bigstream_dask_work_dir = params.bigstream_dask_work_dir instanceof String && params.bigstream_dask_work_dir
-            ? file(bigstream_dask_work_dir)
+            ? file(params.bigstream_dask_work_dir)
             : ''
         // registration input
         def ri =  [
