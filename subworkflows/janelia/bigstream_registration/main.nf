@@ -303,7 +303,7 @@ workflow BIGSTREAM_REGISTRATION {
         if (additional_deformations) {
             additional_deformations.collect {
                 def (image_path, image_subpath, deformed_image_output_path) = it
-                [
+                def d = [
                     meta,
                     local_fix, local_fix_subpath,
                     image_path, image_subpath,
@@ -313,6 +313,8 @@ workflow BIGSTREAM_REGISTRATION {
                     // cluster inputs
                     cluster_context.scheduler_address, dask_config ?: [],
                 ]
+                log.debug "Additional deformation: $it -> $d"
+                d
             }
         } else {
             []
