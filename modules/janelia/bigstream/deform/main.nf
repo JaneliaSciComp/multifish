@@ -19,9 +19,9 @@ process BIGSTREAM_DEFORM {
 
     output:
     tuple val(meta),
-          path(fix_image), val(fix_image_subpath),
-          path(mov_image), val(mov_image_subpath),
-          path(output_dir), val(output_subpath)  , emit: results
+          env(fix_fullpath), val(fix_image_subpath),
+          env(mov_fullpath), val(mov_image_subpath),
+          env(output_fullpath), val(output_subpath)  , emit: results
 
     when:
     task.ext.when == null || task.ext.when
@@ -47,11 +47,13 @@ process BIGSTREAM_DEFORM {
     def dask_config_arg = dask_scheduler && dask_config ? "--dask-config ${dask_config}" : ''
 
     """
+    fix_fullpath=\$(readlink ${fix_image})
+    mov_fullpath=\$(readlink ${mov_image})
     output_fullpath=\$(readlink ${output_dir})
     mkdir -p \${output_fullpath}
     python /app/bigstream/scripts/main_apply_local_transform.py \
-        --fixed ${fix_image} ${fix_image_subpath_arg} \
-        --moving ${mov_image} ${mov_image_subpath_arg} \
+        --fixed \${fix_fullpath} ${fix_image_subpath_arg} \
+        --moving \${mov_fullpath} ${mov_image_subpath_arg} \
         ${affine_transforms_arg} \
         ${local_transform_arg} ${local_transform_subpath_arg} \
         --output ${output_dir} ${output_subpath_arg} \
