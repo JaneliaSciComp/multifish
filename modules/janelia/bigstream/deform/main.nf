@@ -5,12 +5,12 @@ process BIGSTREAM_DEFORM {
 
     input:
     tuple val(meta),
-          path(fix_image), val(fix_image_subpath),
-          path(mov_image), val(mov_image_subpath),
-          path(affine_transforms), // one or more affine transformations (paths to the corresponding affine.mat)
-          path(deform_dir), // location of the displacement vector
+          path(fix_image, stageAs: 'fix/*'),val(fix_image_subpath),
+          path(mov_image, stageAs: 'mov/*'),val(mov_image_subpath),
+          path(affine_transforms, stageAs: 'affine/*'), // one or more affine transformations (paths to the corresponding affine.mat)
+          path(deform_dir, stageAs: 'deformation/*'), // location of the displacement vector
           val(deform_subpath), // displacement vector subpath
-          path(output_dir),
+          path(output_dir, stageAs: 'warped/*'),
           val(output_subpath)
     tuple val(dask_scheduler),
           path(dask_config) // this is optional - if undefined pass in as empty list ([])

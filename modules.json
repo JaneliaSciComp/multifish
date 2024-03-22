@@ -7,7 +7,7 @@
         "janelia": {
           "bigstream/deform": {
             "branch": "main",
-            "git_sha": "399dc6d3b18294ebf899725de1f36274930a9983",
+            "git_sha": "e539f2563af5ab143fc3becaec33fdc284a1ed06",
             "installed_by": ["bigstream_registration"]
           },
           "bigstream/globalalign": {
