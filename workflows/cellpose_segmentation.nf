@@ -51,7 +51,7 @@ workflow SEGMENTATION {
         ? file(params.dask_work_dir)
         : ''
 
-    def dask_cluster_info = START_DASK(
+    def dask_cluster_info = DASK_START(
         dask_cluster_inputs,
         params.distributed_cellpose,
         dask_work_dir,
