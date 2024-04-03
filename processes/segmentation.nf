@@ -16,10 +16,14 @@ process predict {
     tuple val(image_path), env(output_fullpath)
 
     script:
+    def output_file = file(output_path)
+    def output_dir = output_file.parent
+    def output_name = output_file.name
     """
     model_fullpath=\$(readlink ${model_path})
-    output_fullpath=\$(readlink ${output_path})
-    mkdir -p \${output_fullpath}
+    output_fulldir=\$(readlink ${output_dir})
+    mkdir -p \${output_fulldir}
+    output_fullpath="\${output_fulldir}/${output_name}"
     echo "python /app/segmentation/scripts/starfinity_prediction.py \
             -i ${image_path} \
             -c ${ch} \
