@@ -33,7 +33,7 @@ process predict {
         -i ${image_path} \
         -c ${ch} \
         -s ${scale} \
-        -o ${output_path} \
+        -o \${output_fullpath} \
         -m \${model_fullpath}
     """
 }
