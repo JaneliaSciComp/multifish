@@ -69,6 +69,8 @@ workflow warp_spots {
         bigstream_warp_inputs.map { it[3] },
         bigstream_warp_inputs.map { it[4] },
         bigstream_warp_inputs.map { it[5] },
+        params.warp_spots_cpus,
+        params.warp_spots_memory,
     )
 
     def bigstream_warp_results = BIGSTREAM_TRANSFORMCOORDS.out.results
