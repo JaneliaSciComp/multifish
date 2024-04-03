@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     print('normalizing input...', flush=True)
     img_normed = normalize(img, 4, 99.8)
-    
+
     model = StarDist3D(None, name=args.model, basedir=args.model)
 
     print('predicting...', flush=True)
@@ -52,7 +52,7 @@ if __name__ == '__main__':
                                                          verbose=True)
 
     print('saving to ', args.output, ' ...', flush=True)
-    
+
     imsave(args.output, label_starfinity)
-    
+
     print('done', flush=True)
