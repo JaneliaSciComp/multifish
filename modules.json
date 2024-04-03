@@ -22,12 +22,12 @@
           },
           "bigstream/transformcoords": {
             "branch": "main",
-            "git_sha": "d3c5663755e59adbc199e6053811bea474eac1c6",
+            "git_sha": "5ed5d12dd6deb1b14a5dfdbfe0244ebdcff87a32",
             "installed_by": ["modules"]
           },
           "cellpose": {
             "branch": "main",
-            "git_sha": "a134551c629f02bfd45efaebea451a7115364461",
+            "git_sha": "5ed5d12dd6deb1b14a5dfdbfe0244ebdcff87a32",
             "installed_by": ["modules"]
           }
         }
