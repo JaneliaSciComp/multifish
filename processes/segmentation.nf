@@ -10,15 +10,12 @@ process predict {
     val(ch)
     val(scale)
     path(model_path)
-    val(output_path)
+    tuple path(output_dir), val(output_name)
 
     output:
     tuple val(image_path), env(output_fullpath)
 
     script:
-    def output_file = file(output_path)
-    def output_dir = output_file.parent
-    def output_name = output_file.name
     """
     model_fullpath=\$(readlink ${model_path})
     output_fulldir=\$(readlink ${output_dir})
@@ -29,7 +26,7 @@ process predict {
             -i ${image_path} \
             -c ${ch} \
             -s ${scale} \
-            -o ${output_path} \
+            -o \${output_fullpath} \
             -m \${model_fullpath} \
             "
     python /app/segmentation/scripts/starfinity_prediction.py \
