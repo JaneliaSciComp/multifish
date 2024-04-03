@@ -24,7 +24,7 @@ process predict {
     output_fulldir=\$(readlink ${output_dir})
     mkdir -p \${output_fulldir}
     output_fullpath="\${output_fulldir}/${output_name}"
-    echo "Run starfinity model -> \${output_fullpath}"
+    echo "Run starfinity model \${model_fullpath} -> \${output_fullpath}"
     echo "python /app/segmentation/scripts/starfinity_prediction.py \
             -i ${image_path} \
             -c ${ch} \
