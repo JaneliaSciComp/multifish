@@ -38,15 +38,20 @@ workflow SEGMENTATION {
         def (cluster_meta, segmentation_meta, datapaths) = it
         def (in_datapath, out_datapath) = datapaths
         def out_datafile_parent = file(out_datapath).parent
-        def r = [in_datapath, out_datafile_parent]
-        log.debug "Final cluster inputs $it -> ${r}"
-        r
+        [
+            in_datapath, out_datafile_parent,
+        ]
     }
     | collect
     | map {
+        // append dask config and cellpose models dir
+        def r = it +
+                (params.cellpose_work_dir ? [ file(params.cellpose_work_dir) ] : []) +
+                (params.dask_config_path ? [ file(params.dask_config_path) ] : []) +
+                (params.cellpose_models_dir ? [ file(params.cellpose_models_dir).parent ] : [])
         [
             dask_cluster_meta,
-            it
+            r
         ]
     } 
 
@@ -78,7 +83,9 @@ workflow SEGMENTATION {
         def dask_config_path_param = params.dask_config_path 
             ? file(dask_config_path_param)
             : []
-        def cellpose_models_cache_dir = []
+        def cellpose_models_cache_dir = params.cellpose_models_dir
+            ? file(params.cellpose_models_dir)
+            : []
         def cellpose_working_dir = params.cellpose_working_dir
             ? file(params.cellpose_working_dir)
             : []
