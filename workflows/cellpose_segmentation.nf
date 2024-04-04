@@ -39,7 +39,7 @@ workflow SEGMENTATION {
         def (in_datapath, out_datapath) = datapaths
         def out_datafile_parent = file(out_datapath).parent
         def r = [in_datapath, out_datafile_parent]
-        log.info "Final cluster inputs $it -> ${r}"
+        log.debug "Final cluster inputs $it -> ${r}"
         r
     }
     | collect
@@ -81,9 +81,7 @@ workflow SEGMENTATION {
         def cellpose_models_cache_dir = []
         def data = [
             acq_meta,
-            input_dir,
-            "${dapi_channel}/${scale}",
-            dask_config_path_param,
+            input_dir, "${dapi_channel}/${scale}",
             cellpose_models_cache_dir,
             output_dir,
             "${acq_meta.id}-${scale}-${dapi_channel}.tif",
@@ -93,6 +91,7 @@ workflow SEGMENTATION {
             cluster_meta,
             cluster_context,
             cluster_context.scheduler_address,
+            dask_config_path_param,
         ]
         log.info "Prepare cellpose input $it -> $data, $cluster_info"
         data: data
@@ -101,7 +100,7 @@ workflow SEGMENTATION {
 
     def cellpose_results = CELLPOSE(
         cellpose_input.data,
-        cellpose_input.cluster.map { /*scheduler_address*/it[-1] },
+        cellpose_input.cluster.map { it[-2..-1] /*scheduler_address, dask_config*/ },
         params.cellpose_driver_cpus,
         params.cellpose_driver_mem_gb,
     )
