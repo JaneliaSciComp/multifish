@@ -79,12 +79,16 @@ workflow SEGMENTATION {
             ? file(dask_config_path_param)
             : []
         def cellpose_models_cache_dir = []
+        def cellpose_working_dir = params.cellpose_working_dir
+            ? file(params.cellpose_working_dir)
+            : []
         def data = [
             acq_meta,
             input_dir, "${dapi_channel}/${scale}",
             cellpose_models_cache_dir,
             output_dir,
             "${acq_meta.id}-${scale}-${dapi_channel}.tif",
+            cellpose_working_dir
         ]
         def cluster_info = [
             acq_meta,
