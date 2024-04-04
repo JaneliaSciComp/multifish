@@ -742,9 +742,9 @@
           "description": "Number of CPU cores to use for warp spots. Default: 2"
         },
         "warp_spots_memory": {
-          "type": "string",
+          "type": "integer",
           "fa_icon": "fas fa-memory",
-          "description": "Amount of memory for warp spots. Default: 30 G"
+          "description": "Amount of memory for warp spots in GB. Default: 30"
         }
       },
       "fa_icon": "fas fa-chess-board"

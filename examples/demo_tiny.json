@@ -31,7 +31,7 @@
     "airlocalize_cpus":1,
     "airlocalize_memory":"2 G",
     "warp_spots_cpus":4,
-    "warp_spots_memory":"2 G",
+    "warp_spots_memory":2,
     "use_rsfish":true,
     "rsfish_workers":1,
     "rsfish_worker_cores":4,
