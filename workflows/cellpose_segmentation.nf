@@ -34,11 +34,12 @@ workflow SEGMENTATION {
     // collect all needed paths for the dask cluster
     def dask_cluster_inputs = indexed_data
     | map {
-        def (cluster_meta, datapaths) = it
+        log.debug "Prepare cluster inputs from $it"
+        def (cluster_meta, segmentation_meta, datapaths) = it
         def (in_datapath, out_datapath) = datapaths
         def out_datafile_parent = file(out_datapath).parent
         def r = [in_datapath, out_datafile_parent]
-        log.info "Prepare cluster inputs $it -> ${datapaths} -> ${r}"
+        log.info "Final cluster inputs $it -> ${r}"
         r
     }
     | collect
