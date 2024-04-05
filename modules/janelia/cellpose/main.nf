@@ -53,10 +53,25 @@ process CELLPOSE {
     mkdir -p \${output_fullpath}
     working_fullpath=\$(readlink ${working_dir_arg})
     mkdir -p \${working_fullpath}
+    if [[ "${output_image_name}" == "" ]]; then
+        full_outputname=\${output_fullpath}
+    else
+        full_outputname="\${output_fullpath}/${output_image_name}"
+    fi
     ${set_models_path}
+    echo "Run: " \
+        python /opt/scripts/cellpose/distributed_cellpose.py \
+        -i \${input_image_fullpath} ${input_image_subpath_arg} \
+        -o \${full_outputname} \
+        --working-dir \${working_fullpath} \
+        ${models_path_arg} \
+        ${dask_scheduler_arg} \
+        ${dask_config_arg} \
+        ${args}
+
     python /opt/scripts/cellpose/distributed_cellpose.py \
         -i \${input_image_fullpath} ${input_image_subpath_arg} \
-        -o ${output} \
+        -o \${full_outputname} \
         --working-dir \${working_fullpath} \
         ${models_path_arg} \
         ${dask_scheduler_arg} \

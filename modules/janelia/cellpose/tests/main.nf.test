@@ -1,0 +1,24 @@
+nextflow_workflow {
+    name "Test CELLPOSE"
+    script "./main.nf"
+    workflow "test_cellpose"
+    config "./nextflow.config"
+
+    test("cellpose") {
+        when {
+            workflow {
+                """
+                input[0] = Channel.of(
+                    file(params.test_data['stitched_images']['n5']['r1_n5'])
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success }
+            )
+        }
+    }
+}
