@@ -27,7 +27,7 @@
           },
           "cellpose": {
             "branch": "main",
-            "git_sha": "5ed5d12dd6deb1b14a5dfdbfe0244ebdcff87a32",
+            "git_sha": "7aa4d72008713c36db3b3d810989c85fb4b1822e",
             "installed_by": ["modules"]
           }
         }
