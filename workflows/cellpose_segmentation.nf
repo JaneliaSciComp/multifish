@@ -86,8 +86,8 @@ workflow SEGMENTATION {
         def cellpose_models_cache_dir = params.cellpose_models_dir
             ? file(params.cellpose_models_dir)
             : []
-        def cellpose_working_dir = params.cellpose_working_dir
-            ? file(params.cellpose_working_dir)
+        def cellpose_work_dir = params.cellpose_work_dir
+            ? file(params.cellpose_work_dir)
             : []
         def data = [
             acq_meta,
@@ -95,7 +95,7 @@ workflow SEGMENTATION {
             cellpose_models_cache_dir,
             output_dir,
             "${acq_meta.id}-${scale}-${dapi_channel}.tif",
-            cellpose_working_dir
+            cellpose_work_dir
         ]
         def cluster_info = [
             acq_meta,
