@@ -95,7 +95,7 @@ workflow SEGMENTATION {
             cellpose_models_cache_dir,
             output_dir,
             "${acq_meta.id}-${scale}-${dapi_channel}.tif",
-            cellpose_work_dir
+            cellpose_work_dir,
         ]
         def cluster_info = [
             acq_meta,
