@@ -14,9 +14,9 @@ def bigstream_params() {
         bigstream_global_steps: 'ransac',
         bigstream_local_steps: 'ransac',
         with_dask_cluster: true,
-        dask_work_dir: file('work/dask'),
-        dask_config: '',
-        with_dask_cluster : true,
+        bigstream_dask_work_dir: file('work/dask'),
+        bigstream_dask_config: '',
+        bigstream_with_dask_cluster : true,
         bigstream_workers : 2,
         bigstream_min_workers : 1,
         bigstream_worker_cpus : 1,
@@ -33,18 +33,18 @@ def adapt_legacy_params_to_bigstream(Map ps) {
     def block_z_size = registration_z_stride_param(ps)
     [
         // spots radius
-        global_ransac_cc_radius: ps.spots_cc_radius,
-        local_ransac_cc_radius: ps.spots_cc_radius,
+        bigstream_global_ransac_cc_radius: ps.spots_cc_radius,
+        bigstream_local_ransac_cc_radius: ps.spots_cc_radius,
         // spots count
-        global_ransac_nspots: ps.spots_spot_number,
-        local_ransac_nspots: ps.spots_spot_number,
+        bigstream_global_ransac_nspots: ps.spots_spot_number,
+        bigstream_local_ransac_nspots: ps.spots_spot_number,
         // ransac cutoff
-        global_ransac_match_threshold: ps.ransac_cc_cutoff,
-        local_ransac_match_threshold: ps.ransac_cc_cutoff,
+        bigstream_global_ransac_match_threshold: ps.ransac_cc_cutoff,
+        bigstream_local_ransac_match_threshold: ps.ransac_cc_cutoff,
         // ransac align threshold
-        global_ransac_align_threshold: ps.ransac_dist_threshold,
-        local_ransac_align_threshold: ps.ransac_dist_threshold,
-        local_blocksize: "${block_xy_size},${block_xy_size},${block_z_size}",
-        local_overlap_factor: 0.125, // 1/8
+        bigstream_global_ransac_align_threshold: ps.ransac_dist_threshold,
+        bigstream_local_ransac_align_threshold: ps.ransac_dist_threshold,
+        bistream_local_blocksize: "${block_xy_size},${block_xy_size},${block_z_size}",
+        bigstream_local_overlap_factor: 0.125, // 1/8
     ]
 }
