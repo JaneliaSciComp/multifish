@@ -45,6 +45,5 @@ def adapt_legacy_params_to_bigstream(Map ps) {
         bigstream_global_ransac_align_threshold: ps.ransac_dist_threshold,
         bigstream_local_ransac_align_threshold: ps.ransac_dist_threshold,
         bistream_local_blocksize: "${block_xy_size},${block_xy_size},${block_z_size}",
-        bigstream_local_overlap_factor: 0.125, // 1/8
     ]
 }
