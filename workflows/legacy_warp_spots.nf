@@ -17,7 +17,7 @@ workflow warp_spots {
         warp_inputs.map { it[6] }, // warped_spots_path
         warp_inputs.map { it[7] }, // points_path
         params.warp_spots_cpus,
-        params.warp_spots_memory)
+        "${params.warp_spots_memory} GB")
 
     emit:
     done

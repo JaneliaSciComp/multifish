@@ -6,7 +6,7 @@ all_bigstream_params = get_bigstream_params(params)
 
 include {
     BIGSTREAM_REGISTRATION;
-} from '../external-modules/bigstream/subworkflows/bigstream-registration' addParams(all_bigstream_params)
+} from '../subworkflows/janelia/bigstream_registration/main' addParams(all_bigstream_params)
 
 workflow registration {
     take:
@@ -38,8 +38,27 @@ workflow registration {
              moving_acq_name,
              moving,
              output) = it
+
+        def meta = [
+            id: "${fixed_acq_name}-${moving_acq_name}",
+        ]
+        // additional deformation input
+        def additional_deforms = warped_channels.collect { warped_ch ->
+            [
+                moving,
+                "${warped_ch}/${deformation_scale}",
+                "${output}/warped",
+            ]
+        }
+        def bigstream_dask_work_dir = params.bigstream_dask_work_dir instanceof String && params.bigstream_dask_work_dir
+            ? file(params.bigstream_dask_work_dir)
+            : ''
+        def bigstream_dask_config = params.bigstream_dask_config instanceof String && params.bigstream_dask_config
+            ? file(params.bigstream_dask_config)
+            : ''
         // registration input
         def ri =  [
+            meta,
             fixed, // global_fixed
             "${reg_ch}/${affine_scale}", // global_fixed_subpath
             moving, // global_moving
@@ -63,56 +82,42 @@ workflow registration {
             "invtransform", // local_inv_transform_name
             "${deformation_scale}", // local_inv_transform_dataset
             '', // local_aligned_name (skip local warping because we do it for all channels as additional deform)
+            additional_deforms,
+            params.bigstream_with_dask_cluster,
+            bigstream_dask_work_dir,
+            bigstream_dask_config,
+            params.bigstream_workers,
+            params.bigstream_min_workers,
+            params.bigstream_worker_cpus,
+            params.bigstream_worker_mem_gb,
         ]
-        // additional deformation input
-        def additional_deforms = warped_channels.collect { warped_ch ->
-            [
-                moving,
-                "${warped_ch}/${deformation_scale}",
-                "${output}/warped"
-            ]
-        }
-
-        def bigstream_inputs = [
-            ri,
-            additional_deforms
-        ]
-        log.debug "Prepared bigstream inputs: ${bigstream_inputs}"
-        bigstream_inputs
+        log.debug "Prepared bigstream inputs: ${ri}"
+        ri
     }
 
     def bigstream_results = BIGSTREAM_REGISTRATION(
-        bigstream_input.map { it[0] },
-        bigstream_input.map { it[1] }
+        bigstream_input,
+        params.bigstream_global_align_cpus,
+        params.bigstream_global_align_mem_gb,
+        params.bigstream_local_align_cpus,
+        params.bigstream_local_align_mem_gb,
     )
 
-    def registration_results = bigstream_results
+    def registration_results = bigstream_results.local
     | map {
         def (
-            global_fixed, global_fixed_dataset,
-            global_moving, global_moving_dataset,
-            global_fixed_mask, global_fixed_mask_dataset,
-            global_moving_mask, global_moving_mask_dataset,
-            global_output,
-            global_transform_name,
-            global_aligned_name,
-            local_fixed, local_fixed_dataset,
-            local_moving, local_moving_dataset,
-            local_fixed_mask, local_fixed_mask_dataset,
-            local_moving_mask, local_moving_mask_dataset,
+            meta,
+            local_fixed, local_fixed_subpath,
+            local_moving, local_moving_subpath,
+            global_output, global_transform_name,
             local_output,
-            local_transform_name,
-            local_transform_dataset,
-            local_inv_transform_name,
-            local_inv_transform_dataset,
-            local_aligned_name,
-            deformed_results
+            local_transform_name, local_transform_subpath,
+            local_inv_transform_name, local_inv_transform_subpath,
+            local_aligned_name
         ) = it
         def r = [
-            local_fixed, // fixed
-            local_fixed_dataset, // fixed_subpath
-            local_moving, // moving
-            local_moving_dataset, // moving subpath
+            local_fixed, local_fixed_subpath,
+            local_moving, local_moving_subpath,
             "${local_output}/${local_transform_name}", // dir transform
             "${local_output}/${local_inv_transform_name}", // dir inv transform
             "${local_output}/warped", // output

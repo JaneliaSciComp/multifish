@@ -10,45 +10,30 @@ process predict {
     val(ch)
     val(scale)
     path(model_path)
-    val(output_path)
+    tuple path(output_dir), val(output_name)
 
     output:
-    tuple val(image_path), val(output_path)
+    tuple val(image_path), env(output_fullpath)
 
     script:
-    def output_file = file(output_path)
-    def affinity_threshold_arg = params.stardist_affinity_thresh
-        ? "--affinity-thresh ${params.stardist_affinity_thresh}"
-        : ''
-    def probability_threshold_arg = params.stardist_prob_thresh
-        ? "--prob-thresh ${params.stardist_prob_thresh}"
-        : ''
-    def nms_threshold_arg = params.stardist_nms_thresh
-        ? "--nms-thresh ${params.stardist_nms_thresh}"
-        : ''
     """
     model_fullpath=\$(readlink ${model_path})
-    mkdir -p ${output_file.parent}
+    output_fulldir=\$(readlink ${output_dir})
+    mkdir -p \${output_fulldir}
+    output_fullpath="\${output_fulldir}/${output_name}"
+    echo "Run starfinity model \${model_fullpath} -> \${output_fullpath}"
     echo "python /app/segmentation/scripts/starfinity_prediction.py \
             -i ${image_path} \
             -c ${ch} \
             -s ${scale} \
-            -o ${output_path} \
+            -o \${output_fullpath} \
             -m \${model_fullpath} \
-            --tile-size ${params.stardist_tile_size} \
-            ${affinity_threshold_arg} \
-            ${probability_threshold_arg} 
-            ${nms_threshold_arg} \
             "
     python /app/segmentation/scripts/starfinity_prediction.py \
         -i ${image_path} \
         -c ${ch} \
         -s ${scale} \
-        -o ${output_path} \
-        -m \${model_fullpath} \
-        --tile-size ${params.stardist_tile_size} \
-        ${affinity_threshold_arg} \
-        ${probability_threshold_arg} \
-        ${nms_threshold_arg}
+        -o \${output_fullpath} \
+        -m \${model_fullpath}
     """
 }

@@ -1,6 +1,3 @@
 [submodule "external-modules/spark"]
 	path = external-modules/spark
 	url = https://github.com/JaneliaSciComp/nextflow-spark.git
-[submodule "external-modules/bigstream"]
-	path = external-modules/bigstream
-	url = git@github.com:JaneliaSciComp/nextflow-bigstream.git

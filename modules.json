@@ -2,62 +2,52 @@
   "name": "JaneliaSciComp/multifish",
   "homePage": "https://github.com/JaneliaSciComp/multifish",
   "repos": {
-    "git@github.com:BioImageTools/nextflow-modules.git": {
+    "git@github.com:JaneliaSciComp/nextflow-modules.git": {
       "modules": {
-        "bits": {
-          "cellpose": {
+        "janelia": {
+          "bigstream/deform": {
             "branch": "main",
-            "git_sha": "02fbed79192d27e7a91341940956d7c88ee59fb7",
+            "git_sha": "b8cfcc5ee659c559912eb977a083f538238a5e24",
+            "installed_by": ["bigstream_registration"]
+          },
+          "bigstream/globalalign": {
+            "branch": "main",
+            "git_sha": "98b4733590bed66256293268cc229986c9799ed5",
+            "installed_by": ["bigstream_registration"]
+          },
+          "bigstream/localalign": {
+            "branch": "main",
+            "git_sha": "d3c5663755e59adbc199e6053811bea474eac1c6",
+            "installed_by": ["bigstream_registration"]
+          },
+          "bigstream/transformcoords": {
+            "branch": "main",
+            "git_sha": "5ed5d12dd6deb1b14a5dfdbfe0244ebdcff87a32",
             "installed_by": ["modules"]
           },
-          "dask/prepare": {
+          "cellpose": {
             "branch": "main",
-            "git_sha": "02fbed79192d27e7a91341940956d7c88ee59fb7",
-            "installed_by": ["dask_cluster"]
-          },
-          "dask/startmanager": {
-            "branch": "main",
-            "git_sha": "02fbed79192d27e7a91341940956d7c88ee59fb7",
-            "installed_by": ["dask_cluster"]
-          },
-          "dask/startworker": {
-            "branch": "main",
-            "git_sha": "02fbed79192d27e7a91341940956d7c88ee59fb7",
-            "installed_by": ["dask_cluster"]
-          },
-          "dask/terminate": {
-            "branch": "main",
-            "git_sha": "02fbed79192d27e7a91341940956d7c88ee59fb7",
-            "installed_by": ["stop_dask"]
-          },
-          "dask/waitformanager": {
-            "branch": "main",
-            "git_sha": "02fbed79192d27e7a91341940956d7c88ee59fb7",
-            "installed_by": ["dask_cluster"]
-          },
-          "dask/waitforworkers": {
-            "branch": "main",
-            "git_sha": "02fbed79192d27e7a91341940956d7c88ee59fb7",
-            "installed_by": ["dask_cluster"]
+            "git_sha": "8dd42db65938b0e3a22d4d7cda5a2f5e12f9c838",
+            "installed_by": ["modules"]
           }
         }
       },
       "subworkflows": {
-        "bits": {
-          "dask_cluster": {
+        "janelia": {
+          "bigstream_registration": {
             "branch": "main",
-            "git_sha": "e26f0c240d515961839ed6dc05a9cbdc7207343b",
-            "installed_by": ["start_dask"]
-          },
-          "start_dask": {
-            "branch": "main",
-            "git_sha": "e26f0c240d515961839ed6dc05a9cbdc7207343b",
+            "git_sha": "92e66b37f629a86851df7a43092fe5b8dadab294",
             "installed_by": ["subworkflows"]
           },
-          "stop_dask": {
+          "dask_start": {
             "branch": "main",
-            "git_sha": "e26f0c240d515961839ed6dc05a9cbdc7207343b",
-            "installed_by": ["subworkflows"]
+            "git_sha": "eff4c7919dbf7a99b3cffb2c511a46827dd97cce",
+            "installed_by": ["bigstream_registration", "subworkflows"]
+          },
+          "dask_stop": {
+            "branch": "main",
+            "git_sha": "759e628c0a2b561b7cbf241346dae161e445bf31",
+            "installed_by": ["bigstream_registration", "subworkflows"]
           }
         }
       }

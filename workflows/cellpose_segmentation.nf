@@ -1,10 +1,8 @@
-include { index_channel;  } from './utils'
+include { index_channel } from './utils'
 
-include { CELLPOSE;       } from '../modules/bits/cellpose/main'
-include { DASK_TERMINATE; } from '../modules/bits/dask/terminate/main'
-
-include { START_DASK;     } from '../subworkflows/bits/start_dask/main'
-include { STOP_DASK;      } from '../subworkflows/bits/stop_dask/main'
+include { CELLPOSE      } from '../modules/janelia/cellpose/main'
+include { DASK_START    } from '../subworkflows/janelia/dask_start/main'
+include { DASK_STOP     } from '../subworkflows/janelia/dask_stop/main'
 
 workflow SEGMENTATION {
     take:
@@ -36,14 +34,24 @@ workflow SEGMENTATION {
     // collect all needed paths for the dask cluster
     def dask_cluster_inputs = indexed_data
     | map {
-        log.info "Prepare cluster inputs $it -> ${it[-1]}"
-        it[-1] // only get the paths
+        log.debug "Prepare cluster inputs from $it"
+        def (cluster_meta, segmentation_meta, datapaths) = it
+        def (in_datapath, out_datapath) = datapaths
+        def out_datafile_parent = file(out_datapath).parent
+        [
+            in_datapath, out_datafile_parent,
+        ]
     }
     | collect
     | map {
+        // append dask config and cellpose models dir
+        def r = it +
+                (params.cellpose_work_dir ? [ file(params.cellpose_work_dir) ] : []) +
+                (params.dask_config_path ? [ file(params.dask_config_path) ] : []) +
+                (params.cellpose_models_dir ? [ file(params.cellpose_models_dir).parent ] : [])
         [
             dask_cluster_meta,
-            it
+            r
         ]
     } 
 
@@ -53,7 +61,7 @@ workflow SEGMENTATION {
         ? file(params.dask_work_dir)
         : ''
 
-    def dask_cluster_info = START_DASK(
+    def dask_cluster_info = DASK_START(
         dask_cluster_inputs,
         params.distributed_cellpose,
         dask_work_dir,
@@ -64,7 +72,7 @@ workflow SEGMENTATION {
     )
 
     dask_cluster_info.subscribe {
-        log.info "Cluster info: $it"
+        log.debug "Cluster info: $it"
     }
 
     def cellpose_input = dask_cluster_info
@@ -75,21 +83,26 @@ workflow SEGMENTATION {
         def dask_config_path_param = params.dask_config_path 
             ? file(dask_config_path_param)
             : []
-        def cellpose_models_cache_dir = []
+        def cellpose_models_cache_dir = params.cellpose_models_dir
+            ? file(params.cellpose_models_dir)
+            : []
+        def cellpose_work_dir = params.cellpose_work_dir
+            ? file(params.cellpose_work_dir)
+            : []
         def data = [
             acq_meta,
-            input_dir,
-            "${dapi_channel}/${scale}",
-            dask_config_path_param,
+            input_dir, "${dapi_channel}/${scale}",
             cellpose_models_cache_dir,
             output_dir,
             "${acq_meta.id}-${scale}-${dapi_channel}.tif",
+            cellpose_work_dir,
         ]
         def cluster_info = [
             acq_meta,
             cluster_meta,
             cluster_context,
             cluster_context.scheduler_address,
+            dask_config_path_param,
         ]
         log.info "Prepare cellpose input $it -> $data, $cluster_info"
         data: data
@@ -98,7 +111,7 @@ workflow SEGMENTATION {
 
     def cellpose_results = CELLPOSE(
         cellpose_input.data,
-        cellpose_input.cluster.map { /*scheduler_address*/it[-1] },
+        cellpose_input.cluster.map { it[-2..-1] /*scheduler_address, dask_config*/ },
         params.cellpose_driver_cpus,
         params.cellpose_driver_mem_gb,
     )
@@ -111,11 +124,11 @@ workflow SEGMENTATION {
     | map {
         def (acq_meta, cluster_meta, cluster_context) = it
         [
-            cluster_meta, cluster_context.cluster_work_dir,
+            cluster_meta, cluster_context,
         ]
     }
     | groupTuple
-    | DASK_TERMINATE
+    | DASK_STOP
 
     segmentation_results = cellpose_results.results
     | map {

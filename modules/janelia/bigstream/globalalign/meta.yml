@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: bigstream_globalalign
+description: Global affine alignment of a 3-D volume using Bigstream
+keywords:
+  - affine
+  - registration
+  - bigstream
+tools:
+  - "bigstream":
+      description: "Algorithm to produce the global affine alignment using "bigstream"
+      homepage: "https://github.com/JaneliaSciComp/bigstream"
+      documentaton: "https://github.com/JaneliaSciComp/bigstream"
+      tool_dev_url: "https://github.com/JaneliaSciComp/bigstream"
+      license: "['BSD-3-Clause']"
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy map containing: id
+  - fix_image:
+      type: file|directory
+      description: Path to the low resolution fix (reference) image (container)
+  - fix_image_subpath:
+      type: string
+      description: If the fix image is a zarr container this is the relative path
+                   to the low resolution fix dataset
+  - mov_image:
+      type: file|directory
+      description: Path to the low resolution moving image (container)
+  - mov_image_subpath:
+      type: string
+      description: If the moving image is a zarr container this is the relative path
+                   to the moving dataset
+  - fix_mask:
+      type: file|directory
+      description: Path to the mask for the low resolution fix image
+  - fix_mask_subpath:
+      type: string
+      description: If the fix mask is a zarr container this is the relative path
+                   to the mask dataset
+  - mov_mask:
+      type: file|directory
+      description: Path to the mask for the low resolution moving image
+  - mov_mask_subpath:
+      type: string
+      description: If the moving mask is a zarr container this is the relative path
+                   to the mask dataset
+  - steps:
+      type: string
+      description: Comma delimmited list of the global alignment steps
+  - output_dir:
+      type: directory
+      description: Output directory
+  - transform_name:
+      type: string
+      description: Name of the file containing the affine transformation
+  - alignment_name:
+      type: string
+      description: Name of the affine transformed moving image

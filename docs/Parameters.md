@@ -180,7 +180,7 @@ Options for warping detected spots to registration
 |Parameter|Description|Help Text|Type
 |-----------|-----------|-----------|-----------
 |`warp_spots_cpus`|Number of CPU cores to use for warp spots. Default: 2||`integer`
-|`warp_spots_memory`|Amount of memory for warp spots. Default: 30 G||`string`
+|`warp_spots_memory`|Amount of memory for warp spots in GB. Default: 30||`integer`
 
 ## Intensity Measurement
 

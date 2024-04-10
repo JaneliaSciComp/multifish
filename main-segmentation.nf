@@ -12,8 +12,8 @@ params.segmentation_cpus = 2
 params.segmentation_memory = '120 G'
 params.stardist_tile_size = 128
 params.stardist_affinity_thresh = 0.01
-params.stardist_prob_thresh = 0.2
-params.stardist_nms_thresh = 0.8
+params.stardist_prob_thresh = 0
+params.stardist_nms_thresh = 0
 
 include {
     get_list_or_default;
