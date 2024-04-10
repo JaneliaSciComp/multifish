@@ -422,29 +422,111 @@
           "description": "Method used for spot detection: Laplacian of Gaussian (log) or Difference of Gaussian (dog).",
           "default": "log"
         },
+        "bigstream_global_shrink_factors": {
+          "type": "integer",
+          "default": 2
+        },
         "bigstream_global_ransac_blob_sizes": {
           "type": "string",
           "description": "blob sizes used by the global ransac blob detection",
           "default": "6,20"
         },
-        "bigstream_global_shrink_factors": {
-          "type": "integer",
-          "default": 2
-        },
         "bigstream_global_ransac_fix_spot_winsorize_limits": {
           "type": "string",
           "description": "ransac winsorize limits for global fix image",
-          "default": "0.5,0.2"
+          "default": "0.02,0.02"
         },
         "bigstream_global_ransac_mov_spot_winsorize_limits": {
           "type": "string",
           "description": "ransac winsorize limits for global moving image",
-          "default": "0.5,0.2"
+          "default": "0.02,0.02"
+        },
+        "bigstream_global_ransac_num_sigma_max": {
+          "type": "integer",
+          "default": 7
+        },
+        "bigstream_global_ransac_cc_radius": {
+          "type": "integer",
+          "default": 12
+        },
+        "bigstream_global_ransac_diagonal_constraint": {
+          "type": "number",
+          "default": 0.75
+        },
+        "bigstream_global_ransac_match_threshold": {
+          "type": "number",
+          "default": 0.6
+        },
+        "bigstream_global_ransac_align_threshold": {
+          "type": "integer",
+          "default": 2
+        },
+        "bigstream_global_ransac_fix_spot_detection_threshold": {
+          "type": "number",
+          "default": 0.001
+        },
+        "bigstream_global_ransac_fix_spot_detection_threshold_rel": {
+          "type": "number",
+          "default": 0.05
+        },
+        "bigstream_global_ransac_mov_spot_detection_threshold": {
+          "type": "number",
+          "default": 0.001
+        },
+        "bigstream_global_ransac_mov_spot_detection_threshold_rel": {
+          "type": "number",
+          "default": 0.05
+        },
+        "bigstream_global_ransac_nspots": {
+          "type": "integer",
+          "default": 2000
+        },
+        "bigstream_global_ransac_fix_spots_count_threshold": {
+          "type": "integer",
+          "default": 100
+        },
+        "bigstream_global_ransac_mov_spots_count_threshold": {
+          "type": "integer",
+          "default": 100
+        },
+        "bigstream_global_ransac_point_matches_threshold": {
+          "type": "integer",
+          "default": 50
         },
         "bigstream_global_iterations": {
           "type": "integer",
           "description": "Number of iterations used for global affine",
           "default": 100
+        },
+        "bigstream_global_smooth_sigmas": {
+          "type": "number",
+          "default": 2.5
+        },
+        "bigstream_global_learning_rate": {
+          "type": "number",
+          "default": 0.25
+        },
+        "bigstream_global_metric": {
+          "type": "string"
+        },
+        "bigstream_global_optimizer": {
+          "type": "string"
+        },
+        "bigstream_global_sampling": {
+          "type": "string"
+        },
+        "bigstream_global_interpolator": {
+          "type": "string"
+        },
+        "bigstream_global_sampling_percentage": {
+          "type": "string"
+        },
+        "bigstream_global_alignment_spacing": {
+          "type": "string"
+        },
+        "bigstream_dask_config": {
+          "type": "string",
+          "default": "./configs/bigstream_dask_config.yml"
         },
         "bigstream_local_steps": {
           "type": "string",
@@ -932,6 +1014,9 @@
       "$ref": "#/definitions/registration"
     },
     {
+      "$ref": "#/definitions/bigstream2_registration"
+    },
+    {
       "$ref": "#/definitions/cell_segmentation_common"
     },
     {
@@ -1000,91 +1085,9 @@
     "cellpose_work_dir": {
       "type": "string"
     },
-    "bigstream_global_ransac_num_sigma_max": {
-      "type": "integer",
-      "default": 7
-    },
-    "bigstream_global_ransac_cc_radius": {
-      "type": "integer",
-      "default": 12
-    },
-    "bigstream_global_ransac_nspots": {
-      "type": "integer",
-      "default": 2000
-    },
-    "bigstream_global_ransac_diagonal_constraint": {
-      "type": "number",
-      "default": 0.75
-    },
-    "bigstream_global_ransac_match_threshold": {
-      "type": "number",
-      "default": 0.6
-    },
-    "bigstream_global_ransac_align_threshold": {
-      "type": "integer",
-      "default": 2
-    },
-    "bigstream_global_ransac_fix_spot_detection_threshold": {
-      "type": "number",
-      "default": 0.001
-    },
-    "bigstream_global_ransac_fix_spot_detection_threshold_rel": {
-      "type": "number",
-      "default": 0.05
-    },
-    "bigstream_global_ransac_mov_spot_detection_threshold": {
-      "type": "number",
-      "default": 0.001
-    },
-    "bigstream_global_ransac_mov_spot_detection_threshold_rel": {
-      "type": "number",
-      "default": 0.05
-    },
-    "bigstream_global_ransac_fix_spots_count_threshold": {
-      "type": "integer",
-      "default": 100
-    },
-    "bigstream_global_ransac_mov_spots_count_threshold": {
-      "type": "integer",
-      "default": 100
-    },
-    "bigstream_global_ransac_point_matches_threshold": {
-      "type": "integer",
-      "default": 50
-    },
-    "bigstream_global_smooth_sigmas": {
-      "type": "number",
-      "default": 2.5
-    },
-    "bigstream_global_learning_rate": {
-      "type": "number",
-      "default": 0.25
-    },
-    "bigstream_global_metric": {
-      "type": "string"
-    },
-    "bigstream_global_optimizer": {
-      "type": "string"
-    },
-    "bigstream_global_sampling": {
-      "type": "string"
-    },
-    "bigstream_global_interpolator": {
-      "type": "string"
-    },
-    "bigstream_global_sampling_percentage": {
-      "type": "string"
-    },
-    "bigstream_global_alignment_spacing": {
-      "type": "string"
-    },
     "bigstream_dask_work_dir": {
       "type": "string",
       "default": "./work/bigstream_dask"
-    },
-    "bigstream_dask_config": {
-      "type": "string",
-      "default": "./configs/bigstream_dask_config.yml"
     },
     "bigstream_local_blocksize": {
       "type": "string",
