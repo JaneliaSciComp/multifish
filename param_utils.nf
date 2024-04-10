@@ -10,15 +10,8 @@ def default_mf_params() {
         registration_container: '',
         spots_assignment_container: '',
 
-        acq_names: '', // this is the default parameter for all acquisitions that must be processed
-                       // should only be used when all steps must be performed for all acquisions
-        ref_acq: '', // reference image for registration and/or segmentation
-        shared_work_dir: '',
         //shared_scratch_dir: "$workDir/scratch", // currently not used
         local_scratch_dir: "\$PROCESS_DIR",
-        data_dir: '',
-        output_dir: '',
-        publish_dir: '',
         skip: '', // do not skip anything by default
 
         // download params
@@ -49,11 +42,6 @@ def default_mf_params() {
         driver_memory: '2g',
         wait_for_spark_timeout_seconds: 7200,
         sleep_between_timeout_checks_seconds: 10,
-
-        dapi_channel: 'c2', // DAPI channel used to drive both the segmentation and the registration
-        ref_acq: '', // this is the default parameter for the fixed round and 
-                     // should be used only when all steps that require a fixed round must be done
-        bleed_channel: 'c3',
 
         // spot extraction params
         spot_extraction_output: 'spots',
