@@ -14,7 +14,7 @@
                     },
                     "bigstream/globalalign": {
                         "branch": "main",
-                        "git_sha": "d4da236ebbf19d815a9288f1d017627b77bddc44",
+                        "git_sha": "84a73176eb712d2a4c6faf02d4f2ea59ee9bd6df",
                         "installed_by": [
                             "bigstream_registration"
                         ]
