@@ -48,6 +48,7 @@ process BIGSTREAM_GLOBALALIGN {
 
     """
     output_fullpath=\$(readlink ${output_dir})
+    echo "Create output directory: \${output_fullpath}"
     mkdir -p \${output_fullpath}
     fix_fullpath=\$(readlink ${fix_image})
     mov_fullpath=\$(readlink ${mov_image})
