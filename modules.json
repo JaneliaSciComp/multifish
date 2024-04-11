@@ -1,56 +1,74 @@
 {
-  "name": "JaneliaSciComp/multifish",
-  "homePage": "https://github.com/JaneliaSciComp/multifish",
-  "repos": {
-    "git@github.com:JaneliaSciComp/nextflow-modules.git": {
-      "modules": {
-        "janelia": {
-          "bigstream/deform": {
-            "branch": "main",
-            "git_sha": "b8cfcc5ee659c559912eb977a083f538238a5e24",
-            "installed_by": ["bigstream_registration"]
-          },
-          "bigstream/globalalign": {
-            "branch": "main",
-            "git_sha": "d4da236ebbf19d815a9288f1d017627b77bddc44",
-            "installed_by": ["bigstream_registration"]
-          },
-          "bigstream/localalign": {
-            "branch": "main",
-            "git_sha": "d4da236ebbf19d815a9288f1d017627b77bddc44",
-            "installed_by": ["bigstream_registration"]
-          },
-          "bigstream/transformcoords": {
-            "branch": "main",
-            "git_sha": "5ed5d12dd6deb1b14a5dfdbfe0244ebdcff87a32",
-            "installed_by": ["modules"]
-          },
-          "cellpose": {
-            "branch": "main",
-            "git_sha": "8dd42db65938b0e3a22d4d7cda5a2f5e12f9c838",
-            "installed_by": ["modules"]
-          }
+    "name": "JaneliaSciComp/multifish",
+    "homePage": "https://github.com/JaneliaSciComp/multifish",
+    "repos": {
+        "git@github.com:JaneliaSciComp/nextflow-modules.git": {
+            "modules": {
+                "janelia": {
+                    "bigstream/deform": {
+                        "branch": "main",
+                        "git_sha": "b8cfcc5ee659c559912eb977a083f538238a5e24",
+                        "installed_by": [
+                            "bigstream_registration"
+                        ]
+                    },
+                    "bigstream/globalalign": {
+                        "branch": "main",
+                        "git_sha": "d4da236ebbf19d815a9288f1d017627b77bddc44",
+                        "installed_by": [
+                            "bigstream_registration"
+                        ]
+                    },
+                    "bigstream/localalign": {
+                        "branch": "main",
+                        "git_sha": "21039a55f53469c96f15cdeaf1de081f449b1627",
+                        "installed_by": [
+                            "bigstream_registration"
+                        ]
+                    },
+                    "bigstream/transformcoords": {
+                        "branch": "main",
+                        "git_sha": "5ed5d12dd6deb1b14a5dfdbfe0244ebdcff87a32",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "cellpose": {
+                        "branch": "main",
+                        "git_sha": "8dd42db65938b0e3a22d4d7cda5a2f5e12f9c838",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    }
+                }
+            },
+            "subworkflows": {
+                "janelia": {
+                    "bigstream_registration": {
+                        "branch": "main",
+                        "git_sha": "92e66b37f629a86851df7a43092fe5b8dadab294",
+                        "installed_by": [
+                            "subworkflows"
+                        ]
+                    },
+                    "dask_start": {
+                        "branch": "main",
+                        "git_sha": "7aa4d72008713c36db3b3d810989c85fb4b1822e",
+                        "installed_by": [
+                            "bigstream_registration",
+                            "subworkflows"
+                        ]
+                    },
+                    "dask_stop": {
+                        "branch": "main",
+                        "git_sha": "759e628c0a2b561b7cbf241346dae161e445bf31",
+                        "installed_by": [
+                            "bigstream_registration",
+                            "subworkflows"
+                        ]
+                    }
+                }
+            }
         }
-      },
-      "subworkflows": {
-        "janelia": {
-          "bigstream_registration": {
-            "branch": "main",
-            "git_sha": "92e66b37f629a86851df7a43092fe5b8dadab294",
-            "installed_by": ["subworkflows"]
-          },
-          "dask_start": {
-            "branch": "main",
-            "git_sha": "7aa4d72008713c36db3b3d810989c85fb4b1822e",
-            "installed_by": ["bigstream_registration", "subworkflows"]
-          },
-          "dask_stop": {
-            "branch": "main",
-            "git_sha": "759e628c0a2b561b7cbf241346dae161e445bf31",
-            "installed_by": ["bigstream_registration", "subworkflows"]
-          }
-        }
-      }
     }
-  }
 }

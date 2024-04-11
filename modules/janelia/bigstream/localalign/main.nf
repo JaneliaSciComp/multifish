@@ -65,13 +65,13 @@ process BIGSTREAM_LOCALALIGN {
     inv_transform_subpath_output = inv_transform_subpath_param ?: transform_subpath_output
 
     """
-    output_fullpath=\$(readlink ${output_dir})
+    output_fullpath=\$(readlink -f ${output_dir})
     echo "Create output directory: \${output_fullpath}"
     mkdir -p \${output_fullpath}
-    fix_fullpath=\$(readlink ${fix_image})
-    mov_fullpath=\$(readlink ${mov_image})
+    fix_fullpath=\$(readlink -f ${fix_image})
+    mov_fullpath=\$(readlink -f ${mov_image})
     if [[ "${affine_dir}" != "" ]] ; then
-        affine_fullpath=\$(readlink ${affine_dir})
+        affine_fullpath=\$(readlink -f ${affine_dir})
     else
         affine_fullpath=
     fi
