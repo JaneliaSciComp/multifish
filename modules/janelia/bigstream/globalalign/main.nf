@@ -47,11 +47,11 @@ process BIGSTREAM_GLOBALALIGN {
     transform_name_output = transform_name_param ?: 'affine-transform.mat'
 
     """
-    output_fullpath=\$(readlink -f ${output_dir})
+    output_fullpath=\$(readlink ${output_dir})
     echo "Create output directory: \${output_fullpath}"
     mkdir -p \${output_fullpath}
-    fix_fullpath=\$(readlink -f ${fix_image})
-    mov_fullpath=\$(readlink -f ${mov_image})
+    fix_fullpath=\$(readlink ${fix_image})
+    mov_fullpath=\$(readlink ${mov_image})
     if [[ "${transform_name_param}" != "" ]] ; then
         affine_dir=\$(dirname "\${output_fullpath}/${transform_name_param}")
         echo "Create directory for affine transformation: \${affine_dir}"
