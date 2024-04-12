@@ -47,24 +47,24 @@ workflow SEGMENTATION {
         // append dask config and cellpose models dir
         def r = it +
                 (params.cellpose_work_dir ? [ file(params.cellpose_work_dir) ] : []) +
-                (params.dask_config_path ? [ file(params.dask_config_path) ] : []) +
+                (params.cellpose_dask_config ? [ file(params.cellpose_dask_config) ] : []) +
                 (params.cellpose_models_dir ? [ file(params.cellpose_models_dir).parent ] : [])
         [
             dask_cluster_meta,
             r
         ]
-    } 
+    }
 
     dask_cluster_inputs.subscribe { log.info "Cluster inputs: $it"}
 
-    def dask_work_dir = params.distributed_cellpose
-        ? file(params.dask_work_dir)
+    def cellpose_dask_work_dir = params.distributed_cellpose
+        ? file(params.cellpose_dask_work_dir)
         : ''
 
     def dask_cluster_info = DASK_START(
         dask_cluster_inputs,
         params.distributed_cellpose,
-        dask_work_dir,
+        cellpose_dask_work_dir,
         params.cellpose_dask_workers,
         params.cellpose_required_workers,
         params.cellpose_worker_cpus,
@@ -80,8 +80,8 @@ workflow SEGMENTATION {
     | multiMap { 
         def (cluster_meta, cluster_context, acq_meta, datapaths) = it
         def (input_dir, output_dir) = datapaths
-        def dask_config_path_param = params.dask_config_path 
-            ? file(dask_config_path_param)
+        def dask_config_path_param = params.cellpose_dask_config
+            ? file(params.cellpose_dask_config)
             : []
         def cellpose_models_cache_dir = params.cellpose_models_dir
             ? file(params.cellpose_models_dir)

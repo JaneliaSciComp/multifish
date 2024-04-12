@@ -229,7 +229,7 @@
     "registration": {
       "title": "Registration",
       "type": "object",
-      "description": "Options for the registration algorithm (Bigstream)",
+      "description": "Options for the registration algorithm (Bigstream Prototype)",
       "properties": {
         "registration_output": {
           "type": "string",
@@ -533,6 +533,17 @@
           "description": "comma delimited list of local alignment steps",
           "default": "ransac,deform"
         },
+        "bigstream_local_transform_blocksize": {
+          "type": "string",
+          "default": "128,128,128"
+        },
+        "bigstream_local_overlap_factor": {
+          "type": "number",
+          "default": 0.25
+        },
+        "bigstream_local_ransac_spot_detection_method": {
+          "type": "string"
+        },
         "bigstream_local_ransac_blob_sizes": {
           "type": "string",
           "description": "blob sizes used by the local ransac blob detection",
@@ -540,16 +551,128 @@
         },
         "bigstream_local_ransac_fix_spot_winsorize_limits": {
           "type": "string",
-          "description": "ransac winsorize limits for local moving image"
+          "description": "ransac winsorize limits for local moving image",
+          "default": "0.02,0.02"
         },
         "bigstream_local_ransac_mov_spot_winsorize_limits": {
           "type": "string",
-          "description": "ransac winsorize limits for local moving image"
+          "description": "ransac winsorize limits for local moving image",
+          "default": "0.02,0.02"
+        },
+        "bigstream_local_shrink_factors": {
+          "type": "integer",
+          "default": 2
+        },
+        "bigstream_local_ransac_num_sigma_max": {
+          "type": "integer",
+          "default": 7
+        },
+        "bigstream_local_ransac_cc_radius": {
+          "type": "integer",
+          "default": 12
+        },
+        "bigstream_local_ransac_nspots": {
+          "type": "integer",
+          "default": 2000
+        },
+        "bigstream_local_ransac_diagonal_constraint": {
+          "type": "number",
+          "default": 0.75
+        },
+        "bigstream_local_ransac_match_threshold": {
+          "type": "number",
+          "default": 0.6
+        },
+        "bigstream_local_ransac_align_threshold": {
+          "type": "integer",
+          "default": 2
+        },
+        "bigstream_local_ransac_fix_spot_detection_threshold": {
+          "type": "number",
+          "default": 0.0001
+        },
+        "bigstream_local_ransac_fix_spot_detection_threshold_rel": {
+          "type": "number",
+          "default": 0.01
+        },
+        "bigstream_local_ransac_mov_spot_detection_threshold": {
+          "type": "number",
+          "default": 0.0001
+        },
+        "bigstream_local_ransac_mov_spot_detection_threshold_rel": {
+          "type": "number",
+          "default": 0.01
+        },
+        "bigstream_local_ransac_fix_spots_count_threshold": {
+          "type": "integer",
+          "default": 100
+        },
+        "bigstream_local_ransac_mov_spots_count_threshold": {
+          "type": "integer",
+          "default": 100
+        },
+        "bigstream_local_ransac_point_matches_threshold": {
+          "type": "integer",
+          "default": 50
+        },
+        "bigstream_local_control_point_spacing": {
+          "type": "integer",
+          "default": 50
+        },
+        "bigstream_local_control_point_levels": {
+          "type": "integer",
+          "default": 1
+        },
+        "bigstream_local_smooth_sigmas": {
+          "type": "number",
+          "default": 0.25
+        },
+        "bigstream_local_learning_rate": {
+          "type": "number",
+          "default": 0.25
+        },
+        "bigstream_local_metric": {
+          "type": "string"
+        },
+        "bigstream_local_optimizer": {
+          "type": "string"
+        },
+        "bigstream_local_sampling": {
+          "type": "string"
+        },
+        "bigstream_local_interpolator": {
+          "type": "string"
+        },
+        "bigstream_local_sampling_percentage": {
+          "type": "string"
+        },
+        "bigstream_local_alignment_spacing": {
+          "type": "string"
+        },
+        "bigstream_inv_iterations": {
+          "type": "integer",
+          "default": 5,
+          "hidden": true
+        },
+        "bigstream_inv_order": {
+          "type": "integer",
+          "default": 2,
+          "hidden": true
+        },
+        "bigstream_inv_sqrt_iterations": {
+          "type": "integer",
+          "default": 5,
+          "hidden": true
         },
         "bigstream_local_iterations": {
           "type": "integer",
           "description": "Number of iterations used for local deform",
           "default": 5
+        },
+        "bigstream_local_max_tasks": {
+          "type": "integer",
+          "default": 0,
+          "hidden": true
         }
       }
     },
@@ -665,6 +788,40 @@
           "type": "integer",
           "default": 10,
           "description": "Mem (in GB) available to the cellpose Dask workers"
+        },
+        "cellpose_process_blocksize": {
+          "type": "string",
+          "default": "128,128,128"
+        },
+        "cellpose_min_size": {
+          "type": "integer",
+          "default": 10
+        },
+        "cellpose_cellprob_threshold": {
+          "type": "integer",
+          "default": 1
+        },
+        "cellpose_iou_depth": {
+          "type": "integer",
+          "default": 1
+        },
+        "cellpose_iou_threshold": {
+          "type": "number",
+          "default": 0.05
+        },
+        "cellpose_models_dir": {
+          "type": "string",
+          "default": "./work/cellpose-models"
+        },
+        "cellpose_work_dir": {
+          "type": "string"
+        },
+        "cellpose_dask_work_dir": {
+          "type": "string",
+          "default": "./work/cellpose_dask"
+        },
+        "cellpose_dask_config": {
+          "type": "string"
         }
       }
     },
@@ -1051,172 +1208,5 @@
     }
   ],
   "properties": {
-    "dask_work_dir": {
-      "type": "string",
-      "default": "/Users/goinac/Work/HHMI/multifish/multifish-pipeline/work/dask"
-    },
-    "dask_config_path": {
-      "type": "string"
-    },
-    "cellpose_process_blocksize": {
-      "type": "string",
-      "default": "128,128,128"
-    },
-    "cellpose_min_size": {
-      "type": "integer",
-      "default": 10
-    },
-    "cellpose_cellprob_threshold": {
-      "type": "integer",
-      "default": 1
-    },
-    "cellpose_iou_depth": {
-      "type": "integer",
-      "default": 1
-    },
-    "cellpose_iou_threshold": {
-      "type": "number",
-      "default": 0.05
-    },
-    "cellpose_models_dir": {
-      "type": "string",
-      "default": "./work/cellpose-models"
-    },
-    "cellpose_work_dir": {
-      "type": "string"
-    },
-    "bigstream_dask_work_dir": {
-      "type": "string",
-      "default": "./work/bigstream_dask"
-    },
-    "bigstream_local_blocksize": {
-      "type": "string",
-      "default": "128,128,128"
-    },
-    "bigstream_local_overlap_factor": {
-      "type": "number",
-      "default": 0.25
-    },
-    "bigstream_local_transform_blocksize": {
-      "type": "string",
-      "default": "128,128,128"
-    },
-    "bigstream_local_ransac_spot_detection_method": {
-      "type": "string"
-    },
-    "bigstream_local_ransac_fix_spot_winsorize_limits": {
-      "type": "string",
-      "default": "0.5,0.2"
-    },
-    "bigstream_local_ransac_mov_spot_winsorize_limits": {
-      "type": "string",
-      "default": "0.5,0.2"
-    },
-    "bigstream_local_shrink_factors": {
-      "type": "integer",
-      "default": 2
-    },
-    "bigstream_local_ransac_num_sigma_max": {
-      "type": "integer",
-      "default": 7
-    },
-    "bigstream_local_ransac_cc_radius": {
-      "type": "integer",
-      "default": 12
-    },
-    "bigstream_local_ransac_nspots": {
-      "type": "integer",
-      "default": 2000
-    },
-    "bigstream_local_ransac_diagonal_constraint": {
-      "type": "number",
-      "default": 0.75
-    },
-    "bigstream_local_ransac_match_threshold": {
-      "type": "number",
-      "default": 0.6
-    },
-    "bigstream_local_ransac_align_threshold": {
-      "type": "integer",
-      "default": 2
-    },
-    "bigstream_local_ransac_fix_spot_detection_threshold": {
-      "type": "number",
-      "default": 0.0001
-    },
-    "bigstream_local_ransac_fix_spot_detection_threshold_rel": {
-      "type": "number",
-      "default": 0.01
-    },
-    "bigstream_local_ransac_mov_spot_detection_threshold": {
-      "type": "number",
-      "default": 0.0001
-    },
-    "bigstream_local_ransac_mov_spot_detection_threshold_rel": {
-      "type": "number",
-      "default": 0.01
-    },
-    "bigstream_local_ransac_fix_spots_count_threshold": {
-      "type": "integer",
-      "default": 100
-    },
-    "bigstream_local_ransac_mov_spots_count_threshold": {
-      "type": "integer",
-      "default": 100
-    },
-    "bigstream_local_ransac_point_matches_threshold": {
-      "type": "integer",
-      "default": 50
-    },
-    "bigstream_local_control_point_spacing": {
-      "type": "integer",
-      "default": 50
-    },
-    "bigstream_local_control_point_levels": {
-      "type": "integer",
-      "default": 1
-    },
-    "bigstream_local_smooth_sigmas": {
-      "type": "number",
-      "default": 0.25
-    },
-    "bigstream_local_learning_rate": {
-      "type": "number",
-      "default": 0.25
-    },
-    "bigstream_local_metric": {
-      "type": "string"
-    },
-    "bigstream_local_optimizer": {
-      "type": "string"
-    },
-    "bigstream_local_sampling": {
-      "type": "string"
-    },
-    "bigstream_local_interpolator": {
-      "type": "string"
-    },
-    "bigstream_local_sampling_percentage": {
-      "type": "string"
-    },
-    "bigstream_local_alignment_spacing": {
-      "type": "string"
-    },
-    "bigstream_inv_iterations": {
-      "type": "integer",
-      "default": 5
-    },
-    "bigstream_inv_order": {
-      "type": "integer",
-      "default": 2
-    },
-    "bigstream_inv_sqrt_iterations": {
-      "type": "integer",
-      "default": 5
-    },
-    "bigstream_local_max_tasks": {
-      "type": "integer",
-      "default": 0
-    }
   }
 }
