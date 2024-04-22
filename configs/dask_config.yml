@@ -36,8 +36,8 @@ distributed:
 
     memory:
       transfer: 0.5 # default 0.1
-      target: 0.93 # default 0.6
-      spill: 0.95 # default 0.7
+      target: 0.9 # default 0.6
+      spill: 0.7 # default 0.7
       pause: false # default 0.8
       terminate: false # default 0.95
       recent-to-old-time: 300s
