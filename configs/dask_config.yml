@@ -22,7 +22,7 @@ distributed:
     worker-ttl: 120s # default 5min
     unknown-task-duration: 120s
 
-    worker-saturation: 1.1
+    worker-saturation: 1
 
     locks:
       lease-timeout: 900s
@@ -36,7 +36,7 @@ distributed:
 
     memory:
       transfer: 0.5 # default 0.1
-      target: 0.9 # default 0.6
+      target: 0.8 # default 0.6
       spill: 0.7 # default 0.7
       pause: false # default 0.8
       terminate: false # default 0.95
@@ -55,4 +55,4 @@ distributed:
 
   nanny:
     pre-spawn-environ:
-      MALLOC_TRIM_THRESHOLD_: 0
+      MALLOC_TRIM_THRESHOLD_: 1
