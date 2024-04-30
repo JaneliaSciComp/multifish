@@ -1,0 +1,56 @@
+{
+    "bigstream": {
+        "fixed_name": "hippo_dapi_t15",
+        "moving_name": "hippo_dapi_t0",
+
+        "fixed": "/nrs/liu/Hippo_rawtiff/DAPI_s2/padded/stitch_t15_c3_s2_padded.tiff",
+        "moving": "/nrs/liu/Hippo_rawtiff/DAPI_s2/padded/stitch_t00_c3_s2_padded.tiff",
+
+        "global_steps": "ransac,affine",
+        "global_use_existing_affine_if_found": true,
+        "global_shrink_factors": "2",
+        "global_ransac_fix_spot_winsorize_limits": "0,0.5",
+        "global_ransac_mov_spot_winsorize_limits": "0,0.5",
+        "global_iterations": 100,
+        "global_ransac_cc_radius": 8,
+        "global_ransac_nspots": 2000,
+        "global_ransac_fix_spot_detection_threshold":  0.0001,
+        "global_ransac_fix_spot_detection_threshold_rel":  0.001,
+        "global_ransac_mov_spot_detection_threshold":  0.0001,
+        "global_ransac_mov_spot_detection_threshold_rel":  0.001,
+    
+        "local_steps": "ransac,deform",
+        "local_shrink_factors": "2",
+        "local_iterations":  100,
+        "local_ransac_spot_detection_method": "log",
+        "local_ransac_fix_spot_detection_threshold": 0.0001,
+        "local_ransac_fix_spot_detection_threshold_rel": 0.0005,
+        "local_ransac_mov_spot_detection_threshold": 0.0001,
+        "local_ransac_mov_spot_detection_threshold_rel": 0.0005,
+        "local_ransac_fix_spots_count_threshold": 50,
+        "local_ransac_mov_spots_count_threshold": 50,
+        "local_transform_blocksize": "256,256,128",
+        "local_ransac_blob_sizes": "30,70",
+        "local_ransac_fix_spot_winsorize_limits": "0,0.3",
+        "local_ransac_mov_spot_winsorize_limits": "0,0.3",
+        "local_ransac_num_sigma_max": 7,
+        "local_ransac_cc_radius": 8,
+        "local_ransac_nspots": 2000,
+        "local_ransac_diagonal_constraint": 0.3,
+        "local_control_point_spacing": 128,
+        "local_control_point_levels": "1",
+        "local_smooth_sigmas": 0.25,
+        "local_learning_rate": 0.25,
+        "local_metric": "C",
+
+        "global_align_cpus": 1,
+        "global_align_mem_gb": 15,
+        "local_align_cpus": 1,
+        "local_align_mem_gb": 15,
+ 
+        "local_align_workers": 1,
+        "local_align_worker_cpus": 1,
+        "local_align_worker_mem_gb": 15,
+        "local_max_tasks": 1
+    }
+}

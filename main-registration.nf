@@ -2,10 +2,9 @@
 /*
     Image registration using Bigstream
 */
-nextflow.enable.dsl=2
-
 // path to the fixed n5 image
 params.fixed = ""
+
 
 // path to the moving n5 image
 params.moving = ""
@@ -17,25 +16,20 @@ fixed = file(params.fixed)
 moving = file(params.moving)
 outdir = file(params.outdir)
 
-affdir = file("${outdir}/aff")
-if(!affdir.exists()) affdir.mkdirs()
-
-tiledir = file("${outdir}/tiles")
-if(!tiledir.exists()) tiledir.mkdirs()
-
-// final outputs
 transform_dir = "${outdir}/transform"
 invtransform_dir = "${outdir}/invtransform"
 warped_dir = "${outdir}/warped"
 
-
 log.info """\
-    BIGSTREAM REGISTRATION PIPELINE
+    REGISTRATION PIPELINE
     ===================================
+    fixed           : $fixed
+    moving          : $moving
+    outdir          : $outdir
+    transform       : $transform_dir
+    invtransform    : $invtransform_dir
+    warped          : $warped_dir
     workDir         : $workDir
-    outdir          : ${params.outdir}
-    affdir          : $affdir
-    tiledir         : $tiledir
     """
     .stripIndent()
 
@@ -62,11 +56,19 @@ include {
 channels = final_params.channels?.split(',')
 
 workflow {
-
+    def fixed_name = final_params.fixed_name ?: fixed.name
+    def moving_name = final_params.moving_name ?: moving.name
+    def registration_input = Channel.of(
+        [
+            fixed_name,
+            fixed,
+            moving_name,
+            moving,
+            outdir,
+        ]
+    )
     registration(
-        Channel.of(fixed),
-        Channel.of(moving),
-        Channel.of(outdir),
+        registration_input,
         final_params.dapi_channel,
         registration_xy_stride_param(final_params),
         registration_xy_overlap_param(final_params),
@@ -80,7 +82,7 @@ workflow {
         final_params.ransac_dist_threshold,
         final_params.deform_iterations,
         final_params.deform_auto_mask,
-        channels
+        channels,
     )
 }
 
