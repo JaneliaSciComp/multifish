@@ -3,6 +3,8 @@
     Image registration using Bigstream
 */
 
+include { BIGSTREAM_REGISTRATION } from './subworkflows/janelia/bigstream_registration/main.nf'
+
 global_fix = file(params.bigstream.global_fix)
 global_mov = file(params.bigstream.global_mov)
 local_fix = file(params.bigstream.local_fix)
@@ -32,7 +34,7 @@ workflow {
     def mov_name = params.bigstream.mov_name ?: global_mov.name
 
     def meta = [
-        id: "${moving_name}-to-${fixed_name}"
+        id: "${mov_name}-to-${fix_name}"
     ]
 
 
