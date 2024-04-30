@@ -5,10 +5,12 @@
 
         "global_fix": "/nrs/liu/Hippo_rawtiff/DAPI_s2/padded/stitch_t15_c3_s2_padded.tiff",
         "global_mov": "/nrs/liu/Hippo_rawtiff/DAPI_s2/padded/stitch_t00_c3_s2_padded.tiff",
-        "fix_spacing": "0.652,0.652,0.652",
-        "mov_spacing": "0.652,0.652,0.652",
+        "global_fix_spacing": "0.652,0.652,0.652",
+        "global_mov_spacing": "0.652,0.652,0.652",
         "local_fix": "/nrs/liu/Hippo_rawtiff/DAPI_s2/padded/stitch_t15_c3_s2_padded.tiff",
         "local_mov": "/nrs/liu/Hippo_rawtiff/DAPI_s2/padded/stitch_t00_c3_s2_padded.tiff",
+        "local_fix_spacing": "0.652,0.652,0.652",
+        "local_mov_spacing": "0.652,0.652,0.652",
         "global_output_dir": "/nrs/scicompsoft/goinac/multifish/liu/dataset-t1/registration/global",
         "local_output_dir": "/nrs/scicompsoft/goinac/multifish/liu/dataset-t1/registration/local",
 	
