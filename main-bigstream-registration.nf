@@ -29,7 +29,7 @@ log.info """\
 
 workflow {
     def fix_name = params.bigstream.fix_name ?: global_fix.name
-    def mov_name = params.bigstream.mov_name ?: moving.name
+    def mov_name = params.bigstream.mov_name ?: global_mov.name
 
     def meta = [
         id: "${moving_name}-to-${fixed_name}"
