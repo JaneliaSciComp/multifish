@@ -9,6 +9,7 @@ global_fix = file(params.bigstream.global_fix)
 global_mov = file(params.bigstream.global_mov)
 local_fix = file(params.bigstream.local_fix)
 local_mov = file(params.bigstream.local_mov)
+bigstream_config = params.bigstream.bigstream_config ? file(params.bigstream.bigstream_config): ''
 
 global_output_dir = file(params.bigstream.global_output_dir)
 local_output_dir = file(params.bigstream.local_output_dir)
@@ -25,6 +26,7 @@ log.info """\
     local steps     : "${params.bigstream.local_steps}"
     global outdir   : "${global_output_dir}"
     local outdir    : "${local_output_dir}"
+    bigstream config: "${bigstream_config}"
     """
     .stripIndent()
 
@@ -84,7 +86,7 @@ workflow {
 
     BIGSTREAM_REGISTRATION(
         registration_input,
-        params.bigstream.bigstream_config ? file(params.bigstream.bigstream_config): '',
+        bigstream_config,
         params.bigstream.global_align_cpus,
         params.bigstream.global_align_mem_gb,
         params.bigstream.local_align_cpus,

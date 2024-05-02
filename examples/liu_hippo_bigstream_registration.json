@@ -2,6 +2,7 @@
     "bigstream": {
         "fixed_name": "t0",
         "moving_name": "t1",
+	"bigstream_config": "./configs/bigstream_config.yml",
 
         "global_fix": "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t0/stitching/export.n5",
         "global_fix_subpath": "c3/s3",
