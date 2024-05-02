@@ -7,19 +7,19 @@ ransac:
   max_spot_match_distance:
   point_matches_threshold: 50
   align_threshold: 2.0
-  diagonal_constraint: 0.25
+  diagonal_constraint: 0.5
   fix_spots_count_threshold: 100
   fix_spot_detection_kwargs:
     blob_method: log
     threshold: 0.001
     threshold_rel: 0.05
-    winsorize_limits: [0.05, 0.02]
+    winsorize_limits: [0, 0.3]
   mov_spots_count_threshold: 100
   mov_spot_detection_kwargs:
     blob_method: log
-    threshold: 0.001
-    threshold_rel: 0.05
-    winsorize_limits: [0.05, 0.02]
+    threshold: 0.0001
+    threshold_rel: 0.001
+    winsorize_limits: [0, 0.3]
 
 affine:
   shrink_factors: [2]
@@ -36,8 +36,18 @@ deform:
   smooth_sigmas: [0.25]
   metric: C
   metric_args: {}
+  control_point_spacing: 128
   optimizer: RSGD
   optimizer_args:
     learningRate: 0.25
     minStep: 0
     numberOfIterations: 10
+
+global_align:
+  ransac:
+    blob_sizes: [10, 25]
+
+local_align:
+  ransac:
+    blob_sizes: [30, 70]
+    diagonal_constraint: 0.25
