@@ -22,20 +22,24 @@
     
         "local_steps": "ransac,deform",
 
-        "global_align_cpus": 5,
-        "global_align_mem_gb": 75,
-        "local_align_cpus": 1,
-        "local_align_mem_gb": 15,
+        "global_align_cpus": 6,
+        "global_align_mem_gb": 50,
+        "local_align_cpus": 2,
+        "local_align_mem_gb": 30,
  
-        "local_align_workers": 1,
-        "local_align_worker_cpus": 1,
-        "local_align_worker_mem_gb": 15,
-        "local_max_tasks": 1,
+        "local_align_workers": 15,
+        "local_align_min_workers": 4,
+        "local_align_worker_cpus": 2,
+        "local_align_worker_mem_gb": 30,
+        "local_max_tasks": 30,
+
+        "local_blocksize":  "256,256,256",
+        "local_overlap_factor": 0.3,
 
         "additional_deformed_subpaths": [
             "c0/s2", "c1/s2", "c2/s2"
         ]
     },
 
-    "runtime_opts": "--env ITK_THREADS=5"
+    "runtime_opts": "--env ITK_THREADS=12"
 }
