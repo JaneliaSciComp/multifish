@@ -9,7 +9,10 @@ global_fix = file(params.bigstream.global_fix)
 global_mov = file(params.bigstream.global_mov)
 local_fix = file(params.bigstream.local_fix)
 local_mov = file(params.bigstream.local_mov)
-bigstream_config = params.bigstream.bigstream_config ? file(params.bigstream.bigstream_config): ''
+bigstream_config = params.bigstream_config ? file(params.bigstream_config): ''
+with_dask = params.with_dask
+dask_config = params.dask_config ? file(params.dask_config): ''
+dask_work_dir = params.dask_work_dir ? file(params.dask_work_dir): ''
 
 global_output_dir = file(params.bigstream.global_output_dir)
 local_output_dir = file(params.bigstream.local_output_dir)
@@ -18,15 +21,17 @@ local_output_dir = file(params.bigstream.local_output_dir)
 log.info """\
     BIGSTREAM REGISTRATION PIPELINE
     ===================================
-    global fixed    : "${global_fix}${params.bigstream.global_fix_subpath ? ':' + params.bigstream.global_fix_subpath : ''}"
-    global moving   : "${global_mov}${params.bigstream.global_mov_subpath ? ':' + params.bigstream.global_mov_subpath : ''}"
-    global steps    : "${params.bigstream.global_steps}"
-    local fixed     : "${local_fix}${params.bigstream.local_fix_subpath ? ':' + params.bigstream.local_fix_subpath : ''}"
-    local moving    : "${local_mov}${params.bigstream.local_mov_subpath ? ':' + params.bigstream.local_mov_subpath : ''}"
-    local steps     : "${params.bigstream.local_steps}"
-    global outdir   : "${global_output_dir}"
-    local outdir    : "${local_output_dir}"
-    bigstream config: "${bigstream_config}"
+    global fixed     : "${global_fix}${params.bigstream.global_fix_subpath ? ':' + params.bigstream.global_fix_subpath : ''}"
+    global moving    : "${global_mov}${params.bigstream.global_mov_subpath ? ':' + params.bigstream.global_mov_subpath : ''}"
+    global steps     : "${params.bigstream.global_steps}"
+    local fixed      : "${local_fix}${params.bigstream.local_fix_subpath ? ':' + params.bigstream.local_fix_subpath : ''}"
+    local moving     : "${local_mov}${params.bigstream.local_mov_subpath ? ':' + params.bigstream.local_mov_subpath : ''}"
+    local steps      : "${params.bigstream.local_steps}"
+    global outdir    : "${global_output_dir}"
+    local outdir     : "${local_output_dir}"
+    bigstream config : "${bigstream_config}"
+    with dask        : "${with_dask}"
+    dask config      : "${dask_config}"
     """
     .stripIndent()
 
@@ -38,7 +43,6 @@ workflow {
     def meta = [
         id: "${mov_name}-to-${fix_name}"
     ]
-
 
     def additional_deformations = create_addional_deformations_from_subpaths(
         local_mov,
@@ -74,9 +78,9 @@ workflow {
             params.bigstream.local_inv_transform_name, params.bigstream.local_inv_transform_subpath,
             params.bigstream.local_align_name,
             additional_deformations,
-            params.bigstream.with_dask,
-            params.bigstream.dask_work_dir ? file(params.bigstream.dask_work_dir) : '',
-            params.bigstream.dask_config ? file(params.bigstream.dask_config) : '',
+            with_dask,
+            dask_work_dir,
+            dask_config,
             params.bigstream.local_align_workers,
             params.bigstream.local_align_min_workers,
             params.bigstream.local_align_worker_cpus,
