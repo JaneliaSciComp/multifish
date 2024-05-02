@@ -3,16 +3,19 @@
         "fixed_name": "hippo_dapi_t15",
         "moving_name": "hippo_dapi_t0",
 
-        "global_fix": "/nrs/liu/Hippo_rawtiff/DAPI_s2/padded/stitch_t15_c3_s2_padded.tiff",
-        "global_mov": "/nrs/liu/Hippo_rawtiff/DAPI_s2/padded/stitch_t00_c3_s2_padded.tiff",
-        "global_fix_spacing": "0.652,0.652,0.652",
-        "global_mov_spacing": "0.652,0.652,0.652",
-        "local_fix": "/nrs/liu/Hippo_rawtiff/DAPI_s2/padded/stitch_t15_c3_s2_padded.tiff",
-        "local_mov": "/nrs/liu/Hippo_rawtiff/DAPI_s2/padded/stitch_t00_c3_s2_padded.tiff",
-        "local_fix_spacing": "0.652,0.652,0.652",
-        "local_mov_spacing": "0.652,0.652,0.652",
-        "global_output_dir": "/nrs/scicompsoft/goinac/multifish/liu/dataset-t1/registration/global",
-        "local_output_dir": "/nrs/scicompsoft/goinac/multifish/liu/dataset-t1/registration/local",
+        "global_fix": "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t0/stitching/export.n5",
+        "global_fix_subpath": "c3/s3",
+        "global_mov": "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t1/stitching/export.n5",
+        "global_mov_subpath": "c3/s3",
+
+        "local_fix": "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t0/stitching/export.n5",
+        "local_fix_subpath": "c3/s2",
+
+        "local_mov": "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t0/stitching/export.n5",
+        "local_mov_subpath": "c3/s2",
+
+        "global_output_dir": "/nrs/scicompsoft/goinac/multifish/liu/registration/t0-t15/global",
+        "local_output_dir": "/nrs/scicompsoft/goinac/multifish/liu/registration/t0-t15/local",
 	
         "global_steps": "ransac,affine",
         "global_use_existing_affine_if_found": true,
@@ -51,14 +54,21 @@
         "local_learning_rate": 0.25,
         "local_metric": "C",
 
-        "global_align_cpus": 1,
-        "global_align_mem_gb": 15,
+        "global_align_cpus": 5,
+        "global_align_mem_gb": 75,
         "local_align_cpus": 1,
         "local_align_mem_gb": 15,
  
         "local_align_workers": 1,
         "local_align_worker_cpus": 1,
         "local_align_worker_mem_gb": 15,
-        "local_max_tasks": 1
-    }
+        "local_max_tasks": 1,
+
+        "additional_deformed_paths": [
+            "/nrs/liu/Hippo_rawtiff/stitch_t00_c0_s2.tiff",
+            "/nrs/liu/Hippo_rawtiff/DAPI_s2/padded/stitch_t00_c3_s2_padded.tiff"
+        ]
+    },
+
+    "runtime_opts": "--env ITK_THREADS=5"
 }

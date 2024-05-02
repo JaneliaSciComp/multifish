@@ -1,0 +1,43 @@
+ransac:
+  blob_sizes: [10, 30]
+  nspots: 5000
+  num_sigma_max: 7
+  cc_radius: 20
+  match_threshold: 0.6
+  max_spot_match_distance:
+  point_matches_threshold: 50
+  align_threshold: 2.0
+  diagonal_constraint: 0.25
+  fix_spots_count_threshold: 100
+  fix_spot_detection_kwargs:
+    blob_method: log
+    threshold: 0.001
+    threshold_rel: 0.05
+    winsorize_limits: [0.05, 0.02]
+  mov_spots_count_threshold: 100
+  mov_spot_detection_kwargs:
+    blob_method: log
+    threshold: 0.001
+    threshold_rel: 0.05
+    winsorize_limits: [0.05, 0.02]
+
+affine:
+  shrink_factors: [2]
+  smooth_sigmas: [2.5]
+  metric: MMI
+  metric_args: {}
+  optimizer: RSGD
+  optimizer_args:
+    learningRate: 0.25
+    minStep: 0
+    numberOfIterations: 50
+
+deform:
+  smooth_sigmas: [0.25]
+  metric: C
+  metric_args: {}
+  optimizer: RSGD
+  optimizer_args:
+    learningRate: 0.25
+    minStep: 0
+    numberOfIterations: 10

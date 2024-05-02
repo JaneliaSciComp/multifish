@@ -57,3 +57,6 @@ input:
   - alignment_name:
       type: string
       description: Name of the affine transformed moving image
+  - bigstream_config:
+      type: file
+      description: bigstream pipeline yaml configuration file

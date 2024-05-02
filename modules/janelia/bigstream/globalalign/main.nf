@@ -1,5 +1,5 @@
 process BIGSTREAM_GLOBALALIGN {
-    container { task.ext.container ?: 'janeliascicomp/bigstream:1.2.9-dask2023.10.1-py11' }
+    container { task.ext.container ?: 'janeliascicomp/bigstream:1.3.0-dask2024.4.1-py11' }
     cpus { bigstream_cpus }
     memory "${bigstream_mem_in_gb} GB"
 
@@ -17,7 +17,11 @@ process BIGSTREAM_GLOBALALIGN {
           path(output_dir),
           val(transform_name), // name of the affine transformation
           val(alignment_name) // alignment name
+
+    path(bigstream_config)
+
     val(bigstream_cpus)
+
     val(bigstream_mem_in_gb)
 
     output:
@@ -33,25 +37,32 @@ process BIGSTREAM_GLOBALALIGN {
 
     script:
     def args = task.ext.args ?: ''
-    def fix_image_subpath_arg = fix_image_subpath ? "--fixed-global-subpath ${fix_image_subpath}" : ''
-    def mov_image_subpath_arg = mov_image_subpath ? "--moving-global-subpath ${mov_image_subpath}" : ''
-    def fix_mask_arg = fix_mask ? "--fixed-global-mask ${fix_mask}" : ''
-    def fix_mask_subpath_arg = fix_mask && fix_mask_subpath ? "--fixed-global-mask-subpath ${fix_mask_subpath}" : ''
-    def mov_mask_arg = mov_mask ? "--moving-global-mask ${mov_mask}" : ''
-    def mov_mask_subpath_arg = mov_mask && mov_mask_subpath ? "--moving-global-mask-subpath ${mov_mask_subpath}" : ''
+    def fix_image_subpath_arg = fix_image_subpath ? "--global-fix-subpath ${fix_image_subpath}" : ''
+    def mov_image_subpath_arg = mov_image_subpath ? "--global-mov-subpath ${mov_image_subpath}" : ''
+    def fix_mask_arg = fix_mask ? "--global-fix-mask ${fix_mask}" : ''
+    def fix_mask_subpath_arg = fix_mask && fix_mask_subpath ? "--global-fix-mask-subpath ${fix_mask_subpath}" : ''
+    def mov_mask_arg = mov_mask ? "--global-mov-mask ${mov_mask}" : ''
+    def mov_mask_subpath_arg = mov_mask && mov_mask_subpath ? "--global-mov-mask-subpath ${mov_mask_subpath}" : ''
     def steps_arg = steps ? "--global-registration-steps ${steps}" : ''
     def transform_name_param = transform_name
     def transform_name_arg = transform_name_param ? "--global-transform-name ${transform_name_param}" : ''
-    def aligned_name_arg = alignment_name ? "--global-aligned-name ${alignment_name}" : ''
+    def aligned_name_arg = alignment_name ? "--global-align-name ${alignment_name}" : ''
+    def bigstream_config_arg = bigstream_config ? "--align-config ${bigstream_config}" : ''
 
     transform_name_output = transform_name_param ?: 'affine-transform.mat'
 
     """
-    output_fullpath=\$(readlink ${output_dir})
-    echo "Create output directory: \${output_fullpath}"
-    mkdir -p \${output_fullpath}
-    fix_fullpath=\$(readlink ${fix_image})
-    mov_fullpath=\$(readlink ${mov_image})
+    output_fullpath=\$(readlink -m ${output_dir})
+    if [[ ! -e \${output_fullpath} ]] ; then
+        echo "Create output directory: \${output_fullpath}"
+        mkdir -p \${output_fullpath}
+    else
+        echo "Output directory: \${output_fullpath} - already exists"
+    fi
+    fix_fullpath=\$(readlink -m ${fix_image})
+    echo "Fix volume full path: \${fix_fullpath}"
+    mov_fullpath=\$(readlink -m ${mov_image})
+    echo "Moving volume full path: \${mov_fullpath}"
     if [[ "${transform_name_param}" != "" ]] ; then
         affine_dir=\$(dirname "\${output_fullpath}/${transform_name_param}")
         echo "Create directory for affine transformation: \${affine_dir}"
@@ -64,12 +75,13 @@ process BIGSTREAM_GLOBALALIGN {
     fi
 
     python /app/bigstream/scripts/main_align_pipeline.py \
-        --fixed-global \${fix_fullpath} ${fix_image_subpath_arg} \
-        --moving-global \${mov_fullpath} ${mov_image_subpath_arg} \
+        --global-fix \${fix_fullpath} ${fix_image_subpath_arg} \
+        --global-mov \${mov_fullpath} ${mov_image_subpath_arg} \
         ${fix_mask_arg} ${fix_mask_subpath_arg} \
         ${mov_mask_arg} ${mov_mask_subpath_arg} \
         ${steps_arg} \
-        --global-output-dir ${output_dir} \
+        ${bigstream_config_arg} \
+        --global-output-dir \${output_fullpath} \
         ${transform_name_arg} \
         ${aligned_name_arg} \
         ${args}

@@ -97,6 +97,7 @@ workflow registration {
 
     def bigstream_results = BIGSTREAM_REGISTRATION(
         bigstream_input,
+        params.bigstream_config ? file(params.bigstream_config): '',
         params.bigstream_global_align_cpus,
         params.bigstream_global_align_mem_gb,
         params.bigstream_local_align_cpus,

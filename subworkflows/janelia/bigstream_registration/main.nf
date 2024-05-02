@@ -36,6 +36,7 @@ workflow BIGSTREAM_REGISTRATION {
                        //  dask_worker_cpus
                        //  dask_worker_mem_gb
                        //  ]
+    registration_config
     global_align_cpus
     global_align_mem_gb
     local_align_cpus
@@ -71,8 +72,11 @@ workflow BIGSTREAM_REGISTRATION {
         return r
     }
 
+    def bigstream_config = as_value_channel(registration_config).map { it ?: [] }
+
     def global_align_results = BIGSTREAM_GLOBALALIGN(
         global_align_input,
+        bigstream_config,
         global_align_cpus,
         global_align_mem_gb,
     )
@@ -141,7 +145,7 @@ workflow BIGSTREAM_REGISTRATION {
                 local_fix,
                 local_mov,
                 file(local_output).parent, // local_output may not exist yet so we use the parent
-            ] + 
+            ] +
             (local_fix_mask ? [local_fix_mask] :[]) +
             (local_mov_mask ? [local_mov_mask] :[]) +
             additional_deformation_data
@@ -242,6 +246,7 @@ workflow BIGSTREAM_REGISTRATION {
 
     def local_align_results = BIGSTREAM_LOCALALIGN(
         local_align_input.data,
+        bigstream_config,
         local_align_input.cluster,
         local_align_cpus,
         local_align_mem_gb,
@@ -352,4 +357,16 @@ workflow BIGSTREAM_REGISTRATION {
     global = global_align_results 
     local = local_align_results
     cluster
+}
+
+def as_value_channel(v) {
+    if (!v.toString().contains("Dataflow")) {
+        Channel.value(v)
+    } else if (!v.toString().contains("value")) {
+        // if not a value channel return the first value
+        v.first()
+    } else {
+        // this is a value channel
+        v
+    }
 }

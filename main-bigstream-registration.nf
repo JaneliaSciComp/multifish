@@ -84,6 +84,7 @@ workflow {
 
     BIGSTREAM_REGISTRATION(
         registration_input,
+        params.bigstream_config ? file(params.bigstream_config): '',
         params.bigstream.global_align_cpus,
         params.bigstream.global_align_mem_gb,
         params.bigstream.local_align_cpus,
@@ -98,7 +99,13 @@ workflow.onComplete {
 
 def create_addional_deformations_from_subpaths(image, image_subpaths, output_dir) {
     if (image_subpaths) {
-        image_subpaths.tokenize(' ')
+        def image_subpaths_list
+        if (image_subpaths instanceof Collection) {
+            image_subpaths_list = image_subpaths
+        } else {
+            image_subpaths_list = image_subpaths.tokenize(' ')
+        }
+        image_subpaths_list
             .collect { it.trim() }
             .collect { subpath ->
                 [
@@ -107,7 +114,6 @@ def create_addional_deformations_from_subpaths(image, image_subpaths, output_dir
                     output_dir,
                 ]
             }
-
     } else {
         []
     }
@@ -115,7 +121,13 @@ def create_addional_deformations_from_subpaths(image, image_subpaths, output_dir
 
 def create_addional_deformations_from_paths(image_paths, output_dir) {
     if (image_paths) {
-        image_paths.tokenize(' ')
+        def image_paths_list
+        if (image_paths instanceof Collection) {
+            image_paths_list = image_paths
+        } else {
+            image_paths_list = image_paths.tokenize(' ')
+        }
+        image_paths_list
             .collect { it.trim() }
             .collect { image_path ->
                 def image_file = file(image_path)
@@ -125,7 +137,6 @@ def create_addional_deformations_from_paths(image_paths, output_dir) {
                     "${output_dir}/${image_file.name}",
                 ]
             }
-
     } else {
         []
     }
