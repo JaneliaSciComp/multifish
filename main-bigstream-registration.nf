@@ -84,7 +84,7 @@ workflow {
 
     BIGSTREAM_REGISTRATION(
         registration_input,
-        params.bigstream_config ? file(params.bigstream_config): '',
+        params.bigstream.bigstream_config ? file(params.bigstream.bigstream_config): '',
         params.bigstream.global_align_cpus,
         params.bigstream.global_align_mem_gb,
         params.bigstream.local_align_cpus,
