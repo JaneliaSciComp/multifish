@@ -22,7 +22,7 @@
           },
           "bigstream/transformcoords": {
             "branch": "main",
-            "git_sha": "5ed5d12dd6deb1b14a5dfdbfe0244ebdcff87a32",
+            "git_sha": "29f7f0bddb5ce3329ebda2cfebe7ec5095806a1d",
             "installed_by": ["modules"]
           },
           "cellpose": {
