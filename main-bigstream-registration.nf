@@ -48,6 +48,7 @@ workflow {
         local_mov,
         params.bigstream_additional_deformed_subpaths,
         local_output_dir,
+        params.bigstream_local_align_name,
     ) +
     create_addional_deformations_from_paths(
         params.bigstream_additional_deformed_paths,
@@ -103,7 +104,7 @@ workflow.onComplete {
     println "Execution status: ${ workflow.success ? 'OK' : 'failed' }"
 }
 
-def create_addional_deformations_from_subpaths(image, image_subpaths, output_dir) {
+def create_addional_deformations_from_subpaths(image, image_subpaths, output_dir, align_name) {
     if (image_subpaths) {
         def image_subpaths_list
         if (image_subpaths instanceof Collection) {
@@ -117,7 +118,7 @@ def create_addional_deformations_from_subpaths(image, image_subpaths, output_dir
                 [
                     image,
                     subpath,
-                    output_dir,
+                    "${output_dir}/${align_name}",
                 ]
             }
     } else {
@@ -140,7 +141,7 @@ def create_addional_deformations_from_paths(image_paths, output_dir) {
                 [
                     image_file,
                     '',
-                    "${output_dir}/${image_file.name}",
+                    "${output_dir}/warped-${image_file.name}",
                 ]
             }
     } else {
