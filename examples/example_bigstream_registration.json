@@ -1,0 +1,53 @@
+{
+    "bigstream_fix_name": "f",
+    "bigstream_mov_name": "m",
+    "bigstream_config": "./examples/bigstream_config.yml",
+
+    "bigstream_global_steps": "ransac,affine",
+    "bigstream_global_use_existing_affine_if_found": true,
+
+    "bigstream_global_fix": "/nrs/scicompsoft/fleishmang/zipursky/r1_c3_reg_s4.tiff",
+    "bigstream_global_fix_subpath": "",
+    "bigstream_global_fix_mask": "",
+
+    "bigstream_global_mov": "/nrs/scicompsoft/fleishmang/zipursky/r3_c3_reg_s4.tiff",
+    "bigstream_global_mov_subpath": "",
+    "bigstream_global_mov_mask": "",
+
+    "bigstream_global_output_dir": "/nrs/scicompsoft/goinac/multifish/example/registration",
+    "bigstream_global_transform_name": "affine.mat",
+    "bigstream_global_align_name": "affine.n5",
+
+    "bigstream_local_steps": "ransac,deform",
+
+    "bigstream_local_fix": "/nrs/scicompsoft/fleishmang/zipursky/r1_c3_reg_s4.tiff",
+    "bigstream_local_fix_subpath": "",
+
+    "bigstream_local_mov": "/nrs/scicompsoft/fleishmang/zipursky/r3_c3_reg_s4.tiff",
+    "bigstream_local_mov_subpath": "",
+
+    "bigstream_local_output_dir": "/nrs/scicompsoft/goinac/multifish/example/registration",
+    "bigstream_local_align_name": "warped.n5",
+    "bigstream_local_transform_name": "deform.n5",
+    "bigstream_local_inv_transform_name": "inv-deform.n5",
+    "bigstream_local_fix_spacing": "0.23,0.23,0.46",
+    "bigstream_local_mov_spacing": "0.23,0.23,0.46",
+
+    "bigstream_global_align_cpus": 6,
+    "bigstream_global_align_mem_gb": 50,
+    "bigstream_local_align_cpus": 2,
+    "bigstream_local_align_mem_gb": 30,
+
+    "bigstream_local_align_workers": 15,
+    "bigstream_local_align_min_workers": 10,
+    "bigstream_local_align_worker_cpus": 2,
+    "bigstream_local_align_worker_mem_gb": 30,
+    "bigstream_local_max_tasks": 15,
+
+    "bigstream_local_blocksize":  "128,128,128",
+    "bigstream_local_overlap_factor": 0.25,
+
+    "bigstream_additional_deformed_paths": [    
+        "/nrs/scicompsoft/fleishmang/zipursky/r3_c3_reg_s4.tiff"
+    ]
+}

@@ -1,0 +1,19 @@
+ransac:
+  blob_sizes: [2, 8]
+  cc_radius: 16
+
+global_align:
+  affine:
+    metric: 'C'
+    optimizer_args:
+      learningRate: 0.25
+      minStep: 0
+      numberOfIterations: 10
+
+local_align:
+  deform:
+    metric: 'C'
+    optimizer_args:
+      learningRate: 0.25
+      minStep: 0
+      numberOfIterations: 10
