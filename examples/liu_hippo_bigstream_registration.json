@@ -35,13 +35,13 @@
     "bigstream_local_align_mem_gb": 30,
 
     "bigstream_local_align_workers": 15,
-    "bigstream_local_align_min_workers": 4,
+    "bigstream_local_align_min_workers": 10,
     "bigstream_local_align_worker_cpus": 2,
     "bigstream_local_align_worker_mem_gb": 30,
-    "bigstream_local_max_tasks": 30,
+    "bigstream_local_max_tasks": 15,
 
-    "bigstream_local_blocksize":  "256,256,256",
-    "bigstream_local_overlap_factor": 0.3,
+    "bigstream_local_blocksize":  "512,512,256",
+    "bigstream_local_overlap_factor": 0.25,
 
     "bigstream_additional_deformed_subpaths": [
         "c0/s2", "c1/s2", "c2/s2"
