@@ -5,12 +5,12 @@
     "bigstream_global_steps": "",
     "bigstream_global_use_existing_affine_if_found": false,
 
-    "bigstream_global_fix": "",
+    "bigstream_global_fix": "/nrs/liu/Hippo_rawtiff/DAPI_s2/padded/stitch_t15_c3_s2_padded.tiff",
     "bigstream_global_fix_subpath": "",
-    "bigstream_global_mov": "",
+    "bigstream_global_mov": "/nrs/liu/Hippo_rawtiff/DAPI_s2/padded/stitch_t00_c3_s2_padded.tiff",
     "bigstream_global_mov_subpath": "",
 
-    "bigstream_global_output_dir": "",
+    "bigstream_global_output_dir": "/nrs/scicompsoft/goinac/multifish/liu/registration/t00-t15",
     "bigstream_global_transform_name": "",
     "bigstream_global_align_name": "",
 
