@@ -14,8 +14,8 @@ with_dask = params.with_dask
 dask_config = params.dask_config ? file(params.dask_config): ''
 dask_work_dir = params.dask_work_dir ? file(params.dask_work_dir): ''
 
-global_output_dir = file(params.bigstream_global_output_dir)
-local_output_dir = file(params.bigstream_local_output_dir)
+global_output_dir = params.bigstream_global_output_dir ? file(params.bigstream_global_output_dir) : ''
+local_output_dir = params.bigstream_local_output_dir ? file(params.bigstream_local_output_dir) : ''
 
 
 log.info """\
