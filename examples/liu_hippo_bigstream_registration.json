@@ -5,14 +5,14 @@
     "bigstream_global_steps": "",
     "bigstream_global_use_existing_affine_if_found": false,
 
-    "bigstream_global_fix": "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t0/stitching/export.n5",
-    "bigstream_global_fix_subpath": "c3/s3",
-    "bigstream_global_mov": "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t1/stitching/export.n5",
-    "bigstream_global_mov_subpath": "c3/s3",
+    "bigstream_global_fix": "",
+    "bigstream_global_fix_subpath": "",
+    "bigstream_global_mov": "",
+    "bigstream_global_mov_subpath": "",
 
-    "bigstream_global_output_dir": "/nrs/scicompsoft/goinac/multifish/liu/registration/t0-t1/aff",
-    "bigstream_global_transform_name": "affine.mat",
-    "bigstream_global_align_name": "affine.n5",
+    "bigstream_global_output_dir": "",
+    "bigstream_global_transform_name": "",
+    "bigstream_global_align_name": "",
 
     "bigstream_local_steps": "ransac,deform",
 
