@@ -36,8 +36,8 @@ log.info """\
 
 
 workflow {
-    def fix_name = params.bigstream_fix_name ?: global_fix.name
-    def mov_name = params.bigstream_mov_name ?: global_mov.name
+    def fix_name = get_name(params.bigstream_fix_name, global_fix, local_fix, 'fix')
+    def mov_name = get_name(params.bigstream_mov_name, global_mov, local_mov, 'mov')
 
     def meta = [
         id: "${mov_name}-to-${fix_name}"
@@ -145,5 +145,17 @@ def create_addional_deformations_from_paths(image_paths, output_dir) {
             }
     } else {
         []
+    }
+}
+
+def get_name(preferred_name, global_file, local_file, default_name) {
+    if (preferred_name) {
+        preferred_name
+    } else if (global_file) {
+        global_file.name
+    } else if (local_file) {
+        local_file.name
+    } else {
+        default_name
     }
 }

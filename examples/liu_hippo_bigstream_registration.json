@@ -1,6 +1,6 @@
 {
-    "bigstream_fixed_name": "t00",
-    "bigstream_moving_name": "t15",
+    "bigstream_fix_name": "t00",
+    "bigstream_mov_name": "t15",
 
     "bigstream_global_steps": "",
     "bigstream_global_use_existing_affine_if_found": false,
