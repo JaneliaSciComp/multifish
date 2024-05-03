@@ -1,51 +1,47 @@
 {
-    "bigstream": {
-        "fixed_name": "t0",
-        "moving_name": "t1",
+    "bigstream_fixed_name": "t0",
+    "bigstream_moving_name": "t1",
 
-        "global_steps": "ransac,affine",
-        "global_use_existing_affine_if_found": true,
+    "bigstream_global_steps": "ransac,affine",
+    "bigstream_global_use_existing_affine_if_found": true,
 
-        "global_fix": "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t0/stitching/export.n5",
-        "global_fix_subpath": "c3/s3",
-        "global_mov": "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t1/stitching/export.n5",
-        "global_mov_subpath": "c3/s3",
+    "bigstream_global_fix": "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t0/stitching/export.n5",
+    "bigstream_global_fix_subpath": "c3/s3",
+    "bigstream_global_mov": "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t1/stitching/export.n5",
+    "bigstream_global_mov_subpath": "c3/s3",
 
-        "global_output_dir": "/nrs/scicompsoft/goinac/multifish/liu/registration/t0-t1/aff",
-	    "global_transform_name": "affine.mat",
-        "global_align_name": "affine.n5",
+    "bigstream_global_output_dir": "/nrs/scicompsoft/goinac/multifish/liu/registration/t0-t1/aff",
+    "bigstream_global_transform_name": "affine.mat",
+    "bigstream_global_align_name": "affine.n5",
 
-        "local_steps": "ransac,deform",
+    "bigstream_local_steps": "ransac,deform",
 
-        "local_fix": "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t0/stitching/export.n5",
-        "local_fix_subpath": "c3/s2",
+    "bigstream_local_fix": "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t0/stitching/export.n5",
+    "bigstream_local_fix_subpath": "c3/s2",
 
-        "local_mov": "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t0/stitching/export.n5",
-        "local_mov_subpath": "c3/s2",
+    "bigstream_local_mov": "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t0/stitching/export.n5",
+    "bigstream_local_mov_subpath": "c3/s2",
 
-        "local_output_dir": "/nrs/scicompsoft/goinac/multifish/liu/registration/t0-t1",
-        "local_align_name": "warped.n5",
-        "local_transform_name": "deform.n5",
-        "local_invtransform_name": "inv-deform.n5",
+    "bigstream_local_output_dir": "/nrs/scicompsoft/goinac/multifish/liu/registration/t0-t1",
+    "bigstream_local_align_name": "warped.n5",
+    "bigstream_local_transform_name": "deform.n5",
+    "bigstream_local_invtransform_name": "inv-deform.n5",
 
-        "global_align_cpus": 6,
-        "global_align_mem_gb": 50,
-        "local_align_cpus": 2,
-        "local_align_mem_gb": 30,
- 
-        "local_align_workers": 15,
-        "local_align_min_workers": 4,
-        "local_align_worker_cpus": 2,
-        "local_align_worker_mem_gb": 30,
-        "local_max_tasks": 30,
+    "bigstream_global_align_cpus": 6,
+    "bigstream_global_align_mem_gb": 50,
+    "bigstream_local_align_cpus": 2,
+    "bigstream_local_align_mem_gb": 30,
 
-        "local_blocksize":  "256,256,256",
-        "local_overlap_factor": 0.3,
+    "bigstream_local_align_workers": 15,
+    "bigstream_local_align_min_workers": 4,
+    "bigstream_local_align_worker_cpus": 2,
+    "bigstream_local_align_worker_mem_gb": 30,
+    "bigstream_local_max_tasks": 30,
 
-        "additional_deformed_subpaths": [
-            "c0/s2", "c1/s2", "c2/s2"
-        ]
-    },
+    "bigstream_local_blocksize":  "256,256,256",
+    "bigstream_local_overlap_factor": 0.3,
 
-    "runtime_opts": "--env ITK_THREADS=12"
+    "bigstream_additional_deformed_subpaths": [
+        "c0/s2", "c1/s2", "c2/s2"
+    ]
 }
