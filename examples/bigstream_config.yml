@@ -6,6 +6,7 @@ global_align:
   affine:
     metric: 'C'
     alignment_spacing: 2.0
+    shrink_factors: [2]
     optimizer_args:
       learningRate: 0.25
       minStep: 0
@@ -15,6 +16,7 @@ local_align:
   deform:
     metric: 'C'
     alignment_spacing: 2.0
+    shrink_factors: [2]
     optimizer_args:
       learningRate: 0.25
       minStep: 0
