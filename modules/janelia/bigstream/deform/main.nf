@@ -58,7 +58,7 @@ process BIGSTREAM_DEFORM {
         --moving \${mov_fullpath} ${mov_image_subpath_arg} ${mov_spacing_arg} \
         ${affine_transforms_arg} \
         ${local_transform_arg} ${local_transform_subpath_arg} \
-        --output ${output_dir} ${output_subpath_arg} \
+        --output \${output_fullpath} ${output_subpath_arg} \
         ${dask_scheduler_arg} \
         ${dask_config_arg} \
         ${args}
