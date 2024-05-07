@@ -310,11 +310,17 @@ workflow BIGSTREAM_REGISTRATION {
                 def (ref_image_path, ref_image_subpath, ref_image_scale,
                      image_path, image_subpath, image_scale,
                      warped_image_path) = it
+                def affine_transform_path
+                if (local_results_affine_dir && local_results_affine_transform) {
+                    affine_transform_path = file("${local_results_affine_dir}/${local_results_affine_transform}"),
+                } else {
+                    affine_transform_path = []
+                }
                 def d = [
                     meta,
                     ref_image_path, ref_image_subpath, ref_image_scale,
                     image_path, image_subpath, image_scale,
-                    file("${local_results_affine_dir}/${local_results_affine_transform}"),
+                    affine_transform_path,
                     file("${local_results_output}/${local_results_deform_name}"), local_results_deform_subpath,
                     warped_image_path, image_subpath,
                     // cluster inputs

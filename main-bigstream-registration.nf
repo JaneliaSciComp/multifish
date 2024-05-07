@@ -48,6 +48,7 @@ workflow {
         params.bigstream_additional_deformations,
         local_output_dir, params.bigstream_local_align_name,
     )
+    log.info "Additional deformation entries: ${additional_deformations}"
 
     def registration_input = Channel.of(
         [
