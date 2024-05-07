@@ -121,7 +121,7 @@ def create_addional_deformations(ref_path, ref_subpath, ref_scale,
 
                     image_file,
                     '',
-                    "${output_dir}/${warped_image_name}",
+                    "${output_path}/${warped_image_name}",
                 ]
                 log.debug "Add deformation for $r"
                 r
