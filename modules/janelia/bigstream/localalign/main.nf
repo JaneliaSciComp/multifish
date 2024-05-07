@@ -44,7 +44,9 @@ process BIGSTREAM_LOCALALIGN {
 
     script:
     def args = task.ext.args ?: ''
+    def fix_image_arg = fix_image ? "--local-fix \${fix_fullpath}" : ''
     def fix_image_subpath_arg = fix_image_subpath ? "--local-fix-subpath ${fix_image_subpath}" : ''
+    def mov_image_arg = mov_image ? "--local-mov \${mov_fullpath}" : ''
     def mov_image_subpath_arg = mov_image_subpath ? "--local-mov-subpath ${mov_image_subpath}" : ''
     def fix_mask_arg = fix_mask ? "--local-fix-mask \$(readlink ${fix_mask})" : ''
     def fix_mask_subpath_arg = fix_mask && fix_mask_subpath ? "--local-fix-mask-subpath ${fix_mask_subpath}" : ''
@@ -53,6 +55,7 @@ process BIGSTREAM_LOCALALIGN {
     def affine_dir_arg = affine_dir ? "--global-output-dir ${affine_dir}" : ''
     def affine_transform_name_arg = affine_transform_name ? "--global-transform-name ${affine_transform_name}" : ''
     def steps_arg = steps ? "--local-registration-steps ${steps}" : ''
+    def output_dir_arg = output_dir ? "--local-output-dir ${output_dir}" : ''
     def transform_name_arg = transform_name ? "--local-transform-name ${transform_name}" : ''
     def transform_subpath_param = transform_subpath
     def transform_subpath_arg = transform_subpath_param ? "--local-transform-subpath ${transform_subpath_param}" : ''
@@ -68,30 +71,46 @@ process BIGSTREAM_LOCALALIGN {
     inv_transform_subpath_output = inv_transform_subpath_param ?: transform_subpath_output
 
     """
-    output_fullpath=\$(readlink ${output_dir})
-    if [[ ! -e \${output_fullpath} ]] ; then
-        echo "Create output directory: \${output_fullpath}"
-        mkdir -p \${output_fullpath}
+    if [[ "${fix_image}" != "" ]];  then
+        fix_fullpath=\$(readlink ${fix_image})
+        echo "Fix volume full path: \${fix_fullpath}"
     else
-        echo "Output directory: \${output_fullpath} - already exists"
+        fix_fullpath=
+        echo "No fix volume provided"
     fi
-    fix_fullpath=\$(readlink ${fix_image})
-    mov_fullpath=\$(readlink ${mov_image})
+    if [[ "${mov_image}" != "" ]];  then
+        mov_fullpath=\$(readlink ${mov_image})
+        echo "Moving volume full path: \${mov_fullpath}"
+    else
+        mov_fullpath=
+        echo "No moving volume provided"
+    fi
+    if [[ "${output_dir}" != "" ]] ; then
+        output_fullpath=\$(readlink ${output_dir})
+        if [[ ! -e \${output_fullpath} ]] ; then
+            echo "Create output directory: \${output_fullpath}"
+            mkdir -p \${output_fullpath}
+        else
+            echo "Output directory: \${output_fullpath} - already exists"
+        fi
+    else
+        output_fullpath=
+    fi
     if [[ "${affine_dir}" != "" ]] ; then
         affine_fullpath=\$(readlink ${affine_dir})
     else
         affine_fullpath=
     fi
     python /app/bigstream/scripts/main_align_pipeline.py \
-        --local-fix \${fix_fullpath} ${fix_image_subpath_arg} \
-        --local-mov \${mov_fullpath} ${mov_image_subpath_arg} \
+        ${fix_image_arg} ${fix_image_subpath_arg} \
+        ${mov_image_arg} ${mov_image_subpath_arg} \
         ${fix_mask_arg} ${fix_mask_subpath_arg} \
         ${mov_mask_arg} ${mov_mask_subpath_arg} \
         ${affine_dir_arg} \
         ${affine_transform_name_arg} \
         ${steps_arg} \
         ${bigstream_config_arg} \
-        --local-output-dir ${output_dir} \
+        ${output_dir_arg} \
         ${transform_name_arg} ${transform_subpath_arg} \
         ${inv_transform_name_arg} ${inv_transform_subpath_arg} \
         ${aligned_name_arg} \

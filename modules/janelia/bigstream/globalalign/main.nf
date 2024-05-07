@@ -29,7 +29,7 @@ process BIGSTREAM_GLOBALALIGN {
           env(fix_fullpath), val(fix_image_subpath),
           env(mov_fullpath), val(mov_image_subpath),
           env(output_fullpath),
-          val(transform_name_output),
+          val(transform_name),
           val(alignment_name)                      , emit: results
 
     when:
@@ -37,51 +37,67 @@ process BIGSTREAM_GLOBALALIGN {
 
     script:
     def args = task.ext.args ?: ''
+    def fix_image_arg = fix_image ? "--global-fix \${fix_fullpath}" : ''
     def fix_image_subpath_arg = fix_image_subpath ? "--global-fix-subpath ${fix_image_subpath}" : ''
+    def mov_image_arg = mov_image ? "--global-mov \${mov_fullpath}" : ''
     def mov_image_subpath_arg = mov_image_subpath ? "--global-mov-subpath ${mov_image_subpath}" : ''
     def fix_mask_arg = fix_mask ? "--global-fix-mask ${fix_mask}" : ''
     def fix_mask_subpath_arg = fix_mask && fix_mask_subpath ? "--global-fix-mask-subpath ${fix_mask_subpath}" : ''
     def mov_mask_arg = mov_mask ? "--global-mov-mask ${mov_mask}" : ''
     def mov_mask_subpath_arg = mov_mask && mov_mask_subpath ? "--global-mov-mask-subpath ${mov_mask_subpath}" : ''
     def steps_arg = steps ? "--global-registration-steps ${steps}" : ''
-    def transform_name_param = transform_name
+    def output_dir_param = output_dir ?: ''
+    def output_dir_arg = output_dir ? "--global-output-dir \${output_fullpath}" : ''
+    def transform_name_param = transform_name ?: ''
     def transform_name_arg = transform_name_param ? "--global-transform-name ${transform_name_param}" : ''
     def aligned_name_arg = alignment_name ? "--global-align-name ${alignment_name}" : ''
     def bigstream_config_arg = bigstream_config ? "--align-config ${bigstream_config}" : ''
 
-    transform_name_output = transform_name_param ?: 'affine-transform.mat'
-
     """
-    output_fullpath=\$(readlink -m ${output_dir})
-    if [[ ! -e \${output_fullpath} ]] ; then
-        echo "Create output directory: \${output_fullpath}"
-        mkdir -p \${output_fullpath}
+    if [[ "${fix_image}" != "" ]];  then
+        fix_fullpath=\$(readlink -m ${fix_image})
+        echo "Fix volume full path: \${fix_fullpath}"
     else
-        echo "Output directory: \${output_fullpath} - already exists"
+        fix_fullpath=
+        echo "No fix volume provided"
     fi
-    fix_fullpath=\$(readlink -m ${fix_image})
-    echo "Fix volume full path: \${fix_fullpath}"
-    mov_fullpath=\$(readlink -m ${mov_image})
-    echo "Moving volume full path: \${mov_fullpath}"
-    if [[ "${transform_name_param}" != "" ]] ; then
-        affine_dir=\$(dirname "\${output_fullpath}/${transform_name_param}")
-        echo "Create directory for affine transformation: \${affine_dir}"
-        mkdir -p \${affine_dir}
+    if [[ "${mov_image}" != "" ]];  then
+        mov_fullpath=\$(readlink -m ${mov_image})
+        echo "Moving volume full path: \${mov_fullpath}"
+    else
+        mov_fullpath=
+        echo "No moving volume provided"
     fi
-    if [[ "${alignment_name}" != "" ]] ; then
-        alignment_dir=\$(dirname "\${output_fullpath}/${alignment_name}")
-        echo "Create directory for affine alignment: \${alignment_dir}"
-        mkdir -p \${alignment_dir}
+    if [[ "${output_dir_param}" != "" ]] ; then
+        output_fullpath=\$(readlink -m ${output_dir})
+        if [[ ! -e \${output_fullpath} ]] ; then
+            echo "Create output directory: \${output_fullpath}"
+            mkdir -p \${output_fullpath}
+        else
+            echo "Output directory: \${output_fullpath} - already exists"
+        fi
+        if [[ "${transform_name_param}" != "" ]] ; then
+            affine_dir=\$(dirname "\${output_fullpath}/${transform_name_param}")
+            echo "Create directory for affine transformation: \${affine_dir}"
+            mkdir -p \${affine_dir}
+        fi
+        if [[ "${alignment_name}" != "" ]] ; then
+            alignment_dir=\$(dirname "\${output_fullpath}/${alignment_name}")
+            echo "Create directory for affine alignment: \${alignment_dir}"
+            mkdir -p \${alignment_dir}
+        fi
+    else
+        output_fullpath=
     fi
 
     python /app/bigstream/scripts/main_align_pipeline.py \
-        --global-fix \${fix_fullpath} ${fix_image_subpath_arg} \
-        --global-mov \${mov_fullpath} ${mov_image_subpath_arg} \
+        ${fix_image_arg} ${fix_image_subpath_arg} \
+        ${mov_image_arg} ${mov_image_subpath_arg} \
         ${fix_mask_arg} ${fix_mask_subpath_arg} \
         ${mov_mask_arg} ${mov_mask_subpath_arg} \
         ${steps_arg} \
         ${bigstream_config_arg} \
-        --global-output-dir \${output_fullpath} \
+        ${output_dir_arg} \
         ${transform_name_arg} \
         ${aligned_name_arg} \
         ${args}

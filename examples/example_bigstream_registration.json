@@ -49,7 +49,7 @@
     "bigstream_local_blocksize":  "128,128,128",
     "bigstream_local_overlap_factor": 0.25,
 
-    "bigstream_additional_deformed_paths": [    
-        "/nrs/scicompsoft/fleishmang/zipursky/r3_c3_reg_s4.tiff"
+    "bigstream_additional_deformations": [
+        "/nrs/scicompsoft/fleishmang/zipursky/r3_c3_reg_s4.tiff", "", ""
     ]
 }

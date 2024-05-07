@@ -43,8 +43,8 @@
     "bigstream_local_blocksize":  "512,512,256",
     "bigstream_local_overlap_factor": 0.25,
 
-    "bigstream_additional_deformed_paths": [
-        "/nrs/liu/Hippo_rawtiff/stitch_t00_c0_s2.tiff",
-        "/nrs/liu/Hippo_rawtiff/DAPI_s2/padded/stitch_t00_c3_s2_padded.tiff"
+    "bigstream_additional_deformations": [
+        "/nrs/liu/Hippo_rawtiff/stitch_t00_c0_s2.tiff", "", "",
+        "/nrs/liu/Hippo_rawtiff/DAPI_s2/padded/stitch_t00_c3_s2_padded.tiff", "", ""
     ]
 }

@@ -5,8 +5,8 @@ process BIGSTREAM_DEFORM {
 
     input:
     tuple val(meta),
-          path(fix_image, stageAs: 'fix/*'),val(fix_image_subpath),
-          path(mov_image, stageAs: 'mov/*'),val(mov_image_subpath),
+          path(fix_image, stageAs: 'fix/*'),val(fix_image_subpath),val(fix_spacing),
+          path(mov_image, stageAs: 'mov/*'),val(mov_image_subpath),val(mov_spacing),
           path(affine_transforms, stageAs: 'affine/*'), // one or more affine transformations (paths to the corresponding affine.mat)
           path(deform_dir, stageAs: 'deformation/*'), // location of the displacement vector
           val(deform_subpath), // displacement vector subpath
@@ -28,8 +28,10 @@ process BIGSTREAM_DEFORM {
 
     script:
     def args = task.ext.args ?: ''
-    def fix_image_subpath_arg = fix_image_subpath ? "--fixed-subpath ${fix_image_subpath}" : ''
-    def mov_image_subpath_arg = mov_image_subpath ? "--moving-subpath ${mov_image_subpath}" : ''
+    def fix_image_subpath_arg = fix_image_subpath ? "--fix-subpath ${fix_image_subpath}" : ''
+    def fix_spacing_arg = fix_spacing ? "--fix-spacing ${fix_spacing}" : ''
+    def mov_image_subpath_arg = mov_image_subpath ? "--mov-subpath ${mov_image_subpath}" : ''
+    def mov_spacing_arg = mov_spacing ? "--mov-spacing ${mov_spacing}" : ''
     def affine_transforms_arg
     if (affine_transforms) {
       if (affine_transforms instanceof Collection) {
@@ -52,8 +54,8 @@ process BIGSTREAM_DEFORM {
     output_fullpath=\$(readlink ${output_dir})
     mkdir -p \${output_fullpath}
     python /app/bigstream/scripts/main_apply_local_transform.py \
-        --fixed \${fix_fullpath} ${fix_image_subpath_arg} \
-        --moving \${mov_fullpath} ${mov_image_subpath_arg} \
+        --fix \${fix_fullpath} ${fix_image_subpath_arg} ${fix_spacing_arg} \
+        --moving \${mov_fullpath} ${mov_image_subpath_arg} ${mov_spacing_arg} \
         ${affine_transforms_arg} \
         ${local_transform_arg} ${local_transform_subpath_arg} \
         --output ${output_dir} ${output_subpath_arg} \

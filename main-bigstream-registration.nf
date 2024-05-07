@@ -43,15 +43,10 @@ workflow {
         id: "${mov_name}-to-${fix_name}"
     ]
 
-    def additional_deformations = create_addional_deformations_from_subpaths(
-        local_mov,
-        params.bigstream_additional_deformed_subpaths,
-        local_output_dir,
-        params.bigstream_local_align_name,
-    ) +
-    create_addional_deformations_from_paths(
-        params.bigstream_additional_deformed_paths,
-        local_output_dir,
+    def additional_deformations = create_addional_deformations(
+        local_fix, params.bigstream_local_fix_subpath, params.bigstream_local_fix_spacing,
+        params.bigstream_additional_deformations,
+        local_output_dir, params.bigstream_local_align_name,
     )
 
     def registration_input = Channel.of(
@@ -103,45 +98,33 @@ workflow.onComplete {
     println "Execution status: ${ workflow.success ? 'OK' : 'failed' }"
 }
 
-def create_addional_deformations_from_subpaths(image, image_subpaths, output_dir, align_name) {
-    if (image_subpaths) {
-        def image_subpaths_list
-        if (image_subpaths instanceof Collection) {
-            image_subpaths_list = image_subpaths
+def create_addional_deformations(ref_path, ref_subpath, ref_scale,
+                                 deformation_entries,
+                                 output_path, output_name) {
+    if (deformation_entries) {
+        def deformation_entries_list
+        if (deformation_entries instanceof Collection) {
+            deformation_entries_list = deformation_entries
         } else {
-            image_subpaths_list = image_subpaths.tokenize(' ')
+            deformation_entries_list = deformation_entries.tokenize(' ')
         }
-        image_subpaths_list
+        deformation_entries_list
             .collect { it.trim() }
-            .collect { subpath ->
-                [
-                    image,
-                    subpath,
-                    "${output_dir}/${align_name}",
-                ]
-            }
-    } else {
-        []
-    }
-}
-
-def create_addional_deformations_from_paths(image_paths, output_dir) {
-    if (image_paths) {
-        def image_paths_list
-        if (image_paths instanceof Collection) {
-            image_paths_list = image_paths
-        } else {
-            image_paths_list = image_paths.tokenize(' ')
-        }
-        image_paths_list
-            .collect { it.trim() }
-            .collect { image_path ->
+            .collate(3)
+            .collect {
+                def (image_path, image_subpath, image_scale) = it
                 def image_file = file(image_path)
-                [
+                def warped_image_name = output_name ?: "warped-${image_file.name}"
+                def r = [
+                    ref_path, image_subpath ?: ref_subpath, image_scale ?: ref_scale,
+                    image_path, image_subpath, image_scale,
+
                     image_file,
                     '',
-                    "${output_dir}/warped-${image_file.name}",
+                    "${output_dir}/${warped_image_name}",
                 ]
+                log.debug "Add deformation for $r"
+                r
             }
     } else {
         []
