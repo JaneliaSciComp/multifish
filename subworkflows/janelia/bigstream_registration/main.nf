@@ -312,7 +312,7 @@ workflow BIGSTREAM_REGISTRATION {
                      warped_image_path) = it
                 def affine_transform_path
                 if (local_results_affine_dir && local_results_affine_transform) {
-                    affine_transform_path = file("${local_results_affine_dir}/${local_results_affine_transform}"),
+                    affine_transform_path = file("${local_results_affine_dir}/${local_results_affine_transform}")
                 } else {
                     affine_transform_path = []
                 }
