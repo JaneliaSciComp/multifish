@@ -110,6 +110,9 @@ acq_names = get_list_or_default(final_params, 'acq_names', [])
 ref_acq = final_params.ref_acq
 channels = get_list_or_default(final_params, 'channels',[])
 
+warped_channels = get_list_or_default(final_params, 'warped_channels', channels)
+warped_scales = get_list_or_default(final_params, 'warped_scales', [final_params.def_scale])
+
 log.info """
     ===================================
     EASI-FISH ANALYSIS PIPELINE
@@ -372,7 +375,8 @@ workflow {
             final_params.ransac_dist_threshold,
             final_params.deform_iterations,
             final_params.deform_auto_mask,
-            channels
+            warped_channels,
+            warped_scales,
         )
     } else {
         registration_results = Channel.of() // empty

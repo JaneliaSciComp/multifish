@@ -27,6 +27,7 @@ workflow registration {
     deform_iterations
     deform_auto_mask
     warped_channels
+    warped_scales
 
     main:
     if (params.use_bigstream) {
@@ -45,7 +46,8 @@ workflow registration {
             ransac_dist_threshold,
             deform_iterations,
             deform_auto_mask,
-            warped_channels
+            warped_channels,
+            warped_scales,
         )
     } else {
         done = legacy_registration(

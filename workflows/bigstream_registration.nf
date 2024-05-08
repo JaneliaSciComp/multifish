@@ -29,6 +29,7 @@ workflow registration {
     deform_iterations
     deform_auto_mask
     warped_channels
+    warped_scales
 
     main:
     def bigstream_input = registration_input
@@ -43,10 +44,12 @@ workflow registration {
             id: "${fixed_acq_name}-${moving_acq_name}",
         ]
         // additional deformation input
-        def additional_deforms = warped_channels.collect { warped_ch ->
+        def additional_deforms = [warped_channels, warped_scales]
+            .combinations()
+            .collect { warped_ch, warped_scale ->
             [
-                fixed,  "${warped_ch}/${deformation_scale}", '',
-                moving, "${warped_ch}/${deformation_scale}", '',
+                fixed,  "${warped_ch}/${warped_scale}", '',
+                moving, "${warped_ch}/${warped_scale}", '',
                 "${output}/warped", '',
             ]
         }
