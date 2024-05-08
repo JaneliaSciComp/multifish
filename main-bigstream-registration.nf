@@ -116,13 +116,14 @@ def create_addional_deformations(ref_path, ref_subpath, ref_scale,
                 def (image_path, image_subpath, image_scale) = it
                 def image_file = file(image_path)
                 def image_file_name = image_file.name.take(image_file.name.lastIndexOf('.'))
-                def warped_image_name = output_name 
-                    ? "${output_name}/${image_file_name}"
-                    : "warped-${image_file_name}"
+                def warped_image_path = output_name
+                    ? "${output_name}/${output_name}"
+                    : output_name
+                def warped_image_subpath = image_subpath ?: image_file_name
                 def r = [
                     ref_path, image_subpath ?: ref_subpath, image_scale ?: ref_scale,
                     image_path, image_subpath, image_scale,
-                    "${output_path}/${warped_image_name}",
+                    warped_image_path, warped_image_subpath,
                 ]
                 log.debug "Add deformation for $r"
                 r
