@@ -23,7 +23,7 @@
     "bigstream_local_mov_subpath": "",
 
     "bigstream_local_output_dir": "/nrs/scicompsoft/goinac/multifish/liu/registration/t00-t15",
-    "bigstream_local_align_name": "warped.zarr",
+    "bigstream_local_align_name": "warped.n5",
     "bigstream_local_transform_name": "deform.zarr",
     "bigstream_local_inv_transform_name": "inv-deform.zarr",
     "bigstream_local_fix_spacing": "0.652,0.652,0.652",
