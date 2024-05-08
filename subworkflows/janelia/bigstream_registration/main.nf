@@ -15,21 +15,19 @@ workflow BIGSTREAM_REGISTRATION {
                        //  global_steps
                        //  global_output
                        //  global_transform_name
-                       //  global_align_name
+                       //  global_align_name, global_align_subpath
                        //  local_fix, local_fix_subpath, 
                        //  local_mov, local_mov_subpath,
                        //  local_fix_mask, local_fix_mask_subpath
                        //  local_mov_mask, local_mov_mask_subpath
                        //  local_steps
                        //  local_output
-                       //  local_transform_name
-                       //  local_transform_subpath
-                       //  local_inv_transform_name
-                       //  local_inv_transform_subpath
-                       //  local_align_name
+                       //  local_transform_name, local_transform_subpath
+                       //  local_inv_transform_name, local_inv_transform_subpath
+                       //  local_align_name, local_align_subpath
                        //  additional_deformations - list of tuples where each tuple has: [fix_image_path, fix_image_subpath, fix_image_scale,
                        //                                                                  image_path, image_subpath, image_scale,
-                       //                                                                  deformed_image_output_path]
+                       //                                                                  deformed_image_output_path, deformed_image_output_subpath]
                        //  with_dask
                        //  dask_work_dir
                        //  dask_config
@@ -55,8 +53,9 @@ workflow BIGSTREAM_REGISTRATION {
              global_steps,
              global_output,
              global_transform_name,
-             global_align_name
+             global_align_name, global_align_subpath
             ) = it // there's a lot more in the input but we only look at what we are interested here
+        log.debug "Registration input: $it"
         def r = [
             meta,
             global_fix ?: [], global_fix_subpath,
@@ -66,7 +65,7 @@ workflow BIGSTREAM_REGISTRATION {
             global_steps,
             global_output ?: [],
             global_transform_name,
-            global_align_name,
+            global_align_name, global_align_subpath,
         ]
         log.info "Prepare global alignment: $it -> $r"
         return r
@@ -82,7 +81,7 @@ workflow BIGSTREAM_REGISTRATION {
     )
 
     global_align_results.subscribe {
-        log.debug "Completed global alignment -> $it"
+        log.info "Completed global alignment -> $it"
     }
 
     def cluster_input = global_align_results
@@ -93,7 +92,7 @@ workflow BIGSTREAM_REGISTRATION {
              global_results_mov, global_results_mov_subpath,
              global_results_output,
              global_results_transform,
-             global_results_alignment,
+             global_results_align_name, global_results_align_subpath,
              global_fix, global_fix_subpath, 
              global_mov, global_mov_subpath,
              global_fix_mask, global_fix_mask_subpath,
@@ -101,7 +100,7 @@ workflow BIGSTREAM_REGISTRATION {
              global_steps,
              global_output,
              global_transform_name,
-             global_align_name,
+             global_align_name, global_align_subpath,
              local_fix, local_fix_subpath,
              local_mov, local_mov_subpath,
              local_fix_mask, local_fix_mask_subpath,
@@ -112,7 +111,7 @@ workflow BIGSTREAM_REGISTRATION {
              local_transform_subpath,
              local_inv_transform_name,
              local_inv_transform_subpath,
-             local_align_name,
+             local_align_name, local_align_subpath,
              additional_deformations,
              with_dask,
              dask_work_dir,
@@ -129,7 +128,7 @@ workflow BIGSTREAM_REGISTRATION {
                 .collect {
                     def (ref_image_path, ref_image_subpath, ref_image_scale,
                          image_path, image_subpath, image_scale,
-                         deformed_image_output_path) = it
+                         deformed_image_output_path, deformed_image_output_subpath) = it
                     log.info "Deform input: ${ref_image_path}, ${ref_image_subpath}, ${ref_image_scale}, ${image_path}, ${image_subpath}, ${image_scale} -> ${deformed_image_output_path}"
                     return (ref_image_path ? [ref_image_path] : []) +
                            (image_path ? [image_path] : []) +
@@ -194,7 +193,7 @@ workflow BIGSTREAM_REGISTRATION {
              global_results_mov, global_results_mov_subpath,
              global_results_output,
              global_results_transform,
-             global_results_alignment,
+             global_results_align_name, global_results_align_subpath,
              global_fix, global_fix_subpath, 
              global_mov, global_mov_subpath,
              global_fix_mask, global_fix_mask_subpath,
@@ -202,7 +201,7 @@ workflow BIGSTREAM_REGISTRATION {
              global_steps,
              global_output,
              global_transform_name,
-             global_align_name,
+             global_align_name, global_align_subpath,
              local_fix, local_fix_subpath,
              local_mov, local_mov_subpath,
              local_fix_mask, local_fix_mask_subpath,
@@ -213,7 +212,7 @@ workflow BIGSTREAM_REGISTRATION {
              local_transform_subpath,
              local_inv_transform_name,
              local_inv_transform_subpath,
-             local_align_name,
+             local_align_name, local_align_subpath,
              additional_deformations,
              with_dask,
              dask_work_dir,
@@ -233,13 +232,14 @@ workflow BIGSTREAM_REGISTRATION {
             local_transform_subpath,
             local_inv_transform_name,
             local_inv_transform_subpath,
-            local_align_name,
+            local_align_name, local_align_subpath,
         ]
         def cluster = [
             cluster_context.scheduler_address,
             dask_config ?: [],
         ]
         log.info "Prepare local alignment: $it -> $data, $cluster"
+        log.info "Local alignment data input: $data"
         data: data
         cluster: cluster
     }
@@ -279,7 +279,7 @@ workflow BIGSTREAM_REGISTRATION {
              local_results_deform_subpath,
              local_results_inv_deform_name,
              local_results_inv_deform_subpath,
-             local_results_align_name,
+             local_results_align_name, local_results_align_subpath,
              global_fix, global_fix_subpath, 
              global_mov, global_mov_subpath,
              global_fix_mask, global_fix_mask_subpath,
@@ -287,7 +287,7 @@ workflow BIGSTREAM_REGISTRATION {
              global_steps,
              global_output,
              global_transform_name,
-             global_align_name,
+             global_align_name, global_align_subpath,
              local_fix, local_fix_subpath,
              local_mov, local_mov_subpath,
              local_fix_mask, local_fix_mask_subpath,
@@ -298,7 +298,7 @@ workflow BIGSTREAM_REGISTRATION {
              local_transform_subpath,
              local_inv_transform_name,
              local_inv_transform_subpath,
-             local_align_name,
+             local_align_name, local_align_subpath,
              additional_deformations,
              with_dask,
              dask_work_dir,

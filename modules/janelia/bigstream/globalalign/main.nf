@@ -16,7 +16,8 @@ process BIGSTREAM_GLOBALALIGN {
           val(steps),
           path(output_dir),
           val(transform_name), // name of the affine transformation
-          val(alignment_name) // alignment name
+          val(align_name),
+          val(align_subpath)
 
     path(bigstream_config)
 
@@ -30,7 +31,7 @@ process BIGSTREAM_GLOBALALIGN {
           env(mov_fullpath), val(mov_image_subpath),
           env(output_fullpath),
           val(transform_name),
-          val(alignment_name)                      , emit: results
+          val(align_name), val(align_subpath)      , emit: results
 
     when:
     task.ext.when == null || task.ext.when
@@ -50,7 +51,8 @@ process BIGSTREAM_GLOBALALIGN {
     def output_dir_arg = output_dir ? "--global-output-dir \${output_fullpath}" : ''
     def transform_name_param = transform_name ?: ''
     def transform_name_arg = transform_name_param ? "--global-transform-name ${transform_name_param}" : ''
-    def aligned_name_arg = alignment_name ? "--global-align-name ${alignment_name}" : ''
+    def aligned_name_arg = align_name ? "--global-align-name ${align_name}" : ''
+    def aligned_subpath_arg = align_subpath ? "--global-align-subpath ${align_subpath}" : ''
     def bigstream_config_arg = bigstream_config ? "--align-config ${bigstream_config}" : ''
 
     """
@@ -81,8 +83,8 @@ process BIGSTREAM_GLOBALALIGN {
             echo "Create directory for affine transformation: \${affine_dir}"
             mkdir -p \${affine_dir}
         fi
-        if [[ "${alignment_name}" != "" ]] ; then
-            alignment_dir=\$(dirname "\${output_fullpath}/${alignment_name}")
+        if [[ "${align_name}" != "" ]] ; then
+            alignment_dir=\$(dirname "\${output_fullpath}/${align_name}")
             echo "Create directory for affine alignment: \${alignment_dir}"
             mkdir -p \${alignment_dir}
         fi
@@ -99,7 +101,7 @@ process BIGSTREAM_GLOBALALIGN {
         ${bigstream_config_arg} \
         ${output_dir_arg} \
         ${transform_name_arg} \
-        ${aligned_name_arg} \
+        ${aligned_name_arg} ${aligned_subpath_arg} \
         ${args}
     """
 }

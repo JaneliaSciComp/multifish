@@ -45,9 +45,9 @@ workflow registration {
         // additional deformation input
         def additional_deforms = warped_channels.collect { warped_ch ->
             [
-                moving,
-                "${warped_ch}/${deformation_scale}",
-                "${output}/warped",
+                fixed,  "${warped_ch}/${deformation_scale}", '',
+                moving, "${warped_ch}/${deformation_scale}", '',
+                "${output}/warped", '',
             ]
         }
         def bigstream_dask_work_dir = params.bigstream_dask_work_dir instanceof String && params.bigstream_dask_work_dir
@@ -59,6 +59,7 @@ workflow registration {
         // registration input
         def ri =  [
             meta,
+
             fixed, // global_fixed
             "${reg_ch}/${affine_scale}", // global_fixed_subpath
             moving, // global_moving
@@ -67,8 +68,9 @@ workflow registration {
             '', '', // global_moving_mask, global_fixed_moving_dataset
             params.bigstream_global_steps,
             output,
-            "aff/ransac_affine.mat", // global_transform_name
-            "aff/ransac_affine",     // global_aligned_name
+            'aff/ransac_affine.mat', // global_transform_name
+            'aff/ransac_affine', '',    // global_aligned_name, global_alignment_subpath
+
             fixed, // local_fixed
             "${reg_ch}/${deformation_scale}", // local_fixed_subpath
             moving, // local_moving
@@ -81,7 +83,7 @@ workflow registration {
             "${deformation_scale}", // local_transform_dataset
             "invtransform", // local_inv_transform_name
             "${deformation_scale}", // local_inv_transform_dataset
-            '', // local_aligned_name (skip local warping because we do it for all channels as additional deform)
+            '', '', // local_aligned_name, local_aligned_subpath (skip local warping because we do it for all channels as additional deform)
             additional_deforms,
             params.bigstream_with_dask_cluster,
             bigstream_dask_work_dir,

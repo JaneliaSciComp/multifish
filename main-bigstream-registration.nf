@@ -53,7 +53,7 @@ workflow {
     def registration_input = Channel.of(
         [
             meta,
-
+            // global alignment params
             global_fix, params.bigstream_global_fix_subpath,
             global_mov, params.bigstream_global_mov_subpath,
             params.bigstream_global_fix_mask ? file(params.bigstream_global_fix_mask) : '', params.bigstream_global_fix_mask_subpath,
@@ -61,22 +61,24 @@ workflow {
             params.bigstream_global_steps,
             global_output_dir,
             params.bigstream_global_transform_name,
-            params.bigstream_global_align_name,
-
+            params.bigstream_global_align_name, params.bigstream_global_align_subpath,
+            // local alignment params
             local_fix, params.bigstream_local_fix_subpath,
             local_mov, params.bigstream_local_mov_subpath,
             params.bigstream_local_fix_mask ? file(params.bigstream_local_fix_mask) : '', params.bigstream_local_fix_mask_subpath,
             params.bigstream_local_mov_mask ? file(params.bigstream_local_mov_mask) : '', params.bigstream_local_mov_mask_subpath,
             params.bigstream_local_steps,
             local_output_dir,
-
             params.bigstream_local_transform_name, params.bigstream_local_transform_subpath,
             params.bigstream_local_inv_transform_name, params.bigstream_local_inv_transform_subpath,
-            params.bigstream_local_align_name,
+            params.bigstream_local_align_name, params.bigstream_local_align_subpath,
+            // warping params
             additional_deformations,
+            // dask params
             with_dask,
             dask_work_dir,
             dask_config,
+            // computation resources
             params.bigstream_local_align_workers,
             params.bigstream_local_align_min_workers,
             params.bigstream_local_align_worker_cpus,

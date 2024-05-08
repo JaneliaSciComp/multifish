@@ -13,11 +13,9 @@ process BIGSTREAM_LOCALALIGN {
           val(affine_transform_name), // global affine file name
           val(steps),
           path(output_dir),
-          val(transform_name),
-          val(transform_subpath),
-          val(inv_transform_name),
-          val(inv_transform_subpath),
-          val(alignment_name) // alignment name
+          val(transform_name), val(transform_subpath),
+          val(inv_transform_name), val(inv_transform_subpath),
+          val(align_name), val(align_subpath)
 
     path(bigstream_config)
 
@@ -37,7 +35,7 @@ process BIGSTREAM_LOCALALIGN {
           env(output_fullpath),
           val(transform_name), val(transform_subpath_output),
           val(inv_transform_name), val(inv_transform_subpath_output),
-          val(alignment_name)                                       , emit: results
+          val(align_name), val(align_subpath)                       , emit: results
 
     when:
     task.ext.when == null || task.ext.when
@@ -62,7 +60,8 @@ process BIGSTREAM_LOCALALIGN {
     def inv_transform_name_arg = inv_transform_name ? "--local-inv-transform-name ${inv_transform_name}" : ''
     def inv_transform_subpath_param = inv_transform_subpath
     def inv_transform_subpath_arg = inv_transform_subpath_param ? "--local-inv-transform-subpath ${inv_transform_subpath_param}" : ''
-    def aligned_name_arg = alignment_name ? "--local-align-name ${alignment_name}" : ''
+    def aligned_name_arg = align_name ? "--local-align-name ${align_name}" : ''
+    def aligned_subpath_arg = align_subpath ? "--local-align-subpath ${align_subpath}" : ''
     def dask_scheduler_arg = dask_scheduler ? "--dask-scheduler ${dask_scheduler}" : ''
     def dask_config_arg = dask_scheduler && dask_config ? "--dask-config ${dask_config}" : ''
     def bigstream_config_arg = bigstream_config ? "--align-config ${bigstream_config}" : ''
@@ -113,7 +112,7 @@ process BIGSTREAM_LOCALALIGN {
         ${output_dir_arg} \
         ${transform_name_arg} ${transform_subpath_arg} \
         ${inv_transform_name_arg} ${inv_transform_subpath_arg} \
-        ${aligned_name_arg} \
+        ${aligned_name_arg} ${aligned_subpath_arg} \
         ${dask_scheduler_arg} \
         ${dask_config_arg} \
         ${args}
