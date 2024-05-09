@@ -67,7 +67,7 @@ workflow BIGSTREAM_REGISTRATION {
             global_transform_name,
             global_align_name, global_align_subpath,
         ]
-        log.info "Prepare global alignment: $it -> $r"
+        log.debug "Prepare global alignment: $it -> $r"
         return r
     }
 
@@ -81,7 +81,7 @@ workflow BIGSTREAM_REGISTRATION {
     )
 
     global_align_results.subscribe {
-        log.info "Completed global alignment -> $it"
+        log.debug "Completed global alignment -> $it"
     }
 
     def cluster_input = global_align_results
@@ -129,7 +129,7 @@ workflow BIGSTREAM_REGISTRATION {
                     def (ref_image_path, ref_image_subpath, ref_image_scale,
                          image_path, image_subpath, image_scale,
                          deformed_image_output_path, deformed_image_output_subpath) = it
-                    log.info "Deform input: ${ref_image_path}, ${ref_image_subpath}, ${ref_image_scale}, ${image_path}, ${image_subpath}, ${image_scale} -> ${deformed_image_output_path}"
+                    log.debug "Deform input: ${ref_image_path}, ${ref_image_subpath}, ${ref_image_scale}, ${image_path}, ${image_subpath}, ${image_scale} -> ${deformed_image_output_path}"
                     return (ref_image_path ? [ref_image_path] : []) +
                            (image_path ? [image_path] : []) +
                            (deformed_image_output_path ? [file(deformed_image_output_path).parent] : [])
@@ -150,7 +150,7 @@ workflow BIGSTREAM_REGISTRATION {
             additional_deformation_data
 
         def cluster_files_set = cluster_files as Set
-        log.info "Cluster files: ${cluster_files_set}"
+        log.debug "Cluster files: ${cluster_files_set}"
 
         def cluster_resources = [
             with_dask ? true : false,
@@ -161,7 +161,7 @@ workflow BIGSTREAM_REGISTRATION {
             with_dask ? dask_worker_mem_gb : 0
         ]
 
-        log.info "Cluster resources: $cluster_resources"
+        log.debug "Cluster resources: $cluster_resources"
 
         cluster_files: [ meta, cluster_files_set ]
         cluster_resources: cluster_resources
@@ -180,7 +180,7 @@ workflow BIGSTREAM_REGISTRATION {
     )
 
     cluster_info.subscribe {
-        log.info "Dask cluster -> $it"
+        log.debug "Dask cluster -> $it"
     }
 
     def local_align_input = cluster_info
@@ -238,8 +238,8 @@ workflow BIGSTREAM_REGISTRATION {
             cluster_context.scheduler_address,
             dask_config ?: [],
         ]
-        log.info "Prepare local alignment: $it -> $data, $cluster"
-        log.info "Local alignment data input: $data"
+        log.debug "Prepare local alignment: $it -> $data, $cluster"
+        log.debug "Local alignment data input: $data"
         data: data
         cluster: cluster
     }
@@ -259,9 +259,9 @@ workflow BIGSTREAM_REGISTRATION {
         //    local_output, 
         //    local_deform, local_deform_subpath,
         //    local_inv_deform, local_inv_deform_subpath
-        //    warped_name_only
+        //    warped_name_only, warped_subpath
         //  ]
-        log.info "Completed local alignment -> $it"
+        log.debug "Completed local alignment -> $it"
     }
 
     def additional_deformations_input = cluster_info
@@ -342,7 +342,7 @@ workflow BIGSTREAM_REGISTRATION {
     )
 
     additional_deformations_results.subscribe {
-        log.info "Completed additional deformations -> $it"
+        log.debug "Completed additional deformation -> $it"
     }
 
     // destroy the cluster
