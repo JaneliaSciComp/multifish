@@ -22,9 +22,10 @@ ransac:
     winsorize_limits: [0, 0.3]
 
 affine:
+  alignment_spacing: 2.0
   shrink_factors: [2]
-  smooth_sigmas: [2.5]
-  metric: MMI
+  smooth_sigmas: [2]
+  metric: C
   metric_args: {}
   optimizer: RSGD
   optimizer_args:
@@ -33,10 +34,13 @@ affine:
     numberOfIterations: 50
 
 deform:
+  alignment_spacing: 2.0
+  shrink_factors: [2]
   smooth_sigmas: [0.25]
   metric: C
   metric_args: {}
   control_point_spacing: 128
+  control_point_levels: [1]
   optimizer: RSGD
   optimizer_args:
     learningRate: 0.25
