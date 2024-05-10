@@ -1,0 +1,56 @@
+{
+    "bigstream_fix_name": "dataset-t0",
+    "bigstream_mov_name": "dataset-t1",
+
+    "bigstream_global_steps": "ransac,affine",
+    "bigstream_global_use_existing_affine_if_found": true,
+
+    "bigstream_global_fix": "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t0/stitching/export.n5",
+    "bigstream_global_fix_subpath": "c3/s3",
+    "bigstream_global_mov": "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t1/stitching/export.n5",
+    "bigstream_global_mov_subpath": "c3/s3",
+
+    "bigstream_global_output_dir": "/nrs/scicompsoft/goinac/multifish/liu/registration/t0-t1/global",
+    "bigstream_global_transform_name": "affine.mat",
+    "bigstream_global_align_name": "affine-align.n5",
+
+    "bigstream_local_steps": "ransac,deform",
+
+    "bigstream_local_fix": "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t0/stitching/export.n5",
+    "bigstream_local_fix_subpath": "c3/s2",
+
+    "bigstream_local_mov": "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t1/stitching/export.n5",
+    "bigstream_local_mov_subpath": "c3/s2",
+
+    "bigstream_local_output_dir": "/nrs/scicompsoft/goinac/multifish/liu/registration/t0-t1/local",
+    "bigstream_local_align_name": "warped.n5",
+    "bigstream_local_align_subpath": "",
+    "bigstream_local_transform_name": "deform.n5",
+    "bigstream_local_inv_transform_name": "inv-deform.n5",
+    "bigstream_local_fix_spacing": "",
+    "bigstream_local_mov_spacing": "",
+
+    "bigstream_global_align_cpus": 6,
+    "bigstream_global_align_mem_gb": 50,
+    "bigstream_local_align_cpus": 2,
+    "bigstream_local_align_mem_gb": 30,
+
+    "bigstream_local_align_workers": 15,
+    "bigstream_local_align_min_workers": 10,
+    "bigstream_local_align_worker_cpus": 2,
+    "bigstream_local_align_worker_mem_gb": 30,
+    "bigstream_local_max_tasks": 15,
+
+    "bigstream_local_blocksize":  "512,512,256",
+    "bigstream_local_overlap_factor": 0.25,
+
+    "bigstream_additional_deformations": [
+        "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t1/stitching/export.n5", "c0/s2", "",
+        "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t1/stitching/export.n5", "c1/s2", "",
+        "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t1/stitching/export.n5", "c2/s2", "",
+
+        "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t1/stitching/export.n5", "c0/s0", "",
+        "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t1/stitching/export.n5", "c1/s0", "",
+        "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t1/stitching/export.n5", "c2/s0", ""
+    ]
+}
