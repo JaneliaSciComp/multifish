@@ -4,6 +4,44 @@ include { BIGSTREAM_LOCALALIGN  } from '../../../modules/janelia/bigstream/local
 include { DASK_START            } from '../dask_start/main'
 include { DASK_STOP             } from '../dask_stop/main'
 
+process PREPARE_BIGSTREAM_DIRS {
+    label 'process_low'
+    container { task.ext.container ?: 'janeliascicomp/bigstream:1.3.0-dask2024.4.1-py11' }
+
+    input:
+    tuple val(meta),
+          path(global_output, stageAs: 'global/*'),
+          path(local_output, stageAs: 'local/*')
+
+    output:
+    tuple val(meta), env(global_outputpath), env(local_outputpath)
+
+    script:
+    def global_output_param = global_output ?: ''
+    def local_output_param = local_output ?: ''
+
+    """
+    if [[ "${global_output_param}" != "" ]]; then
+        global_outputpath=\$(readlink -m ${global_output})
+
+        echo "Create global outputdir: ${global_output} -> \${global_outputpath}"
+        mkdir -p \${global_outputpath}
+    else
+        echo "No global output dir provided"
+    fi
+
+    if [[ "${local_output_param}" != "" ]]; then
+        local_outputpath=\$(readlink -m ${local_output})
+
+        echo "Create local outputdir: ${local_output} -> \${local_outputpath}"
+        mkdir -p \${local_outputpath}
+    else
+        echo "No local output dir provided"
+    fi
+    """
+
+}
+
 workflow BIGSTREAM_REGISTRATION {
     take:
     registration_input // [
@@ -16,8 +54,8 @@ workflow BIGSTREAM_REGISTRATION {
                        //  global_output
                        //  global_transform_name
                        //  global_align_name, global_align_subpath
-                       //  local_fix, local_fix_subpath, 
-                       //  local_mov, local_mov_subpath,
+                       //  local_fix, local_fix_subpath
+                       //  local_mov, local_mov_subpath
                        //  local_fix_mask, local_fix_mask_subpath
                        //  local_mov_mask, local_mov_mask_subpath
                        //  local_steps
@@ -42,10 +80,40 @@ workflow BIGSTREAM_REGISTRATION {
     local_align_cpus
     local_align_mem_gb
 
-    main:    
-    def global_align_input = registration_input
+    main:
+    def bigstream_output_dirs = registration_input
     | map {
         def (meta,
+             global_fix, global_fix_subpath, 
+             global_mov, global_mov_subpath,
+             global_fix_mask, global_fix_mask_subpath,
+             global_mov_mask, global_mov_mask_subpath,
+             global_steps,
+             global_output,
+             global_transform_name,
+             global_align_name, global_align_subpath,
+             local_fix, local_fix_subpath,
+             local_mov, local_mov_subpath,
+             local_fix_mask, local_fix_mask_subpath,
+             local_mov_mask, local_mov_mask_subpath,
+             local_steps,
+             local_output
+            ) = it // there's a lot more in the input but we only look at what we are interested here
+        def r = [
+            meta,
+            global_output ?: [],
+            local_output ?: [],
+        ]
+        log.debug "Output bigstream dirs: $it -> $r"
+        r
+    }
+    | PREPARE_BIGSTREAM_DIRS
+
+    def global_align_input = bigstream_output_dirs
+    | join(registration_input, by:0)
+    | map {
+        def (meta,
+             materialized_global_output, materialized_local_output,
              global_fix, global_fix_subpath, 
              global_mov, global_mov_subpath,
              global_fix_mask, global_fix_mask_subpath,
