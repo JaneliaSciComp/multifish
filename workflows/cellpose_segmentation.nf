@@ -57,13 +57,13 @@ workflow SEGMENTATION {
 
     dask_cluster_inputs.subscribe { log.info "Cluster inputs: $it"}
 
-    def cellpose_dask_work_dir = params.distributed_cellpose
+    def cellpose_dask_work_dir = params.cellpose_with_dask
         ? file(params.cellpose_dask_work_dir)
         : ''
 
     def dask_cluster_info = DASK_START(
         dask_cluster_inputs,
-        params.distributed_cellpose,
+        params.cellpose_with_dask,
         cellpose_dask_work_dir,
         params.cellpose_dask_workers,
         params.cellpose_required_workers,
