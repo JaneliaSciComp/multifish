@@ -23,7 +23,7 @@ ransac: &ransac_args
     <<: *spot_detection_args
 
 affine: &affine_args
-  optimizer: RSGD # RSGD will require learning rate to be set 
+  optimizer: RSGD
   metric: MMI
   sampling: 'NONE'
   interpolator: '1'
