@@ -11,7 +11,8 @@ process PREPARE_BIGSTREAM_DIRS {
     input:
     tuple val(meta),
           path(global_output, stageAs: 'global/*'),
-          path(local_output, stageAs: 'local/*')
+          path(local_output, stageAs: 'local/*'),
+          path(data_paths, stageAs: '?/*')
 
     output:
     tuple val(meta), env(global_outputpath), env(local_outputpath)
@@ -99,10 +100,18 @@ workflow BIGSTREAM_REGISTRATION {
              local_steps,
              local_output
             ) = it // there's a lot more in the input but we only look at what we are interested here
+        def common_outputs = []
+        if (global_output) {
+            common_outputs << (global_output as String)
+        }
+        if (local_output) {
+            common_outputs << (local_output as String)
+        }
         def r = [
             meta,
             global_output ?: [],
             local_output ?: [],
+            common_path(common_outputs, 2),
         ]
         log.debug "Output bigstream dirs: $it -> $r"
         r
@@ -445,4 +454,22 @@ def as_value_channel(v) {
         // this is a value channel
         v
     }
+}
+
+def common_path(paths, uplevels) {
+    def path_parts = paths.collect { it.split('/') }
+    def common_parent = path_parts.transpose().inject([match:true, common_parts:[]]) { aggregator, part ->
+        aggregator.match = aggregator.match && part.every { it == part [0] }
+        if (aggregator.match) {
+            aggregator.common_parts << part[0]
+        }
+        aggregator
+    }.common_parts.join('/')
+    def common_parent_dir = common_parent ? file(common_parent) : ''
+    while (common_parent_dir && uplevels-- > 0) {
+        if (common_parent_dir.parent) {
+            common_parent_dir = common_parent_dir.parent
+        }
+    }
+    common_parent_dir ? [common_parent_dir] : []
 }

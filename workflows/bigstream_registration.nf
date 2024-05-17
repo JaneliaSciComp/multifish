@@ -91,10 +91,10 @@ workflow registration {
             params.bigstream_with_dask_cluster,
             bigstream_dask_work_dir,
             bigstream_dask_config,
-            params.bigstream_workers,
-            params.bigstream_min_workers,
-            params.bigstream_worker_cpus,
-            params.bigstream_worker_mem_gb,
+            params.bigstream_local_align_workers,
+            params.bigstream_local_align_min_workers,
+            params.bigstream_local_align_worker_cpus,
+            params.bigstream_local_align_worker_mem_gb,
         ]
         log.debug "Prepared bigstream inputs: ${ri}"
         ri
