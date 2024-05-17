@@ -10,9 +10,9 @@ global_mov = params.bigstream_global_mov ? file(params.bigstream_global_mov) : '
 local_fix = params.bigstream_local_fix ? file(params.bigstream_local_fix) : ''
 local_mov = params.bigstream_local_mov ? file(params.bigstream_local_mov) : ''
 bigstream_config = params.bigstream_config ? file(params.bigstream_config): ''
-with_dask = params.with_dask
-dask_config = params.dask_config ? file(params.dask_config): ''
-dask_work_dir = params.dask_work_dir ? file(params.dask_work_dir): ''
+with_dask = params.bigstream_with_dask
+dask_config = params.bigstream_dask_config ? file(params.bigstream_dask_config): ''
+dask_work_dir = params.bigstream_dask_work_dir ? file(params.bigstream_dask_work_dir): ''
 
 global_output_dir = params.bigstream_global_output_dir ? file(params.bigstream_global_output_dir) : ''
 local_output_dir = params.bigstream_local_output_dir ? file(params.bigstream_local_output_dir) : ''
