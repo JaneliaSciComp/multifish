@@ -10,7 +10,7 @@
     "bigstream_global_mov": "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R2_CCHa1_488_ILP7_546_RyA_669_1x/stitching/export.n5",
     "bigstream_global_mov_subpath": "c3/s3",
 
-    "bigstream_global_output_dir": "/nrs/scicompsoft/goinac/multifish/liu/registration/mark/r1-r2/aff",
+    "bigstream_global_output_dir": "/nrs/scicompsoft/goinac/multifish/mark/registration/r1-r2/aff",
     "bigstream_global_transform_name": "affine.mat",
     "bigstream_global_align_name": "affine-align.n5",
 
@@ -22,7 +22,7 @@
     "bigstream_local_mov": "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R2_CCHa1_488_ILP7_546_RyA_669_1x/stitching/export.n5",
     "bigstream_local_mov_subpath": "c3/s2",
 
-    "bigstream_local_output_dir": "/nrs/scicompsoft/goinac/multifish/liu/registration/mark/r1-r2",
+    "bigstream_local_output_dir": "/nrs/scicompsoft/goinac/multifish/mark/registration/r1-r2",
     "bigstream_local_align_name": "warped.n5",
     "bigstream_local_align_subpath": "",
     "bigstream_local_transform_name": "deform.n5",
