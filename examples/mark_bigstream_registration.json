@@ -35,22 +35,24 @@
     "bigstream_local_align_cpus": 2,
     "bigstream_local_align_mem_gb": 30,
 
-    "bigstream_local_align_workers": 15,
+    "bigstream_local_align_workers": 20,
     "bigstream_local_align_min_workers": 10,
-    "bigstream_local_align_worker_cpus": 2,
-    "bigstream_local_align_worker_mem_gb": 30,
-    "bigstream_local_max_tasks": 15,
+    "bigstream_local_align_worker_cpus": 1,
+    "bigstream_local_align_worker_mem_gb": 15,
+    "bigstream_local_max_tasks": 0,
 
-    "bigstream_local_blocksize":  "512,512,256",
+    "bigstream_local_blocksize":  "128,128,128",
     "bigstream_local_overlap_factor": 0.25,
 
     "bigstream_additional_deformations": [
         "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R1_Gpb5_488_Eh_546_CCAP_669_1x/stitching/export.n5", "c0/s0", "",
         "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R1_Gpb5_488_Eh_546_CCAP_669_1x/stitching/export.n5", "c1/s0", "",
         "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R1_Gpb5_488_Eh_546_CCAP_669_1x/stitching/export.n5", "c2/s0", "",
+        "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R1_Gpb5_488_Eh_546_CCAP_669_1x/stitching/export.n5", "c3/s0", "",
 
         "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R2_CCHa1_488_ILP7_546_RyA_669_1x/stitching/export.n5", "c0/s0", "",
         "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R2_CCHa1_488_ILP7_546_RyA_669_1x/stitching/export.n5", "c1/s0", "",
-        "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R2_CCHa1_488_ILP7_546_RyA_669_1x/stitching/export.n5", "c2/s0", ""
+        "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R2_CCHa1_488_ILP7_546_RyA_669_1x/stitching/export.n5", "c2/s0", "",
+        "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R2_CCHa1_488_ILP7_546_RyA_669_1x/stitching/export.n5", "c3/s0", ""
     ]
 }
