@@ -50,6 +50,11 @@ deform:
 global_align:
   ransac:
     blob_sizes: [6, 20]
+  affine:
+    initial_condition: CENTER
+    alignment_spacing: 4.0 # increase this to throw out data
+    shrink_factors: [2]
+    smooth_sigmas: [2.]
 
 local_align:
   ransac:
