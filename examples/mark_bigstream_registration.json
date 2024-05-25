@@ -45,11 +45,6 @@
     "bigstream_local_overlap_factor": 0.25,
 
     "bigstream_additional_deformations": [
-        "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R1_Gpb5_488_Eh_546_CCAP_669_1x/stitching/export.n5", "c0/s0", "",
-        "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R1_Gpb5_488_Eh_546_CCAP_669_1x/stitching/export.n5", "c1/s0", "",
-        "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R1_Gpb5_488_Eh_546_CCAP_669_1x/stitching/export.n5", "c2/s0", "",
-        "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R1_Gpb5_488_Eh_546_CCAP_669_1x/stitching/export.n5", "c3/s0", "",
-
         "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R2_CCHa1_488_ILP7_546_RyA_669_1x/stitching/export.n5", "c0/s0", "",
         "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R2_CCHa1_488_ILP7_546_RyA_669_1x/stitching/export.n5", "c1/s0", "",
         "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R2_CCHa1_488_ILP7_546_RyA_669_1x/stitching/export.n5", "c2/s0", "",
