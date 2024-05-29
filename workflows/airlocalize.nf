@@ -33,7 +33,7 @@ workflow airlocalize {
     def tiles_with_inputs = tile_cut_res
     | flatMap {
         def (tile_input, tiles) = it
-        tiles.tokenize(' ').collect { tile ->
+        tiles.tokenize().collect { tile ->
             [ tile_input, tile ]
         }
     }

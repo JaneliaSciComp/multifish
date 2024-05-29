@@ -72,7 +72,7 @@ workflow registration {
     def tiles_with_inputs = tile_cut_res
     | flatMap {
         def (tile_input, tiles) = it
-        tiles.tokenize(' ').collect { tile_dirname ->
+        tiles.tokenize().collect { tile_dirname ->
             def tile_dir = file(tile_dirname)
             [ "${tile_dir.parent.parent}", tile_input, tile_dirname ]
         }
