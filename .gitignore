@@ -13,7 +13,7 @@ __pycache__
 *.sif
 models
 output
-local
+mylocal
 node_modules
 .serverless
 .DS_Store

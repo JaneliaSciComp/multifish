@@ -33,10 +33,12 @@ workflow airlocalize {
     def tiles_with_inputs = tile_cut_res
     | flatMap {
         def (tile_input, tiles) = it
-        tiles.tokenize(' ').collect { tile ->
+        tiles.tokenize().collect { tile ->
             [ tile_input, tile ]
         }
     }
+
+    tiles_with_inputs.subscribe { log.debug "Tile data for airlocalize: $it" }
 
     def per_channel_air_localize_params = [
         params.channels?.split(','),
