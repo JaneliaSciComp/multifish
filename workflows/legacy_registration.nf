@@ -68,6 +68,8 @@ workflow registration {
         z_overlap
     ) // fixed, tiles_list
 
+    tile_cut_res.subscribe { log.info "Tile data for local registration: $it" }
+
     // expand and index tiles
     def tiles_with_inputs = tile_cut_res
     | flatMap {
