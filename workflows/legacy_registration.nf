@@ -78,7 +78,7 @@ workflow registration {
         }
     } // [ output_dir, tile_input, tile_dir ]
 
-    tiles_with_inputs.subscribe { log.info "Tile data for local registration: $it" }
+    tiles_with_inputs.subscribe { log.debug "Tile data for local registration: $it" }
 
     // get fixed coarse spots
     def fixed_coarse_spots_results = fixed_coarse_spots(
