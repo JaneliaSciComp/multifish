@@ -38,6 +38,8 @@ workflow airlocalize {
         }
     }
 
+    tiles_with_inputs.subscribe { log.debug "Tile data for airlocalize: $it" }
+
     def per_channel_air_localize_params = [
         params.channels?.split(','),
         params.per_channel_air_localize_params?.split(',', -1)
