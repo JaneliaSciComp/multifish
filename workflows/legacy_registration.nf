@@ -68,8 +68,6 @@ workflow registration {
         z_overlap
     ) // fixed, tiles_list
 
-    tile_cut_res.subscribe { log.info "Tile data for local registration: $it" }
-
     // expand and index tiles
     def tiles_with_inputs = tile_cut_res
     | flatMap {
@@ -79,6 +77,8 @@ workflow registration {
             [ "${tile_dir.parent.parent}", tile_input, tile_dirname ]
         }
     } // [ output_dir, tile_input, tile_dir ]
+
+    tiles_with_inputs.subscribe { log.info "Tile data for local registration: $it" }
 
     // get fixed coarse spots
     def fixed_coarse_spots_results = fixed_coarse_spots(
