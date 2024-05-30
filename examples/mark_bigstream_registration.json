@@ -2,8 +2,9 @@
     "bigstream_fix_name": "r1",
     "bigstream_mov_name": "r2",
 
-    "bigstream_global_steps": "ransac,affine",
-    "bigstream_global_use_existing_affine_if_found": true,
+    "bigstream_global_steps": "affine",
+    "bigstream_global_use_existing_affine_if_found": false,
+    "bigstream_dask_config": "configs/dask_config.yml",
 
     "bigstream_global_fix": "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R1_Gpb5_488_Eh_546_CCAP_669_1x/stitching/export.n5",
     "bigstream_global_fix_subpath": "c3/s3",
@@ -14,7 +15,7 @@
     "bigstream_global_transform_name": "affine.mat",
     "bigstream_global_align_name": "affine-align.n5",
 
-    "bigstream_local_steps": "ransac,deform",
+    "bigstream_local_steps": "affine,deform",
 
     "bigstream_local_fix": "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R1_Gpb5_488_Eh_546_CCAP_669_1x/stitching/export.n5",
     "bigstream_local_fix_subpath": "c3/s2",
@@ -45,9 +46,13 @@
     "bigstream_local_overlap_factor": 0.25,
 
     "bigstream_additional_deformations": [
-        "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R2_CCHa1_488_ILP7_546_RyA_669_1x/stitching/export.n5", "c0/s0", "",
-        "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R2_CCHa1_488_ILP7_546_RyA_669_1x/stitching/export.n5", "c1/s0", "",
-        "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R2_CCHa1_488_ILP7_546_RyA_669_1x/stitching/export.n5", "c2/s0", "",
-        "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R2_CCHa1_488_ILP7_546_RyA_669_1x/stitching/export.n5", "c3/s0", ""
+        "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R2_CCHa1_488_ILP7_546_RyA_669_1x/stitching/export.n5", "c0/s3", "",
+        "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R2_CCHa1_488_ILP7_546_RyA_669_1x/stitching/export.n5", "c1/s3", "",
+        "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R2_CCHa1_488_ILP7_546_RyA_669_1x/stitching/export.n5", "c2/s3", "",
+        "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R2_CCHa1_488_ILP7_546_RyA_669_1x/stitching/export.n5", "c3/s3", "",
+
+        "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R2_CCHa1_488_ILP7_546_RyA_669_1x/stitching/export.n5", "c0/s2", "",
+        "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R2_CCHa1_488_ILP7_546_RyA_669_1x/stitching/export.n5", "c1/s2", "",
+        "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R2_CCHa1_488_ILP7_546_RyA_669_1x/stitching/export.n5", "c2/s2", ""
     ]
 }
