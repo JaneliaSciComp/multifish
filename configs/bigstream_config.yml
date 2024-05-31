@@ -44,12 +44,12 @@ local_align:
       minStep: 0
       numberOfIterations: 150
   deform:
-    alignment_spacing: 2.0
-    control_point_spacing: 50.0
+    alignment_spacing: 1.0
+    control_point_spacing: 128.0
     control_point_levels: [1]
     smooth_sigmas: [0.25]
     optimizer: RSGD
     optimizer_args:
-      learningRate: 2.5
+      learningRate: 0.25
       minStep: 0
       numberOfIterations: 25
