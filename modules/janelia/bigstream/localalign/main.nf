@@ -9,13 +9,12 @@ process BIGSTREAM_LOCALALIGN {
           path(mov_image, stageAs: 'mov/*'), val(mov_image_subpath),
           path(fix_mask, stageAs: 'fixmask/*'), val(fix_mask_subpath),
           path(mov_mask, stageAs: 'movmask/*'), val(mov_mask_subpath),
-          path(affine_dir, stageAs: 'global_affine/*'), // this is the global affine location
-          val(affine_transform_name), // global affine file name
+          path(affine_transform), // global affine file name
           val(steps),
-          path(output_dir),
+          path(transform_dir, stageAs: 'transform/*'),
           val(transform_name), val(transform_subpath),
           val(inv_transform_name), val(inv_transform_subpath),
-          val(align_name), val(align_subpath)
+          path(align_dir, stageAs: 'align/*'), val(align_name), val(align_subpath)
 
     path(bigstream_config)
 
@@ -28,91 +27,129 @@ process BIGSTREAM_LOCALALIGN {
 
     output:
     tuple val(meta),
-          env(fix_fullpath), val(fix_image_subpath),
-          env(mov_fullpath), val(mov_image_subpath),
-          env(affine_fullpath),
-          val(affine_transform_name),
-          env(output_fullpath),
+          env(full_fix_image), val(fix_image_subpath),
+          env(full_mov_image), val(mov_image_subpath),
+          env(full_affine_transform),
+          env(full_transform_dir),
           val(transform_name), val(transform_subpath_output),
           val(inv_transform_name), val(inv_transform_subpath_output),
-          val(align_name), val(align_subpath)                       , emit: results
+          env(full_align_dir), val(align_name), val(align_subpath)  , emit: results
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     def args = task.ext.args ?: ''
-    def fix_image_arg = fix_image ? "--local-fix \${fix_fullpath}" : ''
+    def fix_image_arg = fix_image ? "--local-fix \${full_fix_image}" : ''
     def fix_image_subpath_arg = fix_image_subpath ? "--local-fix-subpath ${fix_image_subpath}" : ''
-    def mov_image_arg = mov_image ? "--local-mov \${mov_fullpath}" : ''
+    def mov_image_arg = mov_image ? "--local-mov \${full_mov_image}" : ''
     def mov_image_subpath_arg = mov_image_subpath ? "--local-mov-subpath ${mov_image_subpath}" : ''
     def fix_mask_arg = fix_mask ? "--local-fix-mask \$(readlink ${fix_mask})" : ''
     def fix_mask_subpath_arg = fix_mask && fix_mask_subpath ? "--local-fix-mask-subpath ${fix_mask_subpath}" : ''
     def mov_mask_arg = mov_mask ? "--local-mov-mask \$(readlink ${mov_mask})" : ''
     def mov_mask_subpath_arg = mov_mask && mov_mask_subpath ? "--local-mov-mask-subpath ${mov_mask_subpath}" : ''
-    def affine_dir_arg = affine_dir ? "--global-output-dir ${affine_dir}" : ''
-    def affine_transform_name_arg = affine_transform_name ? "--global-transform-name ${affine_transform_name}" : ''
+    def affine_transform_arg = affine_transform ? "--global-affine-transform ${affine_transform}" : ''
     def steps_arg = steps ? "--local-registration-steps ${steps}" : ''
-    def output_dir_arg = output_dir ? "--local-output-dir ${output_dir}" : ''
+    def transform_dir_arg = transform_dir ? "--local-transform-dir ${transform_dir}" : ''
     def transform_name_arg = transform_name ? "--local-transform-name ${transform_name}" : ''
-    def transform_subpath_param = transform_subpath
-    def transform_subpath_arg = transform_subpath_param ? "--local-transform-subpath ${transform_subpath_param}" : ''
+    def transform_subpath_arg = transform_subpath ? "--local-transform-subpath ${transform_subpath}" : ''
     def inv_transform_name_arg = inv_transform_name ? "--local-inv-transform-name ${inv_transform_name}" : ''
-    def inv_transform_subpath_param = inv_transform_subpath
-    def inv_transform_subpath_arg = inv_transform_subpath_param ? "--local-inv-transform-subpath ${inv_transform_subpath_param}" : ''
+    def inv_transform_subpath_arg = inv_transform_subpath ? "--local-inv-transform-subpath ${inv_transform_subpath}" : ''
+    def align_dir_arg = align_dir ? "--local-align-dir \${full_align_dir}" : ''
     def aligned_name_arg = align_name ? "--local-align-name ${align_name}" : ''
     def aligned_subpath_arg = align_subpath ? "--local-align-subpath ${align_subpath}" : ''
     def dask_scheduler_arg = dask_scheduler ? "--dask-scheduler ${dask_scheduler}" : ''
     def dask_config_arg = dask_scheduler && dask_config ? "--dask-config ${dask_config}" : ''
     def bigstream_config_arg = bigstream_config ? "--align-config ${bigstream_config}" : ''
 
-    transform_subpath_output = transform_subpath_param ?: mov_image_subpath
-    inv_transform_subpath_output = inv_transform_subpath_param ?: transform_subpath_output
+    transform_subpath_output = transform_subpath ?: mov_image_subpath
+    inv_transform_subpath_output = inv_transform_subpath ?: transform_subpath_output
 
     """
     if [[ "${fix_image}" != "" ]];  then
-        fix_fullpath=\$(readlink ${fix_image})
-        echo "Fix volume full path: \${fix_fullpath}"
+        full_fix_image=\$(readlink ${fix_image})
+        echo "Fix volume full path: \${full_fix_image}"
     else
-        fix_fullpath=
+        full_fix_image=
         echo "No fix volume provided"
     fi
     if [[ "${mov_image}" != "" ]];  then
-        mov_fullpath=\$(readlink ${mov_image})
-        echo "Moving volume full path: \${mov_fullpath}"
+        full_mov_image=\$(readlink ${mov_image})
+        echo "Moving volume full path: \${full_mov_image}"
     else
-        mov_fullpath=
+        full_mov_image=
         echo "No moving volume provided"
     fi
-    if [[ "${output_dir}" != "" ]] ; then
-        output_fullpath=\$(readlink ${output_dir})
-        if [[ ! -e \${output_fullpath} ]] ; then
-            echo "Create output directory: \${output_fullpath}"
-            mkdir -p \${output_fullpath}
+
+    if [[ "${affine_transform}" != "" ]] ; then
+        full_affine_transform=\$(readlink ${affine_transform})
+    else
+        full_affine_transform=
+    fi
+
+    if [[ "${transform_dir}" != "" ]] ; then
+        full_transform_dir=\$(readlink -m ${transform_dir})
+        if [[ ! -e \${full_transform_dir} ]] ; then
+            echo "Create transform directory: \${full_transform_dir}"
+            mkdir -p \${full_transform_dir}
         else
-            echo "Output directory: \${output_fullpath} - already exists"
+            echo "Transform directory: \${full_transform_dir} - already exists"
+        fi
+        if [[ "${transform_name}" != "" ]] ; then
+            # this is to cover the case when the transform name contains a relative path
+            # e.g. direct/deform.n5
+            data_dir=\$(dirname "\${full_transform_dir}/${transform_name}")
+            if [[ "\${data_dir}" !=  "\${full_transform_dir}" ]] ; then
+                echo "Create directory for affine transformation: \${data_dir}"
+                mkdir -p \${data_dir}
+            fi
+        fi
+        if [[ "${inv_transform_name}" != "" ]] ; then
+            # this is to cover the case when the inverse transform name contains a relative path
+            # e.g. inverse/deform.n5
+            data_dir=\$(dirname "\${full_transform_dir}/${inv_transform_name}")
+            if [[ "\${data_dir}" !=  "\${full_transform_dir}" ]] ; then
+                echo "Create directory for affine transformation: \${data_dir}"
+                mkdir -p \${data_dir}
+            fi
         fi
     else
-        output_fullpath=
+        full_transform_dir=
     fi
-    if [[ "${affine_dir}" != "" ]] ; then
-        affine_fullpath=\$(readlink ${affine_dir})
+
+    if [[ "${align_dir}" != "" ]] ; then
+        full_align_dir=\$(readlink -m ${align_dir})
+        if [[ ! -e \${full_align_dir} ]] ; then
+            echo "Create align directory: \${full_align_dir}"
+            mkdir -p \${full_align_dir}
+        else
+            echo "Align directory: \${full_align_dir} - already exists"
+        fi
+        if [[ "${align_name}" != "" ]] ; then
+            # this is to cover the case when the transform name contains a relative path
+            # e.g. deform/warped.n5
+            data_dir=\$(dirname "\${full_align_dir}/${align_name}")
+            if [[ "\${data_dir}" !=  "\${full_align_dir}" ]] ; then
+                echo "Create directory for deformed result: \${data_dir}"
+                mkdir -p \${data_dir}
+            fi
+        fi
     else
-        affine_fullpath=
+        full_align_dir=
     fi
-    python /app/bigstream/scripts/main_align_pipeline.py \
+
+    python /app/bigstream/scripts/main_local_align_pipeline.py \
         ${fix_image_arg} ${fix_image_subpath_arg} \
         ${mov_image_arg} ${mov_image_subpath_arg} \
         ${fix_mask_arg} ${fix_mask_subpath_arg} \
         ${mov_mask_arg} ${mov_mask_subpath_arg} \
-        ${affine_dir_arg} \
-        ${affine_transform_name_arg} \
+        ${affine_transform_arg} \
         ${steps_arg} \
         ${bigstream_config_arg} \
-        ${output_dir_arg} \
+        ${transform_dir_arg} \
         ${transform_name_arg} ${transform_subpath_arg} \
         ${inv_transform_name_arg} ${inv_transform_subpath_arg} \
-        ${aligned_name_arg} ${aligned_subpath_arg} \
+        ${align_dir_arg} ${aligned_name_arg} ${aligned_subpath_arg} \
         ${dask_scheduler_arg} \
         ${dask_config_arg} \
         ${args}

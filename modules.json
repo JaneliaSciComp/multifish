@@ -12,12 +12,12 @@
           },
           "bigstream/globalalign": {
             "branch": "main",
-            "git_sha": "69193bdf4e0cbe6b97adbf7e37c19407b2acfb45",
+            "git_sha": "43b110e537f010784d4290a95bf592c7118e0180",
             "installed_by": ["bigstream_registration"]
           },
           "bigstream/localalign": {
             "branch": "main",
-            "git_sha": "69193bdf4e0cbe6b97adbf7e37c19407b2acfb45",
+            "git_sha": "43b110e537f010784d4290a95bf592c7118e0180",
             "installed_by": ["bigstream_registration"]
           },
           "bigstream/transformcoords": {
@@ -36,12 +36,12 @@
         "janelia": {
           "bigstream_registration": {
             "branch": "main",
-            "git_sha": "b40271745e52b517de89e6c002a2cd7bbb7779e9",
+            "git_sha": "43b110e537f010784d4290a95bf592c7118e0180",
             "installed_by": ["subworkflows"]
           },
           "dask_start": {
             "branch": "main",
-            "git_sha": "7aa4d72008713c36db3b3d810989c85fb4b1822e",
+            "git_sha": "de8d8926c93136ff65c5ebd88f02ce47c0a13291",
             "installed_by": ["bigstream_registration", "subworkflows"]
           },
           "dask_stop": {

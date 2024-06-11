@@ -18,9 +18,9 @@ process DASK_PREPARE {
     if [[ "${dask_work_dir}" == "" ]]; then
         dwork="dask-\$(date -I)"
         mkdir -p \${dwork}
-        cluster_work_dir=\$(readlink -e \${dwork})
+        cluster_work_dir=\$(readlink -m \${dwork})
     else
-        cluster_work_dir=\$(readlink ${dask_work_dir})
+        cluster_work_dir=\$(readlink -m ${dask_work_dir})
     fi
     cluster_work_fullpath="\${cluster_work_dir}/${meta.id}"
     /opt/scripts/daskscripts/prepare.sh "\${cluster_work_fullpath}"

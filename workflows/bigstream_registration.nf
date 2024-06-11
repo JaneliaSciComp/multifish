@@ -70,8 +70,9 @@ workflow registration {
             '', '', // global_fixed_mask, global_fixed_mask_dataset
             '', '', // global_moving_mask, global_fixed_moving_dataset
             params.bigstream_global_steps,
-            output,
+            output, // global_transform_dir
             'aff/ransac_affine.mat', // global_transform_name
+            output, // global_align_dir
             'aff/ransac_affine', '',    // global_aligned_name, global_alignment_subpath
 
             fixed, // local_fixed
@@ -81,12 +82,13 @@ workflow registration {
             '', '', // local_fixed_mask, local_fixed_mask_dataset
             '', '', // local_moving_mask, local_fixed_moving_dataset
             params.bigstream_local_steps,
-            output,
+            output, // local_transform_dir
             "transform",  // local_transform_name
             "${deformation_scale}", // local_transform_dataset
             "invtransform", // local_inv_transform_name
             "${deformation_scale}", // local_inv_transform_dataset
-            '', '', // local_aligned_name, local_aligned_subpath (skip local warping because we do it for all channels as additional deform)
+            output, // local_align_dir
+            '', '', // local_align_name, local_align_subpath (skip local warping because we do it for all channels as additional deform)
             additional_deforms,
             params.bigstream_with_dask_cluster,
             bigstream_dask_work_dir,

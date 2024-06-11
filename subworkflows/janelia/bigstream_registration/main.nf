@@ -9,36 +9,21 @@ process PREPARE_BIGSTREAM_DIRS {
     container { task.ext.container ?: 'janeliascicomp/bigstream:1.3.0-dask2024.4.1-py11' }
 
     input:
-    tuple val(meta),
-          path(global_output, stageAs: 'global/*'),
-          path(local_output, stageAs: 'local/*'),
-          path(data_paths, stageAs: '?/*')
+    tuple val(meta), path(data_paths, stageAs: '?/*')
 
     output:
-    tuple val(meta), env(global_outputpath), env(local_outputpath)
+    val(meta)
 
     script:
-    def global_output_param = global_output ?: ''
-    def local_output_param = local_output ?: ''
+    def data_dirs = data_paths.join(' ')
 
     """
-    if [[ "${global_output_param}" != "" ]]; then
-        global_outputpath=\$(readlink -m ${global_output})
-
-        echo "Create global outputdir: ${global_output} -> \${global_outputpath}"
-        mkdir -p \${global_outputpath}
-    else
-        echo "No global output dir provided"
-    fi
-
-    if [[ "${local_output_param}" != "" ]]; then
-        local_outputpath=\$(readlink -m ${local_output})
-
-        echo "Create local outputdir: ${local_output} -> \${local_outputpath}"
-        mkdir -p \${local_outputpath}
-    else
-        echo "No local output dir provided"
-    fi
+    list_dirs=(${data_dirs})
+    for d in \${list_dirs} ; do
+        canonical_d=\$(readlink -m \${d})
+        echo "Create output dir: \${d} -> \${canonical_d}"
+        mkdir -p \${canonical_d}
+    done
     """
 
 }
@@ -52,18 +37,18 @@ workflow BIGSTREAM_REGISTRATION {
                        //  global_fix_mask, global_fix_mask_subpath
                        //  global_mov_mask, global_mov_mask_subpath
                        //  global_steps
-                       //  global_output
+                       //  global_transform_output
                        //  global_transform_name
-                       //  global_align_name, global_align_subpath
+                       //  global_align_output, global_align_name, global_align_subpath
                        //  local_fix, local_fix_subpath
                        //  local_mov, local_mov_subpath
                        //  local_fix_mask, local_fix_mask_subpath
                        //  local_mov_mask, local_mov_mask_subpath
                        //  local_steps
-                       //  local_output
+                       //  local_transform_output
                        //  local_transform_name, local_transform_subpath
                        //  local_inv_transform_name, local_inv_transform_subpath
-                       //  local_align_name, local_align_subpath
+                       //  local_align_output, local_align_name, local_align_subpath
                        //  additional_deformations - list of tuples where each tuple has: [fix_image_path, fix_image_subpath, fix_image_scale,
                        //                                                                  image_path, image_subpath, image_scale,
                        //                                                                  deformed_image_output_path, deformed_image_output_subpath]
@@ -90,28 +75,35 @@ workflow BIGSTREAM_REGISTRATION {
              global_fix_mask, global_fix_mask_subpath,
              global_mov_mask, global_mov_mask_subpath,
              global_steps,
-             global_output,
+             global_transform_output,
              global_transform_name,
-             global_align_name, global_align_subpath,
+             global_align_output, global_align_name, global_align_subpath,
              local_fix, local_fix_subpath,
              local_mov, local_mov_subpath,
              local_fix_mask, local_fix_mask_subpath,
              local_mov_mask, local_mov_mask_subpath,
              local_steps,
-             local_output
+             local_transform_output,
+             local_transform_name, local_transform_subpath,
+             local_inv_transform_name, local_inv_transform_subpath,
+             local_align_output, local_align_name, local_align_subpath
             ) = it // there's a lot more in the input but we only look at what we are interested here
-        def common_outputs = []
-        if (global_output) {
-            common_outputs << (global_output as String)
+        def data_outputs = []
+        if (global_transform_output) {
+            data_outputs << (global_transform_output as String)
         }
-        if (local_output) {
-            common_outputs << (local_output as String)
+        if (global_align_output) {
+            data_outputs << (global_align_output as String)
+        }
+        if (local_transform_output) {
+            data_outputs << (local_transform_output as String)
+        }
+        if (local_align_output) {
+            data_outputs << (local_align_output as String)
         }
         def r = [
             meta,
-            global_output ?: [],
-            local_output ?: [],
-            common_path(common_outputs, 2),
+            data_outputs,
         ]
         log.debug "Output bigstream dirs: $it -> $r"
         r
@@ -122,15 +114,14 @@ workflow BIGSTREAM_REGISTRATION {
     | join(registration_input, by:0)
     | map {
         def (meta,
-             materialized_global_output, materialized_local_output,
              global_fix, global_fix_subpath, 
              global_mov, global_mov_subpath,
              global_fix_mask, global_fix_mask_subpath,
              global_mov_mask, global_mov_mask_subpath,
              global_steps,
-             global_output,
+             global_transform_output,
              global_transform_name,
-             global_align_name, global_align_subpath
+             global_align_output, global_align_name, global_align_subpath
             ) = it // there's a lot more in the input but we only look at what we are interested here
         log.debug "Registration input: $it"
         def r = [
@@ -140,15 +131,16 @@ workflow BIGSTREAM_REGISTRATION {
             global_fix_mask ?: [], global_fix_mask_subpath,
             global_mov_mask ?: [], global_mov_mask_subpath,
             global_steps,
-            global_output ?: [],
+            global_transform_output ?: [],
             global_transform_name,
+            global_align_output ?: [],
             global_align_name, global_align_subpath,
         ]
         log.debug "Prepare global alignment: $it -> $r"
         return r
     }
 
-    def bigstream_config = as_value_channel(registration_config).map { it ?: [] }
+    def bigstream_config = as_value_channel(registration_config).map { it ? file(it): [] }
 
     def global_align_results = BIGSTREAM_GLOBALALIGN(
         global_align_input,
@@ -167,27 +159,30 @@ workflow BIGSTREAM_REGISTRATION {
         def (meta,
              global_results_fix, global_results_fix_subpath,
              global_results_mov, global_results_mov_subpath,
-             global_results_output,
+             global_results_transform_output,
              global_results_transform,
+             global_results_align_output,
              global_results_align_name, global_results_align_subpath,
              global_fix, global_fix_subpath, 
              global_mov, global_mov_subpath,
              global_fix_mask, global_fix_mask_subpath,
              global_mov_mask, global_mov_mask_subpath,
              global_steps,
-             global_output,
+             global_transform_output,
              global_transform_name,
+             global_align_output,
              global_align_name, global_align_subpath,
              local_fix, local_fix_subpath,
              local_mov, local_mov_subpath,
              local_fix_mask, local_fix_mask_subpath,
              local_mov_mask, local_mov_mask_subpath,
              local_steps,
-             local_output,
+             local_transform_output,
              local_transform_name,
              local_transform_subpath,
              local_inv_transform_name,
              local_inv_transform_subpath,
+             local_align_output,
              local_align_name, local_align_subpath,
              additional_deformations,
              with_dask,
@@ -219,11 +214,12 @@ workflow BIGSTREAM_REGISTRATION {
         def cluster_files =
             (local_fix ? [local_fix] :[]) +
             (local_mov ? [local_mov] :[]) +
-            (global_results_output ? [global_results_output] :[]) +
-            // local_output may not exist yet so we use the parent
-            (local_output ? [file(local_output).parent] : []) +
+            (global_results_transform_output ? [global_results_transform_output] :[]) +
             (local_fix_mask ? [local_fix_mask] :[]) +
             (local_mov_mask ? [local_mov_mask] :[]) +
+            // local_output may not exist yet so we use the parent
+            (local_transform_output ? [file(local_transform_output).parent] : []) +
+            (local_align_output ? [file(local_align_output).parent] : []) +
             additional_deformation_data
 
         def cluster_files_set = cluster_files as Set
@@ -268,27 +264,30 @@ workflow BIGSTREAM_REGISTRATION {
              cluster_context,
              global_results_fix, global_results_fix_subpath,
              global_results_mov, global_results_mov_subpath,
-             global_results_output,
+             global_results_transform_output,
              global_results_transform,
+             global_results_align_output,
              global_results_align_name, global_results_align_subpath,
              global_fix, global_fix_subpath, 
              global_mov, global_mov_subpath,
              global_fix_mask, global_fix_mask_subpath,
              global_mov_mask, global_mov_mask_subpath,
              global_steps,
-             global_output,
+             global_transform_output,
              global_transform_name,
+             global_align_output,
              global_align_name, global_align_subpath,
              local_fix, local_fix_subpath,
              local_mov, local_mov_subpath,
              local_fix_mask, local_fix_mask_subpath,
              local_mov_mask, local_mov_mask_subpath,
              local_steps,
-             local_output,
+             local_transform_output,
              local_transform_name,
              local_transform_subpath,
              local_inv_transform_name,
              local_inv_transform_subpath,
+             local_align_output,
              local_align_name, local_align_subpath,
              additional_deformations,
              with_dask,
@@ -301,14 +300,14 @@ workflow BIGSTREAM_REGISTRATION {
             local_mov ?: [], local_mov_subpath,
             local_fix_mask ?: [], local_fix_mask_subpath,
             local_mov_mask ?: [], local_mov_mask_subpath,
-            global_results_output ?: [],
-            global_results_transform,
+            global_results_transform_output && global_results_transform ? "${global_results_transform_output}/${global_results_transform}" : [],
             local_steps,
-            local_output ?: [],
+            local_transform_output ?: [],
             local_transform_name,
             local_transform_subpath,
             local_inv_transform_name,
             local_inv_transform_subpath,
+            local_align_output ?: [],
             local_align_name, local_align_subpath,
         ]
         def cluster = [
@@ -332,11 +331,10 @@ workflow BIGSTREAM_REGISTRATION {
     local_align_results.subscribe {
         // [
         //    meta, fix, fix_subpath, mov, mov_subpath,
-        //    global_output, global_affine
-        //    local_output, 
+        //    local_transform_output,
         //    local_deform, local_deform_subpath,
         //    local_inv_deform, local_inv_deform_subpath
-        //    warped_name_only, warped_subpath
+        //    warped_output, warped_name_only, warped_subpath
         //  ]
         log.debug "Completed local alignment -> $it"
     }
@@ -349,32 +347,34 @@ workflow BIGSTREAM_REGISTRATION {
              cluster_context,
              local_results_fix, local_results_fix_subpath,
              local_results_mov, local_results_mov_subpath,
-             local_results_affine_dir,
              local_results_affine_transform,
-             local_results_output,
+             local_results_transform_output,
              local_results_deform_name,
              local_results_deform_subpath,
              local_results_inv_deform_name,
              local_results_inv_deform_subpath,
+             local_results_align_output,
              local_results_align_name, local_results_align_subpath,
              global_fix, global_fix_subpath, 
              global_mov, global_mov_subpath,
              global_fix_mask, global_fix_mask_subpath,
              global_mov_mask, global_mov_mask_subpath,
              global_steps,
-             global_output,
+             global_transform_output,
              global_transform_name,
+             global_align_output,
              global_align_name, global_align_subpath,
              local_fix, local_fix_subpath,
              local_mov, local_mov_subpath,
              local_fix_mask, local_fix_mask_subpath,
              local_mov_mask, local_mov_mask_subpath,
              local_steps,
-             local_output,
+             local_transform_output,
              local_transform_name,
              local_transform_subpath,
              local_inv_transform_name,
              local_inv_transform_subpath,
+             local_align_output,
              local_align_name, local_align_subpath,
              additional_deformations,
              with_dask,
@@ -387,18 +387,13 @@ workflow BIGSTREAM_REGISTRATION {
                 def (ref_image_path, ref_image_subpath, ref_image_scale,
                      image_path, image_subpath, image_scale,
                      warped_image_path, warped_image_subpath) = it
-                def affine_transform_path
-                if (local_results_affine_dir && local_results_affine_transform) {
-                    affine_transform_path = file("${local_results_affine_dir}/${local_results_affine_transform}")
-                } else {
-                    affine_transform_path = []
-                }
+                def affine_transform_path = local_results_affine_transform ?: []
                 def d = [
                     meta,
                     ref_image_path, ref_image_subpath, ref_image_scale,
                     image_path, image_subpath, image_scale,
                     affine_transform_path,
-                    file("${local_results_output}/${local_results_deform_name}"), local_results_deform_subpath,
+                    file("${local_results_transform_output}/${local_results_deform_name}"), local_results_deform_subpath,
                     warped_image_path, warped_image_subpath,
                     // cluster inputs
                     cluster_context.scheduler_address, dask_config ?: [],
@@ -454,22 +449,4 @@ def as_value_channel(v) {
         // this is a value channel
         v
     }
-}
-
-def common_path(paths, uplevels) {
-    def path_parts = paths.collect { it.split('/') }
-    def common_parent = path_parts.transpose().inject([match:true, common_parts:[]]) { aggregator, part ->
-        aggregator.match = aggregator.match && part.every { it == part [0] }
-        if (aggregator.match) {
-            aggregator.common_parts << part[0]
-        }
-        aggregator
-    }.common_parts.join('/')
-    def common_parent_dir = common_parent ? file(common_parent) : ''
-    while (common_parent_dir && uplevels-- > 0) {
-        if (common_parent_dir.parent) {
-            common_parent_dir = common_parent_dir.parent
-        }
-    }
-    common_parent_dir ? [common_parent_dir] : []
 }
