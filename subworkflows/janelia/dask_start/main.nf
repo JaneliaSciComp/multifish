@@ -218,7 +218,7 @@ workflow DASK_START {
     total_workers        // int: number of total workers in the cluster
     required_workers     // int: number of required workers in the cluster
     dask_worker_cpus     // int: number of cores per worker
-    dask_worker_mem_db   // int: worker memory in GB
+    dask_worker_mem_gb   // int: worker memory in GB
 
     main:
     def dask_clusters = meta_and_files
@@ -227,7 +227,7 @@ workflow DASK_START {
     | combine(as_value_channel(total_workers))
     | combine(as_value_channel(required_workers))
     | combine(as_value_channel(dask_worker_cpus))
-    | combine(as_value_channel(dask_worker_mem_db))
+    | combine(as_value_channel(dask_worker_mem_gb))
     | branch {
         def (meta, data, distributed_flag, work_dir, n_workers, min_workers, cpus, mem_gb) = it
         log.debug "Prepare cluster input: $it"
