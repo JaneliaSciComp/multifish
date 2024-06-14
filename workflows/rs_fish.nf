@@ -80,6 +80,7 @@ workflow rsfish {
         def anisotropy = all_per_channels_params.rsfish_anisotropy[channel]
         def sigma = all_per_channels_params.rsfish_sigma[channel]
         def threshold = all_per_channels_params.rsfish_threshold[channel]
+        def background = all_per_channels_params.rsfish_background[channel]
         def rsfish_cmd_args = [
             "--image=${input_dir} --dataset=${subpath} " +
             "--minIntensity=${minIntensity} " +
@@ -87,6 +88,7 @@ workflow rsfish {
             "--anisotropy=${anisotropy} " +
             "--sigma=${sigma} " +
             "--threshold=${threshold} " +
+            "--background=${background} " +
             "--output=${output_voxel_file} ${params.rsfish_params}",
             cluster_work_dir,
             "rsFISH_${acq_name}_${channel}.log",
@@ -153,6 +155,7 @@ def get_all_per_channel_params(Map ps) {
         rsfish_anisotropy: get_param_values_per_channel(ps, 'rsfish_anisotropy'),
         rsfish_sigma: get_param_values_per_channel(ps, 'rsfish_sigma'),
         rsfish_threshold: get_param_values_per_channel(ps, 'rsfish_threshold'),
+        rsfish_background: get_param_values_per_channel(ps, 'rsfish_background'),
     ]
 }
 

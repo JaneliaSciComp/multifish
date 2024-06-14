@@ -538,6 +538,11 @@
                     "description": "Threshold value for Difference-of-Gaussian (DoG) calculation. Default: 0.007",
                     "fa_icon": "fas fa-level-down-alt"
                 },
+                "rsfish_background": {
+                    "type": "integer",
+                    "description": "Background subtraction method, 0 == None, 1 == Mean, 2==Median, 3==RANSAC on Mean, 4==RANSAC on Median. Default: 0 (None)",
+                    "fa_icon": "fas fa-level-down-alt"
+                },
                 "per_channel.rsfish_min": {
                   "type": "string",
                   "description": "Comma delimited per channel values for rsfish_min",
@@ -561,6 +566,11 @@
                 "per_channel.rsfish_threshold": {
                   "type": "string",
                   "description": "Comma delimited per channel values for rsfish_threshold",
+                  "fa_icon": "fas fa-terminal"
+                },
+                "per_channel.rsfish_background": {
+                  "type": "string",
+                  "description": "Comma delimited per channel values for rsfish_background",
                   "fa_icon": "fas fa-terminal"
                 },
                 "rsfish_params": {
