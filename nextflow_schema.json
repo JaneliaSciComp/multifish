@@ -543,6 +543,11 @@
                     "description": "Background subtraction method, 0 == None, 1 == Mean, 2==Median, 3==RANSAC on Mean, 4==RANSAC on Median. Default: 0 (None)",
                     "fa_icon": "fas fa-level-down-alt"
                 },
+                "rsfish_intensity": {
+                    "type": "integer",
+                    "description": "Intensity calculation method, 0 == Linear Interpolation, 1 == Gaussian fit (on inlier pixels), 2 == Integrate spot intensities (on candidate pixels). Default: 0 (Linear Interpolation)",
+                    "fa_icon": "fas fa-level-down-alt"
+                },
                 "per_channel.rsfish_min": {
                   "type": "string",
                   "description": "Comma delimited per channel values for rsfish_min",
@@ -571,6 +576,11 @@
                 "per_channel.rsfish_background": {
                   "type": "string",
                   "description": "Comma delimited per channel values for rsfish_background",
+                  "fa_icon": "fas fa-terminal"
+                },
+                "per_channel.rsfish_intensity": {
+                  "type": "string",
+                  "description": "Comma delimited per channel values for rsfish_intensity",
                   "fa_icon": "fas fa-terminal"
                 },
                 "rsfish_params": {

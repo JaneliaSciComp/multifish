@@ -1,12 +1,12 @@
 maru_version: 0.1.1
 name: rs_fish
-version: 1.0.1
+version: 1.0.2
 remotes:
 - multifish
 - registry.int.janelia.org/multifish
 - public.ecr.aws/janeliascicomp/multifish
 build_args:
-  GIT_TAG: main
+  GIT_TAG: 0.0.2
 template_args:
   flavor: java_maven
   build:
