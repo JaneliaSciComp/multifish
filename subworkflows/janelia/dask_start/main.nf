@@ -7,8 +7,7 @@ process DASK_PREPARE {
     path(dask_work_dir, stageAs: 'dask_work/*')
 
     output:
-    tuple val(meta), env(cluster_work_fullpath), emit: results
-    path(data),                                  emit: data
+    tuple val(meta), env(cluster_work_fullpath)
 
     when:
     task.ext.when == null || task.ext.when
@@ -29,12 +28,10 @@ process DASK_PREPARE {
 }
 
 process DASK_STARTMANAGER {
-    label 'process_single'
     container { task.ext.container ?: 'janeliascicomp/dask:2023.10.1-py11-ol9' }
 
     input:
-    tuple val(meta), path(cluster_work_dir, stageAs: 'dask_work/*')
-    path(data, stageAs: '?/*')
+    tuple val(meta), path(cluster_work_dir, stageAs: 'dask_work/*'), path(data, stageAs: '?/*')
 
     output:
     tuple val(meta), env(cluster_work_fullpath), emit: cluster_info
@@ -78,8 +75,8 @@ process DASK_STARTWORKER {
     tuple val(meta),
           path(cluster_work_dir, stageAs: 'dask_work/*'),
           val(scheduler_address),
-          val(worker_id)
-    path(data, stageAs: '?/*')
+          val(worker_id),
+          path(data, stageAs: '?/*')
     val(worker_cpus)
     val(worker_mem_in_gb)
 
@@ -221,116 +218,72 @@ workflow DASK_START {
     dask_worker_mem_gb   // int: worker memory in GB
 
     main:
-    def dask_clusters = meta_and_files
-    | combine(as_value_channel(distributed))
-    | combine(as_value_channel(dask_work_dir))
-    | combine(as_value_channel(total_workers))
-    | combine(as_value_channel(required_workers))
-    | combine(as_value_channel(dask_worker_cpus))
-    | combine(as_value_channel(dask_worker_mem_gb))
-    | branch {
-        def (meta, data, distributed_flag, work_dir, n_workers, min_workers, cpus, mem_gb) = it
-        log.debug "Prepare cluster input: $it"
-        needed: distributed_flag
-        not_needed: !(distributed_flag)
-    }
+    if (distributed) {
+        // prepare dask cluster work dir meta -> [ meta, cluster_work_dir ]
+        def dask_prepare_result = DASK_PREPARE(
+            meta_and_files,
+            dask_work_dir ?: [],
+        )
+        | join(meta_and_files, by:0)
+        | map {
+            def (meta, dask_cluster_work_dir, data_paths) = it
+            [ meta, dask_cluster_work_dir, data_paths ]
+        }
 
-    def not_started_clusters = dask_clusters.not_needed
-    | map {
-        def (meta) = it
-        [ meta, [:] ]
-    }
+        // start scheduler
+        DASK_STARTMANAGER(dask_prepare_result)
 
-    def dask_prepare_input = dask_clusters.needed
-    | map {
-        def (meta, data, distributed_flag, work_dir, n_workers, min_workers, cpus, mem_gb) = it
-        [ 
-            meta,
-            data ?: [],
-            work_dir ?: [],
-            n_workers,
-            min_workers,
-            cpus,
-            mem_gb,
-        ]
-    }
+        // wait for manager to start
+        DASK_WAITFORMANAGER(dask_prepare_result.map {it[0..1]} )
 
-    // prepare dask cluster work dir meta -> [ meta, cluster_work_dir ]
-    def dask_prepare_result = DASK_PREPARE(
-        dask_prepare_input.map { it[0..1] }, // meta and data
-        dask_prepare_input.map { it[2] }, // dask work dir
-    )
+        def nworkers = total_workers ?: 1
 
-    // start scheduler
-    DASK_STARTMANAGER(dask_prepare_result.results, dask_prepare_result.data)
+        // prepare inputs for dask workers
+        def dask_workers_input = DASK_WAITFORMANAGER.out.cluster_info
+        | join(meta_and_files, by: 0)
+        | flatMap {
+            def (meta, cluster_work_dir, scheduler_address, data_paths) = it
+            def worker_list = 1..nworkers
+            worker_list.collect { worker_id ->
+                def r =[ meta, cluster_work_dir, scheduler_address, worker_id, data_paths ]
+                log.debug "Dask workers input: $r"
+                r
+            }
+        }
+ 
+        // start dask workers
+        DASK_STARTWORKER(dask_workers_input, // meta, cluster_work_dir, scheduler_address, worker_id, data
+                         dask_worker_cpus,   // cpus
+                         dask_worker_mem_gb, // mem
+        )
 
-    // wait for manager to start
-    DASK_WAITFORMANAGER(dask_prepare_result.results)
+        // check dask workers
+        def cluster = DASK_WAITFORWORKERS(DASK_WAITFORMANAGER.out.cluster_info, // meta, cluster_work_dir, scheduler_address
+                                          nworkers,                             // n_workers
+                                          required_workers ?: 1,                // min_workers
+        )
 
-    // prepare inputs for dask workers
-    def dask_workers_input = DASK_WAITFORMANAGER.out.cluster_info
-    | join(dask_prepare_input, by: 0)
-    | map {
-        def (meta, cluster_work_dir, scheduler_address, data, work_dir, n_workers, min_workers, cpus, mem_gb) = it
-        def r = [
-            meta, cluster_work_dir, scheduler_address, n_workers, min_workers, data, cpus, mem_gb,
-        ]
-        log.debug "Dask workers input: $r"
-        r
-    }
-
-    def per_worker_input = dask_workers_input
-    | flatMap {
-        def (meta, cluster_work_dir, scheduler_address, n_workers, min_workers, data, cpus, mem_gb) = it
-        (1..n_workers).collect { worker_id -> 
-            def r = [ meta, cluster_work_dir, scheduler_address, worker_id, data, cpus, mem_gb ]
-            log.debug "Single dask worker input: $r"
-            r
+        dask_context = cluster.cluster_info
+        | map {
+            def (meta, cluster_work_dir, scheduler_address, available_workers) = it
+            dask_info = [
+                scheduler_address: scheduler_address,
+                cluster_work_dir: cluster_work_dir,
+                available_workers: available_workers,
+            ]
+            log.debug "Cluster info: $it -> [ ${meta}, ${dask_info} ] "
+            [ meta, dask_info ]
+        }
+    } else {
+        // do not start a distributed cluster
+        log.debug "No distributed dask cluster"
+        dask_context = meta_and_files
+        | map {
+            def (meta, data_paths) = it
+            [ meta, [:] ]
         }
     }
 
-    // start dask workers
-    DASK_STARTWORKER(per_worker_input.map { it[0..3] }, // meta, cluster_work_dir, scheduler_address, worker_id
-                     per_worker_input.map { it[4] }, // data
-                     per_worker_input.map { it[5] }, // cpus
-                     per_worker_input.map { it[6] }, // mem
-    )
-
-    dask_workers_input | view
-
-    // check dask workers
-    def cluster = DASK_WAITFORWORKERS(dask_workers_input.map { it[0..2] }, // meta, cluster_work_dir, scheduler_address
-                                      dask_workers_input.map { it[3] }, // n_workers
-                                      dask_workers_input.map { it[4] }, // min_workers
-    )
-
-    cluster.cluster_info.subscribe {
-        // [ meta, cluster_work_dir, scheduler_address, available_workers ]
-        log.debug "Cluster info: $it"
-    }
-
-    def started_clusters = cluster.cluster_info
-    | map { meta, cluster_work_dir, scheduler_address, available_workers ->
-        dask_context = [
-            scheduler_address: scheduler_address,
-            cluster_work_dir: cluster_work_dir,
-            available_workers: available_workers,
-        ]
-        [ meta, dask_context ]
-    }
-
     emit:
-    done = started_clusters.concat (not_started_clusters) // [ meta, dask_context ]
-}
-
-def as_value_channel(v) {
-    if (!v.toString().contains("Dataflow")) {
-        Channel.value(v)
-    } else if (!v.toString().contains("value")) {
-        // if not a value channel return the first value
-        v.first()
-    } else {
-        // this is a value channel
-        v
-    }
+    dask_context // [ meta, dask_info ]
 }

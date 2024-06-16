@@ -35,10 +35,11 @@ workflow DASK_STOP {
     main:
     def cluster_info = meta_and_context 
     | filter { meta, dask_context ->
-        log.info "Dask context for ${meta}: ${dask_context}"
+        // only terminate the clusters that have a work dir
         dask_context.cluster_work_dir
     }
     | map { meta, dask_context ->
+        log.debug "Stop Dask ${meta}: ${dask_context}"
         [ meta, dask_context.cluster_work_dir ]
     }
     | DASK_TERMINATE

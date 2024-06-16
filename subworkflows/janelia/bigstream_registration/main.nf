@@ -30,37 +30,38 @@ process PREPARE_BIGSTREAM_DIRS {
 
 workflow BIGSTREAM_REGISTRATION {
     take:
-    registration_input // [
-                       //  meta,
-                       //  global_fix, global_fix_subpath, 
-                       //  global_mov, global_mov_subpath,
-                       //  global_fix_mask, global_fix_mask_subpath
-                       //  global_mov_mask, global_mov_mask_subpath
-                       //  global_steps
-                       //  global_transform_output
-                       //  global_transform_name
-                       //  global_align_output, global_align_name, global_align_subpath
-                       //  local_fix, local_fix_subpath
-                       //  local_mov, local_mov_subpath
-                       //  local_fix_mask, local_fix_mask_subpath
-                       //  local_mov_mask, local_mov_mask_subpath
-                       //  local_steps
-                       //  local_transform_output
-                       //  local_transform_name, local_transform_subpath
-                       //  local_inv_transform_name, local_inv_transform_subpath
-                       //  local_align_output, local_align_name, local_align_subpath
-                       //  additional_deformations - list of tuples where each tuple has: [fix_image_path, fix_image_subpath, fix_image_scale,
-                       //                                                                  image_path, image_subpath, image_scale,
-                       //                                                                  deformed_image_output_path, deformed_image_output_subpath]
-                       //  with_dask
-                       //  dask_work_dir
-                       //  dask_config
-                       //  dask_total_workers
-                       //  dask_min_workers
-                       //  dask_worker_cpus
-                       //  dask_worker_mem_gb
+    registration_input // channel:
+                       // [  
+                       //    meta,
+                       //    global_fix, global_fix_subpath, 
+                       //    global_mov, global_mov_subpath,
+                       //    global_fix_mask, global_fix_mask_subpath
+                       //    global_mov_mask, global_mov_mask_subpath
+                       //    global_steps
+                       //    global_transform_output
+                       //    global_transform_name
+                       //    global_align_output, global_align_name, global_align_subpath
+                       //    local_fix, local_fix_subpath
+                       //    local_mov, local_mov_subpath
+                       //    local_fix_mask, local_fix_mask_subpath
+                       //    local_mov_mask, local_mov_mask_subpath
+                       //    local_steps
+                       //    local_transform_output
+                       //    local_transform_name, local_transform_subpath
+                       //    local_inv_transform_name, local_inv_transform_subpath
+                       //    local_align_output, local_align_name, local_align_subpath
+                       //    additional_deformations - list of tuples where each tuple has: [fix_image_path, fix_image_subpath, fix_image_scale,
+                       //                                                                    image_path, image_subpath, image_scale,
+                       //                                                                    deformed_image_output_path, deformed_image_output_subpath]
                        //  ]
     registration_config
+    with_dask
+    dask_work_dir
+    dask_config
+    dask_total_workers
+    dask_min_workers
+    dask_worker_cpus
+    dask_worker_mem_gb
     global_align_cpus
     global_align_mem_gb
     local_align_cpus
@@ -153,9 +154,9 @@ workflow BIGSTREAM_REGISTRATION {
         log.debug "Completed global alignment -> $it"
     }
 
-    def cluster_input = global_align_results
+    def cluster_input_files = global_align_results
     | join(registration_input, by:0) // only start the cluster after global align is done
-    | multiMap {
+    | map {
         def (meta,
              global_results_fix, global_results_fix_subpath,
              global_results_mov, global_results_mov_subpath,
@@ -184,14 +185,7 @@ workflow BIGSTREAM_REGISTRATION {
              local_inv_transform_subpath,
              local_align_output,
              local_align_name, local_align_subpath,
-             additional_deformations,
-             with_dask,
-             dask_work_dir,
-             dask_config,
-             dask_total_workers,
-             dask_min_workers,
-             dask_worker_cpus,
-             dask_worker_mem_gb
+             additional_deformations
              ) = it
 
         def additional_deformation_data
@@ -225,31 +219,19 @@ workflow BIGSTREAM_REGISTRATION {
         def cluster_files_set = cluster_files as Set
         log.debug "Cluster files: ${cluster_files_set}"
 
-        def cluster_resources = [
-            with_dask ? true : false,
-            with_dask ? dask_work_dir : [],
-            with_dask ? dask_total_workers : 0,
-            with_dask ? dask_min_workers : 0,
-            with_dask ? dask_worker_cpus : 0,
-            with_dask ? dask_worker_mem_gb : 0
-        ]
 
-        log.debug "Cluster resources: $cluster_resources"
-
-        cluster_files: [ meta, cluster_files_set ]
-        cluster_resources: cluster_resources
+        [ meta, cluster_files_set ]
     }
 
     def cluster_info = DASK_START(
-        cluster_input.cluster_files,
-        // all the other args will be converted to a value channel
-        // by getting the first element only
-        cluster_input.cluster_resources.map { it[0] /* with dask */ }.first(),
-        cluster_input.cluster_resources.map { it[1] /* work_dir */ }.first(),
-        cluster_input.cluster_resources.map { it[2] /* total_workers */ }.first(),
-        cluster_input.cluster_resources.map { it[3] /* min_workers */ }.first(),
-        cluster_input.cluster_resources.map { it[4] /* worker_cpus */ }.first(),
-        cluster_input.cluster_resources.map { it[5] /* worker_mem_gb */ }.first(),
+        cluster_input_files,
+        // all the other args must come as simple values or value channel
+        with_dask,
+        dask_work_dir,
+        dask_total_workers,
+        dask_min_workers,
+        dask_worker_cpus,
+        dask_worker_mem_gb,
     )
 
     cluster_info.subscribe {
@@ -289,10 +271,7 @@ workflow BIGSTREAM_REGISTRATION {
              local_inv_transform_subpath,
              local_align_output,
              local_align_name, local_align_subpath,
-             additional_deformations,
-             with_dask,
-             dask_work_dir,
-             dask_config
+             additional_deformations
             ) = it
         def data = [
             meta,
@@ -376,10 +355,7 @@ workflow BIGSTREAM_REGISTRATION {
              local_inv_transform_subpath,
              local_align_output,
              local_align_name, local_align_subpath,
-             additional_deformations,
-             with_dask,
-             dask_work_dir,
-             dask_config
+             additional_deformations
             ) = it
 
         if (additional_deformations) {
@@ -396,7 +372,8 @@ workflow BIGSTREAM_REGISTRATION {
                     file("${local_results_transform_output}/${local_results_deform_name}"), local_results_deform_subpath,
                     warped_image_path, warped_image_subpath,
                     // cluster inputs
-                    cluster_context.scheduler_address, dask_config ?: [],
+                    cluster_context.scheduler_address,
+                    dask_config ?: [],
                 ]
                 log.debug "Additional deformation: $it -> $d"
                 d
