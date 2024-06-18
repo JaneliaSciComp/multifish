@@ -5,15 +5,33 @@ nav_order: 30
 
 # Troubleshooting
 
+## Viewing Logs
+
+Nextflow will automatically write a log to `.nextflow.log` in the directory where you start the pipeline. Each process also produces a log called `.command.log`, and you can use the `nextflow log` command to find these:
+
+    nextflow log <runId>
+
+The `<runId>` will be a UUID like “0bf5895b-c504-4d5f-ba06-bf855ea7bd63” or a run name like “admiring_murdock” which is usually printed at the top of your pipeline execution log.
+
+If you are only interested in processes that are part of registration, you can filter like using regular expressions:
+
+    nextflow log <runId> -F "process =~ /registration.*/
+
+Or, if you only want the output of “coarse_spots” and “coarse_ransac”:
+
+    nextflow log <runId> -F "process =~ /.*coarse.*/"
+
+In addition, if there is an error then the pipeline will typically print the process directory of the process that failed, so you can use that to directly view the complete log of the failed process.
+
 ## Common Errors
 
 ### Exit status 130/137
 
 These exit codes indicate that the task ran out of memory. You need to increase the memory setting for the task.
 
-When running with Docker (e.g. on AWS) you will see code 137. On IBM Platform LSF it's exit code 130. 
+When running with Docker (e.g. on AWS) you will see code 137. On IBM Platform LSF it's exit code 130.
 
-For example, if a *registration:stitch* task runs out of memory, you will need to increase the corresponding `registration_stitch_memory` parameter, e.g. to `30 G`. 
+For example, if a *registration:stitch* task runs out of memory, you will need to increase the corresponding `registration_stitch_memory` parameter, e.g. to `30 G`.
 
 As a special case, the Janelia LSF Cluster does not respect the memory settings. Instead you need to increase the number of CPUs for the task. CPUs are mapped to slots at Janelia, and each slot gives you an additional 15 GB of memory.
 
@@ -35,7 +53,7 @@ If this happens, you will need to point the `SINGULARITY_TMPDIR` environment var
 
     export SINGULARITY_TMPDIR=/scratch/tmp
 
-Of course, /scratch/tmp needs to exist on your systems. 
+Of course, /scratch/tmp needs to exist on your systems.
 
 If you are using Nextflow Tower you can put the environment variable export in the "Pre-run script" box.
 

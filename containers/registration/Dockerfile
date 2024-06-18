@@ -3,7 +3,7 @@
 
 # Staged build using builder container
 FROM janeliascicomp/builder:1.2.1 as builder
-ARG GIT_TAG=prototype-1.2.2
+ARG GIT_TAG=prototype
 
 # Checkout and build the code
 WORKDIR /tmp/app

@@ -61,7 +61,7 @@ def default_mf_params() {
         use_rsfish: false,
         rsfish_container_repo: multifish_container_repo,
         rsfish_container_name: 'rs_fish',
-        rsfish_container_version: '1.0.1',
+        rsfish_container_version: '1.0.2',
         rs_fish_app: '/app/app.jar',
         rsfish_workers: 6,
         rsfish_worker_cores: 8,
@@ -73,6 +73,8 @@ def default_mf_params() {
         rsfish_anisotropy: 0.7,
         rsfish_sigma: 1.5,
         rsfish_threshold: 0.007,
+        rsfish_background: 0,
+        rsfish_intensity: 0,
         rsfish_params: '',
         // RS-Fish parameters adjustable per channel
         per_channel: [
@@ -81,6 +83,8 @@ def default_mf_params() {
             rsfish_anisotropy: '',
             rsfish_sigma: '',
             rsfish_threshold: '',
+            rsfish_background: '',
+            rsfish_intensity: '',
         ],
 
         // segmentation params

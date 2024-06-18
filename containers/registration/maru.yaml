@@ -6,7 +6,7 @@ build_args:
 template_args:
   flavor: python_conda
   build:
-    repo_url: https://github.com/JaneliaScicomp/bigstream.git
+    repo_url: https://github.com/JaneliaSciComp/bigstream.git
   python_conda:
     python_version: "3.6"
     dependencies: numpy z5py json scipy scikit-image

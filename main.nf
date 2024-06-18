@@ -667,7 +667,7 @@ workflow {
             it[6], // warped spots image
             intensities_name, // intensity measurements result file prefix (round name)
             it[7], // channel
-            final_params.segmentation_scale, // scale
+            final_params.segmentation_scale, // scale - must be same as segmentation scale
             measure_intensities_output_dir // result output dir
         ]
         log.debug "Measure intensities inputs for moving image $it -> $r"

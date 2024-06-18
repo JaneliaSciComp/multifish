@@ -16,12 +16,137 @@
           "fa_icon": "far fa-list-alt",
           "help_text": "If specified, the data in the manifest is downloaded into `--data_dir` before the pipeline begins. Valid values are any base filename found in the data-sets directory (e.g. \"demo_small\", \"demo_medium\") or any absolute path which points to a manifest file. By default this just downloads the segmentation model."
         },
-        "verify_md5": {
-          "type": "string",
-          "description": "Verify MD5 sum for all downloads. Default: true",
-          "hidden": true,
-          "fa_icon": "fas fa-lock",
-          "help_text": "This can be disabled to save time, but it's not recommended."
+        "stitching": {
+            "title": "Stitching",
+            "type": "object",
+            "description": "Stitching options",
+            "properties": {
+                "stitching_output": {
+                    "type": "string",
+                    "fa_icon": "far fa-folder",
+                    "description": "Output directory for stitching results. Default: stitching",
+                    "help_text": "This directory path is relative to `output_dir`",
+                    "hidden": true
+                },
+                "spark_work_dir": {
+                    "type": "string",
+                    "fa_icon": "fas fa-folder-open",
+                    "description": "Path to directory containing Spark working files and logs during stitching. Default: $shared_work_dir/spark or $workDir/spark",
+                    "help_text": "The Spark configuration is written here by the pipeline before launching the Spark cluster. The Spark workers write their logs back here, and it is also used to communicate the master IP address to all workers. Therefore, this must be a shared directory accessible to both the head node and all worker nodes. On AWS, Fuse-mounted S3 will not work here due to write buffering. It's best to use FSx, but EBS will also work, as long as its mounted on all the EC2 nodes. ",
+                    "hidden": true
+                },
+                "spark_local_dir": {
+                    "type": "string",
+                    "fa_icon": "far fa-folder-open",
+                    "description": "Path to directory that Spark will uses for local temporary files. Default: /tmp",
+                    "help_text": "This path does not need to be shared among workers, and does not need to be accessible to the head node. Usually, /tmp will do.",
+                    "hidden": true
+                },
+                "stitching_czi_pattern": {
+                    "type": "string",
+                    "description": "A suffix pattern that is applied to acq_names when creating CZI names e.g. \"_V%02d\"",
+                    "fa_icon": "far fa-copy"
+                },
+                "stitching_ref": {
+                    "type": "string",
+                    "fa_icon": "fas fa-asterisk",
+                    "description": "Index of the channel used for stitching, e.g. 'c1' or '1'. You can also specify 'all' to use all of the channels. Default: the dapi_channel",
+                    "help_text": "If this is not defined it defaults to `dapi_channel`"
+                },
+                "resolution": {
+                    "type": "string",
+                    "fa_icon": "fas fa-file-image",
+                    "pattern": "^[\\.\\d]+,[\\.\\d]+,[\\.\\d]+$",
+                    "description": "Voxel resolution in all 3 dimensions. Default: 0.23,0.23,0.42",
+                    "help_text": "This is a comma-delimited tuple as x,y,z."
+                },
+                "axis": {
+                    "type": "string",
+                    "fa_icon": "fas fa-chart-line",
+                    "description": "Axis mapping for the objective->pixel coordinates conversion. Default: -x,y,z",
+                    "help_text": "Comma-separated axis specification with optional flips."
+                },
+                "stitching_block_size": {
+                    "type": "string",
+                    "fa_icon": "fas fa-cube",
+                    "pattern": "^\\d+,\\d+,\\d+$",
+                    "description": "Block size to use when converting CZI to n5 before stitching. Default: 128,128,64"
+                },
+                "flatfield_correction": {
+                    "type": "boolean",
+                    "fa_icon": "fas fa-cube",
+                    "description": "Apply flatfield correction before stitching? Default: true"
+                },
+                "retile_z_size": {
+                    "type": "integer",
+                    "fa_icon": "far fa-square",
+                    "description": "Block size (in Z dimension) when retiling after stitching. Default: 64",
+                    "help_text": "This must be smaller than the number of Z slices in the data."
+                },
+                "with_fillBackground": {
+                    "type": "boolean",
+                    "fa_icon": "far fa-square",
+                    "description": "Use fillBackground option when running fuse step. Default: true",
+                    "help_text": "Turning this off may help process certain types of data that error otherwise.",
+                    "hidden": true
+                },
+                "stitching_mode": {
+                    "type": "string",
+                    "fa_icon": "fas fa-braille",
+                    "description": "Rematching mode ('full' or 'incremental'). Default: incremental",
+                    "hidden": true
+                },
+                "stitching_padding": {
+                    "type": "string",
+                    "fa_icon": "fas fa-expand",
+                    "description": "Padding for the overlap regions. Default: 0,0,0"
+                },
+                "stitching_blur_sigma": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-border-style",
+                    "description": "Sigma value of the gaussian blur preapplied to the images before stitching. Default: 2"
+                },
+                "workers": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-cogs",
+                    "description": "Number of Spark workers to use for stitching one acquisition. Default: 4"
+                },
+                "worker_cores": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-microchip",
+                    "description": "Number of cores allocated to each Spark worker. Default: 4"
+                },
+                "gb_per_core": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-cog",
+                    "description": "Size of memory (in GB) that is allocated for each core of a Spark worker. Default: 4",
+                    "help_text": "The total memory usage for stitching one acquisition will be workers * worker_cores * gb_per_core. "
+                },
+                "driver_memory": {
+                    "type": "string",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory to allocate for the Spark driver. Default: 15g"
+                },
+                "wait_for_spark_timeout_seconds": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-clock",
+                    "description": "Number of seconds to wait for Spark cluster to start. Default: 3600",
+                    "hidden": true
+                },
+                "sleep_between_timeout_checks_seconds": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-clock",
+                    "description": "Number of seconds to sleep between timeout checks. Default: 2",
+                    "hidden": true
+                },
+                "stitching_app": {
+                    "type": "string",
+                    "fa_icon": "fas fa-file-medical-alt",
+                    "description": "Path to the JAR file containing the stitching application. Default: /app/app.jar",
+                    "hidden": true
+                }
+            },
+            "fa_icon": "far fa-map"
         },
         "shared_work_dir": {
           "type": "string",
@@ -50,11 +175,121 @@
           "hidden": true,
           "help_text": "If `shared_work_dir` is defined, this is automatically set to `$shared_work_dir/outputs`."
         },
-        "publish_dir": {
-          "type": "string",
-          "fa_icon": "fas fa-folder-open",
-          "description": "Optional publishing directory where results should be copied when the pipeline is successfully completed. Typically a Fusion mount path like /fusion/s3/bucket-name.",
-          "help_text": "This is useful for getting data off of FSx and onto something externally accessible like S3."
+        "rs_fish": {
+            "title": "Spot Extraction: RS-FISH",
+            "type": "object",
+            "description": "Options for the RS-FISH spot extraction algorithm",
+            "fa_icon": "fas fa-eye-dropper",
+            "properties": {
+                "use_rsfish": {
+                    "type": "boolean",
+                    "description": "Use RS-FISH instead of AirLocalize for Spot Extraction. Default: false",
+                    "fa_icon": "fas fa-fish"
+                },
+                "rsfish_min": {
+                    "type": "integer",
+                    "description": "Minimal intensity of the image. Default: 0",
+                    "fa_icon": "fas fa-angle-double-down"
+                },
+                "rsfish_max": {
+                    "type": "integer",
+                    "description": "Maximal intensity of the image. Default: 4096",
+                    "fa_icon": "fas fa-angle-double-up"
+                },
+                "rsfish_anisotropy": {
+                    "type": "number",
+                    "description": "The anisotropy factor. Default: 0.7",
+                    "help_text": "Scaling of z relative to xy. Can be determined using the RS-FISH anisotropy plugin in Fiji.",
+                    "fa_icon": "fas fa-arrows-alt"
+                },
+                "rsfish_sigma": {
+                    "type": "number",
+                    "description": "Sigma value for Difference-of-Gaussian (DoG) calculation. Default 1.5",
+                    "fa_icon": "fab fa-etsy"
+                },
+                "rsfish_threshold": {
+                    "type": "number",
+                    "description": "Threshold value for Difference-of-Gaussian (DoG) calculation. Default: 0.007",
+                    "fa_icon": "fas fa-level-down-alt"
+                },
+                "rsfish_background": {
+                    "type": "integer",
+                    "description": "Background subtraction method, 0 == None, 1 == Mean, 2==Median, 3==RANSAC on Mean, 4==RANSAC on Median. Default: 0 (None)",
+                    "fa_icon": "fas fa-level-down-alt"
+                },
+                "rsfish_intensity": {
+                    "type": "integer",
+                    "description": "Intensity calculation method, 0 == Linear Interpolation, 1 == Gaussian fit (on inlier pixels), 2 == Integrate spot intensities (on candidate pixels). Default: 0 (Linear Interpolation)",
+                    "fa_icon": "fas fa-level-down-alt"
+                },
+                "per_channel.rsfish_min": {
+                  "type": "string",
+                  "description": "Comma delimited per channel values for rsfish_min",
+                  "fa_icon": "fas fa-terminal"
+                },
+                "per_channel.rsfish_max": {
+                  "type": "string",
+                  "description": "Comma delimited per channel values for rsfish_max",
+                  "fa_icon": "fas fa-terminal"
+                },
+                "per_channel.rsfish_anisotropy": {
+                  "type": "string",
+                  "description": "Comma delimited per channel values for rsfish_anisotropy",
+                  "fa_icon": "fas fa-terminal"
+                },
+                "per_channel.rsfish_sigma": {
+                  "type": "string",
+                  "description": "Comma delimited per channel values for rsfish_sigma",
+                  "fa_icon": "fas fa-terminal"
+                },
+                "per_channel.rsfish_threshold": {
+                  "type": "string",
+                  "description": "Comma delimited per channel values for rsfish_threshold",
+                  "fa_icon": "fas fa-terminal"
+                },
+                "per_channel.rsfish_background": {
+                  "type": "string",
+                  "description": "Comma delimited per channel values for rsfish_background",
+                  "fa_icon": "fas fa-terminal"
+                },
+                "per_channel.rsfish_intensity": {
+                  "type": "string",
+                  "description": "Comma delimited per channel values for rsfish_intensity",
+                  "fa_icon": "fas fa-terminal"
+                },
+                "rsfish_params": {
+                    "type": "string",
+                    "description": "Any other parameters to pass to the RS-FISH algorithm.",
+                    "help_text": "Complete parameter documentation for RS-FISH is [available here](https://github.com/PreibischLab/RS-FISH-Spark/blob/main/src/main/java/net/preibisch/rsfish/spark/SparkRSFISH.java).",
+                    "fa_icon": "fas fa-terminal"
+                },
+                "rsfish_workers": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-cogs",
+                    "description": "Number of Spark workers to use for RS-FISH spot detection. Default: 4"
+                },
+                "rsfish_worker_cores": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-microchip",
+                    "description": "Number of cores allocated to each RS-FISH Spark worker. Default: 4"
+                },
+                "rsfish_gb_per_core": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-cog",
+                    "description": "Size of memory (in GB) that is allocated for each core of a RS-FISH Spark worker. Default: 4",
+                    "help_text": "The total memory usage for one acquisition will be workers * worker_cores * gb_per_core."
+                },
+                "rsfish_driver_cores": {
+                    "type": "string",
+                    "fa_icon": "fas fa-microchip",
+                    "description": "Number of cores allocated for the RS-FISH Spark driver. Default: 1"
+                },
+                "rsfish_driver_memory": {
+                    "type": "string",
+                    "fa_icon": "fas fa-memory",
+                    "description": "Amount of memory to allocate for the RS-FISH Spark driver. Default: 15g"
+                }
+            }
         },
         "acq_names": {
           "type": "string",

@@ -151,6 +151,8 @@ Options for the RS-FISH spot extraction algorithm
 |`rsfish_anisotropy`|The anisotropy factor. Default: 0.7|Scaling of z relative to xy. Can be determined using the RS-FISH anisotropy plugin in Fiji.|`number`
 |`rsfish_sigma`|Sigma value for Difference-of-Gaussian (DoG) calculation. Default 1.5||`number`
 |`rsfish_threshold`|Threshold value for Difference-of-Gaussian (DoG) calculation. Default: 0.007||`number`
+|`rsfish_background`|Background subtraction method, 0 == None, 1 == Mean, 2==Median, 3==RANSAC on Mean, 4==RANSAC on Median. Default: 0 (None)||`integer`
+|`rsfish_intensity`|Intensity calculation method, 0 == Linear Interpolation, 1 == Gaussian fit (on inlier pixels), 2 == Integrate spot intensities (on candidate pixels). Default: 0 (Linear Interpolation)||`integer`
 |`rsfish_params`|Any other parameters to pass to the RS-FISH algorithm.|Complete parameter documentation for RS-FISH is [available here](https://github.com/PreibischLab/RS-FISH-Spark/blob/main/src/main/java/net/preibisch/rsfish/spark/SparkRSFISH.java).|`string`
 |`rsfish_workers`|Number of Spark workers to use for RS-FISH spot detection. Default: 4||`integer`
 |`rsfish_worker_cores`|Number of cores allocated to each RS-FISH Spark worker. Default: 4||`integer`
@@ -160,7 +162,7 @@ Options for the RS-FISH spot extraction algorithm
 
 ### Per channel RS-FISH Parameters
 
-The following parameters can be set per channel: `rsfish_min`, `rsfish_max`, `rsfish_anisotropy`, `rsfish_sigma`, `rsfish_threshold`. For that simply prefix the corresponding parameter with `--per_channel.` and set the values using a comma delimited list. The values will be associated with the corresponding channel based on their position, i.e. first value will be associated with the first channel, second with the second channel, etc. If a value is missing or empty the parameter value for the channel will be set to the default from the parameter with the same name (presented above).
+The following parameters can be set per channel: `rsfish_min`, `rsfish_max`, `rsfish_anisotropy`, `rsfish_sigma`, `rsfish_threshold`, `rsfish_background`, `rsfish_intensity`. Simply prefix the corresponding parameter with `per_channel.` and set the values using a comma delimited list. The values will be associated with the corresponding channel based on their position, i.e. first value will be associated with the first channel, second with the second channel, etc. If a value is missing or empty the parameter value for the channel will be set to the default from the parameter with the same name (presented above).
 
 For example if the command like is:
 `--channels c0,c1,c2,c3 --sigma 1.7 --per_channel.sigma "1.2,,1.4`
