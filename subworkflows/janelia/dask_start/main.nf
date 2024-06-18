@@ -1,5 +1,5 @@
 process DASK_PREPARE {
-    label 'process_low'
+    label 'process_single'
     container { task.ext.container ?: 'janeliascicomp/dask:2023.10.1-py11-ol9' }
 
     input:
@@ -28,6 +28,7 @@ process DASK_PREPARE {
 }
 
 process DASK_STARTMANAGER {
+    label 'process_long'
     container { task.ext.container ?: 'janeliascicomp/dask:2023.10.1-py11-ol9' }
 
     input:
@@ -67,6 +68,7 @@ process DASK_STARTMANAGER {
 }
 
 process DASK_STARTWORKER {
+    label 'process_long'
     container { task.ext.container ?: 'janeliascicomp/dask:2023.10.1-py11-ol9' }
     cpus { worker_cpus }
     memory "${worker_mem_in_gb} GB"
@@ -122,7 +124,7 @@ process DASK_STARTWORKER {
 }
 
 process DASK_WAITFORMANAGER {
-    label 'process_low'
+    label 'process_single'
     container { task.ext.container ?: 'janeliascicomp/dask:2023.10.1-py11-ol9' }
 
     input:
@@ -163,7 +165,7 @@ process DASK_WAITFORMANAGER {
 }
 
 process DASK_WAITFORWORKERS {
-    label 'process_low'
+    label 'process_single'
     container { task.ext.container ?: 'janeliascicomp/dask:2023.10.1-py11-ol9' }
 
     input:
@@ -250,7 +252,7 @@ workflow DASK_START {
                 r
             }
         }
- 
+
         // start dask workers
         DASK_STARTWORKER(dask_workers_input, // meta, cluster_work_dir, scheduler_address, worker_id, data
                          dask_worker_cpus,   // cpus
