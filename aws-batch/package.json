@@ -6,6 +6,6 @@
     "sls": "sls"
   },
   "devDependencies": {
-    "serverless": "^3.8.0"
+    "serverless": "^4.1.5"
   }
 }
