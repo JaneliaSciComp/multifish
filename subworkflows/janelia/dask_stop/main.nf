@@ -1,6 +1,6 @@
 process DASK_TERMINATE {
     label 'process_single'
-    container { task.ext.container ?: 'janeliascicomp/dask:2023.10.1-py11-ol9' }
+    container { task.ext.container ?: 'ghcr.io/janeliascicomp/dask:2024.4.1-py11-ol9' }
 
     input:
     tuple val(meta), path(cluster_work_dir, stageAs: 'dask_work/*')

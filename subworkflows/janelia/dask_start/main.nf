@@ -1,6 +1,6 @@
 process DASK_PREPARE {
     label 'process_single'
-    container { task.ext.container ?: 'janeliascicomp/dask:2023.10.1-py11-ol9' }
+    container { task.ext.container ?: 'ghcr.io/janeliascicomp/dask:2024.4.1-py11-ol9' }
 
     input:
     tuple val(meta), path(data, stageAs: '?/*')
@@ -29,10 +29,12 @@ process DASK_PREPARE {
 
 process DASK_STARTMANAGER {
     label 'process_long'
-    container { task.ext.container ?: 'janeliascicomp/dask:2023.10.1-py11-ol9' }
+    container { task.ext.container ?: 'ghcr.io/janeliascicomp/dask:2024.4.1-py11-ol9' }
 
     input:
-    tuple val(meta), path(cluster_work_dir, stageAs: 'dask_work/*'), path(data, stageAs: '?/*')
+    tuple val(meta),
+          path(cluster_work_dir, stageAs: 'dask_work/*'),
+          path(data, stageAs: '?/*')
 
     output:
     tuple val(meta), env(cluster_work_fullpath), emit: cluster_info
@@ -52,6 +54,9 @@ process DASK_STARTMANAGER {
     """
     cluster_work_fullpath=\$(readlink ${cluster_work_dir})
 
+    echo "Scheduler's environment"
+    env
+
     /opt/scripts/daskscripts/startmanager.sh \
         --container-engine ${container_engine} \
         --pid-file ${dask_scheduler_pid_file} \
@@ -69,7 +74,7 @@ process DASK_STARTMANAGER {
 
 process DASK_STARTWORKER {
     label 'process_long'
-    container { task.ext.container ?: 'janeliascicomp/dask:2023.10.1-py11-ol9' }
+    container { task.ext.container ?: 'ghcr.io/janeliascicomp/dask:2024.4.1-py11-ol9' }
     cpus { worker_cpus }
     memory "${worker_mem_in_gb} GB"
 
@@ -106,6 +111,9 @@ process DASK_STARTWORKER {
     """
     cluster_work_fullpath=\$(readlink ${cluster_work_dir})
 
+    echo "Worker's environment"
+    env
+
     /opt/scripts/daskscripts/startworker.sh \
         --container-engine ${container_engine} \
         --name ${dask_worker_name} \
@@ -125,7 +133,7 @@ process DASK_STARTWORKER {
 
 process DASK_WAITFORMANAGER {
     label 'process_single'
-    container { task.ext.container ?: 'janeliascicomp/dask:2023.10.1-py11-ol9' }
+    container { task.ext.container ?: 'ghcr.io/janeliascicomp/dask:2024.4.1-py11-ol9' }
 
     input:
     tuple val(meta), path(cluster_work_dir, stageAs: 'dask_work/*')
@@ -166,7 +174,7 @@ process DASK_WAITFORMANAGER {
 
 process DASK_WAITFORWORKERS {
     label 'process_single'
-    container { task.ext.container ?: 'janeliascicomp/dask:2023.10.1-py11-ol9' }
+    container { task.ext.container ?: 'ghcr.io/janeliascicomp/dask:2024.4.1-py11-ol9' }
 
     input:
     tuple val(meta),

@@ -6,7 +6,7 @@ include { DASK_STOP             } from '../dask_stop/main'
 
 process PREPARE_BIGSTREAM_DIRS {
     label 'process_low'
-    container { task.ext.container ?: 'janeliascicomp/bigstream:1.3.0-dask2024.4.1-py11' }
+    container { task.ext.container ?: 'ghcr.io/janeliascicomp/bigstream:1.3.2-dask2024.4.1-py11' }
 
     input:
     tuple val(meta), path(data_paths, stageAs: '?/*')
