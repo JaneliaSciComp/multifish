@@ -14,6 +14,7 @@ workflow segmentation {
     dapi_channel
     scale
     model_dir
+    skip
 
     main:
     if (params.use_cellpose) {
@@ -23,6 +24,7 @@ workflow segmentation {
             output_dirs,
             dapi_channel,
             scale,
+            skip
         )
     } else {
         done = STARFINITY_SEGMENTATION(

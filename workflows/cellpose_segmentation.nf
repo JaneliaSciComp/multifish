@@ -11,6 +11,34 @@ workflow SEGMENTATION {
     output_dirs
     dapi_channel
     scale
+    skip
+
+    main:
+    if (!skip) {
+        segmentation_results = RUN_SEGMENTATION(
+            input_dirs,
+            acqs,
+            output_dirs,
+            dapi_channel,
+            scale,
+        )
+        segmentation_results.subscribe { log.info "Segmentation results: $it" }
+    } else {
+        segmentation_results = Channel.of()
+    }
+
+    emit:
+    segmentation_results
+
+}
+
+workflow RUN_SEGMENTATION {
+    take:
+    input_dirs
+    acqs
+    output_dirs
+    dapi_channel
+    scale
 
     main:
     def dask_cluster_meta = [id: 'cellpose_dask_cluster']
