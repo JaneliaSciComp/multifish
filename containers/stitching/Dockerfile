@@ -10,7 +10,7 @@ WORKDIR /tmp/app
 RUN git clone --branch ${STITCHING_SPARK_GIT_TAG} --depth 1 https://github.com/JaneliaSciComp/stitching-spark.git . \
     && git submodule update --init --recursive \
     && /usr/local/bin/buildinfo.sh \
-    && mvn package
+    && mvn package -DskipTests
 
 # Find the built jar, based on the version in the pom file
 RUN xq -r '.project.artifactId+"-"+.project.version+".jar"' pom.xml > filename \
