@@ -53,12 +53,6 @@ workflow registration {
                 "${output}/warped", '',
             ]
         }
-        def bigstream_dask_work_dir = params.bigstream_dask_work_dir instanceof String && params.bigstream_dask_work_dir
-            ? file(params.bigstream_dask_work_dir)
-            : ''
-        def bigstream_dask_config = params.bigstream_dask_config instanceof String && params.bigstream_dask_config
-            ? file(params.bigstream_dask_config)
-            : ''
         // registration input
         def ri =  [
             meta,
@@ -69,11 +63,13 @@ workflow registration {
             "${reg_ch}/${affine_scale}", // global_moving_subpath
             '', '', // global_fixed_mask, global_fixed_mask_dataset
             '', '', // global_moving_mask, global_fixed_moving_dataset
+
             params.bigstream_global_steps,
-            output, // global_transform_dir
-            'aff/ransac_affine.mat', // global_transform_name
-            output, // global_align_dir
-            'aff/ransac_affine', '',    // global_aligned_name, global_alignment_subpath
+
+            "${output}/aff", // global_transform_dir
+            'ransac_affine.mat', // global_transform_name
+            "${output}/aff", // global_align_dir
+            'ransac_affine', '',    // global_aligned_name, global_alignment_subpath
 
             fixed, // local_fixed
             "${reg_ch}/${deformation_scale}", // local_fixed_subpath
@@ -81,30 +77,40 @@ workflow registration {
             "${reg_ch}/${deformation_scale}", // local_moving_subpath
             '', '', // local_fixed_mask, local_fixed_mask_dataset
             '', '', // local_moving_mask, local_fixed_moving_dataset
+
             params.bigstream_local_steps,
+
             output, // local_transform_dir
             "transform",  // local_transform_name
             "${deformation_scale}", // local_transform_dataset
             "invtransform", // local_inv_transform_name
             "${deformation_scale}", // local_inv_transform_dataset
+
             output, // local_align_dir
             '', '', // local_align_name, local_align_subpath (skip local warping because we do it for all channels as additional deform)
+
             additional_deforms,
-            params.bigstream_with_dask_cluster,
-            bigstream_dask_work_dir,
-            bigstream_dask_config,
-            params.bigstream_local_align_workers,
-            params.bigstream_local_align_min_workers,
-            params.bigstream_local_align_worker_cpus,
-            params.bigstream_local_align_worker_mem_gb,
         ]
         log.debug "Prepared bigstream inputs: ${ri}"
         ri
     }
+    def bigstream_dask_work_dir = params.bigstream_dask_work_dir instanceof String && params.bigstream_dask_work_dir
+        ? file(params.bigstream_dask_work_dir)
+        : ''
+    def bigstream_dask_config = params.bigstream_dask_config instanceof String && params.bigstream_dask_config
+        ? file(params.bigstream_dask_config)
+        : ''
 
     def bigstream_results = BIGSTREAM_REGISTRATION(
         bigstream_input,
         params.bigstream_config ? file(params.bigstream_config): '',
+        params.bigstream_with_dask_cluster,
+        bigstream_dask_work_dir,
+        bigstream_dask_config,
+        params.bigstream_local_align_workers,
+        params.bigstream_local_align_min_workers,
+        params.bigstream_local_align_worker_cpus,
+        params.bigstream_local_align_worker_mem_gb,
         params.bigstream_global_align_cpus,
         params.bigstream_global_align_mem_gb,
         params.bigstream_local_align_cpus,
@@ -117,18 +123,19 @@ workflow registration {
             meta,
             local_fixed, local_fixed_subpath,
             local_moving, local_moving_subpath,
-            global_output, global_transform_name,
-            local_output,
+            global_transform,
+            local_transform_dir,
             local_transform_name, local_transform_subpath,
             local_inv_transform_name, local_inv_transform_subpath,
-            local_aligned_name
+            local_align_dir,
+            local_aligned_name, local_align_subpath
         ) = it
         def r = [
             local_fixed, local_fixed_subpath,
             local_moving, local_moving_subpath,
-            "${local_output}/${local_transform_name}", // dir transform
-            "${local_output}/${local_inv_transform_name}", // dir inv transform
-            "${local_output}/warped", // output
+            "${local_transform_dir}/${local_transform_name}", // dir transform
+            "${local_transform_dir}/${local_inv_transform_name}", // dir inv transform
+            "${local_align_dir}/${local_aligned_name}", // output
         ]
         log.debug "Bigstream results $it -> $r"
         r
