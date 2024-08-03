@@ -22,7 +22,7 @@ def default_mf_params() {
         // stitching params
         spark_container_repo: multifish_container_repo,
         spark_container_name: 'stitching',
-        spark_container_version: '1.1.0',
+        spark_container_version: '1.2.0',
         stitching_app: '/app/app.jar',
         stitching_output: 'stitching',
         resolution: '0.23,0.23,0.42',
