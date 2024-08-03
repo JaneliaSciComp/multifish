@@ -155,6 +155,16 @@
                     "fa_icon": "fas fa-cube",
                     "description": "Apply flatfield correction before stitching? Default: true"
                 },
+                "darkfield_file": {
+                    "type": "string",
+                    "fa_icon": "fas fa-file-image",
+                    "description": "file containing darfield to be used for flatfield correction"
+                },
+                "flatfield_file": {
+                    "type": "string",
+                    "fa_icon": "fas fa-file-image",
+                    "description": "file containing flatfield to be used for flatfield correction"
+                },
                 "retile_z_size": {
                     "type": "integer",
                     "fa_icon": "far fa-square",

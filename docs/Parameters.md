@@ -53,6 +53,8 @@ Stitching options
 |`axis`|Axis mapping for the objective->pixel coordinates conversion. Default: -x,y,z|Comma-separated axis specification with optional flips.|`string`
 |`stitching_block_size`|Block size to use when converting CZI to n5 before stitching. Default: 128,128,64||`string`
 |`flatfield_correction`|Apply flatfield correction before stitching? Default: true||`boolean`
+|`flatfield_file`| Flatfield file used for flatfield correction.||`sttring`
+|`darkfield_file`| Darkfield file used for flatfield correction.||`sttring`
 |`retile_z_size`|Block size (in Z dimension) when retiling after stitching. Default: 64|This must be smaller than the number of Z slices in the data.|`integer`
 |`with_fillBackground`|Use fillBackground option when running fuse step. Default: true|Turning this off may help process certain types of data that error otherwise.|`boolean`
 |`stitching_mode`|Rematching mode ('full' or 'incremental'). Default: incremental||`string`
