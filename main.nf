@@ -160,8 +160,9 @@ bleedthrough_channels = final_params.bleed_channel?.split(',')
 spot_channels = channels - [final_params.dapi_channel]
 log.debug  "Channels for spot detection: ${spot_channels}"
 
+def skip_segmentation = steps_to_skip.contains('segmentation')
 // if segmentation is not desired do not set segmentation_acq_name or ref_acq in the command line
-if (steps_to_skip.contains('segmentation')) {
+if (skip_segmentation) {
     segmentation_acq_names = []
 } else {
     def segmentation_acq_name = get_value_or_default(final_params, 'segmentation_acq_name', ref_acq)
@@ -317,7 +318,7 @@ workflow {
         final_params.dapi_channel,
         final_params.segmentation_scale,
         final_params.segmentation_model_dir,
-        steps_to_skip.contains('segmentation'),
+        skip_segmentation,
     )  // [ input_image_path, output_labels_tiff ]
     segmentation_results.subscribe { log.debug "Segmentation results: $it" }
 
