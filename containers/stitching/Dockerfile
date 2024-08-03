@@ -3,11 +3,11 @@
 
 # Staged build using builder container
 FROM janeliascicomp/builder:1.2.1 as builder
-ARG STITCHING_SPARK_GIT_TAG=master
+ARG STITCHING_SPARK_GIT_TAG=1.11.0-rc2
 
 # Checkout and build the code
 WORKDIR /tmp/app
-RUN git clone --branch $STITCHING_SPARK_GIT_TAG --depth 1 https://github.com/saalfeldlab/stitching-spark.git . \
+RUN git clone --branch ${STITCHING_SPARK_GIT_TAG} --depth 1 https://github.com/JaneliaSciComp/stitching-spark.git . \
     && git submodule update --init --recursive \
     && /usr/local/bin/buildinfo.sh \
     && mvn package
