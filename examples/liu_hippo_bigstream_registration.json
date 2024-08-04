@@ -3,7 +3,7 @@
     "bigstream_mov_name": "t15",
 
     "bigstream_global_steps": "",
-    "bigstream_global_use_existing_affine_if_found": false,
+    "reuse_global_affine": false,
 
     "bigstream_global_fix": "/nrs/liu/Hippo_rawtiff/DAPI_s2/padded/stitch_t15_c3_s2_padded.tiff",
     "bigstream_global_fix_subpath": "",

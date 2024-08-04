@@ -3,7 +3,7 @@
     "bigstream_mov_name": "r2",
 
     "bigstream_global_steps": "affine",
-    "bigstream_global_use_existing_affine_if_found": false,
+    "reuse_global_affine": false,
     "bigstream_dask_config": "configs/dask_config.yml",
 
     "bigstream_global_fix": "/nrs/scicompsoft/rokicki/flyefish/output/G1_B1_F_R1_Gpb5_488_Eh_546_CCAP_669_1x/stitching/export.n5",

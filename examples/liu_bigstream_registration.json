@@ -3,7 +3,7 @@
     "bigstream_mov_name": "dataset-t1",
 
     "bigstream_global_steps": "ransac,affine",
-    "bigstream_global_use_existing_affine_if_found": true,
+    "reuse_global_affine": true,
 
     "bigstream_global_fix": "/nrs/liu/Jun/output_val_onetile_set2_1/easi/dataset-t0/stitching/export.n5",
     "bigstream_global_fix_subpath": "c3/s3",
