@@ -23,3 +23,17 @@ def pretty(list) {
     def slist = list.withIndex().collect {it,index -> return "  $index - $it"}.join("\n")
     return "[\n${slist}\n]"
 }
+
+/**
+ * Find common parent path
+ */
+def parent_path(paths) {
+    def path_parts = paths.collect { it.split('/') }
+    path_parts.transpose().inject([match:true, common_parts:[]]) { aggregator, part ->
+        aggregator.match = aggregator.match && part.every { it == part [0] }
+        if (aggregator.match) {
+            aggregator.common_parts << part[0]
+        }
+        aggregator
+    }.common_parts.join('/')
+}

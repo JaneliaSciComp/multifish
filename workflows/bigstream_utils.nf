@@ -11,11 +11,9 @@ def get_bigstream_params(Map ps) {
 
 def bigstream_params() {
     return [
-        bigstream_global_steps: 'ransac',
-        bigstream_local_steps: 'ransac',
-        with_dask_cluster: true,
+        bigstream_global_steps: 'ransac,affine',
+        bigstream_local_steps: 'ransac,affine,deform',
         bigstream_dask_work_dir: file('work/dask'),
-        bigstream_dask_config: '',
         bigstream_with_dask_cluster : true,
         bigstream_workers : 2,
         bigstream_min_workers : 1,
