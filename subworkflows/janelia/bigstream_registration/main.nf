@@ -9,10 +9,10 @@ process PREPARE_BIGSTREAM_DIRS {
     container { task.ext.container ?: 'ghcr.io/janeliascicomp/bigstream:1.3.2-dask2024.4.1-py11' }
 
     input:
-    tuple val(meta), val(data_paths)
+    tuple val(meta), path(data_parent), val(data_paths)
 
     output:
-    tuple val(meta), path(data_paths)
+    val(meta)
 
     script:
     def data_dirs = data_paths.join(' ')
@@ -91,19 +91,29 @@ workflow BIGSTREAM_REGISTRATION {
             ) = it // there's a lot more in the input but we only look at what we are interested here
         def data_outputs = []
         if (global_transform_output) {
-            data_outputs << (global_transform_output as String)
+            data_outputs << (file(global_transform_output) as String)
         }
         if (global_align_output) {
-            data_outputs << (global_align_output as String)
+            data_outputs << (file(global_align_output) as String)
         }
         if (local_transform_output) {
-            data_outputs << (local_transform_output as String)
+            data_outputs << (file(local_transform_output) as String)
         }
         if (local_align_output) {
-            data_outputs << (local_align_output as String)
+            data_outputs << (file(local_align_output) as String)
         }
+        def data_inputs_and_outputs = [
+            global_fix ? file(global_fix) : [],
+            global_mov ? file(global_mov) : [],
+            local_fix ? file(local_fix) : [],
+            local_mov ? file(local_mov) : [],
+        ].flatten() + data_outputs
+
+        def common_inputs_and_outputs_parent = parent_path(data_inputs_and_outputs)
+
         def r = [
             meta,
+            common_inputs_and_outputs_parent,
             data_outputs,
         ]
         log.debug "Output bigstream dirs: $it -> $r"
@@ -112,7 +122,6 @@ workflow BIGSTREAM_REGISTRATION {
     | PREPARE_BIGSTREAM_DIRS
 
     def global_align_input = bigstream_output_dirs
-    | map { it[0] }
     | join(registration_input, by:0)
     | map {
         def (meta,
@@ -417,6 +426,9 @@ workflow BIGSTREAM_REGISTRATION {
     cluster
 }
 
+/**
+ * return value as value channel
+ */
 def as_value_channel(v) {
     if (!v.toString().contains("Dataflow")) {
         Channel.value(v)
@@ -427,4 +439,18 @@ def as_value_channel(v) {
         // this is a value channel
         v
     }
+}
+
+/**
+ * Find common parent path
+ */
+def parent_path(paths) {
+    def path_parts = paths.collect { (it as String).split('/') }
+    path_parts.transpose().inject([match:true, common_parts:[]]) { aggregator, part ->
+        aggregator.match = aggregator.match && part.every { it == part [0] }
+        if (aggregator.match) {
+            aggregator.common_parts << part[0]
+        }
+        aggregator
+    }.common_parts.join('/')
 }
