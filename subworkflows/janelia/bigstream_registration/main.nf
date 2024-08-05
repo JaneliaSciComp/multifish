@@ -12,7 +12,7 @@ process PREPARE_BIGSTREAM_DIRS {
     tuple val(meta), path(data_paths, stageAs: '?/*')
 
     output:
-    val(meta), path(data_paths)
+    tuple val(meta), path(data_paths)
 
     script:
     def data_dirs = data_paths.join(' ')
