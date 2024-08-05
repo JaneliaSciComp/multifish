@@ -9,7 +9,7 @@ process PREPARE_BIGSTREAM_DIRS {
     container { task.ext.container ?: 'ghcr.io/janeliascicomp/bigstream:1.3.2-dask2024.4.1-py11' }
 
     input:
-    tuple val(meta), path(data_paths, stageAs: '?/*')
+    tuple val(meta), val(data_paths)
 
     output:
     tuple val(meta), path(data_paths)
