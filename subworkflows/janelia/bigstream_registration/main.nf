@@ -12,7 +12,7 @@ process PREPARE_BIGSTREAM_DIRS {
     tuple val(meta), path(data_paths, stageAs: '?/*')
 
     output:
-    val(meta)
+    val(meta), path(data_paths)
 
     script:
     def data_dirs = data_paths.join(' ')
@@ -112,6 +112,7 @@ workflow BIGSTREAM_REGISTRATION {
     | PREPARE_BIGSTREAM_DIRS
 
     def global_align_input = bigstream_output_dirs
+    | map { it[0] }
     | join(registration_input, by:0)
     | map {
         def (meta,
