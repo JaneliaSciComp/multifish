@@ -105,9 +105,20 @@ Options for the registration algorithm (Bigstream)
 |`registration_stitch_memory`|Amount of memory for Stitch step of registration. Default: 20 G||`string`
 |`registration_transform_cpus`|Number of CPU cores for final Transform step of registration. Default: 12||`integer`
 |`registration_transform_memory`|Amount of memory for final Transform step of registration. Default: 80 G||`string`
+|`use_bigstream`|Use bigstream2 for registration|The workflow will run DASK based bigstream for the registration.|`boolean`
+
+## Bigstream Registration
+
+Bigstream registration allows you to run one or multiple algorithms in order to perform the registration of a moving round to a fixed round. The algorithm can be applied initially to the entire volume, at the `aff_scale`, in order to find a rough alignment, which then can be refined by applying the same or more finely grained algorithms on a per block basis at the `def_scale`. The current supported algorithms are: `ransac`, `affine`, `deform` and the parameters for these can be defined in a yaml file like [bigstream_config.yaml](../configs/bigstream_config.yml). Bigstream registration, distributes the work using a DASK cluster started as a Nextflow subworkflow. We currently provide parameters that allow you to configure both the size `bigstream_workers` and the resources (cpu: `bigstream_worker_cpus`, memory: `bigstream_worker_mem_gb`) allocated to the DASK cluster.
+
+|Parameter|Description|Help Text|Type
+|-----------|-----------|-----------|-----------
+|`bigstream_global_steps`| Global registration algorithms |Comma separated list of algorithms to be applied to the entire volume. Default: 'ransac,affine'|`string`
+|`bigstream_local_steps`| Local registration algorithms |Comma separated list of algorithms to be applied to each volume block. Default: 'ransac,affine,deform'|`string`
+|`bigstream_workers`|Size of the DASK Bigstream cluster.| Number of DASK workers used to perform the block by block local alignment| `integer`
+
 
 ## Cell Segmentation
-
 Options for the cell segmentation algorithm (Starfinity)
 
 |Parameter|Description|Help Text|Type
@@ -116,6 +127,8 @@ Options for the cell segmentation algorithm (Starfinity)
 |`segmentation_scale`|Imagery scale to use for segmentation. Default: s2||`string`
 |`segmentation_cpus`|Number of CPU cores for segmentation. Default: 3||`integer`
 |`segmentation_memory`|Amount of memory for segmentation. Default: 45 G||`string`
+|`use_cellpose`|Use cellpose for segmentation|The workflow will run Cellpose distributed on a DASK cluster to perform the segmentation, instead of Starfinity|`boolean`
+
 
 ## Spot Extraction
 
