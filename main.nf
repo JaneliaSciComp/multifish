@@ -563,7 +563,7 @@ workflow {
         )
         [
             "${acq_stitching_output_dir}/export.n5",
-            "${acq_segmentation_output_dir}/${acq_name}-${final_params.dapi_channel}.tif"
+            "${acq_segmentation_output_dir}/${acq_name}-${final_params.def_scale}-${final_params.dapi_channel}.tif"
         ]
     }
 
