@@ -17,8 +17,8 @@ The purpose of this pipeline is to analyze imagery for spatial transcriptomics c
 The pipeline includes the following modules:
 
 * **stitching** - Spark-based distributed stitching pipeline
-* **spot_extraction** - Spot detection using Airlocalize or RS-FISH
-* **segmentation** - Cell segmentation using Starfinity
+* **spot_extraction** - Spot detection using Airlocalize (default) or RS-FISH
+* **segmentation** - Cell segmentation using Starfinity (default) or Cellpose
 * **registration** - Round registration using the Bigstream distributed pipeline
 * **warp_spots** - Warp detected spots to the round registration
 * **measure_intensities** - Intensity measurement

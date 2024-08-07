@@ -109,13 +109,25 @@ Options for the registration algorithm (Bigstream)
 
 ## Bigstream Registration
 
-Bigstream registration allows you to run one or multiple algorithms in order to perform the registration of a moving round to a fixed round. The algorithm can be applied initially to the entire volume, at the `aff_scale`, in order to find a rough alignment, which then can be refined by applying the same or more finely grained algorithms on a per block basis at the `def_scale`. The current supported algorithms are: `ransac`, `affine`, `deform` and the parameters for these can be defined in a yaml file like [bigstream_config.yaml](../configs/bigstream_config.yml). Bigstream registration, distributes the work using a DASK cluster started as a Nextflow subworkflow. We currently provide parameters that allow you to configure both the size `bigstream_workers` and the resources (cpu: `bigstream_worker_cpus`, memory: `bigstream_worker_mem_gb`) allocated to the DASK cluster.
+Options for Bigstream registration
 
 |Parameter|Description|Help Text|Type
 |-----------|-----------|-----------|-----------
+|`bigstream_with_dask`|Distribute bigstream on a DASK cluster|The workflow will create a DASK and dispatch bigstream tasks to this cluster.|`boolean`
 |`bigstream_global_steps`| Global registration algorithms |Comma separated list of algorithms to be applied to the entire volume. Default: 'ransac,affine'|`string`
 |`bigstream_local_steps`| Local registration algorithms |Comma separated list of algorithms to be applied to each volume block. Default: 'ransac,affine,deform'|`string`
+|`reuse_global_affine`| Reuse global transformation | If the flag is true and the global transformation matrix is available then the global transformation will not be recomputed. Default: true | `boolean`
 |`bigstream_workers`|Size of the DASK Bigstream cluster.| Number of DASK workers used to perform the block by block local alignment| `integer`
+|`bigstream_config`| Bigstream configuration | Various parameters for registration algorithms provided by Bigstream. Default: ${projectDir}/configs/bigstream_config.yml | `string`
+|`bigstream_global_align_cpus`| Number of CPUs needed for global alignment || `integer`
+|`bigstream_global_align_mem_gb`| Memory (in GB) needed for global alignment || `integer`
+|`bigstream_local_align_cpus`| Number of CPUs needed for the main local alignment program || `integer`
+|`bigstream_local_align_mem_gb`| Memory (in GB) needed for the main local alignment program || `integer`
+|`bigstream_local_align_worker_cpus` | Number of CPUs needed for Bigstream DASK workers ||`integer`
+|`bigstream_local_align_worker_mem_gb` | Memory (in GB) needed for Bigstream DASK workers ||`integer`
+|`bigstream_inv_iterations`| Number of iterations for generating the inverse transformation. Default: 5 ||`integer`
+|`bigstream_inv_order`| Parameter for generating the inverse transformation. Default: 2 ||`integer`
+|`bigstream_inv_sqrt_iterations`| Parameter for generating the inverse transformation. Default: 5 ||`integer`
 
 
 ## Cell Segmentation

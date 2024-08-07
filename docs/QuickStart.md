@@ -64,7 +64,3 @@ And a `demo_medium.sh` with that requires 209 GB in total:
     65G     /opt/demo_medium/inputs
     145G    /opt/demo_medium/outputs
     665M    /opt/demo_medium/spark
-
-## Algorithms
-
-The current implementation provides, for certain steps, multiple algorithms that can be used. For example for spot extraction you have the option to use Airlocalize or RS_FISH. For registration you can use the legacy version that only supports ransac and deform or a newer DASK based implementation that gives you a lot more flexibility in the choice of registration algorithms. For segmentation you also have two options: starfinity or cellpose. Cellpose also uses a DASK cluster to divide and perform the work.
