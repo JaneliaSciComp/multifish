@@ -318,7 +318,9 @@ workflow stitch {
             def retiled_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', "-n5${retile_suffix}", '.json')
             def correction_args = entries_inputs_args(stitching_dir, channels, '--correction-images-paths', '-n5', '.json')
             def ref_channel_arg = registration_channel ? "-r ${registration_channel}" : ''
-            return "--stitch ${ref_channel_arg} ${retiled_n5_channels_args} ${correction_args} --mode '${stitching_mode}' --padding '${stitching_padding}' --blurSigma ${stitching_blur_sigma}"
+            def darkfield_file_arg = params.darkfield_file && params.flatfield_file ? "--darkfield-file ${file(params.darkfield_file)}" : ''
+            def flatfield_file_arg = params.darkfield_file && params.flatfield_file  ? "--flatfield-file ${file(params.flatfield_file)}" : ''
+            return "--stitch ${ref_channel_arg} ${retiled_n5_channels_args} ${correction_args} --mode '${stitching_mode}' --padding '${stitching_padding}' --blurSigma ${stitching_blur_sigma} ${darkfield_file_arg} ${flatfield_file_arg}"
         }
     )
     def stitching_done = run_stitching(
@@ -348,8 +350,10 @@ workflow stitch {
         { acq_name, stitching_dir ->
             def stitched_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', "-n5${retile_suffix}-final", '.json')
             def correction_args = entries_inputs_args(stitching_dir, channels, '--correction-images-paths', '-n5', '.json')
-            def fillBackgroundArg = params.with_fillBackground ? '--fill' : ''
-            return "--fuse ${stitched_n5_channels_args} ${correction_args} --blending ${fillBackgroundArg}"
+            def fill_background_arg = params.with_fillBackground ? '--fill' : ''
+            def darkfield_file_arg = params.darkfield_file && params.flatfield_file ? "--darkfield-file ${params.darkfield_file}" : ''
+            def flatfield_file_arg = params.darkfield_file && params.flatfield_file  ? "--flatfield-file ${params.flatfield_file}" : ''
+            return "--fuse ${stitched_n5_channels_args} ${correction_args} --blending ${fill_background_arg} ${darkfield_file_arg} ${flatfield_file_arg}"
         }
     )
     def fuse_done = run_fuse(
