@@ -51,8 +51,6 @@ def default_mf_params() {
         sleep_between_timeout_checks_seconds: 10,
 
         dapi_channel: 'c2', // DAPI channel used to drive both the segmentation and the registration
-        ref_acq: '', // this is the default parameter for the fixed round and 
-                     // should be used only when all steps that require a fixed round must be done
         bleed_channel: 'c3',
 
         // spot extraction params
