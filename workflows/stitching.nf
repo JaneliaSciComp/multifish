@@ -281,7 +281,9 @@ workflow stitch {
             indexed_acq_data,
             { acq_name, stitching_dir ->
                 def retile_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5', '.json')
-                return "${retile_args} --size ${retile_z_size}"
+                def darkfield_file_arg = params.darkfield_file && params.flatfield_file ? "--darkfield-file ${file(params.darkfield_file)}" : ''
+                def flatfield_file_arg = params.darkfield_file && params.flatfield_file  ? "--flatfield-file ${file(params.flatfield_file)}" : ''
+                return "${retile_args} --size ${retile_z_size} ${darkfield_file_arg} ${flatfield_file_arg}"
             }
         )
         retile_suffix = '-retiled'
