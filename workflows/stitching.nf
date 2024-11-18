@@ -281,9 +281,7 @@ workflow stitch {
             indexed_acq_data,
             { acq_name, stitching_dir ->
                 def retile_args = entries_inputs_args(stitching_dir, channels, '-i', '-n5', '.json')
-                def darkfield_file_arg = params.darkfield_file && params.flatfield_file ? "--darkfield-file ${file(params.darkfield_file)}" : ''
-                def flatfield_file_arg = params.darkfield_file && params.flatfield_file  ? "--flatfield-file ${file(params.flatfield_file)}" : ''
-                return "${retile_args} --size ${retile_z_size} ${darkfield_file_arg} ${flatfield_file_arg}"
+                return "${retile_args} --size ${retile_z_size}"
             }
         )
         retile_suffix = '-retiled'
@@ -353,9 +351,7 @@ workflow stitch {
             def stitched_n5_channels_args = entries_inputs_args(stitching_dir, channels, '-i', "-n5${retile_suffix}-final", '.json')
             def correction_args = entries_inputs_args(stitching_dir, channels, '--correction-images-paths', '-n5', '.json')
             def fill_background_arg = params.with_fillBackground ? '--fill' : ''
-            def darkfield_file_arg = params.darkfield_file && params.flatfield_file ? "--darkfield-file ${params.darkfield_file}" : ''
-            def flatfield_file_arg = params.darkfield_file && params.flatfield_file  ? "--flatfield-file ${params.flatfield_file}" : ''
-            return "--fuse ${stitched_n5_channels_args} ${correction_args} --blending ${fill_background_arg} ${darkfield_file_arg} ${flatfield_file_arg}"
+            return "--fuse ${stitched_n5_channels_args} ${correction_args} --blending ${fill_background_arg}"
         }
     )
     def fuse_done = run_fuse(
